@@ -14,6 +14,7 @@ require.config( {
   deps: [ 'main', 'DOT/main' ],
 
   paths: {
+    underscore: '../contrib/lodash.min-1.0.0-rc.3',
     KITE: '.',
     DOT: '../common/dot/js',
     ASSERT: '../common/assert/js'

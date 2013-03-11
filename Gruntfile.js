@@ -61,7 +61,7 @@ module.exports = function( grunt ) {
     
     jshint: {
       all: [
-        'Gruntfile.js', 'js/**/*.js', 'common/assert/js/**/*.js'
+        'Gruntfile.js', 'js/**/*.js', 'common/dot/js/**/*.js', 'common/assert/js/**/*.js'
       ],
       // adjust with options from http://www.jshint.com/docs/
       options: {
@@ -90,6 +90,8 @@ module.exports = function( grunt ) {
           // for require.js
           define: true,
           require: true,
+          
+          _: false,
           
           Uint16Array: false,
           Uint32Array: false,
