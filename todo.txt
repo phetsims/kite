@@ -1,1 +1,20 @@
 
+Testing:
+  Create a simple way to do the comparisons that we already have in Scenery's tests
+
+Shapes:
+  Finiteness checks a la WebKit?
+  Investigate shear / scale effects on stroking -- important for bounds
+  Quadratic curve offsets need implementation improvement (32 sub-quadratics is too costly)
+    Consider a more abstract segment like QuadraticOffset, CubicOffset, EllipticalArcOffset.
+      Transforming + offsets are easy
+      Can discretize later
+  Precise intersection with bounding box (not just intersection of bounds)
+  Nonzero/evenodd support (not yet implemented in browsers)
+  Region support:
+    Break into regions that can test for nonzero/evenodd, then combine adjacent ones so we can have efficient segments without the 'stroked region' overlap
+    Fixes self-intersection in 'stroked' path
+    Allows Constructive Solid Geometry
+  WebGL support? Probably just export a discretization with vertices. Region handling is important for this.
+  Function for higher-performance possibly-expanded bounds for redraw?
+  Consider bounding box handling for an arbitrary transform, for use with Node's isInGlobalBounds( globalBounds, currentTransform ).
