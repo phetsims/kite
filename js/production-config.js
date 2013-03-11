@@ -1,0 +1,27 @@
+
+if ( window.has ) {
+  window.has.add( 'assert.kite', function( global, document, anElement ) {
+    return false;
+  } );
+  window.has.add( 'assert.kite.extra', function( global, document, anElement ) {
+    return false;
+  } );
+}
+
+window.loadedKiteConfig = true;
+
+require.config( {
+  deps: [ 'main', 'DOT/main' ],
+
+  paths: {
+    KITE: '.',
+    DOT: '../common/dot/js',
+    ASSERT: '../common/assert/js'
+  },
+  
+  shim: {
+    underscore: { exports: '_' }
+  },
+
+  urlArgs: new Date().getTime() // add cache buster query string to make browser refresh actually reload everything
+} );
