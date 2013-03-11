@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  
+  <title>Unit tests for Kite</title>
+  
+  <link rel="stylesheet" href="../../contrib/qunit-1.10.0.css">
+  
+  <!-- CDN reference for now, so we don't pull in unneeded deps -->
+  <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <script src="../../contrib/lodash.min-1.0.0-rc.3.js"></script>
+  <script src="../../contrib/has.js"></script>
+  <script src="../../contrib/qunit-1.10.0.js"></script>
+  
+  <script data-main="../../js/config.js" src="../../contrib/require-2.1.4.js"></script>
+  
+  <script src="unit-tests.js"></script>
+  <script src="../../common/dot/tests/qunit/unit-tests.js"></script>
+  
+</head>
+<body>
+  <!-- <div style="position: fixed; top: 0; right: 50%; background-color: #fff; padding: 5px;"><a href="#" style="color: #000;" onclick="collapseTests();">Collapse All</a></div> -->
+  <div id="qunit"></div>
+  <div id="qunit-fixture">
+  </div>
+  <div id="display"></div>
+  
+  <script>
+    function collapseTests() {
+      $( '#qunit-tests .fail ol' ).css( 'display', 'none' );
+    }
+    
+    QUnit.moduleDone( function( details ) {
+      collapseTests();
+    } );
+    
+    // we need to wait until our config file is loaded before our require statement. apparently this was not guaranteed
+    function check() {
+      if ( window.loadedKiteConfig ) {
+        require( [ 'main', 'DOT/main' ], function( kite, dot ) {
+          window.kite = kite;
+          window.dot = dot;
+          
+          runKiteTests( '.' );
+          runDotTests( '../../common/dot/tests/qunit' );
+        } );
+      } else {
+        setTimeout( check, 4 );
+      }
+    }
+    setTimeout( check, 4 );
+  </script>
+</body>
+</html>
