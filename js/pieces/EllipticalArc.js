@@ -62,11 +62,11 @@ define( function( require ) {
       
       // reverse the 'clockwiseness' if our transform includes a reflection
       // TODO: check reflections. swapping angle signs should fix clockwiseness
-      // var anticlockwise = reflected ? !this.anticlockwise : this.anticlockwise;
+      var anticlockwise = reflected ? !this.anticlockwise : this.anticlockwise;
       var startAngle = reflected ? -this.startAngle : this.startAngle;
       var endAngle = reflected ? -this.endAngle : this.endAngle;
       
-      return [new Piece.EllipticalArc( matrix.timesVector2( this.center ), radiusX, radiusY, rotation, startAngle, endAngle, this.anticlockwise )];
+      return [new Piece.EllipticalArc( matrix.timesVector2( this.center ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise )];
     },
     
     applyPiece: function( shape ) {
