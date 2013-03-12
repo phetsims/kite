@@ -25,6 +25,7 @@ define( function( require ) {
   function p( x,y ) { return new Vector2( x, y ); }
   
   Piece.Rect = function( x, y, width, height ) {
+    assert && assert( x !== undefined && y !== undefined && width !== undefined && height !== undefined, 'Undefined argument for Piece.Rect' );
     this.x = x;
     this.y = y;
     this.width = width;
