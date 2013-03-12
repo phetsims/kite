@@ -3,6 +3,8 @@ Testing:
   Create a simple way to do the comparisons that we already have in Scenery's tests
 
 Shapes:
+  Add curvatureAt( t ), since this will be necessary for determining regions (if multiple segments have the same tangent at the same endpoint)
+  Move some computations to Dot if they are somewhat general-purpose
   Finiteness checks a la WebKit?
   Investigate shear / scale effects on stroking -- important for bounds
   Quadratic curve offsets need implementation improvement (32 sub-quadratics is too costly)
