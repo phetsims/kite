@@ -14,6 +14,9 @@ Shapes:
   Precise intersection with bounding box (not just intersection of bounds)
   Nonzero/evenodd support (not yet implemented in browsers)
   Region support:
+    Edge cases (literally):
+      Multiple curves intersect at same point with same tangent, but have different curvatures
+      Overlapping segments (like a circle and a circular arc)
     Break into regions that can test for nonzero/evenodd, then combine adjacent ones so we can have efficient segments without the 'stroked region' overlap
     Fixes self-intersection in 'stroked' path
     Allows Constructive Solid Geometry
