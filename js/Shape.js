@@ -542,7 +542,7 @@ define( function( require ) {
   Shape.roundRectangle = Shape.roundRect;
   
   Shape.bounds = function( bounds ) {
-    return new Shape().rect( p( bounds.minX, bounds.minY ), p( bounds.maxX, bounds.maxY ) );
+    return new Shape().rect( bounds.minX, bounds.minY, bounds.maxX - bounds.minX, bounds.maxY - bounds.minY );
   };
   
   Shape.lineSegment = function( a, b ) {
