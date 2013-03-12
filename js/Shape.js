@@ -250,6 +250,7 @@ define( function( require ) {
       piece.applyPiece( this );
       this.invalidate();
       assert && assert( this.bounds.isEmpty() || this.bounds.isFinite(), 'shape bounds infinite after adding piece: ' + piece );
+      return this; // allow for chaining
     },
     
     // write out this shape's path to a canvas 2d context. does NOT include the beginPath()!
