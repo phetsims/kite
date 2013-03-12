@@ -219,17 +219,8 @@ define( function( require ) {
       return this;
     },
     
-    rect: function( a, b, c, d ) {
-      // rect( upperLeft, lowerRight )
-      if ( c === undefined && typeof a === 'object' && typeof b === 'object' ) {
-        // wrap it in a Vector2 if the class doesn't match
-        var upperLeft = a instanceof Vector2 ? a : new Vector2( a.x, a.y );
-        var lowerRight = b instanceof Vector2 ? b : new Vector2( b.x, b.y );
-        this.addPiece( new Piece.Rect( upperLeft, lowerRight ) );
-      } else {
-        // rect( x, y, width, height )
-        this.addPiece( new Piece.Rect( p( a, b ), p( a + c, b + d ) ) );
-      }
+    rect: function( x, y, width, height ) {
+      this.addPiece( new Piece.Rect( p( a, b ), p( a + c, b + d ) ) );
       return this;
     },
 

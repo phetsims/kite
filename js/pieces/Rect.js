@@ -24,13 +24,11 @@ define( function( require ) {
   // for brevity
   function p( x,y ) { return new Vector2( x, y ); }
   
-  Piece.Rect = function( upperLeft, lowerRight ) {
-    this.upperLeft = upperLeft;
-    this.lowerRight = lowerRight;
-    this.x = this.upperLeft.x;
-    this.y = this.upperLeft.y;
-    this.width = this.lowerRight.x - this.x;
-    this.height = this.lowerRight.y - this.y;
+  Piece.Rect = function( x, y, width, height ) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
   };
   Piece.Rect.prototype = {
     constructor: Piece.Rect,
@@ -60,7 +58,7 @@ define( function( require ) {
       subpath.close();
       shape.addSubpath( new kite.Subpath() );
       shape.getLastSubpath().addPoint( p( this.x, this.y ) );
-      shape.bounds = shape.bounds.withPoint( this.upperLeft ).withPoint( this.lowerRight );
+      shape.bounds = shape.bounds.withCoordinates( this.x, this.y ).withCoordinates( this.x + this.width, this.y + this.height );
       assert && assert( !isNaN( shape.bounds.getX() ) );
     }
   };
