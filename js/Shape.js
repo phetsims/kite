@@ -220,7 +220,7 @@ define( function( require ) {
     },
     
     rect: function( x, y, width, height ) {
-      this.addPiece( new Piece.Rect( p( a, b ), p( a + c, b + d ) ) );
+      this.addPiece( new Piece.Rect( x, y, width, height ) );
       return this;
     },
 
