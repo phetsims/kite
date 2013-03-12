@@ -34,4 +34,9 @@
     equal( shape.containsPoint( p( 10, 2 ) ), false, '10, 2' );
   } );
   
+  test( 'Zero-size rectangle', function() {
+    var shape = new Shape().rect( 20, 50, 0, 0 );
+    
+    ok( !shape.isEmpty() ); // relies on the boundary case from dot
+  } );
 })();
