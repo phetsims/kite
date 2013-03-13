@@ -1,4 +1,7 @@
 
+Bugs:
+  Arc / Ellipse positionAt is not respecting anticlockwise
+
 Testing:
   Create a simple way to do the comparisons that we already have in Scenery's tests
   Interactive visualization tests to check:
