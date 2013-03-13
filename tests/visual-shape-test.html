@@ -39,6 +39,11 @@
     .label {
       text-align: center;
     }
+    
+    input {
+      display: block;
+      margin: 0 auto;
+    }
   </style>
   
 </head>
@@ -65,6 +70,10 @@
     <button id="join-miter">miter</button>
     <button id="join-bevel">bevel</button>
     <button id="join-round">round</button>
+    
+    <div class="label">Point</div>
+    <input id="point" type="range" min="0" max="1" step = "0.01" value="0"/>
+    <button id="point-position">position</button>
   </div>
   
   <script>
@@ -86,6 +95,9 @@
             join: 'miter',
             miterLimit: 10
           };
+          
+          var point = 0; // how far our inspection point is along the curve
+          var pointPosition = false; // highlight the inspected point(s)
           
           var shape = new kite.Shape();
           
@@ -121,10 +133,16 @@
             context.lineJoin = 'miter';
             context.miterLimit = 10;
             context.stroke();
+            
+            // highlight the inspection point
+            if ( pointPosition ) {
+              
+            }
           }
           
-          function updateListener( id, callback ) {
-            document.getElementById( id ).addEventListener( 'click', function() {
+          function updateListener( id, callback, event ) {
+            event = event || 'click';
+            document.getElementById( id ).addEventListener( event, function() {
               callback();
               render();
             } );
@@ -175,6 +193,14 @@
           } );
           updateListener( 'join-round', function() {
             strokeStyles.join = 'round';
+          } );
+          
+          updateListener( 'point', function() {
+            point = document.getElementById( 'point' ).value;
+          }, 'input' );
+          
+          updateListener( 'point-position', function() {
+            pointPosition = !pointPosition;
           } );
           
           // var lastTime = 0;
