@@ -74,6 +74,7 @@
     <div class="label">Point</div>
     <input id="point" type="range" min="0" max="1" step = "0.01" value="0"/>
     <button id="point-position">position</button>
+    <button id="point-tangent">tangent</button>
   </div>
   
   <script>
@@ -98,6 +99,7 @@
           
           var point = 0; // how far our inspection point is along the curve
           var pointPosition = false; // highlight the inspected point(s)
+          var pointTangent = false; // tangent on points
           
           var shape = new kite.Shape();
           
@@ -137,6 +139,8 @@
             _.each( shape.subpaths, function( subpath ) {
               _.each( subpath.segments, function( segment ) {
                 var p = segment.positionAt( point );
+                var t = segment.tangentAt( point );
+                var tn = t.normalized();
                 
                 // highlight the inspection point
                 if ( pointPosition ) {
@@ -144,6 +148,16 @@
                   context.arc( p.x, p.y, 3, 0, Math.PI * 2, false );
                   context.fillStyle = '#0f0';
                   context.fill();
+                }
+                
+                if ( pointTangent ) {
+                  var length = 15;
+                  context.beginPath();
+                  context.moveTo( p.x - tn.x * length, p.y - tn.y * length );
+                  context.lineTo( p.x + tn.x * length, p.y + tn.y * length );
+                  context.strokeStyle = '#0ff';
+                  context.lineWidth = 1;
+                  context.stroke();
                 }
                 
               } );
@@ -211,6 +225,9 @@
           
           updateListener( 'point-position', function() {
             pointPosition = !pointPosition;
+          } );
+          updateListener( 'point-tangent', function() {
+            pointTangent = !pointTangent;
           } );
           
           // var lastTime = 0;
