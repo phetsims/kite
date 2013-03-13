@@ -134,10 +134,20 @@
             context.miterLimit = 10;
             context.stroke();
             
-            // highlight the inspection point
-            if ( pointPosition ) {
-              
-            }
+            _.each( shape.subpaths, function( subpath ) {
+              _.each( subpath.segments, function( segment ) {
+                var p = segment.positionAt( point );
+                
+                // highlight the inspection point
+                if ( pointPosition ) {
+                  context.beginPath();
+                  context.arc( p.x, p.y, 3, 0, Math.PI * 2, false );
+                  context.fillStyle = '#0f0';
+                  context.fill();
+                }
+                
+              } );
+            } );
           }
           
           function updateListener( id, callback, event ) {
