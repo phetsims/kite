@@ -52,11 +52,19 @@
     <button id="cubic">cubic</button>
     <button id="arc">arc</button>
     <button id="ellipticalArc">ellipticalArc</button>
-    <br>
+    
+    <div class="label">Shapes</div>
+    <button id="lines">lines</button>
+    
     <div class="label">Cap</div>
     <button id="cap-butt">butt</button>
     <button id="cap-square">square</button>
     <button id="cap-round">round</button>
+    
+    <div class="label">Join</div>
+    <button id="join-miter">miter</button>
+    <button id="join-bevel">bevel</button>
+    <button id="join-round">round</button>
   </div>
   
   <script>
@@ -122,6 +130,9 @@
             } );
           }
           
+          /*---------------------------------------------------------------------------*
+          * Basic segments
+          *----------------------------------------------------------------------------*/
           updateListener( 'line', function() {
             shape = new kite.Shape().moveTo( 50, 50 ).lineTo( 100, 200 );
           } );
@@ -138,6 +149,14 @@
             shape = new kite.Shape().ellipticalArc( 150, 150, 100, 50, Math.PI / 4, Math.PI / 4, -Math.PI / 2, false );
           } );
           
+          /*---------------------------------------------------------------------------*
+          * Shapes
+          *----------------------------------------------------------------------------*/
+          
+          updateListener( 'lines', function() {
+            shape = new kite.Shape().moveTo( 50, 50 ).lineTo( 100, 200 ).lineTo( 200, 200 ).lineTo( 150, 150 );
+          } );
+          
           updateListener( 'cap-butt', function() {
             strokeStyles.cap = 'butt';
           } );
@@ -146,6 +165,16 @@
           } );
           updateListener( 'cap-round', function() {
             strokeStyles.cap = 'round';
+          } );
+          
+          updateListener( 'join-miter', function() {
+            strokeStyles.join = 'miter';
+          } );
+          updateListener( 'join-bevel', function() {
+            strokeStyles.join = 'bevel';
+          } );
+          updateListener( 'join-round', function() {
+            strokeStyles.join = 'round';
           } );
           
           // var lastTime = 0;
