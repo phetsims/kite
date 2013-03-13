@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  
+  <title>Visual Shape Test</title>
+  
+  <script src="../contrib/lodash.min-1.0.0-rc.3.js"></script>
+  <script src="../contrib/has.js"></script>
+  
+  <script data-main="../js/config.js" src="../contrib/require-2.1.4.js"></script>
+  
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+    
+    canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+    
+    div#controls {
+      width: 200px;
+      /*height: 400px;*/
+      position: absolute;
+      right: 0;
+      top: 0;
+      background-color: #eee;
+      border-left: 1px solid black;
+      border-bottom: 1px solid black;
+    }
+    
+    .label {
+      text-align: center;
+    }
+  </style>
+  
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  
+  <div id="controls">
+    <div class="label">Shape</div>
+    <button id="line">line</button>
+    <button id="quadratic">quadratic</button>
+    <button id="cubic">cubic</button>
+    <button id="arc">arc</button>
+    <button id="ellipticalArc">ellipticalArc</button>
+    <br>
+    <div class="label">Cap</div>
+    <button id="cap-butt">butt</button>
+    <button id="cap-square">square</button>
+    <button id="cap-round">round</button>
+  </div>
+  
+  <script>
+    // we need to wait until our config file is loaded before our require statement. apparently this was not guaranteed
+    function check() {
+      if ( window.loadedKiteConfig ) {
+        require( [ 'main', 'DOT/main' ], function( kite, dot ) {
+          window.kite = kite;
+          window.dot = dot;
+          
+          console.log( 'loaded' );
+          
+          /*---------------------------------------------------------------------------*
+           * State
+           *---------------------------------------------------------------------------*/
+          var strokeStyles = {
+            width: 30,
+            cap: 'butt',
+            join: 'miter',
+            miterLimit: 10
+          };
+          
+          var shape = new kite.Shape();
+          
+          /*---------------------------------------------------------------------------*
+           * Drawing
+           *---------------------------------------------------------------------------*/
+          var canvas = document.getElementById( 'canvas' );
+          window.canvas = canvas;
+          
+          var context = canvas.getContext( '2d' );
+          window.context = context;
+          
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          
+          function render() {
+            context.clearRect( 0, 0, canvas.width, canvas.height );
+            context.beginPath();
+            shape.writeToContext( context );
+            
+            // main shape stroked in black
+            context.strokeStyle = '#000';
+            context.lineWidth = strokeStyles.width;
+            context.lineCap = strokeStyles.cap;
+            context.lineJoin = strokeStyles.join;
+            context.miterLimit = strokeStyles.miterLimit;
+            context.stroke();
+            
+            // overlay in red
+            context.strokeStyle = '#f00';
+            context.lineWidth = 1;
+            context.lineCap = 'butt';
+            context.lineJoin = 'miter';
+            context.miterLimit = 10;
+            context.stroke();
+          }
+          
+          function updateListener( id, callback ) {
+            document.getElementById( id ).addEventListener( 'click', function() {
+              callback();
+              render();
+            } );
+          }
+          
+          updateListener( 'line', function() {
+            shape = new kite.Shape().moveTo( 50, 50 ).lineTo( 100, 200 );
+          } );
+          
+          updateListener( 'cap-butt', function() {
+            strokeStyles.cap = 'butt';
+          } );
+          updateListener( 'cap-square', function() {
+            strokeStyles.cap = 'square';
+          } );
+          updateListener( 'cap-round', function() {
+            strokeStyles.cap = 'round';
+          } );
+          
+          // var lastTime = 0;
+          // var timeElapsed = 0;
+          // function tick() {
+          //   window.requestAnimationFrame( tick, main[0] );
+            
+          //   var timeNow = new Date().getTime();
+          //   if ( lastTime != 0 ) {
+          //     timeElapsed = (timeNow - lastTime) / 1000.0;
+          //   }
+          //   lastTime = timeNow;
+            
+            
+          // }
+          // window.requestAnimationFrame( tick, main[0] );
+        } );
+      } else {
+        setTimeout( check, 4 );
+      }
+    }
+    setTimeout( check, 4 );
+  </script>
+</body>
+</html>
