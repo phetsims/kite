@@ -5,6 +5,8 @@
  *
  * See http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf for info
  *
+ * Good reference: http://cagd.cs.byu.edu/~557/text/ch2.pdf
+ *
  * @author Jonathan Olson <olsonsjc@gmail.com>
  */
 
@@ -108,6 +110,10 @@ define( function( require ) {
     }
   };
   Segment.Cubic.prototype = {
+    constructor: Segment.Cubic,
+    
+    degree: 3,
+    
     hasCusp: function() {
       var epsilon = 0.000001; // TODO: make this available to change?
       return this.tangentAt( this.tCusp ).magnitude() < epsilon && this.tCusp >= 0 && this.tCusp <= 1;
@@ -123,6 +129,24 @@ define( function( require ) {
     tangentAt: function( t ) {
       var mt = 1 - t;
       return this.start.times( -3 * mt * mt ).plus( this.control1.times( 3 * mt * mt - 6 * mt * t ) ).plus( this.control2.times( 6 * mt * t - 3 * t * t ) ).plus( this.end.times( 3 * t * t ) );
+    },
+    
+    curvatureAt: function( t ) {
+      // see http://cagd.cs.byu.edu/~557/text/ch2.pdf p31
+      // TODO: remove code duplication with Quadratic
+      var epsilon = 0.0000001;
+      if ( Math.abs( t - 0.5 ) > 0.5 - epsilon ) {
+        var isZero = t < 0.5;
+        var p0 = isZero ? this.start : this.end;
+        var p1 = isZero ? this.control1 : this.control2;
+        var p2 = isZero ? this.control2 : this.control1;
+        var d10 = p1.minus( p2 );
+        var a = d10.magnitude();
+        var h = -d10.perpendicular().normalized().dot( p2.minus( p1 ) );
+        return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
+      } else {
+        return this.subdivided( t, true )[0].curvatureAt( 1 );
+      }
     },
     
     toRS: function( point ) {

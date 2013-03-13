@@ -3,6 +3,8 @@
 /**
  * Quadratic Bezier segment
  *
+ * Good reference: http://cagd.cs.byu.edu/~557/text/ch2.pdf
+ *
  * @author Jonathan Olson <olsonsjc@gmail.com>
  */
 
@@ -70,6 +72,8 @@ define( function( require ) {
   Segment.Quadratic.prototype = {
     constructor: Segment.Quadratic,
     
+    degree: 2,
+    
     // can be described from t=[0,1] as: (1-t)^2 start + 2(1-t)t control + t^2 end
     positionAt: function( t ) {
       var mt = 1 - t;
@@ -80,6 +84,27 @@ define( function( require ) {
     tangentAt: function( t ) {
       return this.control.minus( this.start ).times( 2 * ( 1 - t ) ).plus( this.end.minus( this.control ).times( 2 * t ) );
     },
+    
+    curvatureAt: function( t ) {
+      // see http://cagd.cs.byu.edu/~557/text/ch2.pdf p31
+      // TODO: remove code duplication with Cubic
+      var epsilon = 0.0000001;
+      if ( Math.abs( t - 0.5 ) > 0.5 - epsilon ) {
+        var isZero = t < 0.5;
+        var p0 = isZero ? this.start : this.end;
+        var p1 = this.control;
+        var p2 = isZero ? this.end : this.start;
+        var d10 = p1.minus( p2 );
+        var a = d10.magnitude();
+        var h = -d10.perpendicular().normalized().dot( p2.minus( p1 ) );
+        return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
+      } else {
+        return this.subdivided( t, true )[0].curvatureAt( 1 );
+      }
+    },
+    
+    // see http://www.visgraf.impa.br/sibgrapi96/trabs/pdf/a14.pdf
+    // and http://math.stackexchange.com/questions/12186/arc-length-of-bezier-curves for curvature / arc length
     
     offsetTo: function( r, reverse ) {
       // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html
