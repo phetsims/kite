@@ -46,7 +46,7 @@
   <canvas id="canvas"></canvas>
   
   <div id="controls">
-    <div class="label">Shape</div>
+    <div class="label">Basic Segments</div>
     <button id="line">line</button>
     <button id="quadratic">quadratic</button>
     <button id="cubic">cubic</button>
@@ -124,6 +124,18 @@
           
           updateListener( 'line', function() {
             shape = new kite.Shape().moveTo( 50, 50 ).lineTo( 100, 200 );
+          } );
+          updateListener( 'quadratic', function() {
+            shape = new kite.Shape().moveTo( 50, 50 ).quadraticCurveTo( 100, 200, 200, 200 );
+          } );
+          updateListener( 'cubic', function() {
+            shape = new kite.Shape().moveTo( 50, 50 ).cubicCurveTo( 100, 200, 200, 200, 150, 250 );
+          } );
+          updateListener( 'arc', function() {
+            shape = new kite.Shape().arc( 150, 150, 100, Math.PI / 4, -Math.PI / 2, false );
+          } );
+          updateListener( 'ellipticalArc', function() {
+            shape = new kite.Shape().ellipticalArc( 150, 150, 100, 50, Math.PI / 4, Math.PI / 4, -Math.PI / 2, false );
           } );
           
           updateListener( 'cap-butt', function() {
