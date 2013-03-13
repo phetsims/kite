@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  
+  <title>Kite Playground</title>
+  
+  <script src="../contrib/lodash.min-1.0.0-rc.3.js"></script>
+  <script src="../contrib/has.js"></script>
+  
+  <script data-main="../js/config.js" src="../contrib/require-2.1.4.js"></script>
+  
+</head>
+<body>
+  <script>
+    // we need to wait until our config file is loaded before our require statement. apparently this was not guaranteed
+    function check() {
+      if ( window.loadedKiteConfig ) {
+        require( [ 'main', 'DOT/main' ], function( kite, dot ) {
+          window.kite = kite;
+          window.dot = dot;
+          
+          console.log( 'loaded' );
+        } );
+      } else {
+        setTimeout( check, 4 );
+      }
+    }
+    setTimeout( check, 4 );
+  </script>
+</body>
+</html>
