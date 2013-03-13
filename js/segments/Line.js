@@ -46,6 +46,10 @@ define( function( require ) {
       return this.startTangent;
     },
     
+    curvatureAt: function( t ) {
+      return 0; // no curvature on a straight line segment
+    },
+    
     toPieces: function() {
       return [ new Piece.LineTo( this.end ) ];
     },

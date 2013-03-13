@@ -109,6 +109,15 @@ define( function( require ) {
       return this.tangentAtAngle( this.angleAt( t ) );
     },
     
+    curvatureAt: function( t ) {
+      // see http://mathworld.wolfram.com/Ellipse.html (59)
+      var angle = this.angleAt( t );
+      var aq = this.radiusX * Math.sin( angle );
+      var bq = this.radiusY * Math.cos( angle );
+      var denominator = Math.pow( bq * bq + aq * aq, 3/2 );
+      return ( this.anticlockwise ? -1 : 1 ) * this.radiusX * this.radiusY / denominator;
+    },
+    
     positionAtAngle: function( angle ) {
       return this.unitTransform.transformPosition2( Vector2.createPolar( 1, angle ) );
     },

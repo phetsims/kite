@@ -86,6 +86,10 @@ define( function( require ) {
       return this.tangentAtAngle( this.angleAt( t ) );
     },
     
+    curvatureAt: function( t ) {
+      return ( this.anticlockwise ? -1 : 1 ) / this.radius;
+    },
+    
     positionAtAngle: function( angle ) {
       return this.center.plus( Vector2.createPolar( this.radius, angle ) );
     },

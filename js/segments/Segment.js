@@ -26,6 +26,7 @@ define( function( require ) {
      * methods:
      * positionAt( t )          - returns the position parametrically, with 0 <= t <= 1. this does NOT guarantee a constant magnitude tangent... don't feel like adding elliptical functions yet!
      * tangentAt( t )           - returns the tangent (dx/dt, dy/dt) parametrically, with 0 <= t <= 1.
+     * curvatureAt( t )         - returns the signed curvature (positive for visual clockwise - mathematical counterclockwise)
      * toPieces                 - returns an array of pieces that are equivalent to this segment, assuming start points are preserved
      *                              TODO: is toPieces that valuable? it doesn't seem to have a strict guarantee on checking what the last segment did right now
      * getSVGPathFragment       - returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls this needs to put the M calls first
