@@ -1,6 +1,14 @@
 
 Testing:
   Create a simple way to do the comparisons that we already have in Scenery's tests
+  Interactive visualization tests to check:
+    positionAt
+    tangentAt
+    curvatureAt (use 1/curvature as the radius of curvature, and confirm the correct sign)
+    bounds
+    stroked paths
+    transformations (+reflections and shears)
+    hit testing (compute for every pixel and shade)
 
 Shapes:
   Add curvatureAt( t ), since this will be necessary for determining regions (if multiple segments have the same tangent at the same endpoint)
