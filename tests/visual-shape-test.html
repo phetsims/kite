@@ -125,6 +125,9 @@
           
           var shape = new kite.Shape();
           
+          var xOffset = 150;
+          var yOffset = 150;
+          
           /*---------------------------------------------------------------------------*
            * Drawing
            *---------------------------------------------------------------------------*/
@@ -138,7 +141,9 @@
           canvas.height = window.innerHeight;
           
           function render() {
+            context.setTransform( 1, 0, 0, 1, 0, 0 );
             context.clearRect( 0, 0, canvas.width, canvas.height );
+            context.setTransform( 1, 0, 0, 1, xOffset, yOffset );
             
             // main shape stroked in black
             context.beginPath();
@@ -232,19 +237,19 @@
           * Basic segments
           *----------------------------------------------------------------------------*/
           updateListener( 'line', function() {
-            shape = new kite.Shape().moveTo( 50, 50 ).lineTo( 100, 200 );
+            shape = new kite.Shape().moveTo( -100, -100 ).lineTo( -50, 50 );
           } );
           updateListener( 'quadratic', function() {
-            shape = new kite.Shape().moveTo( 50, 50 ).quadraticCurveTo( 100, 200, 200, 200 );
+            shape = new kite.Shape().moveTo( -100, -100 ).quadraticCurveTo( -50, 50, 50, 50 );
           } );
           updateListener( 'cubic', function() {
-            shape = new kite.Shape().moveTo( 50, 50 ).cubicCurveTo( 100, 200, 200, 200, 150, 250 );
+            shape = new kite.Shape().moveTo( -100, -100 ).cubicCurveTo( -50, 50, 50, 50, 0, 100 );
           } );
           updateListener( 'arc', function() {
-            shape = new kite.Shape().arc( 150, 150, 100, Math.PI / 4, -Math.PI / 2, false );
+            shape = new kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, false );
           } );
           updateListener( 'ellipticalArc', function() {
-            shape = new kite.Shape().ellipticalArc( 150, 150, 100, 50, Math.PI / 4, Math.PI / 4, -Math.PI / 2, false );
+            shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 4, Math.PI / 4, -Math.PI / 2, false );
           } );
           
           /*---------------------------------------------------------------------------*
@@ -252,19 +257,19 @@
           *----------------------------------------------------------------------------*/
           
           updateListener( 'lines', function() {
-            shape = new kite.Shape().moveTo( 50, 50 ).lineTo( 100, 200 ).lineTo( 200, 200 ).lineTo( 180, 150 );
+            shape = new kite.Shape().moveTo( -100, -100 ).lineTo( -50, 50 ).lineTo( 50, 50 ).lineTo( 30, 0 );
           } );
           updateListener( 'arc1', function() {
-            shape = new kite.Shape().arc( 150, 150, 100, Math.PI / 4, -Math.PI / 2, false );
+            shape = new kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, false );
           } );
           updateListener( 'arc2', function() {
-            shape = new kite.Shape().arc( 150, 150, 100, Math.PI / 4, -Math.PI / 2, true );
+            shape = new kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, true );
           } );
           updateListener( 'arc3', function() {
-            shape = new kite.Shape().arc( 150, 150, 100, -Math.PI / 4, Math.PI / 2, false );
+            shape = new kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, false );
           } );
           updateListener( 'arc4', function() {
-            shape = new kite.Shape().arc( 150, 150, 100, -Math.PI / 4, Math.PI / 2, true );
+            shape = new kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, true );
           } );
           
           /*---------------------------------------------------------------------------*
