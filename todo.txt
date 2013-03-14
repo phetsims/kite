@@ -1,5 +1,6 @@
 
 Bugs:
+  Intersection hit point not properly including implicit closing segment!
   Arc / Ellipse positionAt is not respecting anticlockwise
   Arc / EllipticalArc stroking can give negative radius => exception
     Bounds computation handles this nicely!
