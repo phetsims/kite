@@ -95,7 +95,7 @@ define( function( require ) {
     },
     
     tangentAtAngle: function( angle ) {
-      return Vector2.createPolar( 1, angle + this.anticlockwise ? Math.PI / 2 : -Math.PI / 2 );
+      return Vector2.createPolar( 1, angle + ( this.anticlockwise ? Math.PI / 2 : -Math.PI / 2 ) );
     },
     
     // TODO: refactor? shared with Segment.EllipticalArc
