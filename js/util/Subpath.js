@@ -73,7 +73,7 @@ define( function( require ) {
     },
     
     hasClosingSegment: function() {
-      return !this.getFirstPoint().equals( this.getLastPoint() );
+      return !this.getFirstPoint().equalsEpsilon( this.getLastPoint(), 0.000000001 );
     },
     
     getClosingSegment: function() {
