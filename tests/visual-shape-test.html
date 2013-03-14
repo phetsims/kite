@@ -465,6 +465,33 @@
             hitMouse = !hitMouse;
           } );
           
+          canvas.addEventListener( 'mousemove', function( domEvent ) {
+            if ( hitMouse ) {
+              render();
+              var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
+              
+              var resolution = 192;
+              var displayLength = 200;
+              var multiplier = Math.PI * 2 / resolution;
+              for ( var i = 0; i < resolution; i++ ) {
+                var angle = multiplier * i;
+                var ray = new dot.Ray2( pos, dot.Vector2.createPolar( 1, angle ) );
+                
+                var a = pos.plus( dot.Vector2.createPolar( displayLength, ( i - 0.5 ) * multiplier ) );
+                var b = pos.plus( dot.Vector2.createPolar( displayLength, ( i + 0.5 ) * multiplier ) );
+                var end = ray.pointAtDistance( 200 );
+                
+                var wind = transformedShape.windingIntersection( ray );
+                
+                context.beginPath();
+                context.moveTo( pos.x, pos.y );
+                context.lineTo( a.x, a.y );
+                context.lineTo( b.x, b.y );
+                context.fillStyle = wind === 0 ? 'rgba(255,0,0,0.5)' : 'rgba(0,255,0,0.5)';
+                context.fill();
+              }
+            }
+          } );
           
           // var lastTime = 0;
           // var timeElapsed = 0;
