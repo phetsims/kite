@@ -179,8 +179,9 @@ define( function( require ) {
       throw new Error( 'Segment.intersectsBounds unimplemented!' );
     },
     
-    // returns the resultant winding number of this ray intersecting this segment.
-    windingIntersection: function( ray ) {
+    intersection: function( ray ) {
+      var result = []; // hits in order
+      
       // left here, if in the future we want to better-handle boundary points
       var epsilon = 0;
       
@@ -193,7 +194,7 @@ define( function( require ) {
       var discriminant = 4 * tmp * tmp - 4 * ( centerToRayDistSq - this.radius * this.radius );
       if ( discriminant < epsilon ) {
         // ray misses circle entirely
-        return 0;
+        return result;
       }
       var base = ray.dir.dot( this.center ) - ray.dir.dot( ray.pos );
       var sqt = Math.sqrt( discriminant ) / 2;
@@ -202,18 +203,21 @@ define( function( require ) {
       
       if ( tb < epsilon ) {
         // circle is behind ray
-        return 0;
+        return result;
       }
       
       var pointB = ray.pointAtDistance( tb );
       var normalB = pointB.minus( this.center ).normalized();
       
-      var wind = 0;
-      
       if ( ta < epsilon ) {
         // we are inside the circle, so only one intersection is possible
         if ( this.containsAngle( normalB.angle() ) ) {
-          wind += this.anticlockwise ? 1 : -1; // since we are inside, wind this way
+          result.push( {
+            t: tb,
+            point: pointB,
+            normal: normalB,
+            wind: this.anticlockwise ? 1 : -1 // since we are inside, wind this way
+          } );
         }
       }
       else {
@@ -222,13 +226,33 @@ define( function( require ) {
         var normalA = pointA.minus( this.center ).normalized();
         
         if ( this.containsAngle( normalA.angle() ) ) {
-          wind += this.anticlockwise ? -1 : 1; // hit from outside
+          result.push( {
+            t: ta,
+            point: pointA,
+            normal: normalA,
+            wind: this.anticlockwise ? -1 : 1 // hit from outside
+          } );
         }
         if ( this.containsAngle( normalB.angle() ) ) {
-          wind += this.anticlockwise ? 1 : -1; // this is the far hit, which winds the opposite way
+          result.push( {
+            t: tb,
+            point: pointB,
+            normal: normalB,
+            wind: this.anticlockwise ? 1 : -1 // this is the far hit, which winds the opposite way
+          } );
         }
       }
       
+      return result;
+    },
+    
+    // returns the resultant winding number of this ray intersecting this segment.
+    windingIntersection: function( ray ) {
+      var wind = 0;
+      var hits = this.intersection( ray );
+      _.each( hits, function( hit ) {
+        wind += hit.wind;
+      } );
       return wind;
     }
   };
