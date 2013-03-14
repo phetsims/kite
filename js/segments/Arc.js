@@ -216,7 +216,7 @@ define( function( require ) {
             distance: tb,
             point: pointB,
             normal: normalB.negated(), // normal is towards the ray
-            wind: this.anticlockwise ? 1 : -1 // since we are inside, wind this way
+            wind: this.anticlockwise ? -1 : 1 // since we are inside, wind this way
           } );
         }
       }
@@ -230,7 +230,7 @@ define( function( require ) {
             distance: ta,
             point: pointA,
             normal: normalA,
-            wind: this.anticlockwise ? -1 : 1 // hit from outside
+            wind: this.anticlockwise ? 1 : -1 // hit from outside
           } );
         }
         if ( this.containsAngle( normalB.angle() ) ) {
@@ -238,7 +238,7 @@ define( function( require ) {
             distance: tb,
             point: pointB,
             normal: normalB.negated(),
-            wind: this.anticlockwise ? 1 : -1 // this is the far hit, which winds the opposite way
+            wind: this.anticlockwise ? -1 : 1 // this is the far hit, which winds the opposite way
           } );
         }
       }
