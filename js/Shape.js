@@ -303,6 +303,26 @@ define( function( require ) {
       return this.windingIntersection( ray ) !== 0;
     },
     
+    intersection: function( ray ) {
+      var hits = [];
+      _.each( this.subpaths, function( subpath ) {
+        if ( subpath.isDrawable() ) {
+          _.each( subpath.segments, function( segment ) {
+            _.each( segment.intersection( ray ), function( hit ) {
+              hits.push( hit );
+            } );
+          } );
+          
+          if ( subpath.hasClosingSegment() ) {
+            _.each( subpath.getClosingSegment().intersection( ray ), function( hit ) {
+              hits.push( hit );
+            } );
+          }
+        }
+      } );
+      return _.sortBy( hits, function( hit ) { return hit.distance; } );
+    },
+    
     windingIntersection: function( ray ) {
       var wind = 0;
       

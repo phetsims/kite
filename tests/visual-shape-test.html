@@ -109,6 +109,7 @@
     <button id="hit-fill">fill</button>
     <button id="hit-stroke">stroke</button>
     <button id="hit-mouse">mouse</button>
+    <button id="hit-mouseSpan">mouseSpan</button>
   </div>
   
   <script>
@@ -141,6 +142,7 @@
           var fill = false;
           var close = false;
           var hitMouse = false; // show a starburst pattern with winding colors
+          var hitMouseSpan = false;
           
           var shapeBounds = false;
           
@@ -464,6 +466,9 @@
           updateListener( 'hit-mouse', function() {
             hitMouse = !hitMouse;
           } );
+          updateListener( 'hit-mouseSpan', function() {
+            hitMouseSpan = !hitMouseSpan;
+          } );
           
           canvas.addEventListener( 'mousemove', function( domEvent ) {
             if ( hitMouse ) {
@@ -473,6 +478,32 @@
               var resolution = 192;
               var displayLength = 500;
               var multiplier = Math.PI * 2 / resolution;
+              for ( var i = 0; i < resolution; i++ ) {
+                var angle = multiplier * i;
+                var ray = new dot.Ray2( pos, dot.Vector2.createPolar( 1, angle ) );
+                
+                var a = pos.plus( dot.Vector2.createPolar( displayLength, ( i - 0.5 ) * multiplier ) );
+                var b = pos.plus( dot.Vector2.createPolar( displayLength, ( i + 0.5 ) * multiplier ) );
+                var end = ray.pointAtDistance( 200 );
+                
+                var wind = transformedShape.windingIntersection( ray );
+                
+                context.beginPath();
+                context.moveTo( pos.x, pos.y );
+                context.lineTo( a.x, a.y );
+                context.lineTo( b.x, b.y );
+                context.fillStyle = wind === 0 ? 'rgba(255,0,0,0.5)' : 'rgba(0,255,0,0.5)';
+                context.fill();
+              }
+            }
+            if ( hitMouseSpan ) {
+              render();
+              var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
+              
+              var resolution = 192;
+              var displayLength = 500;
+              var multiplier = Math.PI * 2 / resolution;
+              
               for ( var i = 0; i < resolution; i++ ) {
                 var angle = multiplier * i;
                 var ray = new dot.Ray2( pos, dot.Vector2.createPolar( 1, angle ) );
