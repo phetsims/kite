@@ -75,6 +75,7 @@
     <input id="point" type="range" min="0" max="1" step = "0.01" value="0"/>
     <button id="point-position">position</button>
     <button id="point-tangent">tangent</button>
+    <button id="point-curvature">curvature</button>
   </div>
   
   <script>
@@ -100,6 +101,7 @@
           var point = 0; // how far our inspection point is along the curve
           var pointPosition = false; // highlight the inspected point(s)
           var pointTangent = false; // tangent on points
+          var pointCurvature = false; // curvature on points
           
           var shape = new kite.Shape();
           
@@ -141,6 +143,7 @@
                 var p = segment.positionAt( point );
                 var t = segment.tangentAt( point );
                 var tn = t.normalized();
+                var c = segment.curvatureAt( point );
                 
                 // highlight the inspection point
                 if ( pointPosition ) {
@@ -158,6 +161,19 @@
                   context.strokeStyle = '#0ff';
                   context.lineWidth = 1;
                   context.stroke();
+                }
+                
+                if ( pointCurvature ) {
+                  if ( c > 0.0000001 ) {
+                    var radiusOfCurvature = 1 / c;
+                    var curvatureCenter = p.plus( tn.perpendicular().times( -radiusOfCurvature ) );
+                    
+                    context.beginPath();
+                    context.arc( curvatureCenter.x, curvatureCenter.y, radiusOfCurvature, 0, Math.PI * 2, false );
+                    context.fillStyle = '#f0f';
+                    context.lineWidth = 1;
+                    context.stroke();
+                  }
                 }
                 
               } );
@@ -228,6 +244,9 @@
           } );
           updateListener( 'point-tangent', function() {
             pointTangent = !pointTangent;
+          } );
+          updateListener( 'point-curvature', function() {
+            pointCurvature = !pointCurvature;
           } );
           
           // var lastTime = 0;
