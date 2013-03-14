@@ -90,7 +90,12 @@
     <button id="stroke-kite">kite</button>
     
     <div class="label">Transform</div>
+    <button id="transform-active">active</button>
+    <button id="transform-reflect">reflect</button>
     <input id="translation" type="range" min="-50" max="50" step="1" value="0"/>
+    <input id="rotation" type="range" min="-180" max="180" step="1" value="0"/>
+    <input id="scaling" type="range" min="0.5" max="1.5" step="0.01" value="1"/>
+    <input id="shear" type="range" min="-2" max="2" step="0.01" value="0"/>
   </div>
   
   <script>
@@ -128,6 +133,13 @@
           var xOffset = 150;
           var yOffset = 150;
           
+          var transformActive = false;
+          var translation = 0;
+          var rotation = 0;
+          var scaling = 1;
+          var shear = 0;
+          var reflection = false;
+          
           /*---------------------------------------------------------------------------*
            * Drawing
            *---------------------------------------------------------------------------*/
@@ -145,14 +157,25 @@
             context.clearRect( 0, 0, canvas.width, canvas.height );
             context.setTransform( 1, 0, 0, 1, xOffset, yOffset );
             
+            var transformedShape = shape;
+            if ( transformActive ) {
+              var matrix = dot.Matrix3.translation( translation, 0 )
+                          .timesMatrix( dot.Matrix3.rotation2( rotation ) )
+                          .timesMatrix( dot.Matrix3.scale( scaling ) )
+                          .timesMatrix( new dot.Matrix3( 1, shear, 0, 0, 1, 0, 0, 0, 1 ) )
+                          .timesMatrix( reflection ? dot.Matrix3.X_REFLECTION : dot.Matrix3.IDENTITY );
+              transformedShape = shape.transformed( matrix );
+              console.log( matrix.toString() + '\n' );
+            }
+            
             // main shape stroked in black
             context.beginPath();
             if ( kiteStroked ) {
-              shape.getStrokedShape( strokeStyles ).writeToContext( context );
+              transformedShape.getStrokedShape( strokeStyles ).writeToContext( context );
               context.fillStype = '#000';
               context.fill();
             } else {
-              shape.writeToContext( context );
+              transformedShape.writeToContext( context );
               context.strokeStyle = '#000';
               context.lineWidth = strokeStyles.lineWidth;
               context.lineCap = strokeStyles.lineCap;
@@ -163,7 +186,7 @@
             
             // overlay in red
             context.beginPath();
-            shape.writeToContext( context );
+            transformedShape.writeToContext( context );
             context.strokeStyle = '#f00';
             context.lineWidth = 1;
             context.lineCap = 'butt';
@@ -171,7 +194,7 @@
             context.miterLimit = 10;
             context.stroke();
             
-            _.each( shape.subpaths, function( subpath ) {
+            _.each( transformedShape.subpaths, function( subpath ) {
               _.each( subpath.segments, function( segment ) {
                 var p = segment.positionAt( point );
                 var t = segment.tangentAt( point );
@@ -216,7 +239,7 @@
             } );
             
             if ( shapeBounds ) {
-              var b = kiteStroked ? shape.getStrokedShape( strokeStyles ).bounds : shape.bounds;
+              var b = kiteStroked ? transformedShape.getStrokedShape( strokeStyles ).bounds : transformedShape.bounds;
               context.beginPath();
               context.rect( b.minX, b.minY, b.width, b.height );
               context.strokeStyle = 'rgba(255,0,255,0.8)';
@@ -336,6 +359,29 @@
           updateListener( 'stroke-kite', function() {
             kiteStroked = true;
           } );
+          
+          /*---------------------------------------------------------------------------*
+          * Transform
+          *----------------------------------------------------------------------------*/
+          
+          updateListener( 'transform-active', function() {
+            transformActive = !transformActive;
+          } );
+          updateListener( 'transform-reflect', function() {
+            reflection = !reflection;
+          } );
+          updateListener( 'translation', function() {
+            translation = parseFloat( document.getElementById( 'translation' ).value );
+          }, 'input' );
+          updateListener( 'rotation', function() {
+            rotation = parseFloat( document.getElementById( 'rotation' ).value ) * Math.PI / 180;
+          }, 'input' );
+          updateListener( 'scaling', function() {
+            scaling = parseFloat( document.getElementById( 'scaling' ).value );
+          }, 'input' );
+          updateListener( 'shear', function() {
+            shear = parseFloat( document.getElementById( 'shear' ).value );
+          }, 'input' );
           
           // var lastTime = 0;
           // var timeElapsed = 0;

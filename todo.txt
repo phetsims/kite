@@ -7,6 +7,7 @@ Bugs:
   arc2/arc3 examples seem to trigger canvas bug? verify.
   Quadratic / Cubic curvature is broken
   EllipticalArc tangent is broken
+  EllipticalArc shear can cause radiusX < radiusY. Test the compatibility with Canvas/SVG for this case and fix
 
 Testing:
   Create a simple way to do the comparisons that we already have in Scenery's tests
