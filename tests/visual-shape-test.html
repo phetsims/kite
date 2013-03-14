@@ -501,25 +501,62 @@
               var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
               
               var resolution = 192;
-              var displayLength = 500;
+              var displayLength = 1000;
               var multiplier = Math.PI * 2 / resolution;
               
               for ( var i = 0; i < resolution; i++ ) {
                 var angle = multiplier * i;
+                var minAngle = ( i - 0.5 ) * multiplier;
+                var maxAngle = ( i + 0.5 ) * multiplier;
                 var ray = new dot.Ray2( pos, dot.Vector2.createPolar( 1, angle ) );
                 
-                var a = pos.plus( dot.Vector2.createPolar( displayLength, ( i - 0.5 ) * multiplier ) );
-                var b = pos.plus( dot.Vector2.createPolar( displayLength, ( i + 0.5 ) * multiplier ) );
-                var end = ray.pointAtDistance( 200 );
+                var hits = transformedShape.intersection( ray );
                 
-                var wind = transformedShape.windingIntersection( ray );
+                function drawSegment( a, b, color ) {
+                  context.beginPath();
+                  var p1 = pos.plus( dot.Vector2.createPolar( a, minAngle ) );
+                  var p2 = pos.plus( dot.Vector2.createPolar( a, maxAngle ) );
+                  var p3 = pos.plus( dot.Vector2.createPolar( b, maxAngle ) );
+                  var p4 = pos.plus( dot.Vector2.createPolar( b, minAngle ) );
+                  
+                  context.moveTo( p1.x, p1.y );
+                  context.lineTo( p2.x, p2.y );
+                  context.lineTo( p3.x, p3.y );
+                  context.lineTo( p4.x, p4.y );
+                  
+                  context.fillStyle = color;
+                  context.fill();
+                }
                 
-                context.beginPath();
-                context.moveTo( pos.x, pos.y );
-                context.lineTo( a.x, a.y );
-                context.lineTo( b.x, b.y );
-                context.fillStyle = wind === 0 ? 'rgba(255,0,0,0.5)' : 'rgba(0,255,0,0.5)';
-                context.fill();
+                function windColor( wind ) {
+                  if ( wind === 0 ) {
+                    return 'rgba(255,0,0,0.8)';
+                  } else {
+                    var letter;
+                    switch ( Math.abs( wind ) ) {
+                      case 1: letter = '255'; break;
+                      case 2: letter = '192'; break;
+                      case 3: letter = '128'; break;
+                      case 4: letter = '64'; break;
+                      default: letter = '0';
+                    }
+                    return wind > 0 ? 'rgba(0,' + letter + ',0,0.8)' : 'rgba(0,0,' + letter + ',0.8)';
+                  }
+                }
+                
+                if ( hits.length ) {
+                  drawSegment( 0, hits[0].distance, windColor( 0 ) );
+                  var w = 0;
+                  for ( var j = 0; j < hits.length - 1; j++ ) {
+                    w += hits[j].wind;
+                    console.log( hits[j].distance, hits[j+1].distance, windColor( w ) );
+                    drawSegment( hits[j].distance, hits[j+1].distance, windColor( w ) );
+                  }
+                  w += hits[hits.length-1].wind;
+                  drawSegment( hits[hits.length-1].distance, displayLength, windColor( w ) );
+                } else {
+                  drawSegment( 0, displayLength, windColor( 0 ) );
+                }
               }
             }
           } );
