@@ -98,12 +98,13 @@
           /*---------------------------------------------------------------------------*
            * State
            *---------------------------------------------------------------------------*/
-          var strokeStyles = {
-            width: 30,
-            cap: 'butt',
-            join: 'miter',
+          
+          var strokeStyles = new kite.LineStyles( {
+            lineWidth: 30,
+            lineCap: 'butt',
+            lineJoin: 'miter',
             miterLimit: 10
-          };
+          } );
           
           var point = 0; // how far our inspection point is along the curve
           var pointPosition = false; // highlight the inspected point(s)
@@ -133,9 +134,9 @@
             
             // main shape stroked in black
             context.strokeStyle = '#000';
-            context.lineWidth = strokeStyles.width;
-            context.lineCap = strokeStyles.cap;
-            context.lineJoin = strokeStyles.join;
+            context.lineWidth = strokeStyles.lineWidth;
+            context.lineCap = strokeStyles.lineCap;
+            context.lineJoin = strokeStyles.lineJoin;
             context.miterLimit = strokeStyles.miterLimit;
             context.stroke();
             
@@ -252,13 +253,13 @@
           *----------------------------------------------------------------------------*/
           
           updateListener( 'cap-butt', function() {
-            strokeStyles.cap = 'butt';
+            strokeStyles.lineCap = 'butt';
           } );
           updateListener( 'cap-square', function() {
-            strokeStyles.cap = 'square';
+            strokeStyles.lineCap = 'square';
           } );
           updateListener( 'cap-round', function() {
-            strokeStyles.cap = 'round';
+            strokeStyles.lineCap = 'round';
           } );
           
           /*---------------------------------------------------------------------------*
@@ -266,13 +267,13 @@
           *----------------------------------------------------------------------------*/
           
           updateListener( 'join-miter', function() {
-            strokeStyles.join = 'miter';
+            strokeStyles.lineJoin = 'miter';
           } );
           updateListener( 'join-bevel', function() {
-            strokeStyles.join = 'bevel';
+            strokeStyles.lineJoin = 'bevel';
           } );
           updateListener( 'join-round', function() {
-            strokeStyles.join = 'round';
+            strokeStyles.lineJoin = 'round';
           } );
           
           /*---------------------------------------------------------------------------*
