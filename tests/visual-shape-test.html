@@ -141,6 +141,7 @@
           var shapeBounds = false;
           
           var shape = new kite.Shape();
+          var transformedShape;
           
           var xOffset = 150;
           var yOffset = 150;
@@ -169,7 +170,7 @@
             context.clearRect( 0, 0, canvas.width, canvas.height );
             context.setTransform( 1, 0, 0, 1, xOffset, yOffset );
             
-            var transformedShape = shape;
+            transformedShape = shape;
             if ( transformActive ) {
               var matrix = dot.Matrix3.translation( translation, 0 )
                           .timesMatrix( dot.Matrix3.rotation2( rotation ) )
@@ -426,11 +427,28 @@
           *----------------------------------------------------------------------------*/
           
           document.getElementById( 'hit-fill' ).addEventListener( 'click', function() {
-            
+            for ( var x = -200; x <= 200; x++ ) {
+              for ( var y = -200; y <= 200; y++ ) {
+                if ( !transformedShape.containsPoint( new dot.Vector2( x + 0.5, y + 0.5 ) ) ) {
+                  context.beginPath();
+                  context.fillStyle = 'rgba(255,0,0,0.5)';
+                  context.fillRect( x, y, 1, 1 );
+                }
+              }
+            }
           } );
           
           document.getElementById( 'hit-stroke' ).addEventListener( 'click', function() {
-            
+            var shp = transformedShape.getStrokedShape( strokeStyles );
+            for ( var x = -200; x <= 200; x++ ) {
+              for ( var y = -200; y <= 200; y++ ) {
+                if ( !shp.containsPoint( new dot.Vector2( x + 0.5, y + 0.5 ) ) ) {
+                  context.beginPath();
+                  context.fillStyle = 'rgba(255,0,0,0.5)';
+                  context.fillRect( x, y, 1, 1 );
+                }
+              }
+            }
           } );
           
           // var lastTime = 0;
