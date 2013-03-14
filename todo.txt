@@ -1,6 +1,12 @@
 
 Bugs:
   Arc / Ellipse positionAt is not respecting anticlockwise
+  Arc / EllipticalArc stroking can give negative radius => exception
+    Bounds computation handles this nicely!
+  Cubic bounds are broken
+  arc2/arc3 examples seem to trigger canvas bug? verify.
+  Quadratic / Cubic curvature is broken
+  EllipticalArc tangent is broken
 
 Testing:
   Create a simple way to do the comparisons that we already have in Scenery's tests
