@@ -76,6 +76,9 @@
     <button id="join-bevel">bevel</button>
     <button id="join-round">round</button>
     
+    <div class="label">Close</div>
+    <button id="close">close</button>
+    
     <div class="label">Point</div>
     <input id="point" type="range" min="0" max="1" step="0.01" value="0"/>
     <button id="point-position">position</button>
@@ -84,6 +87,9 @@
     
     <div class="label">Bounds</div>
     <button id="bounds-shape">shape</button>
+    
+    <div class="label">Fill</div>
+    <button id="fill">fill</button>
     
     <div class="label">Stroke</div>
     <button id="stroke-canvas">canvas</button>
@@ -96,6 +102,10 @@
     <input id="rotation" type="range" min="-180" max="180" step="1" value="0"/>
     <input id="scaling" type="range" min="0.5" max="1.5" step="0.01" value="1"/>
     <input id="shear" type="range" min="-2" max="2" step="0.01" value="0"/>
+    
+    <div class="label">Hit test</div>
+    <button id="hit-fill">fill</button>
+    <button id="hit-stroke">stroke</button>
   </div>
   
   <script>
@@ -125,6 +135,8 @@
           var pointCurvature = false; // curvature on points
           
           var kiteStroked = false;
+          var fill = false;
+          var close = false;
           
           var shapeBounds = false;
           
@@ -166,6 +178,9 @@
                           .timesMatrix( reflection ? dot.Matrix3.X_REFLECTION : dot.Matrix3.IDENTITY );
               transformedShape = shape.transformed( matrix );
               console.log( matrix.toString() + '\n' );
+            }
+            if ( close ) {
+              transformedShape = new kite.Shape( transformedShape.pieces, true );
             }
             
             // main shape stroked in black
@@ -246,6 +261,13 @@
               context.lineWidth = 1;
               context.stroke();
             }
+            
+            if ( fill ) {
+              context.beginPath();
+              transformedShape.writeToContext( context );
+              context.fillStyle = 'rgba(255,255,0,0.5)';
+              context.fill();
+            }
           }
           
           function updateListener( id, callback, event ) {
@@ -324,6 +346,14 @@
           } );
           
           /*---------------------------------------------------------------------------*
+          * Close
+          *----------------------------------------------------------------------------*/
+          
+          updateListener( 'close', function() {
+            close = !close;
+          } );
+          
+          /*---------------------------------------------------------------------------*
           * Point
           *----------------------------------------------------------------------------*/
           
@@ -347,6 +377,14 @@
           
           updateListener( 'bounds-shape', function() {
             shapeBounds = !shapeBounds;
+          } );
+          
+          /*---------------------------------------------------------------------------*
+          * Fill
+          *----------------------------------------------------------------------------*/
+          
+          updateListener( 'fill', function() {
+            fill = !fill;
           } );
           
           /*---------------------------------------------------------------------------*
@@ -382,6 +420,18 @@
           updateListener( 'shear', function() {
             shear = parseFloat( document.getElementById( 'shear' ).value );
           }, 'input' );
+          
+          /*---------------------------------------------------------------------------*
+          * Hit testing
+          *----------------------------------------------------------------------------*/
+          
+          document.getElementById( 'hit-fill' ).addEventListener( 'click', function() {
+            
+          } );
+          
+          document.getElementById( 'hit-stroke' ).addEventListener( 'click', function() {
+            
+          } );
           
           // var lastTime = 0;
           // var timeElapsed = 0;
