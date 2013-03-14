@@ -98,7 +98,29 @@ define( function( require ) {
     constructor: Segment.EllipticalArc,
     
     angleAt: function( t ) {
-      return this.startAngle + ( this.endAngle - this.startAngle ) * t;
+      if ( this.anticlockwise ) {
+        // angle is 'decreasing'
+        // -2pi <= end - start < 2pi
+        if ( this.startAngle > this.endAngle ) {
+          return this.startAngle + ( this.endAngle - this.startAngle ) * t;
+        } else if ( this.startAngle < this.endAngle ) {
+          return this.startAngle + ( -Math.PI * 2 + this.endAngle - this.startAngle ) * t;
+        } else {
+          // equal
+          return this.startAngle;
+        }
+      } else {
+        // angle is 'increasing'
+        // -2pi < end - start <= 2pi
+        if ( this.startAngle < this.endAngle ) {
+          return this.startAngle + ( this.endAngle - this.startAngle ) * t;
+        } else if ( this.startAngle > this.endAngle ) {
+          return this.startAngle + ( Math.PI * 2 + this.endAngle - this.startAngle ) * t;
+        } else {
+          // equal
+          return this.startAngle;
+        }
+      }
     },
     
     positionAt: function( t ) {
