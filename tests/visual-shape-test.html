@@ -62,6 +62,8 @@
     <button id="lines">lines</button>
     <button id="arc1">arc1</button>
     <button id="arc2">arc2</button>
+    <button id="arc3">arc3</button>
+    <button id="arc4">arc4</button>
     
     <div class="label">Cap</div>
     <button id="cap-butt">butt</button>
@@ -170,12 +172,12 @@
                 }
                 
                 if ( pointCurvature ) {
-                  if ( c > 0.0000001 ) {
+                  if ( Math.abs( c ) > 0.0000001 ) {
                     var radiusOfCurvature = 1 / c;
-                    var curvatureCenter = p.plus( tn.perpendicular().times( -radiusOfCurvature ) );
+                    var curvatureCenter = p.plus( tn.perpendicular().times( radiusOfCurvature ) );
                     
                     context.beginPath();
-                    context.arc( curvatureCenter.x, curvatureCenter.y, radiusOfCurvature, 0, Math.PI * 2, false );
+                    context.arc( curvatureCenter.x, curvatureCenter.y, Math.abs( radiusOfCurvature ), 0, Math.PI * 2, false );
                     context.fillStyle = '#f0f';
                     context.lineWidth = 1;
                     context.stroke();
@@ -225,6 +227,12 @@
           } );
           updateListener( 'arc2', function() {
             shape = new kite.Shape().arc( 150, 150, 100, Math.PI / 4, -Math.PI / 2, true );
+          } );
+          updateListener( 'arc3', function() {
+            shape = new kite.Shape().arc( 150, 150, 100, -Math.PI / 4, Math.PI / 2, false );
+          } );
+          updateListener( 'arc4', function() {
+            shape = new kite.Shape().arc( 150, 150, 100, -Math.PI / 4, Math.PI / 2, true );
           } );
           
           /*---------------------------------------------------------------------------*
