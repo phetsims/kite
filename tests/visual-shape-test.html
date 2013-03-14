@@ -65,6 +65,8 @@
     <button id="arc2">arc2</button>
     <button id="arc3">arc3</button>
     <button id="arc4">arc4</button>
+    <button id="circle">circle</button>
+    <button id="rect">rect</button>
     
     <div class="label">Cap</div>
     <button id="cap-butt">butt</button>
@@ -316,6 +318,12 @@
           } );
           updateListener( 'arc4', function() {
             shape = new kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, true );
+          } );
+          updateListener( 'circle', function() {
+            shape = new kite.Shape().arc( 0, 0, 100, 0, Math.PI * 2, false );
+          } );
+          updateListener( 'rect', function() {
+            shape = new kite.Shape().rect( -100, -75, 200, 150 );
           } );
           
           /*---------------------------------------------------------------------------*
