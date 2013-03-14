@@ -51,6 +51,7 @@
   <canvas id="canvas"></canvas>
   
   <div id="controls">
+    <!-- TODO: handle like radio buttons -->
     <div class="label">Basic Segments</div>
     <button id="line">line</button>
     <button id="quadratic">quadratic</button>
@@ -83,6 +84,10 @@
     
     <div class="label">Bounds</div>
     <button id="bounds-shape">shape</button>
+    
+    <div class="label">Stroke</div>
+    <button id="stroke-canvas">canvas</button>
+    <button id="stroke-kite">kite</button>
   </div>
   
   <script>
@@ -111,6 +116,8 @@
           var pointTangent = false; // tangent on points
           var pointCurvature = false; // curvature on points
           
+          var kiteStroked = false;
+          
           var shapeBounds = false;
           
           var shape = new kite.Shape();
@@ -129,18 +136,26 @@
           
           function render() {
             context.clearRect( 0, 0, canvas.width, canvas.height );
-            context.beginPath();
-            shape.writeToContext( context );
             
             // main shape stroked in black
-            context.strokeStyle = '#000';
-            context.lineWidth = strokeStyles.lineWidth;
-            context.lineCap = strokeStyles.lineCap;
-            context.lineJoin = strokeStyles.lineJoin;
-            context.miterLimit = strokeStyles.miterLimit;
-            context.stroke();
+            context.beginPath();
+            if ( kiteStroked ) {
+              shape.getStrokedShape( strokeStyles ).writeToContext( context );
+              context.fillStype = '#000';
+              context.fill();
+            } else {
+              shape.writeToContext( context );
+              context.strokeStyle = '#000';
+              context.lineWidth = strokeStyles.lineWidth;
+              context.lineCap = strokeStyles.lineCap;
+              context.lineJoin = strokeStyles.lineJoin;
+              context.miterLimit = strokeStyles.miterLimit;
+              context.stroke();
+            }
             
             // overlay in red
+            context.beginPath();
+            shape.writeToContext( context );
             context.strokeStyle = '#f00';
             context.lineWidth = 1;
             context.lineCap = 'butt';
@@ -193,8 +208,9 @@
             } );
             
             if ( shapeBounds ) {
+              var b = kiteStroked ? shape.getStrokedShape( strokeStyles ).bounds : shape.bounds;
               context.beginPath();
-              context.rect( shape.bounds.minX, shape.bounds.minY, shape.bounds.width, shape.bounds.height );
+              context.rect( b.minX, b.minY, b.width, b.height );
               context.strokeStyle = 'rgba(255,0,255,0.8)';
               context.lineWidth = 1;
               context.stroke();
@@ -300,6 +316,17 @@
           
           updateListener( 'bounds-shape', function() {
             shapeBounds = !shapeBounds;
+          } );
+          
+          /*---------------------------------------------------------------------------*
+          * Stroke
+          *----------------------------------------------------------------------------*/
+          
+          updateListener( 'stroke-canvas', function() {
+            kiteStroked = false;
+          } );
+          updateListener( 'stroke-kite', function() {
+            kiteStroked = true;
           } );
           
           // var lastTime = 0;
