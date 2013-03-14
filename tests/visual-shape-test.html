@@ -108,6 +108,7 @@
     <div class="label">Hit test</div>
     <button id="hit-fill">fill</button>
     <button id="hit-stroke">stroke</button>
+    <button id="hit-mouse">mouse</button>
   </div>
   
   <script>
@@ -139,6 +140,7 @@
           var kiteStroked = false;
           var fill = false;
           var close = false;
+          var hitMouse = false; // show a starburst pattern with winding colors
           
           var shapeBounds = false;
           
@@ -458,6 +460,11 @@
               }
             }
           } );
+          
+          updateListener( 'hit-mouse', function() {
+            hitMouse = !hitMouse;
+          } );
+          
           
           // var lastTime = 0;
           // var timeElapsed = 0;
