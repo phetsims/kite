@@ -297,10 +297,14 @@ define( function( require ) {
     },
     
     containsPoint: function( point ) {
-      var wind = 0;
-      
       // we pick a ray, and determine the winding number over that ray. if the number of segments crossing it CCW == number of segments crossing it CW, then the point is contained in the shape
       var ray = new Ray2( point, p( 1, 0 ) );
+      
+      return this.windingIntersection( ray ) !== 0;
+    },
+    
+    windingIntersection: function( ray ) {
+      var wind = 0;
       
       _.each( this.subpaths, function( subpath ) {
         if ( subpath.isDrawable() ) {
@@ -314,7 +318,8 @@ define( function( require ) {
           }
         }
       } );
-      return wind !== 0;
+      
+      return wind;
     },
     
     intersectsBounds: function( bounds ) {
