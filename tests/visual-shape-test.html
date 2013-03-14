@@ -147,7 +147,9 @@
                 var tn = t.normalized();
                 var c = segment.curvatureAt( point );
                 
-                console.log( c );
+                console.log( 'point: ' + p.toString() );
+                console.log( 'tangent: ' + tn.toString() );
+                console.log( 'curvature: ' + c );
                 
                 // highlight the inspection point
                 if ( pointPosition ) {
