@@ -60,6 +60,8 @@
     
     <div class="label">Shapes</div>
     <button id="lines">lines</button>
+    <button id="arc1">arc1</button>
+    <button id="arc2">arc2</button>
     
     <div class="label">Cap</div>
     <button id="cap-butt">butt</button>
@@ -145,6 +147,8 @@
                 var tn = t.normalized();
                 var c = segment.curvatureAt( point );
                 
+                console.log( c );
+                
                 // highlight the inspection point
                 if ( pointPosition ) {
                   context.beginPath();
@@ -214,6 +218,16 @@
           updateListener( 'lines', function() {
             shape = new kite.Shape().moveTo( 50, 50 ).lineTo( 100, 200 ).lineTo( 200, 200 ).lineTo( 150, 150 );
           } );
+          updateListener( 'arc1', function() {
+            shape = new kite.Shape().arc( 150, 150, 100, Math.PI / 4, -Math.PI / 2, false );
+          } );
+          updateListener( 'arc2', function() {
+            shape = new kite.Shape().arc( 150, 150, 100, Math.PI / 4, -Math.PI / 2, true );
+          } );
+          
+          /*---------------------------------------------------------------------------*
+          * Line Cap
+          *----------------------------------------------------------------------------*/
           
           updateListener( 'cap-butt', function() {
             strokeStyles.cap = 'butt';
@@ -225,6 +239,10 @@
             strokeStyles.cap = 'round';
           } );
           
+          /*---------------------------------------------------------------------------*
+          * Line Join
+          *----------------------------------------------------------------------------*/
+          
           updateListener( 'join-miter', function() {
             strokeStyles.join = 'miter';
           } );
@@ -234,6 +252,10 @@
           updateListener( 'join-round', function() {
             strokeStyles.join = 'round';
           } );
+          
+          /*---------------------------------------------------------------------------*
+          * Point
+          *----------------------------------------------------------------------------*/
           
           updateListener( 'point', function() {
             point = document.getElementById( 'point' ).value;
