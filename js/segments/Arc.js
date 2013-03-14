@@ -213,7 +213,7 @@ define( function( require ) {
         // we are inside the circle, so only one intersection is possible
         if ( this.containsAngle( normalB.angle() ) ) {
           result.push( {
-            t: tb,
+            distance: tb,
             point: pointB,
             normal: normalB,
             wind: this.anticlockwise ? 1 : -1 // since we are inside, wind this way
@@ -227,7 +227,7 @@ define( function( require ) {
         
         if ( this.containsAngle( normalA.angle() ) ) {
           result.push( {
-            t: ta,
+            distance: ta,
             point: pointA,
             normal: normalA,
             wind: this.anticlockwise ? -1 : 1 // hit from outside
@@ -235,7 +235,7 @@ define( function( require ) {
         }
         if ( this.containsAngle( normalB.angle() ) ) {
           result.push( {
-            t: tb,
+            distance: tb,
             point: pointB,
             normal: normalB,
             wind: this.anticlockwise ? 1 : -1 // this is the far hit, which winds the opposite way

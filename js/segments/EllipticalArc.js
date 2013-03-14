@@ -227,6 +227,23 @@ define( function( require ) {
       throw new Error( 'Segment.EllipticalArc.intersectsBounds unimplemented' );
     },
     
+    intersection: function( ray ) {
+      // be lazy. transform it into the space of a non-elliptical arc.
+      var unitTransform = this.unitTransform;
+      var rayInUnitCircleSpace = unitTransform.inverseRay2( ray );
+      var hits = this.unitArcSegment.intersection( rayInUnitCircleSpace );
+      
+      return _.map( hits, function( hit ) {
+        var transformedPoint = unitTransform.transformPosition2( hit.point );
+        return {
+          distance: ray.pos.distance( transformedPoint ),
+          point: transformedPoint,
+          normal: unitTransform.inverseNormal2( hit.normal ),
+          wind: hit.wind
+        };
+      } );
+    },
+    
     // returns the resultant winding number of this ray intersecting this segment.
     windingIntersection: function( ray ) {
       // be lazy. transform it into the space of a non-elliptical arc.
