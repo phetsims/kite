@@ -549,7 +549,6 @@
                   var w = 0;
                   for ( var j = 0; j < hits.length - 1; j++ ) {
                     w += hits[j].wind;
-                    console.log( hits[j].distance, hits[j+1].distance, windColor( w ) );
                     drawSegment( hits[j].distance, hits[j+1].distance, windColor( w ) );
                   }
                   w += hits[hits.length-1].wind;
