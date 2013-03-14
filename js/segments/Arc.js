@@ -215,7 +215,7 @@ define( function( require ) {
           result.push( {
             distance: tb,
             point: pointB,
-            normal: normalB,
+            normal: normalB.negated(), // normal is towards the ray
             wind: this.anticlockwise ? 1 : -1 // since we are inside, wind this way
           } );
         }
@@ -237,7 +237,7 @@ define( function( require ) {
           result.push( {
             distance: tb,
             point: pointB,
-            normal: normalB,
+            normal: normalB.negated(),
             wind: this.anticlockwise ? 1 : -1 // this is the far hit, which winds the opposite way
           } );
         }

@@ -70,8 +70,9 @@ define( function( require ) {
       throw new Error( 'Segment.Line.intersectsBounds unimplemented' ); // TODO: implement
     },
     
-    // returns the resultant winding number of this ray intersecting this segment.
-    windingIntersection: function( ray ) {
+    intersection: function( ray ) {
+      var result = [];
+      
       var start = this.start;
       var end = this.end;
       
@@ -79,25 +80,43 @@ define( function( require ) {
       
       if ( !isFinite( intersection.x ) || !isFinite( intersection.y ) ) {
         // lines must be parallel
-        return 0;
+        return result;
       }
       
       // check to make sure our point is in our line segment (specifically, in the bounds (start,end], not including the start point so we don't double-count intersections)
       if ( start.x !== end.x && ( start.x > end.x ? ( intersection.x >= start.x || intersection.x < end.x ) : ( intersection.x <= start.x || intersection.x > end.x ) ) ) {
-        return 0;
+        return result;
       }
       if ( start.y !== end.y && ( start.y > end.y ? ( intersection.y >= start.y || intersection.y < end.y ) : ( intersection.y <= start.y || intersection.y > end.y ) ) ) {
-        return 0;
+        return result;
       }
       
       // make sure the intersection is not behind the ray
       var t = intersection.minus( ray.pos ).dot( ray.dir );
       if ( t < 0 ) {
-        return 0;
+        return result;
       }
       
       // return the proper winding direction depending on what way our line intersection is "pointed"
-      return ray.dir.perpendicular().dot( end.minus( start ) ) < 0 ? 1 : -1;
+      var diff = end.minus( start );
+      var perp = diff.perpendicular();
+      result.push( {
+        distance: t,
+        point: ray.pointAtDistance( t ),
+        normal: perp.dot( ray.dir ) > 0 ? perp.negated() : perp,
+        wind: ray.dir.perpendicular().dot( diff ) < 0 ? 1 : -1
+      } );
+      return result;
+    },
+    
+    // returns the resultant winding number of this ray intersecting this segment.
+    windingIntersection: function( ray ) {
+      var hits = this.intersection( ray );
+      if ( hits.length ) {
+        return hits[0].wind;
+      } else {
+        return 0;
+      }
     }
   };
   
