@@ -80,6 +80,9 @@
     <button id="point-position">position</button>
     <button id="point-tangent">tangent</button>
     <button id="point-curvature">curvature</button>
+    
+    <div class="label">Bounds</div>
+    <button id="bounds-shape">shape</button>
   </div>
   
   <script>
@@ -106,6 +109,8 @@
           var pointPosition = false; // highlight the inspected point(s)
           var pointTangent = false; // tangent on points
           var pointCurvature = false; // curvature on points
+          
+          var shapeBounds = false;
           
           var shape = new kite.Shape();
           
@@ -182,10 +187,17 @@
                     context.lineWidth = 1;
                     context.stroke();
                   }
-                }
-                
+                }                
               } );
             } );
+            
+            if ( shapeBounds ) {
+              context.beginPath();
+              context.rect( shape.bounds.minX, shape.bounds.minY, shape.bounds.width, shape.bounds.height );
+              context.strokeStyle = 'rgba(255,0,255,0.8)';
+              context.lineWidth = 1;
+              context.stroke();
+            }
           }
           
           function updateListener( id, callback, event ) {
@@ -279,6 +291,14 @@
           } );
           updateListener( 'point-curvature', function() {
             pointCurvature = !pointCurvature;
+          } );
+          
+          /*---------------------------------------------------------------------------*
+          * Bounds
+          *----------------------------------------------------------------------------*/
+          
+          updateListener( 'bounds-shape', function() {
+            shapeBounds = !shapeBounds;
           } );
           
           // var lastTime = 0;
