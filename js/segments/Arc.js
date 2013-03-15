@@ -170,11 +170,11 @@ define( function( require ) {
     },
     
     strokeLeft: function( lineWidth ) {
-      return [ new Piece.Arc( this.center, this.radius + this.anticlockwise ? -lineWidth / 2 : lineWidth / 2, this.startAngle, this.endAngle, this.anticlockwise ) ];
+      return [ new Piece.Arc( this.center, this.radius + ( this.anticlockwise ? -lineWidth / 2 : lineWidth / 2 ), this.startAngle, this.endAngle, this.anticlockwise ) ];
     },
     
     strokeRight: function( lineWidth ) {
-      return [ new Piece.Arc( this.center, this.radius + this.anticlockwise ? lineWidth / 2 : -lineWidth / 2, this.startAngle, this.endAngle, this.anticlockwise ) ];
+      return [ new Piece.Arc( this.center, this.radius + ( this.anticlockwise ? lineWidth / 2 : -lineWidth / 2 ), this.startAngle, this.endAngle, this.anticlockwise ) ];
     },
     
     intersectsBounds: function( bounds ) {
