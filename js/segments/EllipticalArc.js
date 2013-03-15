@@ -176,12 +176,12 @@ define( function( require ) {
       var quantity = 32;
       
       var result = [];
-      for ( var i = 1; i < quantity; i++ ) {
-        var ratio = i - ( quantity - 1 );
+      for ( var i = 0; i < quantity; i++ ) {
+        var ratio = i / ( quantity - 1 );
         if ( reverse ) {
           ratio = 1 - ratio;
         }
-        var angle = this.startAngle + ratio * ( this.endAngle - this.startAngle );
+        var angle = this.angleAt( ratio );
         
         var point = this.positionAtAngle( angle ).plus( this.tangentAtAngle( angle ).perpendicular().normalized().times( r ) );
         result.push( new Piece.LineTo( point ) );
