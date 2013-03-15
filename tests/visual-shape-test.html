@@ -202,6 +202,9 @@
               transformedShape.getStrokedShape( strokeStyles ).writeToContext( context );
               context.fillStyle = '#000';
               context.fill();
+              context.strokeStyle = 'rgba(0,255,0,1)';
+              context.lineWidth = 1;
+              context.stroke();
             } else {
               transformedShape.writeToContext( context );
               context.strokeStyle = '#000';
