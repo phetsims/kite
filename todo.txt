@@ -8,7 +8,6 @@ Bugs:
     Is transformDelta2 off? Or conceptual error?
   Arc/EllipticalArc shear transform seems broken
   Intersection on ray parallel to 'lines' can cause false positives, possibly false negatives?
-  Cubic bounds are broken
   arc2/arc3 examples seem to trigger canvas bug? verify.
   Circle transform seems to break
   Stroking miterlimit on shear-transformed shape seems to not happen. normal-shear a rectangle
