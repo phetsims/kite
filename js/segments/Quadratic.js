@@ -17,6 +17,7 @@ define( function( require ) {
   
   var Bounds2 = require( 'DOT/Bounds2' );
   var Matrix3 = require( 'DOT/Matrix3' );
+  var solveQuadraticRootsReal = require( 'DOT/Util' ).solveQuadraticRootsReal;
 
   var Segment = require( 'KITE/segments/Segment' );
   var Piece = require( 'KITE/pieces/Piece' );
@@ -177,7 +178,9 @@ define( function( require ) {
     },
     
     // returns the resultant winding number of this ray intersecting this segment.
-    windingIntersection: function( ray ) {
+    intersection: function( ray ) {
+      var self = this;
+      var result = [];
       // TODO: optimization
       
       // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
@@ -188,33 +191,41 @@ define( function( require ) {
       var p1 = inverseMatrix.timesVector2( this.control );
       var p2 = inverseMatrix.timesVector2( this.end );
       
-      // TODO: use Dot's quadratic solver!
-      var discriminant = p1.y * p1.y - p0.y * p2.y;
-      if ( discriminant < 0.00000001 ) {
-        return 0; // no intersection with the mathematical (extended) curve
-      }
+      //(1-t)^2 start + 2(1-t)t control + t^2 end
+      var a = p0.y - 2 * p1.y + p2.y;
+      var b = -2 * p0.y + 2 * p1.y;
+      var c = p0.y;
       
-      // the two t values, which should be valid in our regular coordinate system
-      var ta = ( p0.y - p1.y + Math.sqrt( discriminant ) ) / ( p0.y - 2 * p1.y + p2.y );
-      var tb = ( p0.y - p1.y - Math.sqrt( discriminant ) ) / ( p0.y - 2 * p1.y + p2.y );
+      var ts = solveQuadraticRootsReal( a, b, c );
       
-      var da = this.positionAt( ta ).minus( ray.pos );
-      var db = this.positionAt( tb ).minus( ray.pos );
-      
-      var aValid = ta > 0 && da.dot( ray.dir ) > 0;
-      var bValid = tb > 0 && db.dot( ray.dir ) > 0;
-      
-      var result = 0;
-      
-      if ( aValid ) {
-        result += ray.dir.perpendicular().dot( this.tangentAt( ta ) ) < 0 ? 1 : -1;
-      }
-      
-      if ( bValid ) {
-        result += ray.dir.perpendicular().dot( this.tangentAt( tb ) ) < 0 ? 1 : -1;
-      }
-      
+      _.each( ts, function( t ) {
+        if ( t >= 0 && t <= 1 ) {
+          var hitPoint = self.positionAt( t );
+          var unitTangent = self.tangentAt( t ).normalized();
+          var perp = unitTangent.perpendicular();
+          var toHit = hitPoint.minus( ray.pos );
+          
+          // make sure it's not behind the ray
+          if ( toHit.dot( ray.dir ) > 0 ) {
+            result.push( {
+              distance: toHit.magnitude(),
+              point: hitPoint,
+              normal: perp.dot( ray.dir ) > 0 ? perp.negated() : perp,
+              wind: ray.dir.perpendicular().dot( unitTangent ) < 0 ? 1 : -1
+            } );
+          }
+        }
+      } );
       return result;
+    },
+    
+    windingIntersection: function( ray ) {
+      var wind = 0;
+      var hits = this.intersection( ray );
+      _.each( hits, function( hit ) {
+        wind += hit.wind;
+      } );
+      return wind;
     }
   };
   

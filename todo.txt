@@ -1,4 +1,7 @@
 
+Should the tangent return a unit vector?
+windingIntersection in segment base class?
+
 Bugs:
   Intersection on ray parallel to 'lines' can cause false positives, possibly false negatives?
   Arc / EllipticalArc stroking can give negative radius => exception
