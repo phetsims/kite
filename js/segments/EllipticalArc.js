@@ -145,13 +145,9 @@ define( function( require ) {
     },
     
     tangentAtAngle: function( angle ) {
-      console.log( angle );
-      console.log( Vector2.createPolar( 1, angle + ( this.anticlockwise ? Math.PI / 2 : -Math.PI / 2 ) ).toString() );
-      console.log( this.unitTransform.transformDelta2( Vector2.createPolar( 1, angle + ( this.anticlockwise ? Math.PI / 2 : -Math.PI / 2 ) ) ).toString() );
-      console.log( this.unitTransform.getMatrix().toString() );
-      // return this.unitTransform.transformDelta2( Vector2.createPolar( 1, angle + ( this.anticlockwise ? Math.PI / 2 : -Math.PI / 2 ) ) );
+      var normal = this.unitTransform.transformNormal2( Vector2.createPolar( 1, angle ) );
       
-      return this.unitTransform.transformNormal2( Vector2.createPolar( 1, angle ) ).perpendicular();
+      return this.anticlockwise ? normal.perpendicular() : normal.perpendicular().negated();
     },
     
     // TODO: refactor? exact same as Segment.Arc

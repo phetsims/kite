@@ -117,7 +117,9 @@ define( function( require ) {
     },
     
     tangentAtAngle: function( angle ) {
-      return Vector2.createPolar( 1, angle + ( this.anticlockwise ? Math.PI / 2 : -Math.PI / 2 ) );
+      var normal = Vector2.createPolar( 1, angle );
+      
+      return this.anticlockwise ? normal.perpendicular() : normal.perpendicular().negated();
     },
     
     // TODO: refactor? shared with Segment.EllipticalArc

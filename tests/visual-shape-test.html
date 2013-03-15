@@ -26,7 +26,7 @@
     }
     
     div#controls {
-      width: 200px;
+      width: 250px;
       /*height: 400px;*/
       position: absolute;
       right: 0;
@@ -70,6 +70,10 @@
     <button id="ellipse3">ellipse3</button>
     <button id="circle">circle</button>
     <button id="rect">rect</button>
+    <button id="earc1">earc1</button>
+    <button id="earc2">earc2</button>
+    <button id="earc3">earc3</button>
+    <button id="earc4">earc4</button>
     
     <div class="label">Cap</div>
     <button id="cap-butt">butt</button>
@@ -90,15 +94,10 @@
     <button id="point-tangent">tangent</button>
     <button id="point-curvature">curvature</button>
     
-    <div class="label">Bounds</div>
-    <button id="bounds-shape">shape</button>
-    
-    <div class="label">Fill</div>
+    <div class="label">Other</div>
+    <button id="bounds-shape">bounds</button>
     <button id="fill">fill</button>
-    
-    <div class="label">Stroke</div>
-    <button id="stroke-canvas">canvas</button>
-    <button id="stroke-kite">kite</button>
+    <button id="stroke-kite">kiteStroke</button>
     
     <div class="label">Transform</div>
     <button id="transform-active">active</button>
@@ -187,7 +186,7 @@
                           .timesMatrix( new dot.Matrix3( 1, shear, 0, 0, 1, 0, 0, 0, 1 ) )
                           .timesMatrix( reflection ? dot.Matrix3.X_REFLECTION : dot.Matrix3.IDENTITY );
               transformedShape = shape.transformed( matrix );
-              console.log( matrix.toString() + '\n' );
+              // console.log( matrix.toString() + '\n' );
             }
             if ( close ) {
               transformedShape = new kite.Shape( transformedShape.pieces, true );
@@ -341,6 +340,18 @@
           updateListener( 'rect', function() {
             shape = new kite.Shape().rect( -100, -75, 200, 150 );
           } );
+          updateListener( 'earc1', function() {
+            shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
+          } );
+          updateListener( 'earc2', function() {
+            shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, true );
+          } );
+          updateListener( 'earc3', function() {
+            shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, -Math.PI / 3, Math.PI / 6, false );
+          } );
+          updateListener( 'earc4', function() {
+            shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, -Math.PI / 3, Math.PI / 6, true );
+          } );
           
           /*---------------------------------------------------------------------------*
           * Line Cap
@@ -416,11 +427,8 @@
           * Stroke
           *----------------------------------------------------------------------------*/
           
-          updateListener( 'stroke-canvas', function() {
-            kiteStroked = false;
-          } );
           updateListener( 'stroke-kite', function() {
-            kiteStroked = true;
+            kiteStroked = !kiteStroked;
           } );
           
           /*---------------------------------------------------------------------------*
