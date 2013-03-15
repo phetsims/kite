@@ -184,8 +184,7 @@ define( function( require ) {
       // TODO: optimization
       
       // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
-      var inverseMatrix = Matrix3.rotation2( -ray.dir.angle() );
-      assert && assert( inverseMatrix.timesVector2( ray.dir ).x > 0.99 ); // verify that we transform the unit vector to the x-unit
+      var inverseMatrix = Matrix3.rotation2( -ray.dir.angle() ).timesMatrix( Matrix3.translation( -ray.pos.x, -ray.pos.y ) );
       
       var p0 = inverseMatrix.timesVector2( this.start );
       var p1 = inverseMatrix.timesVector2( this.control );
