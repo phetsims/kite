@@ -178,7 +178,7 @@ define( function( require ) {
       
       var result = [];
       for ( var i = 1; i < quantity; i++ ) {
-        var t = i - ( quantity - 1 );
+        var t = i / ( quantity - 1 );
         if ( reverse ) {
           t = 1 - t;
         }
