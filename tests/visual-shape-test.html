@@ -273,7 +273,7 @@
             } );
             
             if ( shapeBounds ) {
-              var b = kiteStroked ? transformedShape.getStrokedShape( strokeStyles ).bounds : transformedShape.bounds;
+              var b = strokedShape.bounds;
               context.beginPath();
               context.rect( b.minX, b.minY, b.width, b.height );
               context.strokeStyle = 'rgba(255,0,255,0.8)';
