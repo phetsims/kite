@@ -65,6 +65,9 @@
     <button id="arc2">arc2</button>
     <button id="arc3">arc3</button>
     <button id="arc4">arc4</button>
+    <button id="ellipse1">ellipse1</button>
+    <button id="ellipse2">ellipse2</button>
+    <button id="ellipse3">ellipse3</button>
     <button id="circle">circle</button>
     <button id="rect">rect</button>
     
@@ -322,6 +325,15 @@
           } );
           updateListener( 'arc4', function() {
             shape = new kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, true );
+          } );
+          updateListener( 'ellipse1', function() {
+            shape = new kite.Shape().ellipse( 0, 0, 100, 50, 0 );
+          } );
+          updateListener( 'ellipse2', function() {
+            shape = new kite.Shape().ellipse( 0, 0, 100, 50, Math.PI / 2 );
+          } );
+          updateListener( 'ellipse3', function() {
+            shape = new kite.Shape().ellipse( 0, 0, 100, 50, Math.PI );
           } );
           updateListener( 'circle', function() {
             shape = new kite.Shape().arc( 0, 0, 100, 0, Math.PI * 2, false );
