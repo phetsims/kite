@@ -26,6 +26,20 @@ define( function( require ) {
   require( 'KITE/util/Subpath' );
   
   Piece.EllipticalArc = function( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
+    if ( radiusX < 0 ) {
+      // support this case since we might actually need to handle it inside of strokes?
+      radiusX = -radiusX;
+      startAngle = Math.PI - startAngle;
+      endAngle = Math.PI - endAngle;
+      anticlockwise = !anticlockwise;
+    }
+    if ( radiusY < 0 ) {
+      // support this case since we might actually need to handle it inside of strokes?
+      radiusY = -radiusY;
+      startAngle = -startAngle;
+      endAngle = -endAngle;
+      anticlockwise = !anticlockwise;
+    }
     this.center = center;
     this.radiusX = radiusX;
     this.radiusY = radiusY;

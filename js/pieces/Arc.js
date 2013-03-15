@@ -22,6 +22,12 @@ define( function( require ) {
   require( 'KITE/util/Subpath' );
   
   Piece.Arc = function( center, radius, startAngle, endAngle, anticlockwise ) {
+    if ( radius < 0 ) {
+      // support this case since we might actually need to handle it inside of strokes?
+      radius = -radius;
+      startAngle += Math.PI;
+      endAngle += Math.PI;
+    }
     this.center = center;
     this.radius = radius;
     this.startAngle = startAngle;

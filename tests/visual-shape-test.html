@@ -65,6 +65,7 @@
     <button id="arc2">arc2</button>
     <button id="arc3">arc3</button>
     <button id="arc4">arc4</button>
+    <button id="narc1">narc1</button>
     <button id="ellipse1">ellipse1</button>
     <button id="ellipse2">ellipse2</button>
     <button id="ellipse3">ellipse3</button>
@@ -74,6 +75,9 @@
     <button id="earc2">earc2</button>
     <button id="earc3">earc3</button>
     <button id="earc4">earc4</button>
+    <button id="nxearc1">nxearc1</button>
+    <button id="nyearc1">nyearc1</button>
+    <button id="nxyearc1">nxyearc1</button>
     
     <div class="label">Cap</div>
     <button id="cap-butt">butt</button>
@@ -325,6 +329,9 @@
           updateListener( 'arc4', function() {
             shape = new kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, true );
           } );
+          updateListener( 'narc1', function() {
+            shape = new kite.Shape().arc( 0, 0, -100, Math.PI / 4, -Math.PI / 2, false );
+          } );
           updateListener( 'ellipse1', function() {
             shape = new kite.Shape().ellipse( 0, 0, 100, 50, 0 );
           } );
@@ -351,6 +358,15 @@
           } );
           updateListener( 'earc4', function() {
             shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, -Math.PI / 3, Math.PI / 6, true );
+          } );
+          updateListener( 'nxearc1', function() {
+            shape = new kite.Shape().ellipticalArc( 0, 0, -100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
+          } );
+          updateListener( 'nyearc1', function() {
+            shape = new kite.Shape().ellipticalArc( 0, 0, 100, -50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
+          } );
+          updateListener( 'nxyearc1', function() {
+            shape = new kite.Shape().ellipticalArc( 0, 0, -100, -50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
           } );
           
           /*---------------------------------------------------------------------------*
