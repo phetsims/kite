@@ -91,6 +91,7 @@ define( function( require ) {
       var sqrt = Math.sqrt( det );
       var a = 2 * v1 * v1 - v2 - v0;
       var b = 3 * v1 - 3 * v2 + v3 - v0;
+      
       return [
         ( a - sqrt ) / b,
         ( a + sqrt ) / b
@@ -99,10 +100,14 @@ define( function( require ) {
     
     var cubic = this;
     _.each( extremaT( this.start.x, this.control1.x, this.control2.x, this.end.x ), function( t ) {
-      cubic.bounds = cubic.bounds.withPoint( cubic.positionAt( t ) );
+      if ( t >= 0 && t <= 1 ) {
+        cubic.bounds = cubic.bounds.withPoint( cubic.positionAt( t ) );
+      }
     } );
     _.each( extremaT( this.start.y, this.control1.y, this.control2.y, this.end.y ), function( t ) {
-      cubic.bounds = cubic.bounds.withPoint( cubic.positionAt( t ) );
+      if ( t >= 0 && t <= 1 ) {
+        cubic.bounds = cubic.bounds.withPoint( cubic.positionAt( t ) );
+      }
     } );
     
     if ( this.hasCusp() ) {
