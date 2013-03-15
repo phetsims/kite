@@ -102,6 +102,7 @@
     <button id="bounds-shape">bounds</button>
     <button id="fill">fill</button>
     <button id="stroke-kite">kiteStroke</button>
+    <button id="endpoints">subpath</button>
     
     <div class="label">Transform</div>
     <button id="transform-active">active</button>
@@ -149,6 +150,7 @@
           var close = false;
           var hitMouse = false; // show a starburst pattern with winding colors
           var hitMouseSpan = false;
+          var endpoints = false;
           
           var shapeBounds = false;
           
@@ -229,6 +231,17 @@
             context.stroke();
             
             _.each( transformedShape.subpaths, function( subpath ) {
+              if ( endpoints ) {
+                for ( var k = 0; k < subpath.points.length; k++ ) {
+                  var subpoint = subpath.points[k];
+                  context.beginPath();
+                  context.arc( subpoint.x, subpoint.y, 7, 0, Math.PI * 2, false );
+                  context.strokeStyle = k === 0 ? '#f80' : ( k === subpath.points.length - 1 ? '#0f8' : '#80f' );
+                  context.lineWidth = 1;
+                  context.stroke();
+                }
+              }
+              
               _.each( subpath.segments, function( segment ) {
                 var p = segment.positionAt( point );
                 var t = segment.tangentAt( point );
@@ -451,6 +464,10 @@
           
           updateListener( 'stroke-kite', function() {
             kiteStroked = !kiteStroked;
+          } );
+          
+          updateListener( 'endpoints', function() {
+            endpoints = !endpoints;
           } );
           
           /*---------------------------------------------------------------------------*
