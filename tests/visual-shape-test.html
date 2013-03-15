@@ -250,7 +250,7 @@
                 if ( pointCurvature ) {
                   if ( Math.abs( c ) > 0.0000001 ) {
                     var radiusOfCurvature = 1 / c;
-                    var curvatureCenter = p.plus( tn.perpendicular().times( radiusOfCurvature ) );
+                    var curvatureCenter = p.plus( tn.perpendicular().times( -radiusOfCurvature ) );
                     
                     context.beginPath();
                     context.arc( curvatureCenter.x, curvatureCenter.y, Math.abs( radiusOfCurvature ), 0, Math.PI * 2, false );
