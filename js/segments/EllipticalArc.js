@@ -149,9 +149,9 @@ define( function( require ) {
       console.log( Vector2.createPolar( 1, angle + ( this.anticlockwise ? Math.PI / 2 : -Math.PI / 2 ) ).toString() );
       console.log( this.unitTransform.transformDelta2( Vector2.createPolar( 1, angle + ( this.anticlockwise ? Math.PI / 2 : -Math.PI / 2 ) ) ).toString() );
       console.log( this.unitTransform.getMatrix().toString() );
-      return this.unitTransform.transformDelta2( Vector2.createPolar( 1, angle + ( this.anticlockwise ? Math.PI / 2 : -Math.PI / 2 ) ) );
+      // return this.unitTransform.transformDelta2( Vector2.createPolar( 1, angle + ( this.anticlockwise ? Math.PI / 2 : -Math.PI / 2 ) ) );
       
-      // return this.unitTransform.transformNormal2( Vector2.createPolar( 1, ))
+      return this.unitTransform.transformNormal2( Vector2.createPolar( 1, angle ) ).perpendicular();
     },
     
     // TODO: refactor? exact same as Segment.Arc

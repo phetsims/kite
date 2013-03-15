@@ -226,9 +226,9 @@
                 var tn = t.normalized();
                 var c = segment.curvatureAt( point );
                 
-                console.log( 'point: ' + p.toString() );
-                console.log( 'tangent: ' + tn.toString() );
-                console.log( 'curvature: ' + c );
+                // console.log( 'point: ' + p.toString() );
+                // console.log( 'tangent: ' + tn.toString() );
+                // console.log( 'curvature: ' + c );
                 
                 // highlight the inspection point
                 if ( pointPosition ) {
@@ -239,9 +239,9 @@
                 }
                 
                 if ( pointTangent ) {
-                  var length = 15;
+                  var length = 25;
                   context.beginPath();
-                  context.moveTo( p.x - tn.x * length, p.y - tn.y * length );
+                  context.moveTo( p.x - tn.x * length * 0, p.y - tn.y * length * 0 );
                   context.lineTo( p.x + tn.x * length, p.y + tn.y * length );
                   context.strokeStyle = '#0ff';
                   context.lineWidth = 1;
@@ -333,7 +333,7 @@
             shape = new kite.Shape().ellipse( 0, 0, 100, 50, Math.PI / 2 );
           } );
           updateListener( 'ellipse3', function() {
-            shape = new kite.Shape().ellipse( 0, 0, 100, 50, Math.PI );
+            shape = new kite.Shape().ellipse( 0, 0, 100, 50, Math.PI / 4 );
           } );
           updateListener( 'circle', function() {
             shape = new kite.Shape().arc( 0, 0, 100, 0, Math.PI * 2, false );
