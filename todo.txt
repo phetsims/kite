@@ -6,13 +6,12 @@ Bugs:
   Why did the following not work for Ellipse tangent:
     return this.unitTransform.transformDelta2( Vector2.createPolar( 1, angle + ( this.anticlockwise ? Math.PI / 2 : -Math.PI / 2 ) ) );
     Is transformDelta2 off? Or conceptual error?
+  Arc/EllipticalArc shear transform seems broken
   Intersection on ray parallel to 'lines' can cause false positives, possibly false negatives?
-  Arc / EllipticalArc stroking can give negative radius => exception
-    Bounds computation handles this nicely!
   Cubic bounds are broken
   arc2/arc3 examples seem to trigger canvas bug? verify.
-  EllipticalArc shear can cause radiusX < radiusY. Test the compatibility with Canvas/SVG for this case and fix
   Circle transform seems to break
+  Stroking miterlimit on shear-transformed shape seems to not happen. normal-shear a rectangle
 
 Testing:
   Create a simple way to do the comparisons that we already have in Scenery's tests
