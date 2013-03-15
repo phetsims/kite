@@ -95,9 +95,9 @@ define( function( require ) {
         var p0 = isZero ? this.start : this.end;
         var p1 = this.control;
         var p2 = isZero ? this.end : this.start;
-        var d10 = p1.minus( p2 );
+        var d10 = p1.minus( p0 );
         var a = d10.magnitude();
-        var h = -d10.perpendicular().normalized().dot( p2.minus( p1 ) );
+        var h = ( isZero ? -1 : 1 ) * d10.perpendicular().normalized().dot( p2.minus( p1 ) );
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
       } else {
         return this.subdivided( t, true )[0].curvatureAt( 1 );

@@ -11,7 +11,6 @@ Bugs:
     Bounds computation handles this nicely!
   Cubic bounds are broken
   arc2/arc3 examples seem to trigger canvas bug? verify.
-  Quadratic / Cubic curvature is broken
   EllipticalArc shear can cause radiusX < radiusY. Test the compatibility with Canvas/SVG for this case and fix
   Circle transform seems to break
 
