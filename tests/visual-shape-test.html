@@ -154,6 +154,7 @@
           
           var shape = new kite.Shape();
           var transformedShape;
+          var strokedShape;
           
           var xOffset = 150;
           var yOffset = 150;
@@ -199,13 +200,15 @@
             // main shape stroked in black
             context.beginPath();
             if ( kiteStroked ) {
-              transformedShape.getStrokedShape( strokeStyles ).writeToContext( context );
+              strokedShape = transformedShape.getStrokedShape( strokeStyles );
+              strokedShape.writeToContext( context );
               context.fillStyle = '#000';
               context.fill();
               context.strokeStyle = 'rgba(0,255,0,1)';
               context.lineWidth = 1;
               context.stroke();
             } else {
+              strokedShape = transformedShape;
               transformedShape.writeToContext( context );
               context.strokeStyle = '#000';
               context.lineWidth = strokeStyles.lineWidth;
@@ -525,7 +528,7 @@
                 var b = pos.plus( dot.Vector2.createPolar( displayLength, ( i + 0.5 ) * multiplier ) );
                 var end = ray.pointAtDistance( 200 );
                 
-                var wind = transformedShape.windingIntersection( ray );
+                var wind = strokedShape.windingIntersection( ray );
                 
                 context.beginPath();
                 context.moveTo( pos.x, pos.y );
@@ -549,7 +552,7 @@
                 var maxAngle = ( i + 0.5 ) * multiplier;
                 var ray = new dot.Ray2( pos, dot.Vector2.createPolar( 1, angle ) );
                 
-                var hits = transformedShape.intersection( ray );
+                var hits = strokedShape.intersection( ray );
                 
                 function drawSegment( a, b, color ) {
                   context.beginPath();
