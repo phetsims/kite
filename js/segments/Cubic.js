@@ -20,6 +20,7 @@ define( function( require ) {
   var Bounds2 = require( 'DOT/Bounds2' );
   var Vector2 = require( 'DOT/Vector2' );
   var Matrix3 = require( 'DOT/Matrix3' );
+  var solveQuadraticRootsReal = require( 'DOT/Util' ).solveQuadraticRootsReal;
   var solveCubicRootsReal = require( 'DOT/Util' ).solveCubicRootsReal;
   
   var Segment = require( 'KITE/segments/Segment' );
@@ -84,18 +85,28 @@ define( function( require ) {
     
     // finds what t values the cubic extrema are at (if any).
     function extremaT( v0, v1, v2, v3 ) {
-      var det = v1 * v1 - v1 * v2 + v2 * v2 - v1 * v3 - v2 * v0 + v3 * v0;
-      if ( det < 0 ) {
-        return [];
-      }
-      var sqrt = Math.sqrt( det );
-      var a = 2 * v1 * v1 - v2 - v0;
-      var b = 3 * v1 - 3 * v2 + v3 - v0;
+      // v0 * ( -3 * (1-t) * (1-t) )
+      // v1 * ( 3 * (1-t) * (1-t) - 6 * (1-t) * t ) )
+      // v2 * ( 6 * (1-t) * t - 3 * t * t ) )
+      // v3 * ( 3 * t * t ) );
+      var a = -3 * v0 + ( 3 + 6 )  * v1 + ( -6 - 3 ) * v2 + 3 * v3;
+      var b =  6 * v0 + ( -6 - 6 ) * v1 + ( 6 ) * v2;
+      var c = -3 * v0 + ( 3 )      * v1;
       
-      return [
-        ( a - sqrt ) / b,
-        ( a + sqrt ) / b
-      ];
+      return solveQuadraticRootsReal( a, b, c );
+      
+      // var det = v1 * v1 - v1 * v2 + v2 * v2 - v1 * v3 - v2 * v0 + v3 * v0;
+      // if ( det < 0 ) {
+      //   return [];
+      // }
+      // var sqrt = Math.sqrt( det );
+      // var a = 2 * v1 * v1 - v2 - v0;
+      // var b = 3 * v1 - 3 * v2 + v3 - v0;
+      
+      // return [
+      //   ( a - sqrt ) / b,
+      //   ( a + sqrt ) / b
+      // ];
     }
     
     var cubic = this;
