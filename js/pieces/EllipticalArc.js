@@ -40,6 +40,17 @@ define( function( require ) {
       endAngle = -endAngle;
       anticlockwise = !anticlockwise;
     }
+    if ( radiusX < radiusY ) {
+      // swap radiusX and radiusY internally for consistent Canvas / SVG output
+      rotation += Math.PI / 2;
+      startAngle -= Math.PI / 2;
+      endAngle -= Math.PI / 2;
+      
+      // swap radiusX and radiusY
+      var tmpR = radiusX;
+      radiusX = radiusY;
+      radiusY = tmpR;
+    }
     this.center = center;
     this.radiusX = radiusX;
     this.radiusY = radiusY;
