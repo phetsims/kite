@@ -181,7 +181,6 @@ define( function( require ) {
     intersection: function( ray ) {
       var self = this;
       var result = [];
-      // TODO: optimization
       
       // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
       var inverseMatrix = Matrix3.rotation2( -ray.dir.angle() ).timesMatrix( Matrix3.translation( -ray.pos.x, -ray.pos.y ) );

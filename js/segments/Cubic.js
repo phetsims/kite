@@ -211,36 +211,87 @@ define( function( require ) {
     },
     
     // returns the resultant winding number of this ray intersecting this segment.
-    windingIntersection: function( ray ) {
-      // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
-      var inverseMatrix = Matrix3.rotation2( -ray.dir.angle() );
-      assert && assert( inverseMatrix.timesVector2( ray.dir ).x > 0.99 ); // verify that we transform the unit vector to the x-unit
+    intersection: function( ray ) {
+      var self = this;
+      var result = [];
       
-      var y0 = inverseMatrix.timesVector2( this.start ).y;
-      var y1 = inverseMatrix.timesVector2( this.control1 ).y;
-      var y2 = inverseMatrix.timesVector2( this.control2 ).y;
-      var y3 = inverseMatrix.timesVector2( this.end ).y;
+      // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
+      var inverseMatrix = Matrix3.rotation2( -ray.dir.angle() ).timesMatrix( Matrix3.translation( -ray.pos.x, -ray.pos.y ) );
+      
+      var p0 = inverseMatrix.timesVector2( this.start );
+      var p1 = inverseMatrix.timesVector2( this.control1 );
+      var p2 = inverseMatrix.timesVector2( this.control2 );
+      var p3 = inverseMatrix.timesVector2( this.end );
       
       // polynomial form of cubic: start + (3 control1 - 3 start) t + (-6 control1 + 3 control2 + 3 start) t^2 + (3 control1 - 3 control2 + end - start) t^3
-      var a = -y0 + 3 * y1 - 3 * y2 + y3;
-      var b = 3 * y0 - 6 * y1 + 3 * y2;
-      var c = -3 * y0 + 3 * y1;
-      var d = y0;
+      var a = -p0.y + 3 * p1.y - 3 * p2.y + p3.y;
+      var b = 3 * p0.y - 6 * p1.y + 3 * p2.y;
+      var c = -3 * p0.y + 3 * p1.y;
+      var d = p0.y;
       
-      // solve cubic roots
       var ts = solveCubicRootsReal( a, b, c, d );
       
-      var result = 0;
-      
-      // for each hit
       _.each( ts, function( t ) {
         if ( t >= 0 && t <= 1 ) {
-          result += ray.dir.perpendicular().dot( this.tangentAt( t ) ) < 0 ? 1 : -1;
+          var hitPoint = self.positionAt( t );
+          var unitTangent = self.tangentAt( t ).normalized();
+          var perp = unitTangent.perpendicular();
+          var toHit = hitPoint.minus( ray.pos );
+          
+          // make sure it's not behind the ray
+          if ( toHit.dot( ray.dir ) > 0 ) {
+            result.push( {
+              distance: toHit.magnitude(),
+              point: hitPoint,
+              normal: perp.dot( ray.dir ) > 0 ? perp.negated() : perp,
+              wind: ray.dir.perpendicular().dot( unitTangent ) < 0 ? 1 : -1
+            } );
+          }
         }
       } );
-      
       return result;
+    },
+    
+    windingIntersection: function( ray ) {
+      var wind = 0;
+      var hits = this.intersection( ray );
+      _.each( hits, function( hit ) {
+        wind += hit.wind;
+      } );
+      return wind;
     }
+    
+    // returns the resultant winding number of this ray intersecting this segment.
+    // windingIntersection: function( ray ) {
+    //   // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
+    //   var inverseMatrix = Matrix3.rotation2( -ray.dir.angle() );
+    //   assert && assert( inverseMatrix.timesVector2( ray.dir ).x > 0.99 ); // verify that we transform the unit vector to the x-unit
+      
+    //   var y0 = inverseMatrix.timesVector2( this.start ).y;
+    //   var y1 = inverseMatrix.timesVector2( this.control1 ).y;
+    //   var y2 = inverseMatrix.timesVector2( this.control2 ).y;
+    //   var y3 = inverseMatrix.timesVector2( this.end ).y;
+      
+    //   // polynomial form of cubic: start + (3 control1 - 3 start) t + (-6 control1 + 3 control2 + 3 start) t^2 + (3 control1 - 3 control2 + end - start) t^3
+    //   var a = -y0 + 3 * y1 - 3 * y2 + y3;
+    //   var b = 3 * y0 - 6 * y1 + 3 * y2;
+    //   var c = -3 * y0 + 3 * y1;
+    //   var d = y0;
+      
+    //   // solve cubic roots
+    //   var ts = solveCubicRootsReal( a, b, c, d );
+      
+    //   var result = 0;
+      
+    //   // for each hit
+    //   _.each( ts, function( t ) {
+    //     if ( t >= 0 && t <= 1 ) {
+    //       result += ray.dir.perpendicular().dot( this.tangentAt( t ) ) < 0 ? 1 : -1;
+    //     }
+    //   } );
+      
+    //   return result;
+    // }
   };
   
   return Segment.Cubic;
