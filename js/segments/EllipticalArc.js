@@ -38,8 +38,8 @@ define( function( require ) {
     
     this.start = this.positionAtAngle( startAngle );
     this.end = this.positionAtAngle( endAngle );
-    this.startTangent = this.tangentAtAngle( startAngle );
-    this.endTangent = this.tangentAtAngle( endAngle );
+    this.startTangent = this.tangentAtAngle( startAngle ).normalized();
+    this.endTangent = this.tangentAtAngle( endAngle ).normalized();
     
     if ( radiusX === 0 || radiusY === 0 || startAngle === endAngle ) {
       this.invalid = true;
@@ -176,7 +176,7 @@ define( function( require ) {
       var quantity = 32;
       
       var result = [];
-      for ( var i = 0; i < quantity; i++ ) {
+      for ( var i = 1; i < quantity; i++ ) {
         var ratio = i / ( quantity - 1 );
         if ( reverse ) {
           ratio = 1 - ratio;
