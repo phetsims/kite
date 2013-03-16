@@ -8,6 +8,7 @@ Bugs:
     Is transformDelta2 off? Or conceptual error?
   Arc/EllipticalArc shear transform seems broken
   Intersection on ray parallel to 'lines' can cause false positives, possibly false negatives?
+    Need to handle intersection at endpoints solidly
   arc2/arc3 examples seem to trigger canvas bug? verify.
   Circle transform seems to break
   Stroking miterlimit on shear-transformed shape seems to not happen. normal-shear a rectangle
@@ -22,6 +23,9 @@ Testing:
     stroked paths
     transformations (+reflections and shears)
     hit testing (compute for every pixel and shade)
+
+Performance:
+  Consider eval to build a function that can render the shape to canvas, without all of the indirection, etc.
 
 Shapes:
   Add curvatureAt( t ), since this will be necessary for determining regions (if multiple segments have the same tangent at the same endpoint)
@@ -41,6 +45,7 @@ Shapes:
     Break into regions that can test for nonzero/evenodd, then combine adjacent ones so we can have efficient segments without the 'stroked region' overlap
     Fixes self-intersection in 'stroked' path
     Allows Constructive Solid Geometry
+      Intersection of each type of segment - how to handle endpoint intersections in general
   WebGL support? Probably just export a discretization with vertices. Region handling is important for this.
   Function for higher-performance possibly-expanded bounds for redraw?
   Consider bounding box handling for an arbitrary transform, for use with Node's isInGlobalBounds( globalBounds, currentTransform ).
