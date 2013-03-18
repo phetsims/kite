@@ -27,6 +27,10 @@ Testing:
 Performance:
   Consider eval to build a function that can render the shape to canvas, without all of the indirection, etc.
 
+Intersection:
+  see http://cagd.cs.byu.edu/~557/text/ch7.pdf
+  Sweep-line handling: http://www.lems.brown.edu/~wq/projects/cs252.html
+
 Shapes:
   Add curvatureAt( t ), since this will be necessary for determining regions (if multiple segments have the same tangent at the same endpoint)
   Move some computations to Dot if they are somewhat general-purpose
