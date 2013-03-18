@@ -1,7 +1,7 @@
 // Copyright 2002-2012, University of Colorado
 
 /**
- * Draws an arc.
+ * Draws a rectangle.
  *
  * @author Jonathan Olson <olsonsjc@gmail.com>
  */
