@@ -1,3 +1,4 @@
+//jshint -W018
 // Copyright 2002-2012, University of Colorado
 
 /**
@@ -34,6 +35,8 @@ define( function( require ) {
       }
       
       // now we need to compare the line dashes
+      /* jshint -W018 */
+      //jshint -W018
       if ( !this.lineDash !== !other.lineDash ) {
         // one is defined, the other is not
         return false;

@@ -78,7 +78,6 @@ module.exports = function( grunt ) {
         undef: true,
         // unused: true, // certain layer APIs not used in cases
         // strict: true,
-        trailing: true,
         
         expr: true, // so we can use assert && assert( ... )
         
@@ -110,7 +109,5 @@ module.exports = function( grunt ) {
   grunt.registerTask( 'standalone', [ 'requirejs:standalone' ] );
   grunt.registerTask( 'development', [ 'requirejs:development' ] );
   grunt.loadNpmTasks( 'grunt-requirejs' );
-  grunt.loadNpmTasks( 'grunt-contrib-concat' );
-  grunt.loadNpmTasks( 'grunt-contrib-uglify' );
   grunt.loadNpmTasks( 'grunt-contrib-jshint' );
 };
