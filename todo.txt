@@ -32,6 +32,7 @@ Intersection:
   Sweep-line handling: http://www.lems.brown.edu/~wq/projects/cs252.html
 
 Shapes:
+  lineDash stroking
   Add curvatureAt( t ), since this will be necessary for determining regions (if multiple segments have the same tangent at the same endpoint)
   Move some computations to Dot if they are somewhat general-purpose
   Finiteness checks a la WebKit?
