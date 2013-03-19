@@ -3,9 +3,6 @@ Should the tangent return a unit vector?
 windingIntersection in segment base class?
 
 Bugs:
-  Why did the following not work for Ellipse tangent:
-    return this.unitTransform.transformDelta2( Vector2.createPolar( 1, angle + ( this.anticlockwise ? Math.PI / 2 : -Math.PI / 2 ) ) );
-    Is transformDelta2 off? Or conceptual error?
   Arc/EllipticalArc shear transform seems broken
   Intersection on ray parallel to 'lines' can cause false positives, possibly false negatives?
     Need to handle intersection at endpoints solidly
