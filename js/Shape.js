@@ -570,10 +570,16 @@ define( function( require ) {
   Shape.bounds = function( bounds ) {
     return new Shape().rect( bounds.minX, bounds.minY, bounds.maxX - bounds.minX, bounds.maxY - bounds.minY );
   };
-  
-  Shape.lineSegment = function( a, b ) {
+
+  //Create a line segment, using either (x1,y1,x2,y2) or ({x1,y1},{x2,y2}) arguments
+  Shape.lineSegment = function( a, b, c, d ) {
     // TODO: add type assertions?
-    return new Shape().moveTo( a ).lineTo( b );
+    if ( typeof a === 'number' ) {
+      return new Shape().moveTo( a, b ).lineTo( c, d );
+    }
+    else {
+      return new Shape().moveTo( a ).lineTo( b );
+    }
   };
   
   Shape.regularPolygon = function( sides, radius ) {
