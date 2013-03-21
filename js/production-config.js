@@ -11,13 +11,13 @@ if ( window.has ) {
 window.loadedKiteConfig = true;
 
 require.config( {
-  deps: [ 'main', 'DOT/main', 'CORE/main' ],
+  deps: [ 'main', 'DOT/main', 'PHET_CORE/main' ],
 
   paths: {
     underscore: '../contrib/lodash.min-1.0.0-rc.3',
     KITE: '.',
     DOT: '../common/dot/js',
-    CORE: '../common/phet-core/js',
+    PHET_CORE: '../common/phet-core/js',
     ASSERT: '../common/assert/js'
   },
   
