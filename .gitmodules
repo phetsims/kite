@@ -4,3 +4,6 @@
 [submodule "common/dot"]
 	path = common/dot
 	url = https://github.com/phetsims/dot.git
+[submodule "common/phet-core"]
+	path = common/phet-core
+	url = https://github.com/phetsims/phet-core.git
