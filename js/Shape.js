@@ -56,10 +56,10 @@ define( function( require ) {
   // var weirdDir = p( Math.PI, 22 / 7 );
   
   kite.Shape = function( pieces, optionalClose ) {
-    // higher-level Canvas-esque drawing commands
+    // higher-level Canvas-esque drawing commands, individually considered to be immutable
     this.pieces = [];
     
-    // lower-level piecewise mathematical description using segments
+    // lower-level piecewise mathematical description using segments, also individually immutable
     this.subpaths = [];
     
     // computed bounds for all pieces added so far
@@ -243,6 +243,10 @@ define( function( require ) {
     close: function() {
       this.addPiece( new Piece.Close() );
       return this;
+    },
+    
+    copy: function() {
+      return new Shape( this.pieces );
     },
     
     addPiece: function( piece ) {

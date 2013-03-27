@@ -1,7 +1,7 @@
 // Copyright 2002-2012, University of Colorado
 
 /**
- * Represents a higher-level command for Shape, and generally mimics the Canvas drawing api.
+ * Represents an immutable higher-level command for Shape, and generally mimics the Canvas drawing api.
  *
  * @author Jonathan Olson <olsonsjc@gmail.com>
  */
