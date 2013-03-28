@@ -242,7 +242,7 @@ define( function( require ) {
             .arc( lowX, highY, arcw, Math.PI / 2, Math.PI, false )
             .lineTo( x, lowY )
             .arc( lowX, lowY, arcw, Math.PI, Math.PI * 3 / 2, false )
-            .close()
+            .close();
       } else {
         // we have to resort to elliptical arcs
         this.moveTo( lowX, y )
@@ -254,7 +254,7 @@ define( function( require ) {
             .ellipticalArc( lowX, highY, arcw, arch, 0, Math.PI / 2, Math.PI, false )
             .lineTo( x, lowY )
             .ellipticalArc( lowX, lowY, arcw, arch, 0, Math.PI, Math.PI * 3 / 2, false )
-            .close()
+            .close();
       }
       return this;
     },
