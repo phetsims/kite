@@ -230,7 +230,8 @@ define( function( require ) {
       var highX = x + width - arcw;
       var lowY = y + arch;
       var highY = y + height - arch;
-      if ( arcw === arch && false ) {
+      // if ( true ) {
+      if ( arcw === arch ) {
         // we can use circular arcs, which have well defined stroked offsets
         this.moveTo( lowX, y )
             .lineTo( highX, y )
