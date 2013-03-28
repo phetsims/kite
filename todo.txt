@@ -3,7 +3,6 @@ Should the tangent return a unit vector?
 windingIntersection in segment base class?
 
 Bugs:
-  Rounded rectangle's intersection is buggy
   Arc/EllipticalArc shear transform seems broken
   Intersection on ray parallel to 'lines' can cause false positives, possibly false negatives?
     Need to handle intersection at endpoints solidly
