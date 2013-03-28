@@ -80,8 +80,6 @@
     <button id="nxyearc1">nxyearc1</button>
     <button id="rrect">rrect</button>
     <button id="errect">errect</button>
-    <button id="ecrrect1">ecrrect1</button>
-    <button id="ecrrect2">ecrrect2</button>
     
     <div class="label">Cap</div>
     <button id="cap-butt">butt</button>
@@ -396,18 +394,6 @@
           } );
           updateListener( 'errect', function() {
             shape = new kite.Shape().roundRect( -50, -50, 100, 100, 20, 40 );
-          } );
-          updateListener( 'ecrrect1', function() {
-            shape = new kite.Shape().ellipticalArc( 60, -20, 40, 80, 0, -Math.PI / 2, 0, false );
-            _.each( shape.subpaths[0].segments, function( segment ) {
-              console.log( segment.bounds );
-            } );
-          } );
-          updateListener( 'ecrrect2', function() {
-            shape = new kite.Shape().ellipticalArc( 0.5, 0.5, 40, 80, 0, -Math.PI / 2, 0, false );
-            _.each( shape.subpaths[0].segments, function( segment ) {
-              console.log( segment.bounds );
-            } );
           } );
           
           
