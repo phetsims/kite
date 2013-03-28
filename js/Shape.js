@@ -225,18 +225,36 @@ define( function( require ) {
     },
 
     //Create a round rectangle. All arguments are number.
-    //Rounding is currently using quadraticCurveTo.  Please note, future versions may use arcTo
-    //TODO: rewrite with arcTo?
     roundRect: function( x, y, width, height, arcw, arch ) {
-      this.moveTo( x + arcw, y ).
-          lineTo( x + width - arcw, y ).
-          quadraticCurveTo( x + width, y, x + width, y + arch ).
-          lineTo( x + width, y + height - arch ).
-          quadraticCurveTo( x + width, y + height, x + width - arcw, y + height ).
-          lineTo( x + arcw, y + height ).
-          quadraticCurveTo( x, y + height, x, y + height - arch ).
-          lineTo( x, y + arch ).
-          quadraticCurveTo( x, y, x + arcw, y );
+      var lowX = x + arcw;
+      var highX = x + width - arcw;
+      var lowY = y + arch;
+      var highY = y + height - arch;
+      if ( arcw === arch && false ) {
+        // we can use circular arcs, which have well defined stroked offsets
+        this.moveTo( lowX, y )
+            .lineTo( highX, y )
+            .arc( highX, lowY, arcw, -Math.PI / 2, 0, false )
+            .lineTo( x + width, highY )
+            .arc( highX, highY, arcw, 0, Math.PI / 2, false )
+            .lineTo( lowX, y + height )
+            .arc( lowX, highY, arcw, Math.PI / 2, Math.PI, false )
+            .lineTo( x, lowY )
+            .arc( lowX, lowY, arcw, Math.PI, Math.PI * 3 / 2, false )
+            .close()
+      } else {
+        // we have to resort to elliptical arcs
+        this.moveTo( lowX, y )
+            .lineTo( highX, y )
+            .ellipticalArc( highX, lowY, arcw, arch, 0, -Math.PI / 2, 0, false )
+            .lineTo( x + width, highY )
+            .ellipticalArc( highX, highY, arcw, arch, 0, 0, Math.PI / 2, false )
+            .lineTo( lowX, y + height )
+            .ellipticalArc( lowX, highY, arcw, arch, 0, Math.PI / 2, Math.PI, false )
+            .lineTo( x, lowY )
+            .ellipticalArc( lowX, lowY, arcw, arch, 0, Math.PI, Math.PI * 3 / 2, false )
+            .close()
+      }
       return this;
     },
     
