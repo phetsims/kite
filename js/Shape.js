@@ -233,16 +233,14 @@ define( function( require ) {
       // if ( true ) {
       if ( arcw === arch ) {
         // we can use circular arcs, which have well defined stroked offsets
-        this.moveTo( lowX, y )
-            .arc( highX, lowY, arcw, -Math.PI / 2, 0, false )
+        this.arc( highX, lowY, arcw, -Math.PI / 2, 0, false )
             .arc( highX, highY, arcw, 0, Math.PI / 2, false )
             .arc( lowX, highY, arcw, Math.PI / 2, Math.PI, false )
             .arc( lowX, lowY, arcw, Math.PI, Math.PI * 3 / 2, false )
             .close();
       } else {
         // we have to resort to elliptical arcs
-        this.moveTo( lowX, y )
-            .ellipticalArc( highX, lowY, arcw, arch, 0, -Math.PI / 2, 0, false )
+        this.ellipticalArc( highX, lowY, arcw, arch, 0, -Math.PI / 2, 0, false )
             .ellipticalArc( highX, highY, arcw, arch, 0, 0, Math.PI / 2, false )
             .ellipticalArc( lowX, highY, arcw, arch, 0, Math.PI / 2, Math.PI, false )
             .ellipticalArc( lowX, lowY, arcw, arch, 0, Math.PI, Math.PI * 3 / 2, false )
