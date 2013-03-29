@@ -78,6 +78,8 @@
     <button id="nxearc1">nxearc1</button>
     <button id="nyearc1">nyearc1</button>
     <button id="nxyearc1">nxyearc1</button>
+    <button id="rrect">rrect</button>
+    <button id="errect">errect</button>
     
     <div class="label">Cap</div>
     <button id="cap-butt">butt</button>
@@ -387,6 +389,13 @@
           updateListener( 'nxyearc1', function() {
             shape = new kite.Shape().ellipticalArc( 0, 0, -100, -50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
           } );
+          updateListener( 'rrect', function() {
+            shape = new kite.Shape().roundRect( -50, -50, 100, 100, 30, 30 );
+          } );
+          updateListener( 'errect', function() {
+            shape = new kite.Shape().roundRect( -50, -50, 100, 100, 20, 40 );
+          } );
+          
           
           /*---------------------------------------------------------------------------*
           * Line Cap

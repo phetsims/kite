@@ -65,7 +65,7 @@ define( function( require ) {
     assert && assert( this.angleDifference >= 0 ); // now it should always be zero or positive
     
     // a unit arg segment that we can map to our ellipse. useful for hit testing and such.
-    this.unitArcSegment = new Segment.Arc( center, 1, startAngle, endAngle, anticlockwise );
+    this.unitArcSegment = new Segment.Arc( Vector2.ZERO, 1, startAngle, endAngle, anticlockwise );
     
     this.bounds = Bounds2.NOTHING;
     this.bounds = this.bounds.withPoint( this.start );

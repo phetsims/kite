@@ -1,4 +1,8 @@
 
+
+General:
+  *** Simplify out pieces, since we can have more custom types in Scenery do things like rectangles or other specialties
+
 Should the tangent return a unit vector?
 windingIntersection in segment base class?
 

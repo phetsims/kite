@@ -56,10 +56,10 @@ define( function( require ) {
   // var weirdDir = p( Math.PI, 22 / 7 );
   
   kite.Shape = function( pieces, optionalClose ) {
-    // higher-level Canvas-esque drawing commands
+    // higher-level Canvas-esque drawing commands, individually considered to be immutable
     this.pieces = [];
     
-    // lower-level piecewise mathematical description using segments
+    // lower-level piecewise mathematical description using segments, also individually immutable
     this.subpaths = [];
     
     // computed bounds for all pieces added so far
@@ -225,24 +225,37 @@ define( function( require ) {
     },
 
     //Create a round rectangle. All arguments are number.
-    //Rounding is currently using quadraticCurveTo.  Please note, future versions may use arcTo
-    //TODO: rewrite with arcTo?
     roundRect: function( x, y, width, height, arcw, arch ) {
-      this.moveTo( x + arcw, y ).
-          lineTo( x + width - arcw, y ).
-          quadraticCurveTo( x + width, y, x + width, y + arch ).
-          lineTo( x + width, y + height - arch ).
-          quadraticCurveTo( x + width, y + height, x + width - arcw, y + height ).
-          lineTo( x + arcw, y + height ).
-          quadraticCurveTo( x, y + height, x, y + height - arch ).
-          lineTo( x, y + arch ).
-          quadraticCurveTo( x, y, x + arcw, y );
+      var lowX = x + arcw;
+      var highX = x + width - arcw;
+      var lowY = y + arch;
+      var highY = y + height - arch;
+      // if ( true ) {
+      if ( arcw === arch ) {
+        // we can use circular arcs, which have well defined stroked offsets
+        this.arc( highX, lowY, arcw, -Math.PI / 2, 0, false )
+            .arc( highX, highY, arcw, 0, Math.PI / 2, false )
+            .arc( lowX, highY, arcw, Math.PI / 2, Math.PI, false )
+            .arc( lowX, lowY, arcw, Math.PI, Math.PI * 3 / 2, false )
+            .close();
+      } else {
+        // we have to resort to elliptical arcs
+        this.ellipticalArc( highX, lowY, arcw, arch, 0, -Math.PI / 2, 0, false )
+            .ellipticalArc( highX, highY, arcw, arch, 0, 0, Math.PI / 2, false )
+            .ellipticalArc( lowX, highY, arcw, arch, 0, Math.PI / 2, Math.PI, false )
+            .ellipticalArc( lowX, lowY, arcw, arch, 0, Math.PI, Math.PI * 3 / 2, false )
+            .close();
+      }
       return this;
     },
     
     close: function() {
       this.addPiece( new Piece.Close() );
       return this;
+    },
+    
+    copy: function() {
+      return new Shape( this.pieces );
     },
     
     addPiece: function( piece ) {
