@@ -2,6 +2,9 @@
 
 General:
   *** Simplify out pieces, since we can have more custom types in Scenery do things like rectangles or other specialties
+    Move transform to Segments, with transform( matrix, strokedShape ) - apply transformed to strokedShape
+      Or simpler transformed( matrix ) returning array of segments, but move the "canonical mapping" part into the segment constructor
+    applyPiece should go into Shape's application methods
 
 Code:
   Move circle intersection to Dot
