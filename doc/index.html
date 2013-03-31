@@ -40,9 +40,9 @@
       var canvas = document.getElementById( id );
       var context = canvas.getContext( '2d' );
       draw( context );
-      context.fillStyle = '#000';
+      context.fillStyle = 'rgba(0,0,0,0.4)';
       context.fill();
-      context.strokeStyle = '#f00';
+      context.strokeStyle = '#000';
       context.lineWidth = 3;
       context.stroke();
       var $code = $( '<pre class="brush: js"></pre>' );
@@ -216,6 +216,7 @@ new kite.Shape().moveTo( 10, 22 )
                 .lineTo( 54, 22 )
                 .moveTo( 10, 42 )
                 .lineTo( 54, 42 )
+                .moveTo( 20, 52 )
 /*END*/
 shape.writeToContext( context );
 } );
@@ -228,6 +229,21 @@ shape.writeToContext( context );
       <p>
         Also currently supports <code>lineTo( point )</code> where point is a <a href="../../dot/doc#vector2">dot.Vector2</a>.
       </p>
+      <canvas id="example-lineTo" class="exampleScene" style="width: 64px; height: 64px; margin: 0 auto;"></canvas>
+      <script type="text/javascript">
+docExample( 'example-lineTo', function( context ) {
+context.canvas.width = 64;
+context.canvas.height = 64;
+var shape =
+/*START*/
+new kite.Shape().moveTo( 20, 32 )
+                .lineTo( 32, 12 )
+                .lineTo( 44, 32 )
+                .lineTo( 32, 52 )
+/*END*/
+shape.writeToContext( context );
+} );
+      </script>
       
       <h4 id="shape-quadraticCurveTo">quadraticCurveTo( <span class="args">cpx, cpy, x, y</span> )</h4>
       <p>
@@ -238,6 +254,20 @@ shape.writeToContext( context );
       <p>
         Also currently supports <code>quadraticCurveTo( controlPoint, endPoint )</code> where the parameters are <a href="../../dot/doc#vector2">dot.Vector2</a> instances.
       </p>
+      <canvas id="example-quadraticCurveTo" class="exampleScene" style="width: 64px; height: 64px; margin: 0 auto;"></canvas>
+      <script type="text/javascript">
+docExample( 'example-quadraticCurveTo', function( context ) {
+context.canvas.width = 64;
+context.canvas.height = 64;
+var shape =
+/*START*/
+new kite.Shape().moveTo( 10, 10 )
+                .quadraticCurveTo( 54, 10, 54, 54 )
+                .quadraticCurveTo( 10, 54, 32, 32 )
+/*END*/
+shape.writeToContext( context );
+} );
+      </script>
       
       <h4 id="shape-cubicCurveTo">cubicCurveTo( <span class="args">cp1x, cp1y, cp2x, cp2y, x, y</span> )</h4>
       <p>
