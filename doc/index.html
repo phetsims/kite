@@ -33,13 +33,30 @@
   <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
   
   <!-- Our code, in either the concatenated 'with comments' version or the minified version -->
-  <script src="../dist/development/dot.js"></script>
+  <script src="../dist/development/kite.js"></script>
+  
+  <script type="text/javascript">
+    function docExample( id, draw ) {
+      var canvas = document.getElementById( id );
+      var context = canvas.getContext( '2d' );
+      draw( context );
+      context.fillStyle = '#000';
+      context.fill();
+      context.strokeStyle = '#f00';
+      context.lineWidth = 3;
+      context.stroke();
+      var $code = $( '<pre class="brush: js"></pre>' );
+      $code.text( draw.toString().match( /\/\*START\*\/((.|\n)*)\/\*END\*\// )[1] );
+      $( canvas ).after( $code );
+    }
+  </script>
   
   <style type="text/css">
     
     .exampleScene {
       margin: 15px auto;
       border: 1px solid black;
+      display: block;
     }
     
     #sidebar {
@@ -188,6 +205,21 @@
       <p>
         Also currently supports <code>moveTo( point )</code> where point is a <a href="../../dot/doc#vector2">dot.Vector2</a>.
       </p>
+      <canvas id="example-moveTo" class="exampleScene" style="width: 64px; height: 64px; margin: 0 auto;"></canvas>
+      <script type="text/javascript">
+docExample( 'example-moveTo', function( context ) {
+context.canvas.width = 64;
+context.canvas.height = 64;
+var shape =
+/*START*/
+new kite.Shape().moveTo( 10, 22 )
+                .lineTo( 54, 22 )
+                .moveTo( 10, 42 )
+                .lineTo( 54, 42 )
+/*END*/
+shape.writeToContext( context );
+} );
+      </script>
       
       <h4 id="shape-lineTo">lineTo( <span class="args">x, y</span> )</h4>
       <p>
