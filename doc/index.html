@@ -76,6 +76,11 @@
     .sublink {
       padding-left: 1em;
     }
+    
+    .args {
+      font-weight: normal;
+      font-size: 80%;
+    }
   </style>
   
 </head>
@@ -176,7 +181,7 @@
         favor of <a href="#shape-arc">shape.arc</a> and <a href="#shape-ellipticalArc">ellipticalArc</a>.
       </p>
       
-      <h4 id="shape-moveTo">moveTo( x, y )</h4>
+      <h4 id="shape-moveTo">moveTo( <span class="args">x, y</span> )</h4>
       <p>
         Moves the current position to the (x,y) location, without drawing a line. See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-moveto">context.moveTo</a> for detailed semantics.
       </p>
@@ -184,7 +189,7 @@
         Also currently supports <code>moveTo( point )</code> where point is a <a href="../../dot/doc#vector2">dot.Vector2</a>.
       </p>
       
-      <h4 id="shape-lineTo">lineTo( x, y )</h4>
+      <h4 id="shape-lineTo">lineTo( <span class="args">x, y</span> )</h4>
       <p>
         Draws a line from the current position to the (x,y) location. See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-lineto">context.lineTo</a> for detailed semantics.
       </p>
@@ -192,7 +197,7 @@
         Also currently supports <code>lineTo( point )</code> where point is a <a href="../../dot/doc#vector2">dot.Vector2</a>.
       </p>
       
-      <h4 id="shape-quadraticCurveTo">quadraticCurveTo( cpx, cpy, x, y )</h4>
+      <h4 id="shape-quadraticCurveTo">quadraticCurveTo( <span class="args">cpx, cpy, x, y</span> )</h4>
       <p>
         Draws a quadratic <a href="http://en.wikipedia.org/wiki/B%C3%A9zier_curve">Bézier curve</a> with a control net
         of the current position, the control point (cpx,cpy), and the end point (x,y).
@@ -202,7 +207,7 @@
         Also currently supports <code>quadraticCurveTo( controlPoint, endPoint )</code> where the parameters are <a href="../../dot/doc#vector2">dot.Vector2</a> instances.
       </p>
       
-      <h4 id="shape-cubicCurveTo">cubicCurveTo( cp1x, cp1y, cp2x, cp2y, x, y )</h4>
+      <h4 id="shape-cubicCurveTo">cubicCurveTo( <span class="args">cp1x, cp1y, cp2x, cp2y, x, y</span> )</h4>
       <p>
         Draws a cubic <a href="http://en.wikipedia.org/wiki/B%C3%A9zier_curve">Bézier curve</a> with a control net
         of the current position, the control point (cp1x,cp1y), the control point (cp2x,cp2y), and the end point (x,y).
@@ -212,7 +217,7 @@
         Also currently supports <code>cubicCurveTo( controlPoint1, controlPoint2, endPoint )</code> where the parameters are <a href="../../dot/doc#vector2">dot.Vector2</a> instances.
       </p>
       
-      <h4 id="shape-arc">arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise )</h4>
+      <h4 id="shape-arc">arc( <span class="args">centerX, centerY, radius, startAngle, endAngle, anticlockwise</span> )</h4>
       <p>
         Draws a circular arc centered at (centerX,centerY) with the specified radius, between the two angles.
         <code>anticlockwise</code> is in the graphics coordinate frame (-y), not the mathematical (+y) one.
@@ -222,7 +227,7 @@
         Also currently supports <code>arc( center, radius, startAngle, endAngle, anticlockwise )</code> where the center is an <a href="../../dot/doc#vector2">dot.Vector2</a> instance.
       </p>
       
-      <h4 id="shape-ellipticalArc">ellipticalArc( centerX, centerY, radiusX, radiusy, rotation, startAngle, endAngle, anticlockwise )</h4>
+      <h4 id="shape-ellipticalArc">ellipticalArc( <span class="args">centerX, centerY, radiusX, radiusy, rotation, startAngle, endAngle, anticlockwise</span> )</h4>
       <p>
         Draws an elliptical arc centered at (centerX,centerY) with the specified semi-major (<code>radiusX</code>) and semi-minor (<code>radiusY</code>) axes, between the two angles. The entire ellipse is rotated by <code>rotation</code>
         <code>anticlockwise</code> is in the graphics coordinate frame (-y), not the mathematical (+y) one.
