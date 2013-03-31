@@ -21,6 +21,7 @@ Bugs:
   Stroking miterlimit on shear-transformed shape seems to not happen. normal-shear a rectangle
 
 Testing:
+  Visual shape test should allow switching to SVG output to verify?
   Create a simple way to do the comparisons that we already have in Scenery's tests
   Interactive visualization tests to check:
     positionAt

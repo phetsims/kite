@@ -121,7 +121,28 @@
       <div class="ph2"><a href="#api">Kite API</a></div>
       
       <a class="navlink" href="#shape">Shape</a><br>
-      <a class="sublink" href="#shape-moveTo">Vector2.moveTo</a><br>
+      <a class="sublink" href="#shape-moveTo">moveTo</a><br>
+      <a class="sublink" href="#shape-lineTo">lineTo</a><br>
+      <a class="sublink" href="#shape-quadraticCurveTo">quadraticCurveTo</a><br>
+      <a class="sublink" href="#shape-cubicCurveTo">cubicCurveTo</a><br>
+      <a class="sublink" href="#shape-arc">arc</a><br>
+      <a class="sublink" href="#shape-ellipticalArc">ellipticalArc</a><br>
+      <a class="sublink" href="#shape-rect">rect</a><br>
+      <a class="sublink" href="#shape-roundRect">roundRect</a><br>
+      <a class="sublink" href="#shape-circle">circle</a><br>
+      <a class="sublink" href="#shape-ellipse">ellipse</a><br>
+      <a class="sublink" href="#shape-close">close</a><br>
+      <a class="sublink" href="#shape-copy">copy</a><br>
+      <a class="sublink" href="#shape-writeToContext">writeToContext</a><br>
+      <a class="sublink" href="#shape-getSVGPath">getSVGPath</a><br>
+      <a class="sublink" href="#shape-transformed">transformed</a><br>
+      <a class="sublink" href="#shape-computeBounds">computeBounds</a><br>
+      <a class="sublink" href="#shape-containsPoint">containsPoint</a><br>
+      <a class="sublink" href="#shape-intersection">intersection</a><br>
+      <a class="sublink" href="#shape-windingIntersection">windingIntersection</a><br>
+      <a class="sublink" href="#shape-intersectsBounds">intersectsBounds</a><br>
+      <a class="sublink" href="#shape-getStrokedShape">getStrokedShape</a><br>
+      <a class="sublink" href="#shape-toString">toString</a><br>
     </div>
     <div class="span6">
       <h2 id="tutorials">Tutorials</h2>
@@ -148,13 +169,87 @@
       <p>
         Represents a shape that is composed of one or more subpaths. <code>new kite.Shape()</code> will create an empty shape, which can then
         have drawing commands (like <a href="#shape-moveTo">moveTo</a> or <a href="#shape-lineTo">lineTo</a>) applied to it.
+        The semantics are effectively the same as the Canvas 2D interface <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#canvaspathmethods">CanvasPathMethods</a>, where
+        <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-closepath">context.closePath</a> is renamed to <a href="#shape-close">shape.close</a>,
+        <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-beziercurveto">context.bezierCurveTo</a> is renamed to <a href="#shape-cubicCurveTo">shape.cubicCurveTo</a>
+        (since the quadratic curve is also a Bézier curve), and the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arcto">context.arcTo</a> varieties are not implemented, in
+        favor of <a href="#shape-arc">shape.arc</a> and <a href="#shape-ellipticalArc">ellipticalArc</a>.
       </p>
       
       <h4 id="shape-moveTo">moveTo( x, y )</h4>
       <p>
-        Moves the current position to the (x,y) location, without drawing a line. See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-moveto">context.moveTo</a>
+        Moves the current position to the (x,y) location, without drawing a line. See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-moveto">context.moveTo</a> for detailed semantics.
+      </p>
+      <p>
+        Also currently supports <code>moveTo( point )</code> where point is a <a href="../../dot/doc#vector2">dot.Vector2</a>.
       </p>
       
+      <h4 id="shape-lineTo">lineTo( x, y )</h4>
+      <p>
+        Draws a line from the current position to the (x,y) location. See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-lineto">context.lineTo</a> for detailed semantics.
+      </p>
+      <p>
+        Also currently supports <code>lineTo( point )</code> where point is a <a href="../../dot/doc#vector2">dot.Vector2</a>.
+      </p>
+      
+      <h4 id="shape-quadraticCurveTo">quadraticCurveTo( cpx, cpy, x, y )</h4>
+      <p>
+        Draws a quadratic <a href="http://en.wikipedia.org/wiki/B%C3%A9zier_curve">Bézier curve</a> with a control net
+        of the current position, the control point (cpx,cpy), and the end point (x,y).
+        See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto">context.quadraticCurveTo</a> for detailed semantics.
+      </p>
+      <p>
+        Also currently supports <code>quadraticCurveTo( controlPoint, endPoint )</code> where the parameters are <a href="../../dot/doc#vector2">dot.Vector2</a> instances.
+      </p>
+      
+      <h4 id="shape-cubicCurveTo">cubicCurveTo( cp1x, cp1y, cp2x, cp2y, x, y )</h4>
+      <p>
+        Draws a cubic <a href="http://en.wikipedia.org/wiki/B%C3%A9zier_curve">Bézier curve</a> with a control net
+        of the current position, the control point (cp1x,cp1y), the control point (cp2x,cp2y), and the end point (x,y).
+        See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-beziercurveto">context.bezierCurveTo</a> for detailed semantics.
+      </p>
+      <p>
+        Also currently supports <code>cubicCurveTo( controlPoint1, controlPoint2, endPoint )</code> where the parameters are <a href="../../dot/doc#vector2">dot.Vector2</a> instances.
+      </p>
+      
+      <h4 id="shape-arc">arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise )</h4>
+      <p>
+        Draws a circular arc centered at (centerX,centerY) with the specified radius, between the two angles.
+        <code>anticlockwise</code> is in the graphics coordinate frame (-y), not the mathematical (+y) one.
+        See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arc">context.arc</a> for detailed semantics.
+      </p>
+      <p>
+        Also currently supports <code>arc( center, radius, startAngle, endAngle, anticlockwise )</code> where the center is an <a href="../../dot/doc#vector2">dot.Vector2</a> instance.
+      </p>
+      
+      <h4 id="shape-ellipticalArc">ellipticalArc( centerX, centerY, radiusX, radiusy, rotation, startAngle, endAngle, anticlockwise )</h4>
+      <p>
+        Draws an elliptical arc centered at (centerX,centerY) with the specified semi-major (<code>radiusX</code>) and semi-minor (<code>radiusY</code>) axes, between the two angles. The entire ellipse is rotated by <code>rotation</code>
+        <code>anticlockwise</code> is in the graphics coordinate frame (-y), not the mathematical (+y) one.
+        See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse">context.ellipse</a> for detailed semantics.
+      </p>
+      <p>
+        Also currently supports <code>ellipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise )</code> where the center is an <a href="../../dot/doc#vector2">dot.Vector2</a> instance.
+      </p>
+      
+      <!-- 
+      <a class="sublink" href="#shape-rect">rect</a><br>
+      <a class="sublink" href="#shape-roundRect">roundRect</a><br>
+      <a class="sublink" href="#shape-circle">circle</a><br>
+      <a class="sublink" href="#shape-ellipse">ellipse</a><br>
+      <a class="sublink" href="#shape-close">close</a><br>
+      <a class="sublink" href="#shape-copy">copy</a><br>
+      <a class="sublink" href="#shape-writeToContext">writeToContext</a><br>
+      <a class="sublink" href="#shape-getSVGPath">getSVGPath</a><br>
+      <a class="sublink" href="#shape-transformed">transformed</a><br>
+      <a class="sublink" href="#shape-computeBounds">computeBounds</a><br>
+      <a class="sublink" href="#shape-containsPoint">containsPoint</a><br>
+      <a class="sublink" href="#shape-intersection">intersection</a><br>
+      <a class="sublink" href="#shape-windingIntersection">windingIntersection</a><br>
+      <a class="sublink" href="#shape-intersectsBounds">intersectsBounds</a><br>
+      <a class="sublink" href="#shape-getStrokedShape">getStrokedShape</a><br>
+      <a class="sublink" href="#shape-toString">toString</a><br>
+       -->
     </div>
     <div class="span3"></div>
   </div>
