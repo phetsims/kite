@@ -539,6 +539,14 @@ define( function( require ) {
       return shape;
     },
     
+    toString: function() {
+      var result = 'new kite.Shape()';
+      _.each( this.pieces, function( piece ) {
+        result += '.' + piece.toString();
+      } );
+      return result;
+    },
+    
     /*---------------------------------------------------------------------------*
     * Internal subpath computations
     *----------------------------------------------------------------------------*/

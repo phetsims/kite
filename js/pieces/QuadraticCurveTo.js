@@ -41,6 +41,10 @@ define( function( require ) {
       if ( !quadratic.invalid ) {
         shape.bounds = shape.bounds.union( quadratic.bounds );
       }
+    },
+    
+    toString: function() {
+      return 'quadraticCurveTo( ' + this.controlPoint.x + ', ' + this.controlPoint.y + ', ' + this.point.x + ', ' + this.point.y + ' )';
     }
   };
   
