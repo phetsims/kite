@@ -37,6 +37,10 @@ define( function( require ) {
         shape.addSubpath( nextPath );
         nextPath.addPoint( previousPath.getFirstPoint() );
       }
+    },
+    
+    toString: function() {
+      return 'close()';
     }
   };
   

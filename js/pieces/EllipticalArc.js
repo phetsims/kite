@@ -122,6 +122,10 @@ define( function( require ) {
       if ( !ellipticalArc.invalid ) {
         shape.bounds = shape.bounds.union( ellipticalArc.bounds );
       }
+    },
+    
+    toString: function() {
+      return 'ellipticalArc( ' + this.center.x + ', ' + this.center.y + ', ' + this.radiusX + ', ' + this.radiusY + ', ' + this.rotation + ', ' + this.startAngle + ', ' + this.endAngle + ', ' + this.anticlockwise + ' )';
     }
   };
   

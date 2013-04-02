@@ -34,6 +34,10 @@ define( function( require ) {
       var subpath = new kite.Subpath();
       subpath.addPoint( this.point );
       shape.addSubpath( subpath );
+    },
+    
+    toString: function() {
+      return 'moveTo( ' + this.point.x + ', ' + this.point.y + ' )';
     }
   };
   

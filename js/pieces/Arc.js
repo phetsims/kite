@@ -89,6 +89,10 @@ define( function( require ) {
       if ( !arc.invalid ) {
         shape.bounds = shape.bounds.union( arc.bounds );
       }
+    },
+    
+    toString: function() {
+      return 'arc( ' + this.center.x + ', ' + this.center.y + ', ' + this.radius + ', ' + this.startAngle + ', ' + this.endAngle + ', ' + this.anticlockwise + ' )';
     }
   };
   

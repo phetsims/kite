@@ -2,6 +2,12 @@
 
 General:
   *** Simplify out pieces, since we can have more custom types in Scenery do things like rectangles or other specialties
+    Move transform to Segments, with transform( matrix, strokedShape ) - apply transformed to strokedShape
+      Or simpler transformed( matrix ) returning array of segments, but move the "canonical mapping" part into the segment constructor
+    applyPiece should go into Shape's application methods
+
+Code:
+  Move circle intersection to Dot
 
 Should the tangent return a unit vector?
 windingIntersection in segment base class?
@@ -15,6 +21,7 @@ Bugs:
   Stroking miterlimit on shear-transformed shape seems to not happen. normal-shear a rectangle
 
 Testing:
+  Visual shape test should allow switching to SVG output to verify?
   Create a simple way to do the comparisons that we already have in Scenery's tests
   Interactive visualization tests to check:
     positionAt

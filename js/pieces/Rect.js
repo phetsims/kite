@@ -61,6 +61,10 @@ define( function( require ) {
       shape.getLastSubpath().addPoint( p( this.x, this.y ) );
       shape.bounds = shape.bounds.withCoordinates( this.x, this.y ).withCoordinates( this.x + this.width, this.y + this.height );
       assert && assert( !isNaN( shape.bounds.getX() ) );
+    },
+    
+    toString: function() {
+      return 'rect( ' + this.x + ', ' + this.y + ', ' + this.width + ', ' + this.height + ' )';
     }
   };
   

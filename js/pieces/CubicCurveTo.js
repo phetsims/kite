@@ -49,6 +49,10 @@ define( function( require ) {
       if ( !cubic.invalid ) {
         shape.bounds = shape.bounds.union( cubic.bounds );
       }
+    },
+    
+    toString: function() {
+      return 'cubicCurveTo( ' + this.control1.x + ', ' + this.control1.y + ', ' + this.control2.x + ', ' + this.control2.y + ', ' + this.point.x + ', ' + this.point.y + ' )';
     }
   };
   

@@ -43,6 +43,10 @@ define( function( require ) {
       } else {
         shape.ensure( this.point );
       }
+    },
+    
+    toString: function() {
+      return 'lineTo( ' + this.point.x + ', ' + this.point.y + ' )';
     }
   };
   
