@@ -4040,6 +4040,10 @@ define('KITE/pieces/EllipticalArc',['require','ASSERT/assert','ASSERT/assert','K
       if ( !ellipticalArc.invalid ) {
         shape.bounds = shape.bounds.union( ellipticalArc.bounds );
       }
+    },
+    
+    toString: function() {
+      return 'ellipticalArc( ' + this.center.x + ', ' + this.center.y + ', ' + this.radiusX + ', ' + this.radiusY + ', ' + this.rotation + ', ' + this.startAngle + ', ' + this.endAngle + ', ' + this.anticlockwise + ' )';
     }
   };
   
@@ -4401,6 +4405,10 @@ define('KITE/pieces/Arc',['require','ASSERT/assert','KITE/kite','DOT/Vector2','K
       if ( !arc.invalid ) {
         shape.bounds = shape.bounds.union( arc.bounds );
       }
+    },
+    
+    toString: function() {
+      return 'arc( ' + this.center.x + ', ' + this.center.y + ', ' + this.radius + ', ' + this.startAngle + ', ' + this.endAngle + ', ' + this.anticlockwise + ' )';
     }
   };
   
@@ -4446,6 +4454,10 @@ define('KITE/pieces/Close',['require','ASSERT/assert','KITE/kite','KITE/pieces/P
         shape.addSubpath( nextPath );
         nextPath.addPoint( previousPath.getFirstPoint() );
       }
+    },
+    
+    toString: function() {
+      return 'close()';
     }
   };
   
@@ -5034,6 +5046,10 @@ define('KITE/pieces/CubicCurveTo',['require','ASSERT/assert','KITE/kite','KITE/p
       if ( !cubic.invalid ) {
         shape.bounds = shape.bounds.union( cubic.bounds );
       }
+    },
+    
+    toString: function() {
+      return 'cubicCurveTo( ' + this.control1.x + ', ' + this.control1.y + ', ' + this.control2.x + ', ' + this.control2.y + ', ' + this.point.x + ', ' + this.point.y + ' )';
     }
   };
   
@@ -5085,6 +5101,10 @@ define('KITE/pieces/LineTo',['require','ASSERT/assert','KITE/kite','KITE/pieces/
       } else {
         shape.ensure( this.point );
       }
+    },
+    
+    toString: function() {
+      return 'lineTo( ' + this.point.x + ', ' + this.point.y + ' )';
     }
   };
   
@@ -5127,6 +5147,10 @@ define('KITE/pieces/MoveTo',['require','ASSERT/assert','KITE/kite','KITE/pieces/
       var subpath = new kite.Subpath();
       subpath.addPoint( this.point );
       shape.addSubpath( subpath );
+    },
+    
+    toString: function() {
+      return 'moveTo( ' + this.point.x + ', ' + this.point.y + ' )';
     }
   };
   
@@ -5176,6 +5200,10 @@ define('KITE/pieces/QuadraticCurveTo',['require','ASSERT/assert','KITE/kite','KI
       if ( !quadratic.invalid ) {
         shape.bounds = shape.bounds.union( quadratic.bounds );
       }
+    },
+    
+    toString: function() {
+      return 'quadraticCurveTo( ' + this.controlPoint.x + ', ' + this.controlPoint.y + ', ' + this.point.x + ', ' + this.point.y + ' )';
     }
   };
   
@@ -5245,6 +5273,10 @@ define('KITE/pieces/Rect',['require','ASSERT/assert','KITE/kite','DOT/Vector2','
       shape.getLastSubpath().addPoint( p( this.x, this.y ) );
       shape.bounds = shape.bounds.withCoordinates( this.x, this.y ).withCoordinates( this.x + this.width, this.y + this.height );
       assert && assert( !isNaN( shape.bounds.getX() ) );
+    },
+    
+    toString: function() {
+      return 'rect( ' + this.x + ', ' + this.y + ', ' + this.width + ', ' + this.height + ' )';
     }
   };
   
@@ -5790,6 +5822,14 @@ define('KITE/Shape',['require','ASSERT/assert','ASSERT/assert','KITE/kite','DOT/
       this._strokedShapeStyles = new kite.LineStyles( lineStyles ); // shallow copy, since we consider linestyles to be mutable
       
       return shape;
+    },
+    
+    toString: function() {
+      var result = 'new kite.Shape()';
+      _.each( this.pieces, function( piece ) {
+        result += '.' + piece.toString();
+      } );
+      return result;
     },
     
     /*---------------------------------------------------------------------------*
