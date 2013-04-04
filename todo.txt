@@ -6,6 +6,8 @@ General:
       Or simpler transformed( matrix ) returning array of segments, but move the "canonical mapping" part into the segment constructor
     applyPiece should go into Shape's application methods
 
+Parsing of SVG d="" paths
+
 Code:
   Move circle intersection to Dot
 
