@@ -27,7 +27,7 @@ start
   = svgPath
 
 svgPath
-  = wsp* path:movetoDrawtoCommandGroups? wsp* { return path; }
+  = wsp* path:movetoDrawtoCommandGroups? wsp* { return path ? path : []; }
 
 movetoDrawtoCommandGroups
   = a:movetoDrawtoCommandGroup wsp* b:movetoDrawtoCommandGroups { return a.concat( b ); }
