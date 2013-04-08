@@ -29,15 +29,15 @@ svgPath
   = wsp* path:movetoDrawtoCommandGroups? wsp* { return path; }
 
 movetoDrawtoCommandGroups
-  = a:movetoDrawtoCommandGroup wsp* b:movetoDrawtoCommandGroups { return [a].concat( b ); }
-    / a:movetoDrawtoCommandGroup { return [a]; }
+  = a:movetoDrawtoCommandGroup wsp* b:movetoDrawtoCommandGroups { return a.concat( b ); }
+    / a:movetoDrawtoCommandGroup { return a; }
 
 movetoDrawtoCommandGroup
-  = m:moveto wsp* c:drawtoCommands? { return [m].concat( c ); }
+  = m:moveto wsp* c:drawtoCommands? { return m.concat( c ); }
 
 drawtoCommands
-  = cmd:drawtoCommand wsp* cmds:drawtoCommands { return [cmd].concat( cmds ); }
-    / cmd:drawtoCommand { return [cmd]; }
+  = cmd:drawtoCommand wsp* cmds:drawtoCommands { return cmd.concat( cmds ); }
+    / cmd:drawtoCommand { return cmd; }
 
 drawtoCommand
   = closepath
