@@ -16,6 +16,10 @@
     }
     return result;
   }
+  
+  function mapSVGEllipticalArc( args ) {
+    return args;
+  }
 }
 
 start
@@ -82,7 +86,8 @@ verticalLinetoArgumentSequence
     / a:coordinate { return [a]; }
 
 curveto
-  = ( 'C' / 'c' ) wsp* curvetoArgumentSequence
+  = 'C' wsp* args:curvetoArgumentSequence
+    / 'c' wsp* args:curvetoArgumentSequence
 
 curvetoArgumentSequence
   = curvetoArgument commaWsp? curvetoArgumentSequence
@@ -92,7 +97,8 @@ curvetoArgument
   = coordinatePair commaWsp? coordinatePair commaWsp? coordinatePair
 
 smoothCurveto
-  = ( 'S' / 's' ) wsp* smoothCurvetoArgumentSequence
+  = 'S' wsp* args:smoothCurvetoArgumentSequence
+    / 's' wsp* args:smoothCurvetoArgumentSequence
 
 smoothCurvetoArgumentSequence
   = smoothCurvetoArgument commaWsp? smoothCurvetoArgumentSequence
@@ -102,7 +108,8 @@ smoothCurvetoArgument
   = coordinatePair commaWsp? coordinatePair
 
 quadraticBezierCurveto
-  = ( 'Q' / 'q' ) wsp* quadraticBezierCurvetoArgumentSequence
+  = 'Q' wsp* args:quadraticBezierCurvetoArgumentSequence
+    / 'q' wsp* args:quadraticBezierCurvetoArgumentSequence
 
 quadraticBezierCurvetoArgumentSequence
   = quadraticBezierCurvetoArgument commaWsp? quadraticBezierCurvetoArgumentSequence
@@ -112,22 +119,24 @@ quadraticBezierCurvetoArgument
   = coordinatePair commaWsp? coordinatePair
 
 smoothQuadraticBezierCurveto
-  = ( 'T' / 't' ) wsp* smoothQuadraticBezierCurvetoArgumentSequence
+  = 'T' wsp* args:smoothQuadraticBezierCurvetoArgumentSequence
+    / 't' wsp* args:smoothQuadraticBezierCurvetoArgumentSequence
 
 smoothQuadraticBezierCurvetoArgumentSequence
   = coordinatePair commaWsp? smoothQuadraticBezierCurvetoArgumentSequence
     / coordinatePair
 
 ellipticalArc
-  = ( 'A' / 'a' ) wsp* ellipticalArcArgumentSequence
+  = 'A' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { return { cmd: 'ellipticalArc', args: arg } } ); }
+    / 'a' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { return { cmd: 'relativeEllipticalArc', args: arg } } ); }
 
 ellipticalArcArgumentSequence
-  = ellipticalArcArgument commaWsp? ellipticalArcArgumentSequence
-    / ellipticalArcArgument
+  = a:ellipticalArcArgument commaWsp? list:ellipticalArcArgumentSequence { return [a].concat( list ); }
+    / a:ellipticalArcArgument { return [a]; }
 
 ellipticalArcArgument
-  = nonnegativeNumber commaWsp? nonnegativeNumber commaWsp? 
-        number commaWsp flag commaWsp? flag commaWsp? coordinatePair
+  = rx:nonnegativeNumber commaWsp? ry:nonnegativeNumber commaWsp? rot:number commaWsp largeArc:flag commaWsp? sweep:flag commaWsp? to:coordinatePair
+    { return mapSVGEllipticalArc( [ rx, ry, rot, largeArc, sweep, to.x, to.y ] ) }
 
 coordinatePair
   = a:coordinate commaWsp? b:coordinate { return { x: a, y: b }; } // TODO Vector2
@@ -144,7 +153,7 @@ number
     / ( sign:sign? number:integerConstant ) { return parseInt( sign + number, 10 ); }
 
 flag
-  = '0' / '1'
+  = '0' { return false; } / '1' { return true; }
 
 commaWsp
   = ( wsp+ comma? wsp* ) / ( comma wsp* )
