@@ -219,6 +219,11 @@ define( function( require ) {
       return this;
     },
     
+    // matches SVG's elliptical arc from http://www.w3.org/TR/SVG/paths.html
+    ellipticalArcTo: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
+      throw new Error( 'ellipticalArcTo unimplemented' );
+    },
+    
     rect: function( x, y, width, height ) {
       this.addPiece( new Piece.Rect( x, y, width, height ) );
       return this;

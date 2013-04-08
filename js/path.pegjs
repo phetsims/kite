@@ -16,11 +16,6 @@
     }
     return result;
   }
-  
-  function mapSVGEllipticalArc( args ) {
-    // TODO: we need to map the specific flags into the proper angles. See EllipticalArc's SVG handling, and basically invert it
-    return args;
-  }
 }
 
 start
@@ -128,8 +123,8 @@ smoothQuadraticBezierCurvetoArgumentSequence
     / a:coordinatePair { return [a]; }
 
 ellipticalArc
-  = 'A' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { return { cmd: 'ellipticalArc', args: arg } } ); }
-    / 'a' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { return { cmd: 'relativeEllipticalArc', args: arg } } ); }
+  = 'A' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { return { cmd: 'ellipticalArcTo', args: arg } } ); }
+    / 'a' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { return { cmd: 'relativeEllipticalArcTo', args: arg } } ); }
 
 ellipticalArcArgumentSequence
   = a:ellipticalArcArgument commaWsp? list:ellipticalArcArgumentSequence { return [a].concat( list ); }
@@ -137,7 +132,7 @@ ellipticalArcArgumentSequence
 
 ellipticalArcArgument
   = rx:nonnegativeNumber commaWsp? ry:nonnegativeNumber commaWsp? rot:number commaWsp largeArc:flag commaWsp? sweep:flag commaWsp? to:coordinatePair
-    { return mapSVGEllipticalArc( [ rx, ry, rot, largeArc, sweep, to.x, to.y ] ) }
+    { return [ rx, ry, rot, largeArc, sweep, to.x, to.y ] }
 
 coordinatePair
   = a:coordinate commaWsp? b:coordinate { return { x: a, y: b }; } // TODO Vector2
