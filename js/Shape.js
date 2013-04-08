@@ -38,6 +38,8 @@ define( function( require ) {
   
   var Subpath = require( 'KITE/util/Subpath' );
   var Piece = require( 'KITE/pieces/Piece' );
+  
+  var svgPath = require( 'KITE/../parser/svgPath' );
   require( 'KITE/util/LineStyles' );
   require( 'KITE/pieces/Arc' );
   require( 'KITE/pieces/Close' );
@@ -73,9 +75,16 @@ define( function( require ) {
     var that = this;
     // initialize with pieces passed in
     if ( pieces !== undefined ) {
-      _.each( pieces, function( piece ) {
-        that.addPiece( piece );
-      } );
+      if ( typeof pieces === 'string' ) {
+        // parse the SVG path
+        _.each( svgPath.parse( pieces ), function( item ) {
+          that[item.cmd].apply( that, item.args );
+        } );
+      } else {
+        _.each( pieces, function( piece ) {
+          that.addPiece( piece );
+        } );
+      }
     }
     if ( optionalClose ) {
       this.addPiece( new Piece.Close() );

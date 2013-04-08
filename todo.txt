@@ -9,6 +9,7 @@ General:
 Parsing of SVG d="" paths
 Relative paths, like SVG's pathing
   Add relative and smooth curve methods and mapping of elliptical flags to complete SVG path parsing
+  Minimize space taken up by SVG path parser
 
 Code:
   Move circle intersection to Dot
