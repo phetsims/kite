@@ -80,6 +80,7 @@
     <button id="nxyearc1">nxyearc1</button>
     <button id="rrect">rrect</button>
     <button id="errect">errect</button>
+    <input id="svgPath" type="text"></input>
     
     <div class="label">Cap</div>
     <button id="cap-butt">butt</button>
@@ -395,7 +396,18 @@
           updateListener( 'errect', function() {
             shape = new kite.Shape().roundRect( -50, -50, 100, 100, 20, 40 );
           } );
-          
+          updateListener( 'svgPath', function() {
+            var s;
+            var el = document.getElementById( 'svgPath' );
+            try {
+              shape = new kite.Shape( el.value );
+              el.style.backgroundColor = '#dfd';
+            } catch ( e ) {
+              console.log( e );
+              console.log( e.stack );
+              el.style.backgroundColor = '#fdd';
+            }
+          }, 'input' );
           
           /*---------------------------------------------------------------------------*
           * Line Cap

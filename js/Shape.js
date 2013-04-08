@@ -78,6 +78,7 @@ define( function( require ) {
       if ( typeof pieces === 'string' ) {
         // parse the SVG path
         _.each( svgPath.parse( pieces ), function( item ) {
+          assert && assert( Shape.prototype[item.cmd] !== undefined, 'method ' + item.cmd + ' from parsed SVG does not exist' );
           that[item.cmd].apply( that, item.args );
         } );
       } else {
