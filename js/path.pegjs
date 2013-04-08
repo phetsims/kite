@@ -86,45 +86,45 @@ verticalLinetoArgumentSequence
     / a:coordinate { return [a]; }
 
 curveto
-  = 'C' wsp* args:curvetoArgumentSequence
-    / 'c' wsp* args:curvetoArgumentSequence
+  = 'C' wsp* args:curvetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'cubicCurveTo', args: arg } } ); }
+    / 'c' wsp* args:curvetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'relativeCubicCurveTo', args: arg } } ); }
 
 curvetoArgumentSequence
-  = curvetoArgument commaWsp? curvetoArgumentSequence
-    / curvetoArgument
+  = a:curvetoArgument commaWsp? list:curvetoArgumentSequence { return [a].concat( list ); }
+    / a:curvetoArgument { return [a]; }
 
 curvetoArgument
-  = coordinatePair commaWsp? coordinatePair commaWsp? coordinatePair
+  = a:coordinatePair commaWsp? b:coordinatePair commaWsp? c:coordinatePair { return [ a.x, a.y, b.x, b.y, c.x, c.y ]; }
 
 smoothCurveto
-  = 'S' wsp* args:smoothCurvetoArgumentSequence
-    / 's' wsp* args:smoothCurvetoArgumentSequence
+  = 'S' wsp* args:smoothCurvetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'smoothCubicCurveTo', args: arg } } ); }
+    / 's' wsp* args:smoothCurvetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'relativeSmoothCubicCurveTo', args: arg } } ); }
 
 smoothCurvetoArgumentSequence
-  = smoothCurvetoArgument commaWsp? smoothCurvetoArgumentSequence
-    / smoothCurvetoArgument
+  = a:smoothCurvetoArgument commaWsp? list:smoothCurvetoArgumentSequence { return [a].concat( list ); }
+    / a:smoothCurvetoArgument { return [a]; }
 
 smoothCurvetoArgument
-  = coordinatePair commaWsp? coordinatePair
+  = a:coordinatePair commaWsp? b:coordinatePair { return [ a.x, a.y, b.x, b.y ]; }
 
 quadraticBezierCurveto
-  = 'Q' wsp* args:quadraticBezierCurvetoArgumentSequence
-    / 'q' wsp* args:quadraticBezierCurvetoArgumentSequence
+  = 'Q' wsp* args:quadraticBezierCurvetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'quadraticCurveTo', args: arg } } ); }
+    / 'q' wsp* args:quadraticBezierCurvetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'relativeQuadraticCurveTo', args: arg } } ); }
 
 quadraticBezierCurvetoArgumentSequence
-  = quadraticBezierCurvetoArgument commaWsp? quadraticBezierCurvetoArgumentSequence
-    / quadraticBezierCurvetoArgument
+  = a:quadraticBezierCurvetoArgument commaWsp? list:quadraticBezierCurvetoArgumentSequence { return [a].concat( list ); }
+    / a:quadraticBezierCurvetoArgument { return [a]; }
 
 quadraticBezierCurvetoArgument
-  = coordinatePair commaWsp? coordinatePair
+  = a:coordinatePair commaWsp? b:coordinatePair { return [ a.x, a.y, b.x, b.y ]; }
 
 smoothQuadraticBezierCurveto
-  = 'T' wsp* args:smoothQuadraticBezierCurvetoArgumentSequence
-    / 't' wsp* args:smoothQuadraticBezierCurvetoArgumentSequence
+  = 'T' wsp* args:smoothQuadraticBezierCurvetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'smoothQuadraticCurveTo', args: [ arg.x, arg.y ] } } ); }
+    / 't' wsp* args:smoothQuadraticBezierCurvetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'relativeSmoothQuadraticCurveTo', args: [ arg.x, arg.y ] } } ); }
 
 smoothQuadraticBezierCurvetoArgumentSequence
-  = coordinatePair commaWsp? smoothQuadraticBezierCurvetoArgumentSequence
-    / coordinatePair
+  = a:coordinatePair commaWsp? list:smoothQuadraticBezierCurvetoArgumentSequence { return [a].concat( list ); }
+    / a:coordinatePair { return [a]; }
 
 ellipticalArc
   = 'A' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { return { cmd: 'ellipticalArc', args: arg } } ); }
