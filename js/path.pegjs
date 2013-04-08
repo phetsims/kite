@@ -34,7 +34,7 @@ movetoDrawtoCommandGroups
     / a:movetoDrawtoCommandGroup { return a; }
 
 movetoDrawtoCommandGroup
-  = m:moveto wsp* c:drawtoCommands? { return m.concat( c ); }
+  = m:moveto wsp* c:drawtoCommands? { return c.length ? m.concat( c ) : m; }
 
 drawtoCommands
   = cmd:drawtoCommand wsp* cmds:drawtoCommands { return cmd.concat( cmds ); }
