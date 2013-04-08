@@ -58,26 +58,28 @@ closepath
   = command:( 'Z' / 'z' ) { return { cmd: 'close' }; }
 
 lineto
-  = 'L' wsp* args:linetoArgumentSequence { return { cmd: 'lineTo', args: args }; }
-    / 'l' wsp* args:linetoArgumentSequence { return { cmd: 'relativeLineTo', args: args }; }
+  = 'L' wsp* args:linetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'lineTo', args: [ arg.x, arg.y ] }; } ); }
+    / 'l' wsp* args:linetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'relativeLineTo', args: [ arg.x, arg.y ] }; } ); }
 
 linetoArgumentSequence
   = a:coordinatePair commaWsp? b:linetoArgumentSequence { return [a].concat( b ); }
     / a:coordinatePair { return [a]; }
 
 horizontalLineto
-  = ( 'H' / 'h' ) wsp* horizontalLinetoArgumentSequence
+  = 'H' wsp* args:horizontalLinetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'horizontalLineTo', args: [ arg ] } } ); }
+    / 'h' wsp* args:horizontalLinetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'relativeHorizontalLineTo', args: [ arg ] } } ); }
 
 horizontalLinetoArgumentSequence
-  = coordinate commaWsp? horizontalLinetoArgumentSequence
-    / coordinate
+  = a:coordinate commaWsp? b:horizontalLinetoArgumentSequence { return [a].concat( b ); }
+    / a:coordinate { return [a]; }
 
 verticalLineto
-  = ( 'V' / 'v' ) wsp* verticalLinetoArgumentSequence
+  = 'V' wsp* args:verticalLinetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'verticalLineTo', args: [ arg ] } } ); }
+    / 'v' wsp* args:verticalLinetoArgumentSequence { return args.map( function( arg ) { return { cmd: 'relativeVerticalLineTo', args: [ arg ] } } ); }
 
 verticalLinetoArgumentSequence
-  = coordinate commaWsp? verticalLinetoArgumentSequence
-    / coordinate
+  = a:coordinate commaWsp? b:verticalLinetoArgumentSequence { return [a].concat( b ); }
+    / a:coordinate { return [a]; }
 
 curveto
   = ( 'C' / 'c' ) wsp* curvetoArgumentSequence
