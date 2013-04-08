@@ -18,6 +18,7 @@
   }
   
   function mapSVGEllipticalArc( args ) {
+    // TODO: we need to map the specific flags into the proper angles. See EllipticalArc's SVG handling, and basically invert it
     return args;
   }
 }
