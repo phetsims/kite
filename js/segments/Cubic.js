@@ -259,6 +259,15 @@ define( function( require ) {
         wind += hit.wind;
       } );
       return wind;
+    },
+    
+    // assumes the current position is at start
+    writeToContext: function( context ) {
+      context.bezierCurveTo( this.control1.x, this.control1.y, this.control2.x, this.control2.y, this.end.x, this.end.y );
+    },
+    
+    transformed: function( matrix ) {
+      return new Segment.Cubic( matrix.timesVector2( this.start ), matrix.timesVector2( this.control1 ), matrix.timesVector2( this.control2 ), matrix.timesVector2( this.end ) );
     }
     
     // returns the resultant winding number of this ray intersecting this segment.

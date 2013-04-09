@@ -117,6 +117,15 @@ define( function( require ) {
       } else {
         return 0;
       }
+    },
+    
+    // assumes the current position is at start
+    writeToContext: function( context ) {
+      context.lineTo( this.end.x, this.end.y );
+    },
+    
+    transformed: function( matrix ) {
+      return new Segment.Line( matrix.timesVector2( this.start ), matrix.timesVector2( this.end ) );
     }
   };
   

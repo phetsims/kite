@@ -224,6 +224,15 @@ define( function( require ) {
         wind += hit.wind;
       } );
       return wind;
+    },
+    
+    // assumes the current position is at start
+    writeToContext: function( context ) {
+      context.quadraticCurveTo( this.control.x, this.control.y, this.end.x, this.end.y );
+    },
+    
+    transformed: function( matrix ) {
+      return new Segment.Quadratic( matrix.timesVector2( this.start ), matrix.timesVector2( this.control ), matrix.timesVector2( this.end ) );
     }
   };
   

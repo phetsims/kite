@@ -251,6 +251,36 @@ define( function( require ) {
       // be lazy. transform it into the space of a non-elliptical arc.
       var rayInUnitCircleSpace = this.unitTransform.inverseRay2( ray );
       return this.unitArcSegment.windingIntersection( rayInUnitCircleSpace );
+    },
+    
+    // assumes the current position is at start
+    writeToContext: function( context ) {
+      if ( context.ellipse ) {
+        context.ellipse( this.center.x, this.center.y, this.radiusX, this.radiusY, this.rotation, this.startAngle, this.endAngle, this.anticlockwise );
+      } else {
+        // fake the ellipse call by using transforms
+        this.unitTransform.getMatrix().canvasAppendTransform( context );
+        context.arc( 0, 0, 1, this.startAngle, this.endAngle, this.anticlockwise );
+        this.unitTransform.getInverse().canvasAppendTransform( context );
+      }
+    },
+    
+    transformed: function( matrix ) {
+      var transformedSemiMajorAxis = matrix.timesVector2( Vector2.createPolar( this.radiusX, this.rotation ) ).minus( matrix.timesVector2( Vector2.ZERO ) );
+      var transformedSemiMinorAxis = matrix.timesVector2( Vector2.createPolar( this.radiusY, this.rotation + Math.PI / 2 ) ).minus( matrix.timesVector2( Vector2.ZERO ) );
+      var rotation = transformedSemiMajorAxis.angle();
+      var radiusX = transformedSemiMajorAxis.magnitude();
+      var radiusY = transformedSemiMinorAxis.magnitude();
+      
+      var reflected = matrix.getDeterminant() < 0;
+      
+      // reverse the 'clockwiseness' if our transform includes a reflection
+      // TODO: check reflections. swapping angle signs should fix clockwiseness
+      var anticlockwise = reflected ? !this.anticlockwise : this.anticlockwise;
+      var startAngle = reflected ? -this.startAngle : this.startAngle;
+      var endAngle = reflected ? -this.endAngle : this.endAngle;
+      
+      return new Segment.EllipticalArc( matrix.timesVector2( this.center ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
     }
   };
   
