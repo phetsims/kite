@@ -74,11 +74,15 @@ define( function( require ) {
     constructor: Shape,
     
     moveTo: function( x, y ) { return this.moveToPoint( v( x, y ) ); },
+    moveToRelative: function( x, y ) { return this.moveToPointRelative( v( x, y ) ); },
+    moveToPointRelative: function( point ) { return this.moveToPoint( this.getRelativePoint().plus( point ) ); },
     moveToPoint: function( point ) {
       return this.addSubpath( new kite.Subpath().addPoint( point ) );
     },
     
     lineTo: function( x, y ) { return this.lineToPoint( v( x, y ) ); },
+    lineToRelative: function( x, y ) { return this.lineToPointRelative( v( x, y ) ); },
+    lineToPointRelative: function( point ) { return this.lineToPoint( this.getRelativePoint().plus( point ) ); },
     lineToPoint: function( point ) {
       // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-lineto
       if ( this.hasSubpaths() ) {
@@ -99,6 +103,11 @@ define( function( require ) {
     },
     
     quadraticCurveTo: function( cpx, cpy, x, y ) { return this.quadraticCurveToPoint( v( cpx, cpy ), v( x, y ) ); },
+    quadraticCurveToRelative: function( cpx, cpy, x, y ) { return this.quadraticCurveToPointRelative( v( cpx, cpy ), v( x, y ) ); },
+    quadraticCurveToPointRelative: function( controlPoint, point ) {
+      var relativePoint = this.getRelativePoint();
+      return this.quadraticCurveToPoint( relativePoint.plus( controlPoint ), relativePoint.plus( point ) );
+    },
     quadraticCurveToPoint: function( controlPoint, point ) {
       // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
       this.ensure( controlPoint );
@@ -114,6 +123,11 @@ define( function( require ) {
     },
     
     cubicCurveTo: function( cp1x, cp1y, cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) ); },
+    cubicCurveToRelative: function( cp1x, cp1y, cp2x, cp2y, x, y ) { return this.cubicCurveToPointRelative( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) ); },
+    cubicCurveToPointRelative: function( control1, control2, point ) {
+      var relativePoint = this.getRelativePoint();
+      return this.cubicCurveToPoint( relativePoint.plus( control1 ), relativePoint.plus( control2 ), relativePoint.plus( point ) );
+    },
     cubicCurveToPoint: function( control1, control2, point ) {
       // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
       this.ensure( control1 );
@@ -215,6 +229,10 @@ define( function( require ) {
     },
     
     // matches SVG's elliptical arc from http://www.w3.org/TR/SVG/paths.html
+    ellipticalArcToRelative: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
+      var relativePoint = this.getRelativePoint();
+      return this.ellipticalArcTo( radiusX, radiusY, rotation, largeArc, sweep, x + relativePoint.x, y + relativePoint.y );
+    },
     ellipticalArcTo: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
       throw new Error( 'ellipticalArcTo unimplemented' );
     },
@@ -454,8 +472,13 @@ define( function( require ) {
     },
     
     // gets the last point in the last subpath, or null if it doesn't exist
-    getLastPoint: function( fallbackPoint ) {
+    getLastPoint: function() {
       return this.hasSubpaths() ? this.getLastSubpath().getLastPoint() : null;
+    },
+    
+    getRelativePoint: function() {
+      var lastPoint = this.getLastPoint();
+      return lastPoint ? lastPoint : Vector2.ZERO;
     }
   };
   
