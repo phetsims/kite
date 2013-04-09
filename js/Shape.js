@@ -102,6 +102,12 @@ define( function( require ) {
       return this;
     },
     
+    horizontalLineTo: function( x ) { return this.lineTo( x, this.getRelativePoint().y ); },
+    horizontalLineToRelative: function( x ) { return this.lineToRelative( x, 0 ); },
+    
+    verticalLineTo: function( y ) { return this.lineTo( this.getRelativePoint().x, y ); },
+    verticalLineToRelative: function( y ) { return this.lineToRelative( 0, y ); },
+    
     quadraticCurveTo: function( cpx, cpy, x, y ) { return this.quadraticCurveToPoint( v( cpx, cpy ), v( x, y ) ); },
     quadraticCurveToRelative: function( cpx, cpy, x, y ) { return this.quadraticCurveToPointRelative( v( cpx, cpy ), v( x, y ) ); },
     quadraticCurveToPointRelative: function( controlPoint, point ) {
