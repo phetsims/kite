@@ -17,7 +17,6 @@ define( function( require ) {
   var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
   
   var Segment = require( 'KITE/segments/Segment' );
-  var Piece = require( 'KITE/pieces/Piece' );
 
   Segment.Line = function( start, end ) {
     this.start = start;
@@ -50,20 +49,18 @@ define( function( require ) {
       return 0; // no curvature on a straight line segment
     },
     
-    toPieces: function() {
-      return [ new Piece.LineTo( this.end ) ];
-    },
-    
     getSVGPathFragment: function() {
       return 'L ' + this.end.x + ' ' + this.end.y;
     },
     
     strokeLeft: function( lineWidth ) {
-      return [ new Piece.LineTo( this.end.plus( this.endTangent.perpendicular().negated().times( lineWidth / 2 ) ) ) ];
+      var offset = this.endTangent.perpendicular().negated().times( lineWidth / 2 );
+      return [new Segment.Line( this.start.plus( offset ), this.end.plus( offset ) )];
     },
     
     strokeRight: function( lineWidth ) {
-      return [ new Piece.LineTo( this.start.plus( this.startTangent.perpendicular().times( lineWidth / 2 ) ) ) ];
+      var offset = this.startTangent.perpendicular().times( lineWidth / 2 );
+      return [new Segment.Line( this.start.plus( offset ), this.end.plus( offset ) )];
     },
     
     intersectsBounds: function( bounds ) {

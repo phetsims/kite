@@ -1,6 +1,7 @@
 
 
 General:
+  Segment 'points' are an annoyance except for when building the subpath. Thoughts on only keeping the last point instead?
   *** Simplify out pieces, since we can have more custom types in Scenery do things like rectangles or other specialties
     Move transform to Segments, with transform( matrix, strokedShape ) - apply transformed to strokedShape
       Or simpler transformed( matrix ) returning array of segments, but move the "canonical mapping" part into the segment constructor

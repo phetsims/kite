@@ -20,12 +20,37 @@ define( function( require ) {
   var toDegrees = require( 'DOT/Util' ).toDegrees;
 
   var Segment = require( 'KITE/segments/Segment' );
-  var Piece = require( 'KITE/pieces/Piece' );
   require( 'KITE/util/Subpath' );
 
   // TODO: notes at http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
   // Canvas notes at http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
   Segment.EllipticalArc = function( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
+    if ( radiusX < 0 ) {
+      // support this case since we might actually need to handle it inside of strokes?
+      radiusX = -radiusX;
+      startAngle = Math.PI - startAngle;
+      endAngle = Math.PI - endAngle;
+      anticlockwise = !anticlockwise;
+    }
+    if ( radiusY < 0 ) {
+      // support this case since we might actually need to handle it inside of strokes?
+      radiusY = -radiusY;
+      startAngle = -startAngle;
+      endAngle = -endAngle;
+      anticlockwise = !anticlockwise;
+    }
+    if ( radiusX < radiusY ) {
+      // swap radiusX and radiusY internally for consistent Canvas / SVG output
+      rotation += Math.PI / 2;
+      startAngle -= Math.PI / 2;
+      endAngle -= Math.PI / 2;
+      
+      // swap radiusX and radiusY
+      var tmpR = radiusX;
+      radiusX = radiusY;
+      radiusY = tmpR;
+    }
+    
     this.center = center;
     this.radiusX = radiusX;
     this.radiusY = radiusY;
@@ -166,25 +191,24 @@ define( function( require ) {
       return positiveMinAngle <= this.angleDifference;
     },
     
-    toPieces: function() {
-      return [ new Piece.EllipticalArc( this.center, this.radiusX, this.radiusY, this.rotation, this.startAngle, this.endAngle, this.anticlockwise ) ];
-    },
-    
     // discretizes the elliptical arc and returns an offset curve as a list of lineTos
     offsetTo: function( r, reverse ) {
       // how many segments to create (possibly make this more adaptive?)
       var quantity = 32;
       
+      var points = [];
       var result = [];
-      for ( var i = 1; i < quantity; i++ ) {
+      for ( var i = 0; i < quantity; i++ ) {
         var ratio = i / ( quantity - 1 );
         if ( reverse ) {
           ratio = 1 - ratio;
         }
         var angle = this.angleAt( ratio );
         
-        var point = this.positionAtAngle( angle ).plus( this.tangentAtAngle( angle ).perpendicular().normalized().times( r ) );
-        result.push( new Piece.LineTo( point ) );
+        points.push( this.positionAtAngle( angle ).plus( this.tangentAtAngle( angle ).perpendicular().normalized().times( r ) ) );
+        if ( i > 0 ) {
+          result.push( new Segment.Line( points[i-1], points[i] ) );
+        }
       }
       
       return result;

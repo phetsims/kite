@@ -17,9 +17,15 @@ define( function( require ) {
   var Bounds2 = require( 'DOT/Bounds2' );
 
   var Segment = require( 'KITE/segments/Segment' );
-  var Piece = require( 'KITE/pieces/Piece' );
 
   Segment.Arc = function( center, radius, startAngle, endAngle, anticlockwise ) {
+    if ( radius < 0 ) {
+      // support this case since we might actually need to handle it inside of strokes?
+      radius = -radius;
+      startAngle += Math.PI;
+      endAngle += Math.PI;
+    }
+    
     this.center = center;
     this.radius = radius;
     this.startAngle = startAngle;
@@ -138,10 +144,6 @@ define( function( require ) {
       return positiveMinAngle <= this.angleDifference;
     },
     
-    toPieces: function() {
-      return [ new Piece.Arc( this.center, this.radius, this.startAngle, this.endAngle, this.anticlockwise ) ];
-    },
-    
     getSVGPathFragment: function() {
       // see http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands for more info
       // rx ry x-axis-rotation large-arc-flag sweep-flag x y
@@ -170,11 +172,11 @@ define( function( require ) {
     },
     
     strokeLeft: function( lineWidth ) {
-      return [ new Piece.Arc( this.center, this.radius + ( this.anticlockwise ? 1 : -1 ) * lineWidth / 2, this.startAngle, this.endAngle, this.anticlockwise ) ];
+      return [new Segment.Arc( this.center, this.radius + ( this.anticlockwise ? 1 : -1 ) * lineWidth / 2, this.startAngle, this.endAngle, this.anticlockwise )];
     },
     
     strokeRight: function( lineWidth ) {
-      return [ new Piece.Arc( this.center, this.radius + ( this.anticlockwise ? -1 : 1 ) * lineWidth / 2, this.endAngle, this.startAngle, !this.anticlockwise ) ];
+      return [new Segment.Arc( this.center, this.radius + ( this.anticlockwise ? -1 : 1 ) * lineWidth / 2, this.endAngle, this.startAngle, !this.anticlockwise )];
     },
     
     intersectsBounds: function( bounds ) {
@@ -256,6 +258,30 @@ define( function( require ) {
         wind += hit.wind;
       } );
       return wind;
+    },
+    
+    writeToContext: function( context ) {
+      context.arc( this.center.x, this.center.y, this.radius, this.startAngle, this.endAngle, this.anticlockwise );
+    },
+    
+    // TODO: test various transform types, especially rotations, scaling, shears, etc.
+    transformed: function( matrix ) {
+      // so we can handle reflections in the transform, we do the general case handling for start/end angles
+      var startAngle = matrix.timesVector2( Vector2.createPolar( 1, this.startAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle();
+      var endAngle = matrix.timesVector2( Vector2.createPolar( 1, this.endAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle();
+      
+      // reverse the 'clockwiseness' if our transform includes a reflection
+      var anticlockwise = matrix.getDeterminant() >= 0 ? this.anticlockwise : !this.anticlockwise;
+
+      var scaleVector = matrix.getScaleVector();
+      if ( scaleVector.x !== scaleVector.y ) {
+        var radiusX = scaleVector.x * this.radius;
+        var radiusY = scaleVector.y * this.radius;
+        return new Segment.EllipticalArc( matrix.timesVector2( this.center ), radiusX, radiusY, 0, startAngle, endAngle, anticlockwise );
+      } else {
+        var radius = scaleVector.x * this.radius;
+        return new Segment.Arc( matrix.timesVector2( this.center ), radius, startAngle, endAngle, anticlockwise );
+      }
     }
   };
   

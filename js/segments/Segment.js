@@ -27,11 +27,9 @@ define( function( require ) {
      * positionAt( t )          - returns the position parametrically, with 0 <= t <= 1. this does NOT guarantee a constant magnitude tangent... don't feel like adding elliptical functions yet!
      * tangentAt( t )           - returns the non-normalized tangent (dx/dt, dy/dt) parametrically, with 0 <= t <= 1.
      * curvatureAt( t )         - returns the signed curvature (positive for visual clockwise - mathematical counterclockwise)
-     * toPieces                 - returns an array of pieces that are equivalent to this segment, assuming start points are preserved
-     *                              TODO: is toPieces that valuable? it doesn't seem to have a strict guarantee on checking what the last segment did right now
      * getSVGPathFragment()     - returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls this needs to put the M calls first
-     * strokeLeft( lineWidth )  - returns an array of pieces that will draw an offset curve on the logical left side
-     * strokeRight( lineWidth ) - returns an array of pieces that will draw an offset curve on the logical right side
+     * strokeLeft( lineWidth )  - returns an array of segments that will draw an offset curve on the logical left side
+     * strokeRight( lineWidth ) - returns an array of segments that will draw an offset curve on the logical right side
      * intersectsBounds         - whether this segment intersects the specified bounding box (not just the segment's bounding box, but the actual segment)
      * windingIntersection      - returns the winding number for intersection with a ray
      *

@@ -37,12 +37,12 @@
   test( 'Zero-size rectangle', function() {
     var shape = new Shape().rect( 20, 50, 0, 0 );
     
-    ok( !shape.bounds.isEmpty() ); // relies on the boundary case from dot
+    ok( shape.bounds.isFinite() || shape.bounds.isEmpty() ); // relies on the boundary case from dot
   } );
   
   test( 'Zero-size line segment', function() {
     var shape = new Shape().moveTo( 20, 50 ).lineTo( 20, 50 ).close();
     
-    ok( !shape.bounds.isEmpty() ); // relies on the boundary case from dot
+    ok( shape.bounds.isFinite() || shape.bounds.isEmpty() ); // relies on the boundary case from dot
   } );
 })();
