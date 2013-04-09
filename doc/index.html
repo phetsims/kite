@@ -227,7 +227,7 @@ shape.writeToContext( context );
         Draws a line from the current position to the (x,y) location. See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-lineto">context.lineTo</a> for detailed semantics.
       </p>
       <p>
-        Also currently supports <code>lineTo( point )</code> where point is a <a href="../../dot/doc#vector2">dot.Vector2</a>.
+        Also currently supports <code>lineToPoint( point )</code> where point is a <a href="../../dot/doc#vector2">dot.Vector2</a>.
       </p>
       <canvas id="example-lineTo" class="exampleScene" style="width: 64px; height: 64px; margin: 0 auto;"></canvas>
       <script type="text/javascript">
@@ -252,7 +252,7 @@ shape.writeToContext( context );
         See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto">context.quadraticCurveTo</a> for detailed semantics.
       </p>
       <p>
-        Also currently supports <code>quadraticCurveTo( controlPoint, endPoint )</code> where the parameters are <a href="../../dot/doc#vector2">dot.Vector2</a> instances.
+        Also currently supports <code>quadraticCurveToPoint( controlPoint, endPoint )</code> where the parameters are <a href="../../dot/doc#vector2">dot.Vector2</a> instances.
       </p>
       <canvas id="example-quadraticCurveTo" class="exampleScene" style="width: 64px; height: 64px; margin: 0 auto;"></canvas>
       <script type="text/javascript">
@@ -276,7 +276,7 @@ shape.writeToContext( context );
         See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-beziercurveto">context.bezierCurveTo</a> for detailed semantics.
       </p>
       <p>
-        Also currently supports <code>cubicCurveTo( controlPoint1, controlPoint2, endPoint )</code> where the parameters are <a href="../../dot/doc#vector2">dot.Vector2</a> instances.
+        Also currently supports <code>cubicCurveToPoint( controlPoint1, controlPoint2, endPoint )</code> where the parameters are <a href="../../dot/doc#vector2">dot.Vector2</a> instances.
       </p>
       
       <h4 id="shape-arc">arc( <span class="args">centerX, centerY, radius, startAngle, endAngle, anticlockwise</span> )</h4>
@@ -286,7 +286,7 @@ shape.writeToContext( context );
         See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arc">context.arc</a> for detailed semantics.
       </p>
       <p>
-        Also currently supports <code>arc( center, radius, startAngle, endAngle, anticlockwise )</code> where the center is an <a href="../../dot/doc#vector2">dot.Vector2</a> instance.
+        Also currently supports <code>arcPoint( center, radius, startAngle, endAngle, anticlockwise )</code> where the center is an <a href="../../dot/doc#vector2">dot.Vector2</a> instance.
       </p>
       
       <h4 id="shape-ellipticalArc">ellipticalArc( <span class="args">centerX, centerY, radiusX, radiusy, rotation, startAngle, endAngle, anticlockwise</span> )</h4>
@@ -296,7 +296,7 @@ shape.writeToContext( context );
         See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse">context.ellipse</a> for detailed semantics.
       </p>
       <p>
-        Also currently supports <code>ellipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise )</code> where the center is an <a href="../../dot/doc#vector2">dot.Vector2</a> instance.
+        Also currently supports <code>ellipticalArcPoint( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise )</code> where the center is an <a href="../../dot/doc#vector2">dot.Vector2</a> instance.
       </p>
       
       <!-- 
