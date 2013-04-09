@@ -92,7 +92,7 @@ define( function( require ) {
       if ( this.hasSubpaths() ) {
         var start = this.getLastSubpath().getLastPoint();
         var end = point;
-        var line = new kite.Segment.Line( start, end );
+      var line = new kite.Segment.Line( start, end );
         this.getLastSubpath().addPoint( end );
         if ( !line.invalid ) {
           this.getLastSubpath().addSegment( line );
@@ -119,8 +119,8 @@ define( function( require ) {
       return this.quadraticCurveToPoint( relativePoint.plus( controlPoint ), relativePoint.plus( point ) );
     },
     // TODO: consider a rename to put 'smooth' farther back?
-    smoothQuadraticCurveTo: function( x, y ) { return this.quadraticCurveToPoint( this.getLastQuadraticControlPoint(), v( x, y ) ); },
-    smoothQuadraticCurveToRelative: function( x, y ) { return this.quadraticCurveToPoint( this.getLastQuadraticControlPoint(), v( x, y ).plus( this.getRelativePoint() ) ); },
+    smoothQuadraticCurveTo: function( x, y ) { return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ) ); },
+    smoothQuadraticCurveToRelative: function( x, y ) { return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ).plus( this.getRelativePoint() ) ); },
     quadraticCurveToPoint: function( controlPoint, point ) {
       // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
       this.ensure( controlPoint );
@@ -141,8 +141,8 @@ define( function( require ) {
       var relativePoint = this.getRelativePoint();
       return this.cubicCurveToPoint( relativePoint.plus( control1 ), relativePoint.plus( control2 ), relativePoint.plus( point ) );
     },
-    smoothCubicCurveTo: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getLastCubicControlPoint(), v( cp2x, cp2y ), v( x, y ) ); },
-    smoothCubicCurveToRelative: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getLastCubicControlPoint(), v( cp2x, cp2y ).plus( this.getRelativePoint() ), v( x, y ).plus( this.getRelativePoint() ) ); },
+    smoothCubicCurveTo: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ), v( x, y ) ); },
+    smoothCubicCurveToRelative: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ).plus( this.getRelativePoint() ), v( x, y ).plus( this.getRelativePoint() ) ); },
     cubicCurveToPoint: function( control1, control2, point ) {
       // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
       this.ensure( control1 );
@@ -501,19 +501,23 @@ define( function( require ) {
     },
     
     // returns the point to be used for smooth quadratic segments
-    getLastQuadraticControlPoint: function() {
-      var segment = this.getLastSegment();
-      if ( !segment || !( segment instanceof kite.Segment.Quadratic ) ) { return this.getLastPoint(); }
+    getSmoothQuadraticControlPoint: function() {
+      var lastPoint = this.getLastPoint();
       
-      return segment.control;
+      var segment = this.getLastSegment();
+      if ( !segment || !( segment instanceof kite.Segment.Quadratic ) ) { return lastPoint; }
+      
+      return lastPoint.plus( lastPoint.minus( segment.control ) );
     },
     
     // returns the point to be used for smooth cubic segments
-    getLastCubicControlPoint: function() {
-      var segment = this.getLastSegment();
-      if ( !segment || !( segment instanceof kite.Segment.Cubic ) ) { return this.getLastPoint(); }
+    getSmoothCubicControlPoint: function() {
+      var lastPoint = this.getLastPoint();
       
-      return segment.control2;
+      var segment = this.getLastSegment();
+      if ( !segment || !( segment instanceof kite.Segment.Cubic ) ) { return lastPoint; }
+      
+      return lastPoint.plus( lastPoint.minus( segment.control2 ) );
     },
     
     getRelativePoint: function() {
