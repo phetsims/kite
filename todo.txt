@@ -4,23 +4,19 @@ General:
   Reduction of things like Ellipse with zero-radius in one dimension into multiple line segments?
     Or handle crazy cases at the call-site?
   Segment 'points' are an annoyance except for when building the subpath. Thoughts on only keeping the last point instead?
-  *** Simplify out pieces, since we can have more custom types in Scenery do things like rectangles or other specialties
-    Move transform to Segments, with transform( matrix, strokedShape ) - apply transformed to strokedShape
-      Or simpler transformed( matrix ) returning array of segments, but move the "canonical mapping" part into the segment constructor
-    applyPiece should go into Shape's application methods
 
-Parsing of SVG d="" paths
 Relative paths, like SVG's pathing
   Add relative and smooth curve methods and mapping of elliptical flags to complete SVG path parsing
+    Rename to lineToRelative (etc.) in parser code
   Minimize space taken up by SVG path parser
 
 Code:
-  Move circle intersection to Dot
+  Move circle intersection to Dot (and any other particularly general-math parts)
 
-Should the tangent return a unit vector?
 windingIntersection in segment base class?
 
 Bugs:
+  Transformed line segments seem to have intersection issues
   Arc/EllipticalArc shear transform seems broken
   Intersection on ray parallel to 'lines' can cause false positives, possibly false negatives?
     Need to handle intersection at endpoints solidly
@@ -31,14 +27,6 @@ Bugs:
 Testing:
   Visual shape test should allow switching to SVG output to verify?
   Create a simple way to do the comparisons that we already have in Scenery's tests
-  Interactive visualization tests to check:
-    positionAt
-    tangentAt
-    curvatureAt (use 1/curvature as the radius of curvature, and confirm the correct sign)
-    bounds
-    stroked paths
-    transformations (+reflections and shears)
-    hit testing (compute for every pixel and shade)
 
 Performance:
   Consider eval to build a function that can render the shape to canvas, without all of the indirection, etc.
@@ -49,8 +37,6 @@ Intersection:
 
 Shapes:
   lineDash stroking
-  Add curvatureAt( t ), since this will be necessary for determining regions (if multiple segments have the same tangent at the same endpoint)
-  Move some computations to Dot if they are somewhat general-purpose
   Finiteness checks a la WebKit?
   Investigate shear / scale effects on stroking -- important for bounds
   Quadratic curve offsets need implementation improvement (32 sub-quadratics is too costly)
