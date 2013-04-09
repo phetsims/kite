@@ -60,7 +60,7 @@ define( function( require ) {
     
     strokeRight: function( lineWidth ) {
       var offset = this.startTangent.perpendicular().times( lineWidth / 2 );
-      return [new Segment.Line( this.start.plus( offset ), this.end.plus( offset ) )];
+      return [new Segment.Line( this.end.plus( offset ), this.start.plus( offset ) )];
     },
     
     intersectsBounds: function( bounds ) {
