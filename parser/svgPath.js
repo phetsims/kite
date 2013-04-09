@@ -600,7 +600,7 @@ define( function( require ) {
             pos = pos1;
           }
           if (result0 !== null) {
-            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'relativeLineTo', args: [ arg.x, arg.y ] }; } ); })(pos0, result0[2]);
+            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'lineToRelative', args: [ arg.x, arg.y ] }; } ); })(pos0, result0[2]);
           }
           if (result0 === null) {
             pos = pos0;
@@ -734,7 +734,7 @@ define( function( require ) {
             pos = pos1;
           }
           if (result0 !== null) {
-            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'relativeHorizontalLineTo', args: [ arg ] } } ); })(pos0, result0[2]);
+            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'horizontalLineToRelative', args: [ arg ] } } ); })(pos0, result0[2]);
           }
           if (result0 === null) {
             pos = pos0;
@@ -868,7 +868,7 @@ define( function( require ) {
             pos = pos1;
           }
           if (result0 !== null) {
-            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'relativeVerticalLineTo', args: [ arg ] } } ); })(pos0, result0[2]);
+            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'verticalLineToRelative', args: [ arg ] } } ); })(pos0, result0[2]);
           }
           if (result0 === null) {
             pos = pos0;
@@ -1002,7 +1002,7 @@ define( function( require ) {
             pos = pos1;
           }
           if (result0 !== null) {
-            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'relativeCubicCurveTo', args: arg } } ); })(pos0, result0[2]);
+            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'cubicCurveToRelative', args: arg } } ); })(pos0, result0[2]);
           }
           if (result0 === null) {
             pos = pos0;
@@ -1184,7 +1184,7 @@ define( function( require ) {
             pos = pos1;
           }
           if (result0 !== null) {
-            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'relativeSmoothCubicCurveTo', args: arg } } ); })(pos0, result0[2]);
+            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'smoothCubicCurveToRelative', args: arg } } ); })(pos0, result0[2]);
           }
           if (result0 === null) {
             pos = pos0;
@@ -1353,7 +1353,7 @@ define( function( require ) {
             pos = pos1;
           }
           if (result0 !== null) {
-            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'relativeQuadraticCurveTo', args: arg } } ); })(pos0, result0[2]);
+            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'quadraticCurveToRelative', args: arg } } ); })(pos0, result0[2]);
           }
           if (result0 === null) {
             pos = pos0;
@@ -1522,7 +1522,7 @@ define( function( require ) {
             pos = pos1;
           }
           if (result0 !== null) {
-            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'relativeSmoothQuadraticCurveTo', args: [ arg.x, arg.y ] } } ); })(pos0, result0[2]);
+            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'smoothQuadraticCurveToRelative', args: [ arg.x, arg.y ] } } ); })(pos0, result0[2]);
           }
           if (result0 === null) {
             pos = pos0;
@@ -1656,7 +1656,7 @@ define( function( require ) {
             pos = pos1;
           }
           if (result0 !== null) {
-            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'relativeEllipticalArcTo', args: arg } } ); })(pos0, result0[2]);
+            result0 = (function(offset, args) { return args.map( function( arg ) { return { cmd: 'ellipticalArcToRelative', args: arg } } ); })(pos0, result0[2]);
           }
           if (result0 === null) {
             pos = pos0;
@@ -2377,7 +2377,7 @@ define( function( require ) {
       
         function createMoveTo( args, isRelative ) {
           var result = [ {
-            cmd: isRelative ? 'relativeMoveTo' : 'moveTo',
+            cmd: isRelative ? 'moveToRelative' : 'moveTo',
             args: [ args[0].x, args[0].y ]
           } ];
           
@@ -2385,7 +2385,7 @@ define( function( require ) {
           if ( args.length > 1 ) {
             for ( var i = 0; i < args.length; i++ ) {
               result.push( {
-                cmd: isRelative ? 'relativeLineTo' : 'lineTo',
+                cmd: isRelative ? 'lineToRelative' : 'lineTo',
                 args: [ args[i].x, args[i].y ]
               } );
             }
