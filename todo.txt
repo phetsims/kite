@@ -1,6 +1,8 @@
 
 
 General:
+  Reduction of things like Ellipse with zero-radius in one dimension into multiple line segments?
+    Or handle crazy cases at the call-site?
   Segment 'points' are an annoyance except for when building the subpath. Thoughts on only keeping the last point instead?
   *** Simplify out pieces, since we can have more custom types in Scenery do things like rectangles or other specialties
     Move transform to Segments, with transform( matrix, strokedShape ) - apply transformed to strokedShape
