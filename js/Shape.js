@@ -39,7 +39,11 @@ define( function( require ) {
   
   var svgPath = require( 'KITE/../parser/svgPath' );
   require( 'KITE/util/LineStyles' );
+  require( 'KITE/segments/Arc' );
+  require( 'KITE/segments/Cubic' );
+  require( 'KITE/segments/EllipticalArc' );
   require( 'KITE/segments/Line' );
+  require( 'KITE/segments/Quadratic' );
   
   // for brevity
   function p( x,y ) { return new Vector2( x, y ); }
