@@ -419,7 +419,7 @@ define( function( require ) {
     // TODO: rename stroked( lineStyles )
     getStrokedShape: function( lineStyles ) {
       var subpaths = _.flatten( _.map( this.subpaths, function( subpath ) { return subpath.stroked( lineStyles ); } ) );
-      var bounds = _.reduce( this.subpaths, function( bounds, subpath ) { return bounds.union( subpath.computeBounds() ); }, Bounds2.NOTHING );
+      var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.computeBounds() ); }, Bounds2.NOTHING );
       return new Shape( subpaths, bounds );
     },
     
