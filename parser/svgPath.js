@@ -2383,7 +2383,7 @@ define( function( require ) {
           
           // any other coordinate pairs are implicit lineTos
           if ( args.length > 1 ) {
-            for ( var i = 0; i < args.length; i++ ) {
+            for ( var i = 1; i < args.length; i++ ) {
               result.push( {
                 cmd: isRelative ? 'lineToRelative' : 'lineTo',
                 args: [ args[i].x, args[i].y ]
