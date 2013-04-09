@@ -18,7 +18,7 @@ define( function( require ) {
 
   var Segment = require( 'KITE/segments/Segment' );
 
-  Segment.Arc = function( center, radius, startAngle, endAngle, anticlockwise ) {
+  Segment.Arc = function Arc( center, radius, startAngle, endAngle, anticlockwise ) {
     if ( radius < 0 ) {
       // support this case since we might actually need to handle it inside of strokes?
       radius = -radius;

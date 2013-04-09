@@ -21,7 +21,7 @@ define( function( require ) {
 
   var Segment = require( 'KITE/segments/Segment' );
 
-  Segment.Quadratic = function( start, control, end, skipComputations ) {
+  Segment.Quadratic = function Quadratic( start, control, end, skipComputations ) {
     this.start = start;
     this.control = control;
     this.end = end;

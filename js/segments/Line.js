@@ -18,7 +18,7 @@ define( function( require ) {
   
   var Segment = require( 'KITE/segments/Segment' );
 
-  Segment.Line = function( start, end ) {
+  Segment.Line = function Line( start, end ) {
     this.start = start;
     this.end = end;
     
