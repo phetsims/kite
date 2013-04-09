@@ -229,10 +229,10 @@ define( function( require ) {
         // circle( center, radius )
         var center = centerX;
         radius = centerY;
-        return this.arc( center, radius, 0, Math.PI * 2, false );
+        return this.arcPoint( center, radius, 0, Math.PI * 2, false );
       } else {
         // circle( centerX, centerY, radius )
-        return this.arc( p( centerX, centerY ), radius, 0, Math.PI * 2, false );
+        return this.arcPoint( p( centerX, centerY ), radius, 0, Math.PI * 2, false );
       }
     },
     
@@ -250,10 +250,10 @@ define( function( require ) {
         rotation = radiusY;
         radiusY = radiusX;
         radiusX = centerY;
-        return this.ellipticalArc( center, radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
+        return this.ellipticalArcPoint( center, radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
       } else {
         // ellipse( centerX, centerY, radiusX, radiusY, rotation )
-        return this.ellipticalArc( v( centerX, centerY ), radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
+        return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
       }
     },
     
