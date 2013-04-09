@@ -63,6 +63,9 @@ module.exports = function( grunt ) {
       all: [
         'Gruntfile.js', 'js/**/*.js', 'common/dot/js/**/*.js', 'common/phet-core/js/**/*.js', 'common/assert/js/**/*.js'
       ],
+      kite: [
+        'js/**/*.js'
+      ],
       // adjust with options from http://www.jshint.com/docs/
       options: {
         // enforcing options
@@ -105,6 +108,10 @@ module.exports = function( grunt ) {
   
   // Default task.
   grunt.registerTask( 'default', [ 'jshint', 'development', 'standalone', 'production' ] );
+  
+  // linter on kite subset only ('grunt lint')
+  grunt.registerTask( 'lint', [ 'jshint:kite' ] );
+  
   grunt.registerTask( 'production', [ 'requirejs:production' ] );
   grunt.registerTask( 'standalone', [ 'requirejs:standalone' ] );
   grunt.registerTask( 'development', [ 'requirejs:development' ] );
