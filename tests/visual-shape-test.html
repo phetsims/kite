@@ -199,7 +199,7 @@
               // console.log( matrix.toString() + '\n' );
             }
             if ( close ) {
-              transformedShape = new kite.Shape( transformedShape.pieces, true );
+              transformedShape = transformedShape.copy().close();
             }
             
             // main shape stroked in black
