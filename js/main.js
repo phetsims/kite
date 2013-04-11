@@ -14,15 +14,6 @@ define( [
     'KITE/kite',
     
     'KITE/Shape',
-    'KITE/pieces/Arc',
-    'KITE/pieces/Close',
-    'KITE/pieces/CubicCurveTo',
-    'KITE/pieces/EllipticalArc',
-    'KITE/pieces/LineTo',
-    'KITE/pieces/MoveTo',
-    'KITE/pieces/Piece',
-    'KITE/pieces/QuadraticCurveTo',
-    'KITE/pieces/Rect',
     'KITE/segments/Arc',
     'KITE/segments/Cubic',
     'KITE/segments/EllipticalArc',
@@ -30,7 +21,9 @@ define( [
     'KITE/segments/Quadratic',
     'KITE/segments/Segment',
     'KITE/util/LineStyles',
-    'KITE/util/Subpath'
+    'KITE/util/Subpath',
+    
+    'KITE/../parser/svgPath'
   ], function(
     kite // note: we don't need any of the other parts, we just need to specify them as dependencies so they fill in the kite namespace
   ) {

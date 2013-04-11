@@ -80,6 +80,7 @@
     <button id="nxyearc1">nxyearc1</button>
     <button id="rrect">rrect</button>
     <button id="errect">errect</button>
+    <input id="svgPath" type="text"></input>
     
     <div class="label">Cap</div>
     <button id="cap-butt">butt</button>
@@ -111,7 +112,7 @@
     <button id="transform-reflect">reflect</button>
     <input id="translation" type="range" min="-50" max="50" step="1" value="0"/>
     <input id="rotation" type="range" min="-180" max="180" step="1" value="0"/>
-    <input id="scaling" type="range" min="0.5" max="1.5" step="0.01" value="1"/>
+    <input id="scaling" type="range" min="0.1" max="1.5" step="0.01" value="1"/>
     <input id="shear" type="range" min="-2" max="2" step="0.01" value="0"/>
     
     <div class="label">Hit test</div>
@@ -198,7 +199,7 @@
               // console.log( matrix.toString() + '\n' );
             }
             if ( close ) {
-              transformedShape = new kite.Shape( transformedShape.pieces, true );
+              transformedShape = transformedShape.copy().close();
             }
             
             // main shape stroked in black
@@ -247,6 +248,7 @@
               _.each( subpath.segments, function( segment ) {
                 var p = segment.positionAt( point );
                 var t = segment.tangentAt( point );
+                if ( t.magnitude() === 0 ) { return; } // bail out if we are at a cusp or undefined tangent
                 var tn = t.normalized();
                 var c = segment.curvatureAt( point );
                 
@@ -395,7 +397,18 @@
           updateListener( 'errect', function() {
             shape = new kite.Shape().roundRect( -50, -50, 100, 100, 20, 40 );
           } );
-          
+          updateListener( 'svgPath', function() {
+            var s;
+            var el = document.getElementById( 'svgPath' );
+            try {
+              shape = new kite.Shape( el.value );
+              el.style.backgroundColor = '#dfd';
+            } catch ( e ) {
+              console.log( e );
+              console.log( e.stack );
+              el.style.backgroundColor = '#fdd';
+            }
+          }, 'input' );
           
           /*---------------------------------------------------------------------------*
           * Line Cap

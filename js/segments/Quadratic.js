@@ -20,14 +20,13 @@ define( function( require ) {
   var solveQuadraticRootsReal = require( 'DOT/Util' ).solveQuadraticRootsReal;
 
   var Segment = require( 'KITE/segments/Segment' );
-  var Piece = require( 'KITE/pieces/Piece' );
 
-  Segment.Quadratic = function( start, control, end, skipComputations ) {
+  Segment.Quadratic = function Quadratic( start, control, end, skipComputations ) {
     this.start = start;
     this.control = control;
     this.end = end;
     
-    if ( start.equals( end, 0 ) && start.equals( control, 0 ) ) {
+    if ( start.equals( end ) && start.equals( control ) ) {
       this.invalid = true;
       return;
     }
@@ -127,11 +126,7 @@ define( function( require ) {
         offsetCurves = _.map( offsetCurves, function( curve ) { return curve.reversed( true ); } );
       }
       
-      var result = _.map( offsetCurves, function( curve ) {
-        return new Piece.QuadraticCurveTo( curve.control, curve.end );
-      } );
-      
-      return result;
+      return offsetCurves;
     },
     
     subdivided: function( t, skipComputations ) {
@@ -155,10 +150,6 @@ define( function( require ) {
         this.control.plus( this.end.minus( this.start ).perpendicular().normalized().times( r ) ),
         this.end.plus( ( this.end.equals( this.control ) ? this.end.minus( this.start ) : this.end.minus( this.control ) ).perpendicular().normalized().times( r ) )
       );
-    },
-    
-    toPieces: function() {
-      return [ new Piece.QuadraticCurveTo( this.control, this.end ) ];
     },
     
     getSVGPathFragment: function() {
@@ -224,6 +215,15 @@ define( function( require ) {
         wind += hit.wind;
       } );
       return wind;
+    },
+    
+    // assumes the current position is at start
+    writeToContext: function( context ) {
+      context.quadraticCurveTo( this.control.x, this.control.y, this.end.x, this.end.y );
+    },
+    
+    transformed: function( matrix ) {
+      return new Segment.Quadratic( matrix.timesVector2( this.start ), matrix.timesVector2( this.control ), matrix.timesVector2( this.end ) );
     }
   };
   

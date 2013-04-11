@@ -17,9 +17,8 @@ define( function( require ) {
   var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
   
   var Segment = require( 'KITE/segments/Segment' );
-  var Piece = require( 'KITE/pieces/Piece' );
 
-  Segment.Line = function( start, end ) {
+  Segment.Line = function Line( start, end ) {
     this.start = start;
     this.end = end;
     
@@ -50,20 +49,18 @@ define( function( require ) {
       return 0; // no curvature on a straight line segment
     },
     
-    toPieces: function() {
-      return [ new Piece.LineTo( this.end ) ];
-    },
-    
     getSVGPathFragment: function() {
       return 'L ' + this.end.x + ' ' + this.end.y;
     },
     
     strokeLeft: function( lineWidth ) {
-      return [ new Piece.LineTo( this.end.plus( this.endTangent.perpendicular().negated().times( lineWidth / 2 ) ) ) ];
+      var offset = this.endTangent.perpendicular().negated().times( lineWidth / 2 );
+      return [new Segment.Line( this.start.plus( offset ), this.end.plus( offset ) )];
     },
     
     strokeRight: function( lineWidth ) {
-      return [ new Piece.LineTo( this.start.plus( this.startTangent.perpendicular().times( lineWidth / 2 ) ) ) ];
+      var offset = this.startTangent.perpendicular().times( lineWidth / 2 );
+      return [new Segment.Line( this.end.plus( offset ), this.start.plus( offset ) )];
     },
     
     intersectsBounds: function( bounds ) {
@@ -117,6 +114,15 @@ define( function( require ) {
       } else {
         return 0;
       }
+    },
+    
+    // assumes the current position is at start
+    writeToContext: function( context ) {
+      context.lineTo( this.end.x, this.end.y );
+    },
+    
+    transformed: function( matrix ) {
+      return new Segment.Line( matrix.timesVector2( this.start ), matrix.timesVector2( this.end ) );
     }
   };
   

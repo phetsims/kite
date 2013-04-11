@@ -3,10 +3,8 @@
 /**
  * Shape handling
  *
- * Shapes are internally made up of pieces (generally individual Canvas calls),
- * which for simplicity of stroking and hit testing are then broken up into
- * individual segments stored in subpaths. Familiarity with how Canvas handles
- * subpaths is helpful for understanding this code.
+ * Shapes are internally made up of Subpaths, which contain a series of segments, and are optionally closed.
+ * Familiarity with how Canvas handles subpaths is helpful for understanding this code.
  *
  * Canvas spec: http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
  * SVG spec: http://www.w3.org/TR/SVG/expanded-toc.html
@@ -28,6 +26,7 @@ define( function( require ) {
   
   var kite = require( 'KITE/kite' );
   
+  // TODO: clean up imports
   var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Ray2 = require( 'DOT/Ray2' );
@@ -37,48 +36,40 @@ define( function( require ) {
   var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
   
   var Subpath = require( 'KITE/util/Subpath' );
-  var Piece = require( 'KITE/pieces/Piece' );
+  
+  var svgPath = require( 'KITE/../parser/svgPath' );
   require( 'KITE/util/LineStyles' );
-  require( 'KITE/pieces/Arc' );
-  require( 'KITE/pieces/Close' );
-  require( 'KITE/pieces/CubicCurveTo' );
-  require( 'KITE/pieces/EllipticalArc' );
-  require( 'KITE/pieces/LineTo' );
-  require( 'KITE/pieces/MoveTo' );
-  require( 'KITE/pieces/QuadraticCurveTo' );
-  require( 'KITE/pieces/Rect' );
+  require( 'KITE/segments/Arc' );
+  require( 'KITE/segments/Cubic' );
+  require( 'KITE/segments/EllipticalArc' );
   require( 'KITE/segments/Line' );
+  require( 'KITE/segments/Quadratic' );
   
   // for brevity
   function p( x,y ) { return new Vector2( x, y ); }
+  function v( x,y ) { return new Vector2( x, y ); } // TODO: use this version in general, it makes more sense and is easier to type
   
   // a normalized vector for non-zero winding checks
   // var weirdDir = p( Math.PI, 22 / 7 );
   
-  kite.Shape = function( pieces, optionalClose ) {
-    // higher-level Canvas-esque drawing commands, individually considered to be immutable
-    this.pieces = [];
-    
+  // all arguments optional, they are for the copy() method. if used, ensure that 'bounds' is consistent with 'subpaths'
+  kite.Shape = function Shape( subpaths, bounds ) {
     // lower-level piecewise mathematical description using segments, also individually immutable
-    this.subpaths = [];
+    this.subpaths = ( typeof subpaths === 'object' ) ? subpaths : [];
+    assert && assert( this.subpaths.length === 0 || this.subpaths[0].constructor.name !== 'Array' );
     
     // computed bounds for all pieces added so far
-    this.bounds = Bounds2.NOTHING;
-    
-    // cached stroked shape (so hit testing can be done quickly on stroked shapes)
-    this._strokedShape = null;
-    this._strokedShapeComputed = false;
-    this._strokedShapeStyles = null;
+    this.bounds = bounds || Bounds2.NOTHING;
     
     var that = this;
-    // initialize with pieces passed in
-    if ( pieces !== undefined ) {
-      _.each( pieces, function( piece ) {
-        that.addPiece( piece );
+    if ( subpaths && typeof subpaths !== 'object' ) {
+      assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' )
+      ;
+      // parse the SVG path
+      _.each( svgPath.parse( subpaths ), function( item ) {
+        assert && assert( Shape.prototype[item.cmd] !== undefined, 'method ' + item.cmd + ' from parsed SVG does not exist' );
+        that[item.cmd].apply( that, item.args );
       } );
-    }
-    if ( optionalClose ) {
-      this.addPiece( new Piece.Close() );
     }
   };
   var Shape = kite.Shape;
@@ -86,55 +77,179 @@ define( function( require ) {
   Shape.prototype = {
     constructor: Shape,
     
-    moveTo: function( x, y ) {
-      // moveTo( point )
-      if ( y === undefined && typeof x === 'object' ) {
-        // wrap it in a Vector2 if the class doesn't match
-        var point = x instanceof Vector2 ? x : new Vector2( x.x, x.y );
-        this.addPiece( new Piece.MoveTo( point ) );
-      } else { // moveTo( x, y )
-        this.addPiece( new Piece.MoveTo( p( x, y ) ) );
+    moveTo: function( x, y ) { return this.moveToPoint( v( x, y ) ); },
+    moveToRelative: function( x, y ) { return this.moveToPointRelative( v( x, y ) ); },
+    moveToPointRelative: function( point ) { return this.moveToPoint( this.getRelativePoint().plus( point ) ); },
+    moveToPoint: function( point ) {
+      return this.addSubpath( new kite.Subpath().addPoint( point ) );
+    },
+    
+    lineTo: function( x, y ) { return this.lineToPoint( v( x, y ) ); },
+    lineToRelative: function( x, y ) { return this.lineToPointRelative( v( x, y ) ); },
+    lineToPointRelative: function( point ) { return this.lineToPoint( this.getRelativePoint().plus( point ) ); },
+    lineToPoint: function( point ) {
+      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-lineto
+      if ( this.hasSubpaths() ) {
+        var start = this.getLastSubpath().getLastPoint();
+        var end = point;
+      var line = new kite.Segment.Line( start, end );
+        this.getLastSubpath().addPoint( end );
+        if ( !line.invalid ) {
+          this.getLastSubpath().addSegment( line );
+          this.bounds = this.bounds.withPoint( start ).withPoint( end );
+          assert && assert( !isNaN( this.bounds.getX() ) );
+        }
+      } else {
+        this.ensure( point );
+      }
+      
+      return this;
+    },
+    
+    horizontalLineTo: function( x ) { return this.lineTo( x, this.getRelativePoint().y ); },
+    horizontalLineToRelative: function( x ) { return this.lineToRelative( x, 0 ); },
+    
+    verticalLineTo: function( y ) { return this.lineTo( this.getRelativePoint().x, y ); },
+    verticalLineToRelative: function( y ) { return this.lineToRelative( 0, y ); },
+    
+    quadraticCurveTo: function( cpx, cpy, x, y ) { return this.quadraticCurveToPoint( v( cpx, cpy ), v( x, y ) ); },
+    quadraticCurveToRelative: function( cpx, cpy, x, y ) { return this.quadraticCurveToPointRelative( v( cpx, cpy ), v( x, y ) ); },
+    quadraticCurveToPointRelative: function( controlPoint, point ) {
+      var relativePoint = this.getRelativePoint();
+      return this.quadraticCurveToPoint( relativePoint.plus( controlPoint ), relativePoint.plus( point ) );
+    },
+    // TODO: consider a rename to put 'smooth' farther back?
+    smoothQuadraticCurveTo: function( x, y ) { return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ) ); },
+    smoothQuadraticCurveToRelative: function( x, y ) { return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ).plus( this.getRelativePoint() ) ); },
+    quadraticCurveToPoint: function( controlPoint, point ) {
+      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
+      this.ensure( controlPoint );
+      var start = this.getLastSubpath().getLastPoint();
+      var quadratic = new kite.Segment.Quadratic( start, controlPoint, point );
+      this.getLastSubpath().addPoint( point );
+      if ( !quadratic.invalid ) {
+        this.getLastSubpath().addSegment( quadratic );
+        this.bounds = this.bounds.union( quadratic.bounds );
+      }
+      
+      return this;
+    },
+    
+    cubicCurveTo: function( cp1x, cp1y, cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) ); },
+    cubicCurveToRelative: function( cp1x, cp1y, cp2x, cp2y, x, y ) { return this.cubicCurveToPointRelative( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) ); },
+    cubicCurveToPointRelative: function( control1, control2, point ) {
+      var relativePoint = this.getRelativePoint();
+      return this.cubicCurveToPoint( relativePoint.plus( control1 ), relativePoint.plus( control2 ), relativePoint.plus( point ) );
+    },
+    smoothCubicCurveTo: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ), v( x, y ) ); },
+    smoothCubicCurveToRelative: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ).plus( this.getRelativePoint() ), v( x, y ).plus( this.getRelativePoint() ) ); },
+    cubicCurveToPoint: function( control1, control2, point ) {
+      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
+      this.ensure( control1 );
+      var start = this.getLastSubpath().getLastPoint();
+      var cubic = new kite.Segment.Cubic( start, control1, control2, point );
+      
+      if ( !cubic.invalid ) {
+        // if there is a cusp, we add the two (split) quadratic segments instead so that stroking treats the 'join' between them with the proper lineJoin
+        if ( cubic.hasCusp() ) {
+          this.getLastSubpath().addSegment( cubic.startQuadratic );
+          this.getLastSubpath().addSegment( cubic.endQuadratic );
+        } else {
+          this.getLastSubpath().addSegment( cubic );
+        }
+        
+        this.bounds = this.bounds.union( cubic.bounds );
+      }
+      this.getLastSubpath().addPoint( point );
+      
+      return this;
+    },
+    
+    arc: function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) { return this.arcPoint( v( centerX, centerY ), radius, startAngle, endAngle, anticlockwise ); },
+    arcPoint: function( center, radius, startAngle, endAngle, anticlockwise ) {
+      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arc
+      
+      var arc = new kite.Segment.Arc( center, radius, startAngle, endAngle, anticlockwise );
+      
+      // we are assuming that the normal conditions were already met (or exceptioned out) so that these actually work with canvas
+      var startPoint = arc.start;
+      var endPoint = arc.end;
+      
+      // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
+      if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
+        this.getLastSubpath().addSegment( new kite.Segment.Line( this.getLastSubpath().getLastPoint(), startPoint ) );
+      }
+      
+      if ( !this.hasSubpaths() ) {
+        this.addSubpath( new kite.Subpath() );
+      }
+      
+      // technically the Canvas spec says to add the start point, so we do this even though it is probably completely unnecessary (there is no conditional)
+      this.getLastSubpath().addPoint( startPoint );
+      this.getLastSubpath().addPoint( endPoint );
+      
+      if ( !arc.invalid ) {
+        this.getLastSubpath().addSegment( arc );
+        
+        // and update the bounds
+        this.bounds = this.bounds.union( arc.bounds );
+      }
+      
+      return this;
+    },
+    
+    ellipticalArc: function( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) { return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ); },
+    ellipticalArcPoint: function( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
+      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arc
+      
+      var ellipticalArc = new kite.Segment.EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
+      
+      // we are assuming that the normal conditions were already met (or exceptioned out) so that these actually work with canvas
+      var startPoint = ellipticalArc.start;
+      var endPoint = ellipticalArc.end;
+      
+      // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
+      if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
+        this.getLastSubpath().addSegment( new kite.Segment.Line( this.getLastSubpath().getLastPoint(), startPoint ) );
+      }
+      
+      if ( !this.hasSubpaths() ) {
+        this.addSubpath( new kite.Subpath() );
+      }
+      
+      // technically the Canvas spec says to add the start point, so we do this even though it is probably completely unnecessary (there is no conditional)
+      this.getLastSubpath().addPoint( startPoint );
+      this.getLastSubpath().addPoint( endPoint );
+      
+      if ( !ellipticalArc.invalid ) {
+        this.getLastSubpath().addSegment( ellipticalArc );
+        
+        // and update the bounds
+        this.bounds = this.bounds.union( ellipticalArc.bounds );
+      }
+      
+      return this;
+    },
+    
+    close: function() {
+      if ( this.hasSubpaths() ) {
+        var previousPath = this.getLastSubpath();
+        var nextPath = new kite.Subpath();
+        
+        previousPath.close();
+        this.addSubpath( nextPath );
+        nextPath.addPoint( previousPath.getFirstPoint() );
       }
       return this;
     },
     
-    lineTo: function( x, y ) {
-      // lineTo( point )
-      if ( y === undefined && typeof x === 'object' ) {
-        // wrap it in a Vector2 if the class doesn't match
-        var point = x instanceof Vector2 ? x : new Vector2( x.x, x.y );
-        this.addPiece( new Piece.LineTo( point ) );
-      } else { // lineTo( x, y )
-        this.addPiece( new Piece.LineTo( p( x, y ) ) );
-      }
-      return this;
+    // matches SVG's elliptical arc from http://www.w3.org/TR/SVG/paths.html
+    ellipticalArcToRelative: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
+      var relativePoint = this.getRelativePoint();
+      return this.ellipticalArcTo( radiusX, radiusY, rotation, largeArc, sweep, x + relativePoint.x, y + relativePoint.y );
     },
-    
-    quadraticCurveTo: function( cpx, cpy, x, y ) {
-      // quadraticCurveTo( control, point )
-      if ( x === undefined && typeof cpx === 'object' ) {
-        // wrap it in a Vector2 if the class doesn't match
-        var controlPoint = cpx instanceof Vector2 ? cpx : new Vector2( cpx.x, cpx.y );
-        var point = cpy instanceof Vector2 ? cpy : new Vector2( cpy.x, cpy.y );
-        this.addPiece( new Piece.QuadraticCurveTo( controlPoint, point ) );
-      } else { // quadraticCurveTo( cpx, cpy, x, y )
-        this.addPiece( new Piece.QuadraticCurveTo( p( cpx, cpy ), p( x, y ) ) );
-      }
-      return this;
-    },
-    
-    cubicCurveTo: function( cp1x, cp1y, cp2x, cp2y, x, y ) {
-      // cubicCurveTo( cp1, cp2, end )
-      if ( cp2y === undefined && typeof cp1x === 'object' ) {
-        // wrap it in a Vector2 if the class doesn't match
-        var control1 = cp1x instanceof Vector2 ? cp1x : new Vector2( cp1x.x, cp1x.y );
-        var control2 = cp1y instanceof Vector2 ? cp1y : new Vector2( cp1y.x, cp1y.y );
-        var end = cp2x instanceof Vector2 ? cp2x : new Vector2( cp2x.x, cp2x.y );
-        this.addPiece( new Piece.CubicCurveTo( control1, control2, end ) );
-      } else { // cubicCurveTo( cp1x, cp1y, cp2x, cp2y, x, y )
-        this.addPiece( new Piece.CubicCurveTo( p( cp1x, cp1y ), p( cp2x, cp2y ), p( x, y ) ) );
-      }
-      return this;
+    ellipticalArcTo: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
+      throw new Error( 'ellipticalArcTo unimplemented' );
     },
     
     /*
@@ -147,10 +262,10 @@ define( function( require ) {
         // circle( center, radius )
         var center = centerX;
         radius = centerY;
-        return this.arc( center, radius, 0, Math.PI * 2, false );
+        return this.arcPoint( center, radius, 0, Math.PI * 2, false );
       } else {
         // circle( centerX, centerY, radius )
-        return this.arc( p( centerX, centerY ), radius, 0, Math.PI * 2, false );
+        return this.arcPoint( p( centerX, centerY ), radius, 0, Math.PI * 2, false );
       }
     },
     
@@ -160,6 +275,7 @@ define( function( require ) {
      * ellipse( centerX, centerY, radiusX, radiusY, rotation )
      */
     ellipse: function( centerX, centerY, radiusX, radiusY, rotation ) {
+      // TODO: separate into ellipse() and ellipsePoint()?
       // TODO: Ellipse/EllipticalArc has a mess of parameters. Consider parameter object, or double-check parameter handling
       if ( typeof centerX === 'object' ) {
         // ellipse( center, radiusX, radiusY, rotation )
@@ -167,60 +283,29 @@ define( function( require ) {
         rotation = radiusY;
         radiusY = radiusX;
         radiusX = centerY;
-        return this.ellipticalArc( center, radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
+        return this.ellipticalArcPoint( center, radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
       } else {
         // ellipse( centerX, centerY, radiusX, radiusY, rotation )
-        return this.ellipticalArc( p( centerX, centerY ), radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
+        return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
       }
-    },
-    
-    /*
-     * Draws an arc using the Canvas 2D semantics, with the following parameters:
-     * arc( center, radius, startAngle, endAngle, anticlockwise )
-     * arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise )
-     */
-    arc: function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) {
-      if ( typeof centerX === 'object' ) {
-        // arc( center, radius, startAngle, endAngle, anticlockwise )
-        anticlockwise = endAngle;
-        endAngle = startAngle;
-        startAngle = radius;
-        radius = centerY;
-        var center = centerX;
-        this.addPiece( new Piece.Arc( center, radius, startAngle, endAngle, anticlockwise ) );
-      } else {
-        // arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise )
-        this.addPiece( new Piece.Arc( p( centerX, centerY ), radius, startAngle, endAngle, anticlockwise ) );
-      }
-      return this;
-    },
-    
-    /*
-     * Draws an elliptical arc using the Canvas 2D semantics, with the following parameters:
-     * ellipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise )
-     * ellipticalArc( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise )
-     */
-    ellipticalArc: function( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
-      // TODO: Ellipse/EllipticalArc has a mess of parameters. Consider parameter object, or double-check parameter handling
-      if ( typeof centerX === 'object' ) {
-        // ellipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise )
-        anticlockwise = endAngle;
-        endAngle = startAngle;
-        startAngle = rotation;
-        rotation = radiusY;
-        radiusY = radiusX;
-        radiusX = centerY;
-        var center = centerX;
-        this.addPiece( new Piece.EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) );
-      } else {
-        // ellipticalArc( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise )
-        this.addPiece( new Piece.EllipticalArc( p( centerX, centerY ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) );
-      }
-      return this;
     },
     
     rect: function( x, y, width, height ) {
-      this.addPiece( new Piece.Rect( x, y, width, height ) );
+      var subpath = new kite.Subpath();
+      this.addSubpath( subpath );
+      subpath.addPoint( v( x, y ) );
+      subpath.addPoint( v( x + width, y ) );
+      subpath.addPoint( v( x + width, y + height ) );
+      subpath.addPoint( v( x, y + height ) );
+      subpath.addSegment( new kite.Segment.Line( subpath.points[0], subpath.points[1] ) );
+      subpath.addSegment( new kite.Segment.Line( subpath.points[1], subpath.points[2] ) );
+      subpath.addSegment( new kite.Segment.Line( subpath.points[2], subpath.points[3] ) );
+      subpath.close();
+      this.addSubpath( new kite.Subpath() );
+      this.getLastSubpath().addPoint( v( x, y ) );
+      this.bounds = this.bounds.withCoordinates( x, y ).withCoordinates( x + width, y + height );
+      assert && assert( !isNaN( this.bounds.getX() ) );
+      
       return this;
     },
 
@@ -249,27 +334,15 @@ define( function( require ) {
       return this;
     },
     
-    close: function() {
-      this.addPiece( new Piece.Close() );
-      return this;
-    },
-    
     copy: function() {
-      return new Shape( this.pieces );
-    },
-    
-    addPiece: function( piece ) {
-      this.pieces.push( piece );
-      piece.applyPiece( this );
-      this.invalidate();
-      assert && assert( this.bounds.isEmpty() || this.bounds.isFinite(), 'shape bounds infinite after adding piece: ' + piece );
-      return this; // allow for chaining
+      // copy each individual subpath, so future modifications to either Shape doesn't affect the other one
+      return new Shape( _.map( this.subpaths, function( subpath ) { return subpath.copy(); } ), this.bounds );
     },
     
     // write out this shape's path to a canvas 2d context. does NOT include the beginPath()!
     writeToContext: function( context ) {
-      _.each( this.pieces, function( piece ) {
-        piece.writeToContext( context );
+      _.each( this.subpaths, function( subpath ) {
+        subpath.writeToContext( context );
       } );
     },
     
@@ -296,7 +369,9 @@ define( function( require ) {
     
     // return a new Shape that is transformed by the associated matrix
     transformed: function( matrix ) {
-      return new Shape( _.flatten( _.map( this.pieces, function( piece ) { return piece.transformed( matrix ); } ), true ) );
+      var subpaths = _.map( this.subpaths, function( subpath ) { return subpath.transformed( matrix ); } );
+      var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.computeBounds() ); }, Bounds2.NOTHING );
+      return new Shape( subpaths, bounds );
     },
     
     // returns the bounds. if lineStyles exists, include the stroke in the bounds
@@ -373,178 +448,17 @@ define( function( require ) {
       return intersects;
     },
     
-    invalidate: function() {
-      this._strokedShapeComputed = false;
-    },
-    
     // returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be nested (doesn't do intersection computations yet)
+    // TODO: rename stroked( lineStyles )
     getStrokedShape: function( lineStyles ) {
-      
-      if ( lineStyles === undefined ) {
-        lineStyles = new kite.LineStyles();
-      }
-      
-      // return a cached version if possible
-      if ( this._strokedShapeComputed && this._strokedShapeStyles.equals( lineStyles ) ) {
-        return this._strokedShape;
-      }
-      
-      // filter out subpaths where nothing would be drawn
-      var subpaths = _.filter( this.subpaths, function( subpath ) { return subpath.isDrawable(); } );
-      
-      var shape = new Shape();
-      
-      var lineWidth = lineStyles.lineWidth;
-      
-      // joins two segments together on the logical "left" side, at 'center' (where they meet), and normalized tangent vectors in the direction of the stroking
-      // to join on the "right" side, switch the tangent order and negate them
-      function join( center, fromTangent, toTangent ) {
-        // where our join path starts and ends
-        var fromPoint = center.plus( fromTangent.perpendicular().negated().times( lineWidth / 2 ) );
-        var toPoint = center.plus( toTangent.perpendicular().negated().times( lineWidth / 2 ) );
-        
-        // only insert a join on the non-acute-angle side
-        if ( fromTangent.perpendicular().dot( toTangent ) > 0 ) {
-          switch( lineStyles.lineJoin ) {
-            case 'round':
-              var fromAngle = fromTangent.angle() + Math.PI / 2;
-              var toAngle = toTangent.angle() + Math.PI / 2;
-              shape.addPiece( new Piece.Arc( center, lineWidth / 2, fromAngle, toAngle, true ) );
-              break;
-            case 'miter':
-              var theta = fromTangent.angleBetween( toTangent.negated() );
-              var notStraight = theta < Math.PI - 0.00001; // if fromTangent is approximately equal to toTangent, just bevel. it will be indistinguishable
-              if ( 1 / Math.sin( theta / 2 ) <= lineStyles.miterLimit && theta < Math.PI - 0.00001 ) {
-                // draw the miter
-                var miterPoint = lineLineIntersection( fromPoint, fromPoint.plus( fromTangent ), toPoint, toPoint.plus( toTangent ) );
-                shape.addPiece( new Piece.LineTo( miterPoint ) );
-                shape.addPiece( new Piece.LineTo( toPoint ) );
-              } else {
-                // angle too steep, use bevel instead. same as below, but copied for linter
-                shape.addPiece( new Piece.LineTo( toPoint ) );
-              }
-              break;
-            case 'bevel':
-              shape.addPiece( new Piece.LineTo( toPoint ) );
-              break;
-          }
-        } else {
-          // no join necessary here since we have the acute angle. just simple lineTo for now so that the next segment starts from the right place
-          // TODO: can we prevent self-intersection here?
-          if ( !fromPoint.equals( toPoint ) ) {
-            shape.addPiece( new Piece.LineTo( toPoint ) );
-          }
-        }
-      }
-      
-      // draws the necessary line cap from the endpoint 'center' in the direction of the tangent
-      function cap( center, tangent ) {
-        switch( lineStyles.lineCap ) {
-          case 'butt':
-            shape.addPiece( new Piece.LineTo( center.plus( tangent.perpendicular().times( lineWidth / 2 ) ) ) );
-            break;
-          case 'round':
-            var tangentAngle = tangent.angle();
-            shape.addPiece( new Piece.Arc( center, lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true ) );
-            break;
-          case 'square':
-            var toLeft = tangent.perpendicular().negated().times( lineWidth / 2 );
-            var toRight = tangent.perpendicular().times( lineWidth / 2 );
-            var toFront = tangent.times( lineWidth / 2 );
-            shape.addPiece( new Piece.LineTo( center.plus( toLeft ).plus( toFront ) ) );
-            shape.addPiece( new Piece.LineTo( center.plus( toRight ).plus( toFront ) ) );
-            shape.addPiece( new Piece.LineTo( center.plus( toRight ) ) );
-            break;
-        }
-      }
-      
-      _.each( subpaths, function( subpath ) {
-        var i;
-        var segments = subpath.segments;
-        
-        // TODO: shortcuts for _.first( segments ) and _.last( segments ),
-        
-        // we don't need to insert an implicit closing segment if the start and end points are the same
-        var alreadyClosed = _.last( segments ).end.equals( _.first( segments ).start );
-        // if there is an implicit closing segment
-        var closingSegment = alreadyClosed ? null : new kite.Segment.Line( segments[segments.length-1].end, segments[0].start );
-        
-        // move to the first point in our stroked path
-        shape.addPiece( new Piece.MoveTo( segmentStartLeft( _.first( segments ), lineWidth ) ) );
-        
-        // stroke the logical "left" side of our path
-        for ( i = 0; i < segments.length; i++ ) {
-          if ( i > 0 ) {
-            join( segments[i].start, segments[i-1].endTangent, segments[i].startTangent, true );
-          }
-          _.each( segments[i].strokeLeft( lineWidth ), function( piece ) {
-            shape.addPiece( piece );
-          } );
-        }
-        
-        // handle the "endpoint"
-        if ( subpath.closed ) {
-          if ( alreadyClosed ) {
-            join( _.last( segments ).end, _.last( segments ).endTangent, _.first( segments ).startTangent );
-            shape.addPiece( new Piece.Close() );
-            shape.addPiece( new Piece.MoveTo( segmentStartRight( _.first( segments ), lineWidth ) ) );
-            join( _.last( segments ).end, _.first( segments ).startTangent.negated(), _.last( segments ).endTangent.negated() );
-          } else {
-            // logical "left" stroke on the implicit closing segment
-            join( closingSegment.start, _.last( segments ).endTangent, closingSegment.startTangent );
-            _.each( closingSegment.strokeLeft( lineWidth ), function( piece ) {
-              shape.addPiece( piece );
-            } );
-            
-            // TODO: similar here to other block of if.
-            join( closingSegment.end, closingSegment.endTangent, _.first( segments ).startTangent );
-            shape.addPiece( new Piece.Close() );
-            shape.addPiece( new Piece.MoveTo( segmentStartRight( _.first( segments ), lineWidth ) ) );
-            join( closingSegment.end, _.first( segments ).startTangent.negated(), closingSegment.endTangent.negated() );
-            
-            // logical "right" stroke on the implicit closing segment
-            _.each( closingSegment.strokeRight( lineWidth ), function( piece ) {
-              shape.addPiece( piece );
-            } );
-            join( closingSegment.start, closingSegment.startTangent.negated(), _.last( segments ).endTangent.negated() );
-          }
-        } else {
-          cap( _.last( segments ).end, _.last( segments ).endTangent );
-        }
-        
-        // stroke the logical "right" side of our path
-        for ( i = segments.length - 1; i >= 0; i-- ) {
-          if ( i < segments.length - 1 ) {
-            join( segments[i].end, segments[i+1].startTangent.negated(), segments[i].endTangent.negated(), false );
-          }
-          _.each( segments[i].strokeRight( lineWidth ), function( piece ) {
-            shape.addPiece( piece );
-          } );
-        }
-        
-        // handle the start point
-        if ( subpath.closed ) {
-          // we already did the joins, just close the 'right' side
-          shape.addPiece( new Piece.Close() );
-        } else {
-          cap( _.first( segments ).start, _.first( segments ).startTangent.negated() );
-          shape.addPiece( new Piece.Close() );
-        }
-      } );
-      
-      this._strokedShape = shape;
-      this._strokedShapeComputed = true;
-      this._strokedShapeStyles = new kite.LineStyles( lineStyles ); // shallow copy, since we consider linestyles to be mutable
-      
-      return shape;
+      var subpaths = _.flatten( _.map( this.subpaths, function( subpath ) { return subpath.stroked( lineStyles ); } ) );
+      var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.computeBounds() ); }, Bounds2.NOTHING );
+      return new Shape( subpaths, bounds );
     },
     
     toString: function() {
-      var result = 'new kite.Shape()';
-      _.each( this.pieces, function( piece ) {
-        result += '.' + piece.toString();
-      } );
-      return result;
+      // TODO: consider a more verbose but safer way?
+      return 'new kite.Shape( \'' + this.getSVGPath() + '\' )';
     },
     
     /*---------------------------------------------------------------------------*
@@ -560,6 +474,8 @@ define( function( require ) {
     
     addSubpath: function( subpath ) {
       this.subpaths.push( subpath );
+      
+      return this; // allow chaining
     },
     
     hasSubpaths: function() {
@@ -568,6 +484,45 @@ define( function( require ) {
     
     getLastSubpath: function() {
       return _.last( this.subpaths );
+    },
+    
+    // gets the last point in the last subpath, or null if it doesn't exist
+    getLastPoint: function() {
+      return this.hasSubpaths() ? this.getLastSubpath().getLastPoint() : null;
+    },
+    
+    getLastSegment: function() {
+      if ( !this.hasSubpaths() ) { return null; }
+      
+      var subpath = this.getLastSubpath();
+      if ( !subpath.isDrawable() ) { return null; }
+      
+      return subpath.getLastSegment();
+    },
+    
+    // returns the point to be used for smooth quadratic segments
+    getSmoothQuadraticControlPoint: function() {
+      var lastPoint = this.getLastPoint();
+      
+      var segment = this.getLastSegment();
+      if ( !segment || !( segment instanceof kite.Segment.Quadratic ) ) { return lastPoint; }
+      
+      return lastPoint.plus( lastPoint.minus( segment.control ) );
+    },
+    
+    // returns the point to be used for smooth cubic segments
+    getSmoothCubicControlPoint: function() {
+      var lastPoint = this.getLastPoint();
+      
+      var segment = this.getLastSegment();
+      if ( !segment || !( segment instanceof kite.Segment.Cubic ) ) { return lastPoint; }
+      
+      return lastPoint.plus( lastPoint.minus( segment.control2 ) );
+    },
+    
+    getRelativePoint: function() {
+      var lastPoint = this.getLastPoint();
+      return lastPoint ? lastPoint : Vector2.ZERO;
     }
   };
   
@@ -599,22 +554,17 @@ define( function( require ) {
       return new Shape().moveTo( a, b ).lineTo( c, d );
     }
     else {
-      return new Shape().moveTo( a ).lineTo( b );
+      return new Shape().moveToPoint( a ).lineToPoint( b );
     }
   };
   
   Shape.regularPolygon = function( sides, radius ) {
-    var first = true;
-    return new Shape( _.map( _.range( sides ), function( k ) {
-      var theta = 2 * Math.PI * k / sides;
-      if ( first ) {
-        first = false;
-        // first segment should be a moveTo
-        return new Piece.MoveTo( p( radius * Math.cos( theta ), radius * Math.sin( theta ) ) );
-      } else {
-        return new Piece.LineTo( p( radius * Math.cos( theta ), radius * Math.sin( theta ) ) );
-      }
-    } ), true );
+    var shape = new Shape();
+    _.each( _.range( sides ), function( k ) {
+      var point = Vector2.createPolar( radius, 2 * Math.PI * k / sides );
+      ( k === 0 ) ? shape.moveToPoint( point ) : shape.lineToPoint( point );
+    } );
+    return shape.close();
   };
   
   // supports both circle( centerX, centerY, radius ), circle( center, radius ), and circle( radius ) with the center default to 0,0
@@ -643,28 +593,6 @@ define( function( require ) {
   Shape.arc = function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) {
     return new Shape().arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise );
   };
-  
-  
-  // TODO: performance / cleanliness to have these as methods instead?
-  function segmentStartLeft( segment, lineWidth ) {
-    assert && assert( lineWidth !== undefined );
-    return segment.start.plus( segment.startTangent.perpendicular().negated().times( lineWidth / 2 ) );
-  }
-  
-  function segmentEndLeft( segment, lineWidth ) {
-    assert && assert( lineWidth !== undefined );
-    return segment.end.plus( segment.endTangent.perpendicular().negated().times( lineWidth / 2 ) );
-  }
-  
-  function segmentStartRight( segment, lineWidth ) {
-    assert && assert( lineWidth !== undefined );
-    return segment.start.plus( segment.startTangent.perpendicular().times( lineWidth / 2 ) );
-  }
-  
-  function segmentEndRight( segment, lineWidth ) {
-    assert && assert( lineWidth !== undefined );
-    return segment.end.plus( segment.endTangent.perpendicular().times( lineWidth / 2 ) );
-  }
   
   return Shape;
 } );

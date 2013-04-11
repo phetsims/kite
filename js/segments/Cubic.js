@@ -24,10 +24,9 @@ define( function( require ) {
   var solveCubicRootsReal = require( 'DOT/Util' ).solveCubicRootsReal;
   
   var Segment = require( 'KITE/segments/Segment' );
-  var Piece = require( 'KITE/pieces/Piece' );
   require( 'KITE/segments/Quadratic' );
 
-  Segment.Cubic = function( start, control1, control2, end, skipComputations ) {
+  Segment.Cubic = function Cubic( start, control1, control2, end, skipComputations ) {
     this.start = start;
     this.control1 = control1;
     this.control2 = control2;
@@ -176,22 +175,21 @@ define( function( require ) {
       // how many segments to create (possibly make this more adaptive?)
       var quantity = 32;
       
+      var points = [];
       var result = [];
-      for ( var i = 1; i < quantity; i++ ) {
+      for ( var i = 0; i < quantity; i++ ) {
         var t = i / ( quantity - 1 );
         if ( reverse ) {
           t = 1 - t;
         }
         
-        var point = this.positionAt( t ).plus( this.tangentAt( t ).perpendicular().normalized().times( r ) );
-        result.push( new Piece.LineTo( point ) );
+        points.push( this.positionAt( t ).plus( this.tangentAt( t ).perpendicular().normalized().times( r ) ) );
+        if ( i > 0 ) {
+          result.push( new Segment.Line( points[i-1], points[i] ) );
+        }
       }
       
       return result;
-    },
-    
-    toPieces: function() {
-      return [ new Piece.CubicCurveTo( this.control1, this.control2, this.end ) ];
     },
     
     getSVGPathFragment: function() {
@@ -259,6 +257,15 @@ define( function( require ) {
         wind += hit.wind;
       } );
       return wind;
+    },
+    
+    // assumes the current position is at start
+    writeToContext: function( context ) {
+      context.bezierCurveTo( this.control1.x, this.control1.y, this.control2.x, this.control2.y, this.end.x, this.end.y );
+    },
+    
+    transformed: function( matrix ) {
+      return new Segment.Cubic( matrix.timesVector2( this.start ), matrix.timesVector2( this.control1 ), matrix.timesVector2( this.control2 ), matrix.timesVector2( this.end ) );
     }
     
     // returns the resultant winding number of this ray intersecting this segment.
