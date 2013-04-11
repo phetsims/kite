@@ -179,6 +179,17 @@ define( function( require ) {
       return [new Segment.Arc( this.center, this.radius + ( this.anticlockwise ? -1 : 1 ) * lineWidth / 2, this.endAngle, this.startAngle, !this.anticlockwise )];
     },
     
+    subdivided: function( t ) {
+      // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles
+      var angle0 = this.angleAt( 0 );
+      var angleT = this.angleAt( t );
+      var angle1 = this.angleAt( 1 );
+      return [
+        new Segment.Arc( this.center, this.radius, angle0, angleT, this.anticlockwise ),
+        new Segment.Arc( this.center, this.radius, angleT, angle1, this.anticlockwise )
+      ];
+    },
+    
     intersectsBounds: function( bounds ) {
       throw new Error( 'Segment.intersectsBounds unimplemented!' );
     },

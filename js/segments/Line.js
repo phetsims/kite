@@ -63,6 +63,14 @@ define( function( require ) {
       return [new Segment.Line( this.end.plus( offset ), this.start.plus( offset ) )];
     },
     
+    subdivided: function( t ) {
+      var pt = this.positionAt( t );
+      return [
+        new Segment.Line( this.start, pt ),
+        new Segment.Line( pt, this.end )
+      ];
+    },
+    
     intersectsBounds: function( bounds ) {
       throw new Error( 'Segment.Line.intersectsBounds unimplemented' ); // TODO: implement
     },

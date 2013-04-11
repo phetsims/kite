@@ -27,6 +27,7 @@ define( function( require ) {
      * positionAt( t )          - returns the position parametrically, with 0 <= t <= 1. this does NOT guarantee a constant magnitude tangent... don't feel like adding elliptical functions yet!
      * tangentAt( t )           - returns the non-normalized tangent (dx/dt, dy/dt) parametrically, with 0 <= t <= 1.
      * curvatureAt( t )         - returns the signed curvature (positive for visual clockwise - mathematical counterclockwise)
+     * subdivided( t, skip )    - returns an array with 2 sub-segments, split at the parametric t value. if skip is passed, expensive operations are not performed
      * getSVGPathFragment()     - returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls this needs to put the M calls first
      * strokeLeft( lineWidth )  - returns an array of segments that will draw an offset curve on the logical left side
      * strokeRight( lineWidth ) - returns an array of segments that will draw an offset curve on the logical right side

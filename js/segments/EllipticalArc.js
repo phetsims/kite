@@ -249,6 +249,17 @@ define( function( require ) {
       return this.offsetTo( lineWidth / 2, true );
     },
     
+    subdivided: function( t ) {
+      // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles
+      var angle0 = this.angleAt( 0 );
+      var angleT = this.angleAt( t );
+      var angle1 = this.angleAt( 1 );
+      return [
+        new Segment.EllipticalArc( this.center, this.radiusX, this.radiusY, this.rotation, angle0, angleT, this.anticlockwise ),
+        new Segment.EllipticalArc( this.center, this.radiusX, this.radiusY, this.rotation, angleT, angle1, this.anticlockwise )
+      ];
+    },
+    
     intersectsBounds: function( bounds ) {
       throw new Error( 'Segment.EllipticalArc.intersectsBounds unimplemented' );
     },
