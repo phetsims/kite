@@ -26,7 +26,7 @@
     }
     
     div#controls {
-      width: 250px;
+      width: 500px;
       /*height: 400px;*/
       position: absolute;
       right: 0;
@@ -51,78 +51,81 @@
   <canvas id="canvas"></canvas>
   
   <div id="controls">
-    <!-- TODO: handle like radio buttons -->
-    <div class="label">Basic Segments</div>
-    <button id="line">line</button>
-    <button id="quadratic">quadratic</button>
-    <button id="cubic">cubic</button>
-    <button id="arc">arc</button>
-    <button id="ellipticalArc">ellipticalArc</button>
-    
-    <div class="label">Shapes</div>
-    <button id="lines">lines</button>
-    <button id="arc1">arc1</button>
-    <button id="arc2">arc2</button>
-    <button id="arc3">arc3</button>
-    <button id="arc4">arc4</button>
-    <button id="narc1">narc1</button>
-    <button id="ellipse1">ellipse1</button>
-    <button id="ellipse2">ellipse2</button>
-    <button id="ellipse3">ellipse3</button>
-    <button id="circle">circle</button>
-    <button id="rect">rect</button>
-    <button id="earc1">earc1</button>
-    <button id="earc2">earc2</button>
-    <button id="earc3">earc3</button>
-    <button id="earc4">earc4</button>
-    <button id="nxearc1">nxearc1</button>
-    <button id="nyearc1">nyearc1</button>
-    <button id="nxyearc1">nxyearc1</button>
-    <button id="rrect">rrect</button>
-    <button id="errect">errect</button>
-    <input id="svgPath" type="text"></input>
-    
-    <div class="label">Cap</div>
-    <button id="cap-butt">butt</button>
-    <button id="cap-square">square</button>
-    <button id="cap-round">round</button>
-    
-    <div class="label">Join</div>
-    <button id="join-miter">miter</button>
-    <button id="join-bevel">bevel</button>
-    <button id="join-round">round</button>
-    
-    <div class="label">Close</div>
-    <button id="close">close</button>
-    
-    <div class="label">Point</div>
-    <input id="point" type="range" min="0" max="1" step="0.01" value="0"/>
-    <input id="subdivideT" type="range" min="0" max="1" step="0.01" value="0.5"/>
-    <button id="point-position">position</button>
-    <button id="point-tangent">tangent</button>
-    <button id="point-curvature">curvature</button>
-    <button id="point-subdivide">subdivide</button>
-    <button id="point-net">net</button>
-    
-    <div class="label">Other</div>
-    <button id="bounds-shape">bounds</button>
-    <button id="fill">fill</button>
-    <button id="stroke-kite">kiteStroke</button>
-    <button id="endpoints">subpath</button>
-    
-    <div class="label">Transform</div>
-    <button id="transform-active">active</button>
-    <button id="transform-reflect">reflect</button>
-    <input id="translation" type="range" min="-50" max="50" step="1" value="0"/>
-    <input id="rotation" type="range" min="-180" max="180" step="1" value="0"/>
-    <input id="scaling" type="range" min="0.1" max="1.5" step="0.01" value="1"/>
-    <input id="shear" type="range" min="-2" max="2" step="0.01" value="0"/>
-    
-    <div class="label">Hit test</div>
-    <button id="hit-fill">fill</button>
-    <button id="hit-stroke">stroke</button>
-    <button id="hit-mouse">mouse</button>
-    <button id="hit-mouseSpan">mouseSpan</button>
+    <div style="float: left; width: 250px;">
+      <!-- TODO: handle like radio buttons -->
+      <div class="label">Basic Segments</div>
+      <button id="line">line</button>
+      <button id="quadratic">quadratic</button>
+      <button id="cubic">cubic</button>
+      <button id="arc">arc</button>
+      <button id="ellipticalArc">ellipticalArc</button>
+      
+      <div class="label">Shapes</div>
+      <button id="lines">lines</button>
+      <button id="arc1">arc1</button>
+      <button id="arc2">arc2</button>
+      <button id="arc3">arc3</button>
+      <button id="arc4">arc4</button>
+      <button id="narc1">narc1</button>
+      <button id="ellipse1">ellipse1</button>
+      <button id="ellipse2">ellipse2</button>
+      <button id="ellipse3">ellipse3</button>
+      <button id="circle">circle</button>
+      <button id="rect">rect</button>
+      <button id="earc1">earc1</button>
+      <button id="earc2">earc2</button>
+      <button id="earc3">earc3</button>
+      <button id="earc4">earc4</button>
+      <button id="nxearc1">nxearc1</button>
+      <button id="nyearc1">nyearc1</button>
+      <button id="nxyearc1">nxyearc1</button>
+      <button id="rrect">rrect</button>
+      <button id="errect">errect</button>
+      <input id="svgPath" type="text"></input>
+      
+      <div class="label">Cap</div>
+      <button id="cap-butt">butt</button>
+      <button id="cap-square">square</button>
+      <button id="cap-round">round</button>
+      
+      <div class="label">Join</div>
+      <button id="join-miter">miter</button>
+      <button id="join-bevel">bevel</button>
+      <button id="join-round">round</button>
+      
+      <div class="label">Close</div>
+      <button id="close">close</button>
+    </div>
+    <div style="float: left; width: 250px; ">
+      <div class="label">Point</div>
+      <input id="point" type="range" min="0" max="1" step="0.01" value="0"/>
+      <input id="subdivideT" type="range" min="0" max="1" step="0.01" value="0.5"/>
+      <button id="point-position">position</button>
+      <button id="point-tangent">tangent</button>
+      <button id="point-curvature">curvature</button>
+      <button id="point-subdivide">subdivide</button>
+      <button id="point-net">net</button>
+      
+      <div class="label">Other</div>
+      <button id="bounds-shape">bounds</button>
+      <button id="fill">fill</button>
+      <button id="stroke-kite">kiteStroke</button>
+      <button id="endpoints">subpath</button>
+      
+      <div class="label">Transform</div>
+      <button id="transform-active">active</button>
+      <button id="transform-reflect">reflect</button>
+      <input id="translation" type="range" min="-50" max="50" step="1" value="0"/>
+      <input id="rotation" type="range" min="-180" max="180" step="1" value="0"/>
+      <input id="scaling" type="range" min="0.1" max="1.5" step="0.01" value="1"/>
+      <input id="shear" type="range" min="-2" max="2" step="0.01" value="0"/>
+      
+      <div class="label">Hit test</div>
+      <button id="hit-fill">fill</button>
+      <button id="hit-stroke">stroke</button>
+      <button id="hit-mouse">mouse</button>
+      <button id="hit-mouseSpan">mouseSpan</button>
+    </div>
   </div>
   
   <script>
