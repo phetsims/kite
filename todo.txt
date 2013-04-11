@@ -13,6 +13,7 @@ Bugs:
   Stroking miterlimit on shear-transformed shape seems to not happen. normal-shear a rectangle
   Robustness:
     Finiteness checks a la WebKit?
+    General usage of epsilon!
     Ray Intersections:
       Need general 'ambiguous' flag for intersection, so we can choose a new ray (or know that it's almost on a curve)
         Choose 2^-12 as Epsilon?
@@ -38,12 +39,18 @@ Performance:
   Consider eval to build a function that can render the shape to canvas, without all of the indirection, etc.
   Precise intersection with bounding box (not just intersection of bounds)
   Fast, possibly larger bounding box
+  Sometimes a quick 'yes or unknown' or 'no or unknown' test will help significantly
 
 Intersection:
   see http://cagd.cs.byu.edu/~557/text/ch7.pdf
   Sweep-line handling: http://www.lems.brown.edu/~wq/projects/cs252.html
 
 Line Dash stroking
+
+CSG:
+  Will rely on region support + clipping algorithms
+  Union / difference / intersection / XOR. consider a NOTHING and EVERYTHING shape like bounds?
+  As a stop-gap, http://sourceforge.net/p/jsclipper/wiki/Home/ will handle polygons (but shapes will have many more segments)
 
 Polygonalization
   Needed for WebGL, in addition to tesselation
@@ -54,13 +61,19 @@ Simplification
   Remove self-intersection, group regions?
   Normalize winding order so it can be combined with other shape fills
 
+Storing direction (undefined, CW, CCW) for each subpath
+Storing invert flag for Shape (allow drawing or CSG for outside of shape?) - may be unnecessary with CSG operations
+
 Adaptive bezier discretization / offset curves, see attached paper
+  "Fast, precise ﬂattening of cubic Bezier path and offset curves" Hain, Ahmad
   Quadratic curve offsets need implementation improvement (32 sub-quadratics is too costly)
     Consider a more abstract segment like QuadraticOffset, CubicOffset, EllipticalArcOffset.
       Transforming + offsets are easy
       Can discretize later
 
 Nonzero/evenodd support (not yet implemented in browsers)
+
+Shape.polygon( vertices )
 
 Region support:
   Edge cases (literally):
@@ -74,3 +87,15 @@ Region support:
 WebGL support? Probably just export a discretization with vertices. Region handling is important for this.
 
 Consider bounding box handling for an arbitrary transform, for use with Node's isInGlobalBounds( globalBounds, currentTransform ).
+
+Bezier:
+  Degree elevation to Cubic
+  Inflection points
+  Split into monotonic segments. Bounds are easy (just from endpoints), should be ideal for intersection code
+
+Segment:
+  Find closest t for a given point
+
+External:
+  Dot: add isFinite() to Vector2/etc.
+  Dot: complex arithmetic
