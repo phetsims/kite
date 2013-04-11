@@ -100,6 +100,7 @@
     <button id="point-position">position</button>
     <button id="point-tangent">tangent</button>
     <button id="point-curvature">curvature</button>
+    <button id="point-net">net</button>
     
     <div class="label">Other</div>
     <button id="bounds-shape">bounds</button>
@@ -147,6 +148,7 @@
           var pointPosition = false; // highlight the inspected point(s)
           var pointTangent = false; // tangent on points
           var pointCurvature = false; // curvature on points
+          var segmentControlNet = false; // control net for beziers
           
           var kiteStroked = false;
           var fill = false;
@@ -245,7 +247,12 @@
                 }
               }
               
-              _.each( subpath.segments, function( segment ) {
+              var segments = subpath.segments;
+              
+              _.each( segments, function( segment ) {
+                // don't attempt to show invalid segments
+                if ( segment.invalid ) { return; }
+                
                 var p = segment.positionAt( point );
                 var t = segment.tangentAt( point );
                 if ( t.magnitude() === 0 ) { return; } // bail out if we are at a cusp or undefined tangent
@@ -281,11 +288,32 @@
                     
                     context.beginPath();
                     context.arc( curvatureCenter.x, curvatureCenter.y, Math.abs( radiusOfCurvature ), 0, Math.PI * 2, false );
-                    context.fillStyle = '#f0f';
+                    context.strokeStyle = '#f0f';
                     context.lineWidth = 1;
                     context.stroke();
                   }
-                }                
+                }
+                
+                if ( segmentControlNet ) {
+                  if ( segment instanceof kite.Segment.Quadratic ) {
+                    context.beginPath();
+                    context.moveTo( segment.start.x, segment.start.y );
+                    context.lineTo( segment.control.x, segment.control.y );
+                    context.lineTo( segment.end.x, segment.end.y );
+                    context.strokeStyle = '#0f0';
+                    context.lineWidth = 1;
+                    context.stroke();
+                  } else if ( segment instanceof kite.Segment.Cubic ) {
+                    context.beginPath();
+                    context.moveTo( segment.start.x, segment.start.y );
+                    context.lineTo( segment.control1.x, segment.control1.y );
+                    context.lineTo( segment.control2.x, segment.control2.y );
+                    context.lineTo( segment.end.x, segment.end.y );
+                    context.strokeStyle = '#0f0';
+                    context.lineWidth = 1;
+                    context.stroke();
+                  }
+                }
               } );
             } );
             
@@ -462,6 +490,9 @@
           } );
           updateListener( 'point-curvature', function() {
             pointCurvature = !pointCurvature;
+          } );
+          updateListener( 'point-net', function() {
+            segmentControlNet = !segmentControlNet;
           } );
           
           /*---------------------------------------------------------------------------*
