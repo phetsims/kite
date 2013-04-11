@@ -37,13 +37,13 @@ define( function( require ) {
       return;
     }
     
-    this.startTangent = this.tangentAt( 0 ).normalized();
-    this.endTangent = this.tangentAt( 1 ).normalized();
-    
     if ( start.equals( end, 0 ) && start.equals( control1, 0 ) && start.equals( control2, 0 ) ) {
       this.invalid = true;
       return;
     }
+    
+    this.startTangent = this.tangentAt( 0 ).normalized();
+    this.endTangent = this.tangentAt( 1 ).normalized();
     
     // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
     this.r = control1.minus( start ).normalized();
