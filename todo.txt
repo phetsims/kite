@@ -97,5 +97,4 @@ Segment:
   Find closest t for a given point
 
 External:
-  Dot: add isFinite() to Vector2/etc.
   Dot: complex arithmetic
