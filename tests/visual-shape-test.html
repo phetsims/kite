@@ -104,6 +104,7 @@
       <button id="point-tangent">tangent</button>
       <button id="point-curvature">curvature</button>
       <button id="point-subdivide">subdivide</button>
+      <button id="point-monotone">monotone</button>
       <button id="point-net">net</button>
       
       <div class="label">Other</div>
@@ -155,6 +156,7 @@
           var pointTangent = false; // tangent on points
           var pointCurvature = false; // curvature on points
           var pointSubdivide = false; // subdivides the segments at the point
+          var pointMonotone = false; // subdivides the segments to make each one monotone
           var segmentControlNet = false; // control net for beziers
           
           var kiteStroked = false;
@@ -259,8 +261,18 @@
                 segments.push( subpath.getClosingSegment() );
               }
               
+              if ( pointMonotone ) {
+                segments = _.flatten( _.map( segments, function( segment ) {
+                  if ( segment.subdividedIntoMonotone ) {
+                    return segment.subdividedIntoMonotone();
+                  } else {
+                    return [segment];
+                  }
+                } ) );
+              }
+              
               if ( pointSubdivide ) {
-                segments = _.flatten( _.map( segments.slice( 0 ), function( segment ) { return segment.subdivided( subdivideT ); } ) );
+                segments = _.flatten( _.map( segments, function( segment ) { return segment.subdivided( subdivideT ); } ) );
               }
               
               _.each( segments, function( segment ) {
@@ -515,6 +527,9 @@
           } );
           updateListener( 'point-subdivide', function() {
             pointSubdivide = !pointSubdivide;
+          } );
+          updateListener( 'point-monotone', function() {
+            pointMonotone = !pointMonotone;
           } );
           updateListener( 'point-net', function() {
             segmentControlNet = !segmentControlNet;

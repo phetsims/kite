@@ -13,6 +13,7 @@ define( function( require ) {
 
   var kite = require( 'KITE/kite' );
   
+  var inherit = require( 'PHET_CORE/inherit' );
   var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var DotUtil = require( 'DOT/Util' );
@@ -104,8 +105,7 @@ define( function( require ) {
       boundsAtAngle( 3 * Math.PI / 2 );
     }
   };
-  Segment.Arc.prototype = {
-    constructor: Segment.Arc,
+  inherit( Segment.Arc, Segment, {
     
     // maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
     mapAngle: function( angle ) {
@@ -219,29 +219,6 @@ define( function( require ) {
       ];
     },
     
-    // tList should be a list of sorted t values from 0 <= t <= 1
-    // TODO: move this to Segment?
-    subdivisions: function( tList, skipComputation ) {
-      // this could be solved by recursion, but we don't plan on the JS engine doing tail-call optimization
-      var right = this;
-      var result = [];
-      for ( var i = 0; i < tList.length; i++ ) {
-        // assume binary subdivision
-        var t = tList[i];
-        var arr = right.subdivided( t, skipComputation );
-        assert && assert( arr.length === 2 );
-        result.push( arr[0] );
-        right = arr[1];
-        
-        // scale up the remaining t values
-        for ( var j = i + 1; j < tList.length; j++ ) {
-          tList[j] = DotUtil.linear( t, 1, 0, 1, tList[j] );
-        }
-      }
-      result.push( right );
-      return result;
-    },
-    
     // break 
     subdividedIntoMonotone: function() {
       return this.subdivisions( this.getInteriorExtremaTs() );
@@ -351,7 +328,7 @@ define( function( require ) {
         return new Segment.Arc( matrix.timesVector2( this.center ), radius, startAngle, endAngle, anticlockwise );
       }
     }
-  };
+  } );
   
   return Segment.Arc;
 } );

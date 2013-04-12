@@ -15,6 +15,7 @@ define( function( require ) {
 
   var kite = require( 'KITE/kite' );
   
+  var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Matrix3 = require( 'DOT/Matrix3' );
   var solveQuadraticRootsReal = require( 'DOT/Util' ).solveQuadraticRootsReal;
@@ -69,8 +70,7 @@ define( function( require ) {
       }
     }
   };
-  Segment.Quadratic.prototype = {
-    constructor: Segment.Quadratic,
+  inherit( Segment.Quadratic, Segment, {
     
     degree: 2,
     
@@ -225,7 +225,7 @@ define( function( require ) {
     transformed: function( matrix ) {
       return new Segment.Quadratic( matrix.timesVector2( this.start ), matrix.timesVector2( this.control ), matrix.timesVector2( this.end ) );
     }
-  };
+  } );
   
   return Segment.Quadratic;
 } );

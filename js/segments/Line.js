@@ -13,6 +13,7 @@ define( function( require ) {
 
   var kite = require( 'KITE/kite' );
   
+  var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
   
@@ -33,8 +34,7 @@ define( function( require ) {
     // acceleration for intersection
     this.bounds = Bounds2.NOTHING.withPoint( start ).withPoint( end );
   };
-  Segment.Line.prototype = {
-    constructor: Segment.Line,
+  inherit( Segment.Line, Segment, {
     
     positionAt: function( t ) {
       return this.start.plus( this.end.minus( this.start ).times( t ) );
@@ -132,7 +132,7 @@ define( function( require ) {
     transformed: function( matrix ) {
       return new Segment.Line( matrix.timesVector2( this.start ), matrix.timesVector2( this.end ) );
     }
-  };
+  } );
   
   return Segment.Line;
 } );

@@ -17,6 +17,7 @@ define( function( require ) {
 
   var kite = require( 'KITE/kite' );
   
+  var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Vector2 = require( 'DOT/Vector2' );
   var Matrix3 = require( 'DOT/Matrix3' );
@@ -108,8 +109,7 @@ define( function( require ) {
       this.bounds = this.bounds.withPoint( this.positionAt( this.tCusp ) );
     }
   };
-  Segment.Cubic.prototype = {
-    constructor: Segment.Cubic,
+  inherit( Segment.Cubic, Segment, {
     
     degree: 3,
     
@@ -299,7 +299,7 @@ define( function( require ) {
       
     //   return result;
     // }
-  };
+  } );
   
   return Segment.Cubic;
 } );

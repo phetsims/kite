@@ -13,6 +13,7 @@ define( function( require ) {
 
   var kite = require( 'KITE/kite' );
   
+  var inherit = require( 'PHET_CORE/inherit' );
   var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Matrix3 = require( 'DOT/Matrix3' );
@@ -119,8 +120,7 @@ define( function( require ) {
       boundsAtAngle( yAngle + Math.PI );
     }
   };
-  Segment.EllipticalArc.prototype = {
-    constructor: Segment.EllipticalArc,
+  inherit( Segment.EllipticalArc, Segment, {
     
     angleAt: function( t ) {
       if ( this.anticlockwise ) {
@@ -317,7 +317,7 @@ define( function( require ) {
       
       return new Segment.EllipticalArc( matrix.timesVector2( this.center ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
     }
-  };
+  } );
   
   // adapted from http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
   // transforms the unit circle onto our ellipse
