@@ -63,6 +63,9 @@ define( function( require ) {
       return [new Segment.Line( this.end.plus( offset ), this.start.plus( offset ) )];
     },
     
+    // lines are already monotone
+    getInteriorExtremaTs: function() { return []; },
+    
     subdivided: function( t ) {
       var pt = this.positionAt( t );
       return [

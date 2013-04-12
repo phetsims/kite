@@ -94,12 +94,14 @@ define( function( require ) {
     }
     
     var cubic = this;
-    _.each( extremaT( this.start.x, this.control1.x, this.control2.x, this.end.x ), function( t ) {
+    this.xExtremaT = extremaT( this.start.x, this.control1.x, this.control2.x, this.end.x );
+    _.each( this.xExtremaT, function( t ) {
       if ( t >= 0 && t <= 1 ) {
         cubic.bounds = cubic.bounds.withPoint( cubic.positionAt( t ) );
       }
     } );
-    _.each( extremaT( this.start.y, this.control1.y, this.control2.y, this.end.y ), function( t ) {
+    this.yExtremaT = extremaT( this.start.y, this.control1.y, this.control2.y, this.end.y );
+    _.each( this.yExtremaT, function( t ) {
       if ( t >= 0 && t <= 1 ) {
         cubic.bounds = cubic.bounds.withPoint( cubic.positionAt( t ) );
       }
@@ -202,6 +204,21 @@ define( function( require ) {
     
     strokeRight: function( lineWidth ) {
       return this.offsetTo( lineWidth / 2, true );
+    },
+    
+    getInteriorExtremaTs: function() {
+      var ts = this.xExtremaT.concat( this.yExtremaT );
+      var result = [];
+      _.each( ts, function( t ) {
+        var epsilon = 0.0000000001; // TODO: general kite epsilon?
+        if ( t > epsilon && t < 1 - epsilon ) {
+          // don't add duplicate t values
+          if ( _.every( result, function( otherT ) { return Math.abs( t - otherT ) > epsilon } ) ) {
+            result.push( t );
+          }
+        }
+      } );
+      return result.sort();
     },
     
     intersectsBounds: function( bounds ) {

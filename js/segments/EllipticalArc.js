@@ -249,6 +249,10 @@ define( function( require ) {
       return this.offsetTo( lineWidth / 2, true );
     },
     
+    getInteriorExtremaTs: function() {
+      return []; // TODO!
+    },
+    
     subdivided: function( t ) {
       // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles
       var angle0 = this.angleAt( 0 );

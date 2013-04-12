@@ -45,7 +45,6 @@ define( function( require ) {
     constructor: Segment,
     
     // tList should be a list of sorted t values from 0 <= t <= 1
-    // TODO: move this to Segment?
     subdivisions: function( tList, skipComputation ) {
       // this could be solved by recursion, but we don't plan on the JS engine doing tail-call optimization
       var right = this;
@@ -65,7 +64,12 @@ define( function( require ) {
       }
       result.push( right );
       return result;
-    }
+    },
+    
+    // return an array of segments from breaking this segment into monotone pieces
+    subdividedIntoMonotone: function() {
+      return this.subdivisions( this.getInteriorExtremaTs() );
+    },
   };
   
   return Segment;

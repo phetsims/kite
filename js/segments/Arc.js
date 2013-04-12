@@ -219,11 +219,6 @@ define( function( require ) {
       ];
     },
     
-    // TODO: move to Segment?
-    subdividedIntoMonotone: function() {
-      return this.subdivisions( this.getInteriorExtremaTs() );
-    },
-    
     intersectsBounds: function( bounds ) {
       throw new Error( 'Segment.intersectsBounds unimplemented!' );
     },

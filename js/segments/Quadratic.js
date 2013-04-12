@@ -55,18 +55,18 @@ define( function( require ) {
     // compute x and y where the derivative is 0, so we can include this in the bounds
     var divisorX = 2 * ( end.x - 2 * control.x + start.x );
     if ( divisorX !== 0 ) {
-      t = -2 * ( control.x - start.x ) / divisorX;
+      this.tCriticalX = -2 * ( control.x - start.x ) / divisorX;
       
       if ( t > 0 && t < 1 ) {
-        this.bounds = this.bounds.withPoint( this.positionAt( t ) );
+        this.bounds = this.bounds.withPoint( this.positionAt( this.tCriticalX ) );
       }
     }
     var divisorY = 2 * ( end.y - 2 * control.y + start.y );
     if ( divisorY !== 0 ) {
-      t = -2 * ( control.y - start.y ) / divisorY;
+      this.tCriticalY = -2 * ( control.y - start.y ) / divisorY;
       
       if ( t > 0 && t < 1 ) {
-        this.bounds = this.bounds.withPoint( this.positionAt( t ) );
+        this.bounds = this.bounds.withPoint( this.positionAt( tCriticalY ) );
       }
     }
   };
@@ -162,6 +162,18 @@ define( function( require ) {
     
     strokeRight: function( lineWidth ) {
       return this.offsetTo( lineWidth / 2, true );
+    },
+    
+    getInteriorExtremaTs: function() {
+      var result = [];
+      var epsilon = 0.0000000001; // TODO: general kite epsilon?
+      if ( this.tCriticalX !== undefined && this.tCriticalX > epsilon && this.tCriticalX < 1 - epsilon ) {
+        result.push( this.tCriticalX );
+      }
+      if ( this.tCriticalY !== undefined && this.tCriticalY > epsilon && this.tCriticalY < 1 - epsilon ) {
+        result.push( this.tCriticalY );
+      }
+      return result.sort();
     },
     
     intersectsBounds: function( bounds ) {
