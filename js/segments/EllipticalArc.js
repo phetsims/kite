@@ -19,6 +19,7 @@ define( function( require ) {
   var Matrix3 = require( 'DOT/Matrix3' );
   var Transform3 = require( 'DOT/Transform3' );
   var toDegrees = require( 'DOT/Util' ).toDegrees;
+  var DotUtil = require( 'DOT/Util' );
 
   var Segment = require( 'KITE/segments/Segment' );
   require( 'KITE/util/Subpath' );
@@ -77,6 +78,31 @@ define( function( require ) {
       throw new Error( 'Not verified to work if radiusX < radiusY' );
     }
     
+    // compute an actual end angle so that we can smoothly go from this.startAngle to this.actualEndAngle
+    if ( this.anticlockwise ) {
+      // angle is 'decreasing'
+      // -2pi <= end - start < 2pi
+      if ( this.startAngle > this.endAngle ) {
+        this.actualEndAngle = this.endAngle;
+      } else if ( this.startAngle < this.endAngle ) {
+        this.actualEndAngle = this.endAngle - 2 * Math.PI;
+      } else {
+        // equal
+        this.actualEndAngle = this.startAngle;
+      }
+    } else {
+      // angle is 'increasing'
+      // -2pi < end - start <= 2pi
+      if ( this.startAngle < this.endAngle ) {
+        this.actualEndAngle = this.endAngle;
+      } else if ( this.startAngle > this.endAngle ) {
+        this.actualEndAngle = this.endAngle + Math.PI * 2;
+      } else {
+        // equal
+        this.actualEndAngle = this.startAngle;
+      }
+    }
+    
     // constraints shared with Segment.Arc
     assert && assert( !( ( !anticlockwise && endAngle - startAngle <= -Math.PI * 2 ) || ( anticlockwise && startAngle - endAngle <= -Math.PI * 2 ) ), 'Not handling elliptical arcs with start/end angles that show differences in-between browser handling' );
     assert && assert( !( ( !anticlockwise && endAngle - startAngle > Math.PI * 2 ) || ( anticlockwise && startAngle - endAngle > Math.PI * 2 ) ), 'Not handling elliptical arcs with start/end angles that show differences in-between browser handling' );
@@ -114,38 +140,32 @@ define( function( require ) {
       var yAngle = Math.atan( ( radiusY / radiusX ) / Math.tan( rotation ) );
       
       // check all of the extrema points
-      boundsAtAngle( xAngle );
-      boundsAtAngle( xAngle + Math.PI );
-      boundsAtAngle( yAngle );
-      boundsAtAngle( yAngle + Math.PI );
+      this.possibleExtremaAngles = [
+        xAngle,
+        xAngle + Math.PI,
+        yAngle,
+        yAngle + Math.PI
+      ];
+      
+      _.each( this.possibleExtremaAngles, boundsAtAngle );
     }
   };
   inherit( Segment.EllipticalArc, Segment, {
     
+    // maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
+    mapAngle: function( angle ) {
+      // consider an assert that we contain that angle?
+      return ( this.startAngle > this.actualEndAngle ) ?
+             DotUtil.moduloBetweenUp( angle, this.startAngle - 2 * Math.PI, this.startAngle ) :
+             DotUtil.moduloBetweenDown( angle, this.startAngle, this.startAngle + 2 * Math.PI );
+    },
+    
+    tAtAngle: function( angle ) {
+      return ( this.mapAngle( angle ) - this.startAngle ) / ( this.actualEndAngle - this.startAngle );
+    },
+    
     angleAt: function( t ) {
-      if ( this.anticlockwise ) {
-        // angle is 'decreasing'
-        // -2pi <= end - start < 2pi
-        if ( this.startAngle > this.endAngle ) {
-          return this.startAngle + ( this.endAngle - this.startAngle ) * t;
-        } else if ( this.startAngle < this.endAngle ) {
-          return this.startAngle + ( -Math.PI * 2 + this.endAngle - this.startAngle ) * t;
-        } else {
-          // equal
-          return this.startAngle;
-        }
-      } else {
-        // angle is 'increasing'
-        // -2pi < end - start <= 2pi
-        if ( this.startAngle < this.endAngle ) {
-          return this.startAngle + ( this.endAngle - this.startAngle ) * t;
-        } else if ( this.startAngle > this.endAngle ) {
-          return this.startAngle + ( Math.PI * 2 + this.endAngle - this.startAngle ) * t;
-        } else {
-          // equal
-          return this.startAngle;
-        }
-      }
+      return this.startAngle + ( this.actualEndAngle - this.startAngle ) * t;
     },
     
     positionAt: function( t ) {
@@ -249,8 +269,20 @@ define( function( require ) {
       return this.offsetTo( lineWidth / 2, true );
     },
     
+    // not including 0 and 1
     getInteriorExtremaTs: function() {
-      return []; // TODO!
+      var that = this;
+      var result = [];
+      _.each( this.possibleExtremaAngles, function( angle ) {
+        if ( that.containsAngle( angle ) ) {
+          var t = that.tAtAngle( angle );
+          var epsilon = 0.0000000001; // TODO: general kite epsilon?
+          if ( t > epsilon && t < 1 - epsilon ) {
+            result.push( t );
+          }
+        }
+      } );
+      return result.sort(); // modifies original, which is OK
     },
     
     subdivided: function( t ) {
