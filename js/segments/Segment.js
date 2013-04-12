@@ -60,7 +60,7 @@ define( function( require ) {
         
         // scale up the remaining t values
         for ( var j = i + 1; j < tList.length; j++ ) {
-          tList[j] = DotUtil.linear( t, 1, 0, 1, tList[j] );
+          tList[j] = DotUtil.linear( t, 0, 1, 1, tList[j] );
         }
       }
       result.push( right );

@@ -264,6 +264,7 @@
               if ( pointMonotone ) {
                 segments = _.flatten( _.map( segments, function( segment ) {
                   if ( segment.subdividedIntoMonotone ) {
+                    // console.log( segment.getInteriorExtremaTs() );
                     return segment.subdividedIntoMonotone();
                   } else {
                     return [segment];
@@ -272,7 +273,10 @@
               }
               
               if ( pointSubdivide ) {
-                segments = _.flatten( _.map( segments, function( segment ) { return segment.subdivided( subdivideT ); } ) );
+                segments = _.flatten( _.map( segments, function( segment ) {
+                  return segment.subdivided( subdivideT );
+                  // return segment.subdivisions( [ 0.25, 0.5, 0.75 ] );
+                } ) );
               }
               
               _.each( segments, function( segment ) {

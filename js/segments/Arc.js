@@ -219,7 +219,7 @@ define( function( require ) {
       ];
     },
     
-    // break 
+    // TODO: move to Segment?
     subdividedIntoMonotone: function() {
       return this.subdivisions( this.getInteriorExtremaTs() );
     },
