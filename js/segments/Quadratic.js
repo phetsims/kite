@@ -66,7 +66,7 @@ define( function( require ) {
       this.tCriticalY = -2 * ( control.y - start.y ) / divisorY;
       
       if ( t > 0 && t < 1 ) {
-        this.bounds = this.bounds.withPoint( this.positionAt( tCriticalY ) );
+        this.bounds = this.bounds.withPoint( this.positionAt( this.tCriticalY ) );
       }
     }
   };

@@ -213,7 +213,7 @@ define( function( require ) {
         var epsilon = 0.0000000001; // TODO: general kite epsilon?
         if ( t > epsilon && t < 1 - epsilon ) {
           // don't add duplicate t values
-          if ( _.every( result, function( otherT ) { return Math.abs( t - otherT ) > epsilon } ) ) {
+          if ( _.every( result, function( otherT ) { return Math.abs( t - otherT ) > epsilon; } ) ) {
             result.push( t );
           }
         }
