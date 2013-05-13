@@ -11,6 +11,8 @@
  */
 
 define( function( require ) {
+  'use strict';
+  
   // will be filled in by other modules
   return {};
 } );

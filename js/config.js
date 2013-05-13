@@ -1,9 +1,11 @@
 
 if ( window.has ) {
   window.has.add( 'assert.kite', function( global, document, anElement ) {
+    'use strict';
     return true;
   } );
   window.has.add( 'assert.kite.extra', function( global, document, anElement ) {
+    'use strict';
     return true;
   } );
 }

@@ -80,7 +80,7 @@ module.exports = function( grunt ) {
         // quotmark: 'single',
         undef: true,
         // unused: true, // certain layer APIs not used in cases
-        // strict: true,
+        strict: true,
         
         expr: true, // so we can use assert && assert( ... )
         

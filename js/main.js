@@ -27,6 +27,7 @@ define( [
   ], function(
     kite // note: we don't need any of the other parts, we just need to specify them as dependencies so they fill in the kite namespace
   ) {
+  'use strict';
   
   return kite;
 } );
