@@ -19,7 +19,7 @@
  */
 
 define( function( require ) {
-  "use strict";
+  'use strict';
   
   var assert = require( 'ASSERT/assert' )( 'kite' );
   var assertExtra = require( 'ASSERT/assert' )( 'kite.extra', true );
