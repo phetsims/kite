@@ -108,7 +108,7 @@ module.exports = function( grunt ) {
   } );
   
   // Default task.
-  grunt.registerTask( 'default', [ 'jshint', 'development', 'standalone', 'production' ] );
+  grunt.registerTask( 'default', [ 'jshint:all', 'development', 'standalone', 'production' ] );
   
   // linter on kite subset only ('grunt lint')
   grunt.registerTask( 'lint', [ 'jshint:kite' ] );
