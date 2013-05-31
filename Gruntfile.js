@@ -67,43 +67,8 @@ module.exports = function( grunt ) {
       kite: [
         'js/**/*.js'
       ],
-      // adjust with options from http://www.jshint.com/docs/
-      options: {
-        // enforcing options
-        curly: true, // brackets for conditionals
-        eqeqeq: true,
-        immed: true,
-        latedef: true,
-        newcap: true,
-        noarg: true,
-        // noempty: true,
-        nonew: true,
-        // quotmark: 'single',
-        undef: true,
-        // unused: true, // certain layer APIs not used in cases
-        strict: true,
-        
-        expr: true, // so we can use assert && assert( ... )
-        
-        // relaxing options
-        es5: true, // we use ES5 getters and setters for now
-        loopfunc: true, // we know how not to shoot ourselves in the foot, and this is useful for _.each
-        
-        globals: {
-          // for require.js
-          define: true,
-          require: true,
-          
-          _: false,
-          
-          Uint16Array: false,
-          Uint32Array: false,
-          document: false,
-          window: false,
-          console: false,
-          Float32Array: true // we actually polyfill this, so allow it to be set
-        }
-      },
+      // reference external JSHint options in jshint-options.js
+      options: require( '../chipper/grunt/jshint-options' )
     }
   } );
   
