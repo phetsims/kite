@@ -34,7 +34,7 @@ define( function( require ) {
     // acceleration for intersection
     this.bounds = Bounds2.NOTHING.withPoint( start ).withPoint( end );
   };
-  inherit( Segment.Line, Segment, {
+  inherit( Segment, Segment.Line, {
     
     positionAt: function( t ) {
       return this.start.plus( this.end.minus( this.start ).times( t ) );

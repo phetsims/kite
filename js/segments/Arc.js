@@ -105,7 +105,7 @@ define( function( require ) {
       boundsAtAngle( 3 * Math.PI / 2 );
     }
   };
-  inherit( Segment.Arc, Segment, {
+  inherit( Segment, Segment.Arc, {
     
     // maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
     mapAngle: function( angle ) {

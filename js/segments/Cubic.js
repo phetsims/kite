@@ -111,7 +111,7 @@ define( function( require ) {
       this.bounds = this.bounds.withPoint( this.positionAt( this.tCusp ) );
     }
   };
-  inherit( Segment.Cubic, Segment, {
+  inherit( Segment, Segment.Cubic, {
     
     degree: 3,
     

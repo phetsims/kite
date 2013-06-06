@@ -70,7 +70,7 @@ define( function( require ) {
       }
     }
   };
-  inherit( Segment.Quadratic, Segment, {
+  inherit( Segment, Segment.Quadratic, {
     
     degree: 2,
     

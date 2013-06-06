@@ -150,7 +150,7 @@ define( function( require ) {
       _.each( this.possibleExtremaAngles, boundsAtAngle );
     }
   };
-  inherit( Segment.EllipticalArc, Segment, {
+  inherit( Segment, Segment.EllipticalArc, {
     
     // maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
     mapAngle: function( angle ) {
