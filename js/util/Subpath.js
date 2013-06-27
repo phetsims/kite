@@ -1,4 +1,4 @@
-// Copyright 2002-2013, University of Colorado
+// Copyright 2002-2013, University of Colorado Boulder
 
 /**
  * A Canvas-style stateful (mutable) subpath, which tracks segments in addition to the points.

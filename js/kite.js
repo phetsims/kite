@@ -1,4 +1,4 @@
-// Copyright 2002-2013, University of Colorado
+// Copyright 2002-2013, University of Colorado Boulder
 
 /**
  * The main 'kite' namespace object for the exported (non-Require.js) API. Used internally
