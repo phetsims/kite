@@ -81,6 +81,7 @@
       <button id="nxyearc1">nxyearc1</button>
       <button id="rrect">rrect</button>
       <button id="errect">errect</button>
+      <button id="bucket">bucket</button>
       <input id="svgPath" type="text"></input>
       
       <div class="label">Cap</div>
@@ -460,6 +461,18 @@
           } );
           updateListener( 'errect', function() {
             shape = new kite.Shape().roundRect( -50, -50, 100, 100, 20, 40 );
+          } );
+          updateListener( 'bucket', function() {
+            shape = new kite.Shape().moveTo( -60, 0 )
+                                    .lineTo( -48, 42 )
+                                    .cubicCurveTo( -36, 51, 36, 51, 48, 42 )
+                                    .lineTo( 60, 0 )
+                                    .ellipticalArc( 0, 0, 60, 7.5, 0, 0, -Math.PI, false )
+                                    .close()
+            var point = dot( -131.07772925764198, -274.65043668122274 );
+            var ray = new dot.Ray2( point, dot( 1, 0 ) );
+            debugger;
+            console.log( shape.intersection( ray ) );
           } );
           updateListener( 'svgPath', function() {
             var s;
