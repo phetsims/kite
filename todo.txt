@@ -36,6 +36,7 @@ Code:
   Optimize parser or generated code to minimize file size
 
 Performance:
+  Bezier curve bounds can be much faster if we examine monotonic curve endpoints!
   Consider eval to build a function that can render the shape to canvas, without all of the indirection, etc.
   Precise intersection with bounding box (not just intersection of bounds)
   Fast, possibly larger bounding box

@@ -1,5 +1,6 @@
 /*global module:false*/
 module.exports = function( grunt ) {
+  'use strict';
   
   // print this immediately, so it is clear what project grunt is building
   grunt.log.writeln( 'Kite' );
@@ -14,11 +15,11 @@ module.exports = function( grunt ) {
         options: {
           almond: true,
           mainConfigFile: "js/config.js",
-          out: "dist/development/kite.js",
+          out: "build/development/kite.js",
           name: "config",
           optimize: 'none',
           wrap: {
-            startFile: [ "js/wrap-start.frag", "contrib/has.js" ],
+            startFile: [ "js/wrap-start.frag", "lib/has.js" ],
             endFile: [ "js/wrap-end.frag" ]
           }
         }
@@ -29,13 +30,13 @@ module.exports = function( grunt ) {
         options: {
           almond: true,
           mainConfigFile: "js/production-config.js",
-          out: "dist/standalone/kite.min.js",
+          out: "build/standalone/kite.min.js",
           name: "production-config",
           optimize: 'uglify2',
           generateSourceMaps: true,
           preserveLicenseComments: false,
           wrap: {
-            startFile: [ "js/wrap-start.frag", "contrib/has.js" ],
+            startFile: [ "js/wrap-start.frag", "lib/has.js" ],
             endFile: [ "js/wrap-end.frag" ]
           }
         }
@@ -46,7 +47,7 @@ module.exports = function( grunt ) {
         options: {
           almond: true,
           mainConfigFile: "js/production-config.js",
-          out: "dist/production/kite.min.js",
+          out: "build/production/kite.min.js",
           name: "production-config",
           optimize: 'uglify2',
           generateSourceMaps: true,
@@ -66,48 +67,13 @@ module.exports = function( grunt ) {
       kite: [
         'js/**/*.js'
       ],
-      // adjust with options from http://www.jshint.com/docs/
-      options: {
-        // enforcing options
-        curly: true, // brackets for conditionals
-        eqeqeq: true,
-        immed: true,
-        latedef: true,
-        newcap: true,
-        noarg: true,
-        // noempty: true,
-        nonew: true,
-        // quotmark: 'single',
-        undef: true,
-        // unused: true, // certain layer APIs not used in cases
-        // strict: true,
-        
-        expr: true, // so we can use assert && assert( ... )
-        
-        // relaxing options
-        es5: true, // we use ES5 getters and setters for now
-        loopfunc: true, // we know how not to shoot ourselves in the foot, and this is useful for _.each
-        
-        globals: {
-          // for require.js
-          define: true,
-          require: true,
-          
-          _: false,
-          
-          Uint16Array: false,
-          Uint32Array: false,
-          document: false,
-          window: false,
-          console: false,
-          Float32Array: true // we actually polyfill this, so allow it to be set
-        }
-      },
+      // reference external JSHint options in jshint-options.js
+      options: require( '../chipper/grunt/jshint-options' )
     }
   } );
   
   // Default task.
-  grunt.registerTask( 'default', [ 'jshint', 'development', 'standalone', 'production' ] );
+  grunt.registerTask( 'default', [ 'jshint:all', 'development', 'standalone', 'production' ] );
   
   // linter on kite subset only ('grunt lint')
   grunt.registerTask( 'lint', [ 'jshint:kite' ] );

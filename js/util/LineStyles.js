@@ -1,5 +1,4 @@
-//jshint -W018
-// Copyright 2002-2012, University of Colorado
+// Copyright 2002-2013, University of Colorado Boulder
 
 /**
  * Styles needed to determine a stroked line shape.
@@ -8,7 +7,7 @@
  */
 
 define( function( require ) {
-  "use strict";
+  'use strict';
   
   var assert = require( 'ASSERT/assert' )( 'kite' );
   

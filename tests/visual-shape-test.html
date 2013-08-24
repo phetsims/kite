@@ -8,10 +8,10 @@
   
   <title>Visual Shape Test</title>
   
-  <script src="../contrib/lodash.min-1.0.0-rc.3.js"></script>
-  <script src="../contrib/has.js"></script>
+  <script src="../lib/lodash.min-1.0.0-rc.3.js"></script>
+  <script src="../lib/has.js"></script>
   
-  <script data-main="../js/config.js" src="../contrib/require-2.1.4.js"></script>
+  <script data-main="../js/config.js" src="../lib/require-2.1.4.js"></script>
   
   <style>
     html, body {
@@ -26,7 +26,7 @@
     }
     
     div#controls {
-      width: 250px;
+      width: 500px;
       /*height: 400px;*/
       position: absolute;
       right: 0;
@@ -51,75 +51,83 @@
   <canvas id="canvas"></canvas>
   
   <div id="controls">
-    <!-- TODO: handle like radio buttons -->
-    <div class="label">Basic Segments</div>
-    <button id="line">line</button>
-    <button id="quadratic">quadratic</button>
-    <button id="cubic">cubic</button>
-    <button id="arc">arc</button>
-    <button id="ellipticalArc">ellipticalArc</button>
-    
-    <div class="label">Shapes</div>
-    <button id="lines">lines</button>
-    <button id="arc1">arc1</button>
-    <button id="arc2">arc2</button>
-    <button id="arc3">arc3</button>
-    <button id="arc4">arc4</button>
-    <button id="narc1">narc1</button>
-    <button id="ellipse1">ellipse1</button>
-    <button id="ellipse2">ellipse2</button>
-    <button id="ellipse3">ellipse3</button>
-    <button id="circle">circle</button>
-    <button id="rect">rect</button>
-    <button id="earc1">earc1</button>
-    <button id="earc2">earc2</button>
-    <button id="earc3">earc3</button>
-    <button id="earc4">earc4</button>
-    <button id="nxearc1">nxearc1</button>
-    <button id="nyearc1">nyearc1</button>
-    <button id="nxyearc1">nxyearc1</button>
-    <button id="rrect">rrect</button>
-    <button id="errect">errect</button>
-    <input id="svgPath" type="text"></input>
-    
-    <div class="label">Cap</div>
-    <button id="cap-butt">butt</button>
-    <button id="cap-square">square</button>
-    <button id="cap-round">round</button>
-    
-    <div class="label">Join</div>
-    <button id="join-miter">miter</button>
-    <button id="join-bevel">bevel</button>
-    <button id="join-round">round</button>
-    
-    <div class="label">Close</div>
-    <button id="close">close</button>
-    
-    <div class="label">Point</div>
-    <input id="point" type="range" min="0" max="1" step="0.01" value="0"/>
-    <button id="point-position">position</button>
-    <button id="point-tangent">tangent</button>
-    <button id="point-curvature">curvature</button>
-    
-    <div class="label">Other</div>
-    <button id="bounds-shape">bounds</button>
-    <button id="fill">fill</button>
-    <button id="stroke-kite">kiteStroke</button>
-    <button id="endpoints">subpath</button>
-    
-    <div class="label">Transform</div>
-    <button id="transform-active">active</button>
-    <button id="transform-reflect">reflect</button>
-    <input id="translation" type="range" min="-50" max="50" step="1" value="0"/>
-    <input id="rotation" type="range" min="-180" max="180" step="1" value="0"/>
-    <input id="scaling" type="range" min="0.1" max="1.5" step="0.01" value="1"/>
-    <input id="shear" type="range" min="-2" max="2" step="0.01" value="0"/>
-    
-    <div class="label">Hit test</div>
-    <button id="hit-fill">fill</button>
-    <button id="hit-stroke">stroke</button>
-    <button id="hit-mouse">mouse</button>
-    <button id="hit-mouseSpan">mouseSpan</button>
+    <div style="float: left; width: 250px;">
+      <!-- TODO: handle like radio buttons -->
+      <div class="label">Basic Segments</div>
+      <button id="line">line</button>
+      <button id="quadratic">quadratic</button>
+      <button id="cubic">cubic</button>
+      <button id="arc">arc</button>
+      <button id="ellipticalArc">ellipticalArc</button>
+      
+      <div class="label">Shapes</div>
+      <button id="lines">lines</button>
+      <button id="arc1">arc1</button>
+      <button id="arc2">arc2</button>
+      <button id="arc3">arc3</button>
+      <button id="arc4">arc4</button>
+      <button id="narc1">narc1</button>
+      <button id="ellipse1">ellipse1</button>
+      <button id="ellipse2">ellipse2</button>
+      <button id="ellipse3">ellipse3</button>
+      <button id="circle">circle</button>
+      <button id="rect">rect</button>
+      <button id="earc1">earc1</button>
+      <button id="earc2">earc2</button>
+      <button id="earc3">earc3</button>
+      <button id="earc4">earc4</button>
+      <button id="nxearc1">nxearc1</button>
+      <button id="nyearc1">nyearc1</button>
+      <button id="nxyearc1">nxyearc1</button>
+      <button id="rrect">rrect</button>
+      <button id="errect">errect</button>
+      <button id="bucket">bucket</button>
+      <input id="svgPath" type="text"></input>
+      
+      <div class="label">Cap</div>
+      <button id="cap-butt">butt</button>
+      <button id="cap-square">square</button>
+      <button id="cap-round">round</button>
+      
+      <div class="label">Join</div>
+      <button id="join-miter">miter</button>
+      <button id="join-bevel">bevel</button>
+      <button id="join-round">round</button>
+      
+      <div class="label">Close</div>
+      <button id="close">close</button>
+    </div>
+    <div style="float: left; width: 250px; ">
+      <div class="label">Point</div>
+      <input id="point" type="range" min="0" max="1" step="0.01" value="0"/>
+      <input id="subdivideT" type="range" min="0" max="1" step="0.01" value="0.5"/>
+      <button id="point-position">position</button>
+      <button id="point-tangent">tangent</button>
+      <button id="point-curvature">curvature</button>
+      <button id="point-subdivide">subdivide</button>
+      <button id="point-monotone">monotone</button>
+      <button id="point-net">net</button>
+      
+      <div class="label">Other</div>
+      <button id="bounds-shape">bounds</button>
+      <button id="fill">fill</button>
+      <button id="stroke-kite">kiteStroke</button>
+      <button id="endpoints">subpath</button>
+      
+      <div class="label">Transform</div>
+      <button id="transform-active">active</button>
+      <button id="transform-reflect">reflect</button>
+      <input id="translation" type="range" min="-50" max="50" step="1" value="0"/>
+      <input id="rotation" type="range" min="-180" max="180" step="1" value="0"/>
+      <input id="scaling" type="range" min="0.1" max="1.5" step="0.01" value="1"/>
+      <input id="shear" type="range" min="-2" max="2" step="0.01" value="0"/>
+      
+      <div class="label">Hit test</div>
+      <button id="hit-fill">fill</button>
+      <button id="hit-stroke">stroke</button>
+      <button id="hit-mouse">mouse</button>
+      <button id="hit-mouseSpan">mouseSpan</button>
+    </div>
   </div>
   
   <script>
@@ -144,9 +152,13 @@
           } );
           
           var point = 0; // how far our inspection point is along the curve
+          var subdivideT = 0.5;
           var pointPosition = false; // highlight the inspected point(s)
           var pointTangent = false; // tangent on points
           var pointCurvature = false; // curvature on points
+          var pointSubdivide = false; // subdivides the segments at the point
+          var pointMonotone = false; // subdivides the segments to make each one monotone
+          var segmentControlNet = false; // control net for beziers
           
           var kiteStroked = false;
           var fill = false;
@@ -184,6 +196,7 @@
           canvas.height = window.innerHeight;
           
           function render() {
+            window.lastShape = shape;
             context.setTransform( 1, 0, 0, 1, 0, 0 );
             context.clearRect( 0, 0, canvas.width, canvas.height );
             context.setTransform( 1, 0, 0, 1, xOffset, yOffset );
@@ -245,7 +258,33 @@
                 }
               }
               
-              _.each( subpath.segments, function( segment ) {
+              var segments = subpath.segments;
+              if ( subpath.isClosed() && subpath.hasClosingSegment() ) {
+                segments.push( subpath.getClosingSegment() );
+              }
+              
+              if ( pointMonotone ) {
+                segments = _.flatten( _.map( segments, function( segment ) {
+                  if ( segment.subdividedIntoMonotone ) {
+                    // console.log( segment.getInteriorExtremaTs() );
+                    return segment.subdividedIntoMonotone();
+                  } else {
+                    return [segment];
+                  }
+                } ) );
+              }
+              
+              if ( pointSubdivide ) {
+                segments = _.flatten( _.map( segments, function( segment ) {
+                  return segment.subdivided( subdivideT );
+                  // return segment.subdivisions( [ 0.25, 0.5, 0.75 ] );
+                } ) );
+              }
+              
+              _.each( segments, function( segment ) {
+                // don't attempt to show invalid segments
+                if ( segment.invalid ) { return; }
+                
                 var p = segment.positionAt( point );
                 var t = segment.tangentAt( point );
                 if ( t.magnitude() === 0 ) { return; } // bail out if we are at a cusp or undefined tangent
@@ -281,11 +320,37 @@
                     
                     context.beginPath();
                     context.arc( curvatureCenter.x, curvatureCenter.y, Math.abs( radiusOfCurvature ), 0, Math.PI * 2, false );
-                    context.fillStyle = '#f0f';
+                    context.strokeStyle = '#f0f';
                     context.lineWidth = 1;
                     context.stroke();
                   }
-                }                
+                }
+                
+                if ( segmentControlNet ) {
+                  var pts = [];
+                  if ( segment instanceof kite.Segment.Quadratic ) {
+                    pts = [ segment.start, segment.control, segment.end ];
+                  } else if ( segment instanceof kite.Segment.Cubic ) {
+                    pts = [ segment.start, segment.control1, segment.control2, segment.end ];
+                  }
+                  if ( pts.length ) {
+                    // path along the net
+                    context.beginPath();
+                    context.moveTo( pts[0].x, pts[0].y );
+                    for ( var qi = 1; qi < pts.length; qi++ ) { context.lineTo( pts[qi].x, pts[qi].y ); }
+                    context.strokeStyle = '#0f0';
+                    context.lineWidth = 1;
+                    context.stroke();
+                    
+                    // control points
+                    for ( var qi = 1; qi < pts.length - 1; qi++ ) {
+                      context.beginPath();
+                      context.arc( pts[qi].x, pts[qi].y, 3, 0, Math.PI * 2, false );
+                      context.fillStyle = '#00f';
+                      context.fill();
+                    }
+                  }
+                }
               } );
             } );
             
@@ -397,6 +462,18 @@
           updateListener( 'errect', function() {
             shape = new kite.Shape().roundRect( -50, -50, 100, 100, 20, 40 );
           } );
+          updateListener( 'bucket', function() {
+            shape = new kite.Shape().moveTo( -60, 0 )
+                                    .lineTo( -48, 42 )
+                                    .cubicCurveTo( -36, 51, 36, 51, 48, 42 )
+                                    .lineTo( 60, 0 )
+                                    .ellipticalArc( 0, 0, 60, 7.5, 0, 0, -Math.PI, false )
+                                    .close()
+            var point = dot( -131.07772925764198, -274.65043668122274 );
+            var ray = new dot.Ray2( point, dot( 1, 0 ) );
+            debugger;
+            console.log( shape.intersection( ray ) );
+          } );
           updateListener( 'svgPath', function() {
             var s;
             var el = document.getElementById( 'svgPath' );
@@ -451,7 +528,10 @@
           *----------------------------------------------------------------------------*/
           
           updateListener( 'point', function() {
-            point = document.getElementById( 'point' ).value;
+            point = parseFloat( document.getElementById( 'point' ).value, 10 );
+          }, 'input' );
+          updateListener( 'subdivideT', function() {
+            subdivideT = parseFloat( document.getElementById( 'subdivideT' ).value, 10 );
           }, 'input' );
           
           updateListener( 'point-position', function() {
@@ -462,6 +542,15 @@
           } );
           updateListener( 'point-curvature', function() {
             pointCurvature = !pointCurvature;
+          } );
+          updateListener( 'point-subdivide', function() {
+            pointSubdivide = !pointSubdivide;
+          } );
+          updateListener( 'point-monotone', function() {
+            pointMonotone = !pointMonotone;
+          } );
+          updateListener( 'point-net', function() {
+            segmentControlNet = !segmentControlNet;
           } );
           
           /*---------------------------------------------------------------------------*

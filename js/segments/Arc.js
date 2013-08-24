@@ -1,4 +1,4 @@
-// Copyright 2002-2012, University of Colorado
+// Copyright 2002-2013, University of Colorado Boulder
 
 /**
  * Arc segment
@@ -7,14 +7,16 @@
  */
 
 define( function( require ) {
-  "use strict";
+  'use strict';
   
   var assert = require( 'ASSERT/assert' )( 'kite' );
 
   var kite = require( 'KITE/kite' );
   
+  var inherit = require( 'PHET_CORE/inherit' );
   var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
+  var DotUtil = require( 'DOT/Util' );
 
   var Segment = require( 'KITE/segments/Segment' );
 
@@ -41,6 +43,32 @@ define( function( require ) {
       this.invalid = true;
       return;
     }
+    
+    // compute an actual end angle so that we can smoothly go from this.startAngle to this.actualEndAngle
+    if ( this.anticlockwise ) {
+      // angle is 'decreasing'
+      // -2pi <= end - start < 2pi
+      if ( this.startAngle > this.endAngle ) {
+        this.actualEndAngle = this.endAngle;
+      } else if ( this.startAngle < this.endAngle ) {
+        this.actualEndAngle = this.endAngle - 2 * Math.PI;
+      } else {
+        // equal
+        this.actualEndAngle = this.startAngle;
+      }
+    } else {
+      // angle is 'increasing'
+      // -2pi < end - start <= 2pi
+      if ( this.startAngle < this.endAngle ) {
+        this.actualEndAngle = this.endAngle;
+      } else if ( this.startAngle > this.endAngle ) {
+        this.actualEndAngle = this.endAngle + Math.PI * 2;
+      } else {
+        // equal
+        this.actualEndAngle = this.startAngle;
+      }
+    }
+    
     // constraints
     assert && assert( !( ( !anticlockwise && endAngle - startAngle <= -Math.PI * 2 ) || ( anticlockwise && startAngle - endAngle <= -Math.PI * 2 ) ), 'Not handling arcs with start/end angles that show differences in-between browser handling' );
     assert && assert( !( ( !anticlockwise && endAngle - startAngle > Math.PI * 2 ) || ( anticlockwise && startAngle - endAngle > Math.PI * 2 ) ), 'Not handling arcs with start/end angles that show differences in-between browser handling' );
@@ -77,33 +105,22 @@ define( function( require ) {
       boundsAtAngle( 3 * Math.PI / 2 );
     }
   };
-  Segment.Arc.prototype = {
-    constructor: Segment.Arc,
+  inherit( Segment, Segment.Arc, {
+    
+    // maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
+    mapAngle: function( angle ) {
+      // consider an assert that we contain that angle?
+      return ( this.startAngle > this.actualEndAngle ) ?
+             DotUtil.moduloBetweenUp( angle, this.startAngle - 2 * Math.PI, this.startAngle ) :
+             DotUtil.moduloBetweenDown( angle, this.startAngle, this.startAngle + 2 * Math.PI );
+    },
+    
+    tAtAngle: function( angle ) {
+      return ( this.mapAngle( angle ) - this.startAngle ) / ( this.actualEndAngle - this.startAngle );
+    },
     
     angleAt: function( t ) {
-      if ( this.anticlockwise ) {
-        // angle is 'decreasing'
-        // -2pi <= end - start < 2pi
-        if ( this.startAngle > this.endAngle ) {
-          return this.startAngle + ( this.endAngle - this.startAngle ) * t;
-        } else if ( this.startAngle < this.endAngle ) {
-          return this.startAngle + ( -Math.PI * 2 + this.endAngle - this.startAngle ) * t;
-        } else {
-          // equal
-          return this.startAngle;
-        }
-      } else {
-        // angle is 'increasing'
-        // -2pi < end - start <= 2pi
-        if ( this.startAngle < this.endAngle ) {
-          return this.startAngle + ( this.endAngle - this.startAngle ) * t;
-        } else if ( this.startAngle > this.endAngle ) {
-          return this.startAngle + ( Math.PI * 2 + this.endAngle - this.startAngle ) * t;
-        } else {
-          // equal
-          return this.startAngle;
-        }
-      }
+      return this.startAngle + ( this.actualEndAngle - this.startAngle ) * t;
     },
     
     positionAt: function( t ) {
@@ -128,18 +145,14 @@ define( function( require ) {
       return this.anticlockwise ? normal.perpendicular() : normal.perpendicular().negated();
     },
     
-    // TODO: refactor? shared with Segment.EllipticalArc
+    // TODO: refactor? shared with Segment.EllipticalArc (use this improved version)
     containsAngle: function( angle ) {
       // transform the angle into the appropriate coordinate form
       // TODO: check anticlockwise version!
       var normalizedAngle = this.anticlockwise ? angle - this.endAngle : angle - this.startAngle;
       
       // get the angle between 0 and 2pi
-      var positiveMinAngle = normalizedAngle % ( Math.PI * 2 );
-      // check this because modular arithmetic with negative numbers reveal a negative number
-      if ( positiveMinAngle < 0 ) {
-        positiveMinAngle += Math.PI * 2;
-      }
+      var positiveMinAngle = DotUtil.moduloBetweenDown( normalizedAngle, 0, Math.PI * 2 );
       
       return positiveMinAngle <= this.angleDifference;
     },
@@ -177,6 +190,33 @@ define( function( require ) {
     
     strokeRight: function( lineWidth ) {
       return [new Segment.Arc( this.center, this.radius + ( this.anticlockwise ? -1 : 1 ) * lineWidth / 2, this.endAngle, this.startAngle, !this.anticlockwise )];
+    },
+    
+    // not including 0 and 1
+    getInteriorExtremaTs: function() {
+      var that = this;
+      var result = [];
+      _.each( [ 0, Math.PI / 2, Math.PI, 3 * Math.PI / 2 ], function( angle ) {
+        if ( that.containsAngle( angle ) ) {
+          var t = that.tAtAngle( angle );
+          var epsilon = 0.0000000001; // TODO: general kite epsilon?
+          if ( t > epsilon && t < 1 - epsilon ) {
+            result.push( t );
+          }
+        }
+      } );
+      return result.sort(); // modifies original, which is OK
+    },
+    
+    subdivided: function( t ) {
+      // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles
+      var angle0 = this.angleAt( 0 );
+      var angleT = this.angleAt( t );
+      var angle1 = this.angleAt( 1 );
+      return [
+        new Segment.Arc( this.center, this.radius, angle0, angleT, this.anticlockwise ),
+        new Segment.Arc( this.center, this.radius, angleT, angle1, this.anticlockwise )
+      ];
     },
     
     intersectsBounds: function( bounds ) {
@@ -283,7 +323,7 @@ define( function( require ) {
         return new Segment.Arc( matrix.timesVector2( this.center ), radius, startAngle, endAngle, anticlockwise );
       }
     }
-  };
+  } );
   
   return Segment.Arc;
 } );

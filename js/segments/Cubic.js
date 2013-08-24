@@ -1,4 +1,4 @@
-// Copyright 2002-2012, University of Colorado
+// Copyright 2002-2013, University of Colorado Boulder
 
 /**
  * Cubic Bezier segment.
@@ -11,12 +11,13 @@
  */
 
 define( function( require ) {
-  "use strict";
+  'use strict';
   
   var assert = require( 'ASSERT/assert' )( 'kite' );
 
   var kite = require( 'KITE/kite' );
   
+  var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Vector2 = require( 'DOT/Vector2' );
   var Matrix3 = require( 'DOT/Matrix3' );
@@ -37,13 +38,13 @@ define( function( require ) {
       return;
     }
     
-    this.startTangent = this.tangentAt( 0 ).normalized();
-    this.endTangent = this.tangentAt( 1 ).normalized();
-    
     if ( start.equals( end, 0 ) && start.equals( control1, 0 ) && start.equals( control2, 0 ) ) {
       this.invalid = true;
       return;
     }
+    
+    this.startTangent = this.tangentAt( 0 ).normalized();
+    this.endTangent = this.tangentAt( 1 ).normalized();
     
     // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
     this.r = control1.minus( start ).normalized();
@@ -93,12 +94,14 @@ define( function( require ) {
     }
     
     var cubic = this;
-    _.each( extremaT( this.start.x, this.control1.x, this.control2.x, this.end.x ), function( t ) {
+    this.xExtremaT = extremaT( this.start.x, this.control1.x, this.control2.x, this.end.x );
+    _.each( this.xExtremaT, function( t ) {
       if ( t >= 0 && t <= 1 ) {
         cubic.bounds = cubic.bounds.withPoint( cubic.positionAt( t ) );
       }
     } );
-    _.each( extremaT( this.start.y, this.control1.y, this.control2.y, this.end.y ), function( t ) {
+    this.yExtremaT = extremaT( this.start.y, this.control1.y, this.control2.y, this.end.y );
+    _.each( this.yExtremaT, function( t ) {
       if ( t >= 0 && t <= 1 ) {
         cubic.bounds = cubic.bounds.withPoint( cubic.positionAt( t ) );
       }
@@ -108,8 +111,7 @@ define( function( require ) {
       this.bounds = this.bounds.withPoint( this.positionAt( this.tCusp ) );
     }
   };
-  Segment.Cubic.prototype = {
-    constructor: Segment.Cubic,
+  inherit( Segment, Segment.Cubic, {
     
     degree: 3,
     
@@ -202,6 +204,21 @@ define( function( require ) {
     
     strokeRight: function( lineWidth ) {
       return this.offsetTo( lineWidth / 2, true );
+    },
+    
+    getInteriorExtremaTs: function() {
+      var ts = this.xExtremaT.concat( this.yExtremaT );
+      var result = [];
+      _.each( ts, function( t ) {
+        var epsilon = 0.0000000001; // TODO: general kite epsilon?
+        if ( t > epsilon && t < 1 - epsilon ) {
+          // don't add duplicate t values
+          if ( _.every( result, function( otherT ) { return Math.abs( t - otherT ) > epsilon; } ) ) {
+            result.push( t );
+          }
+        }
+      } );
+      return result.sort();
     },
     
     intersectsBounds: function( bounds ) {
@@ -299,7 +316,7 @@ define( function( require ) {
       
     //   return result;
     // }
-  };
+  } );
   
   return Segment.Cubic;
 } );

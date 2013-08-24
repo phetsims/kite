@@ -1,4 +1,4 @@
-// Copyright 2002-2012, University of Colorado
+// Copyright 2002-2013, University of Colorado Boulder
 
 /**
  * Quadratic Bezier segment
@@ -9,12 +9,13 @@
  */
 
 define( function( require ) {
-  "use strict";
+  'use strict';
   
   var assert = require( 'ASSERT/assert' )( 'kite' );
 
   var kite = require( 'KITE/kite' );
   
+  var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Matrix3 = require( 'DOT/Matrix3' );
   var solveQuadraticRootsReal = require( 'DOT/Util' ).solveQuadraticRootsReal;
@@ -54,23 +55,22 @@ define( function( require ) {
     // compute x and y where the derivative is 0, so we can include this in the bounds
     var divisorX = 2 * ( end.x - 2 * control.x + start.x );
     if ( divisorX !== 0 ) {
-      t = -2 * ( control.x - start.x ) / divisorX;
+      this.tCriticalX = -2 * ( control.x - start.x ) / divisorX;
       
       if ( t > 0 && t < 1 ) {
-        this.bounds = this.bounds.withPoint( this.positionAt( t ) );
+        this.bounds = this.bounds.withPoint( this.positionAt( this.tCriticalX ) );
       }
     }
     var divisorY = 2 * ( end.y - 2 * control.y + start.y );
     if ( divisorY !== 0 ) {
-      t = -2 * ( control.y - start.y ) / divisorY;
+      this.tCriticalY = -2 * ( control.y - start.y ) / divisorY;
       
       if ( t > 0 && t < 1 ) {
-        this.bounds = this.bounds.withPoint( this.positionAt( t ) );
+        this.bounds = this.bounds.withPoint( this.positionAt( this.tCriticalY ) );
       }
     }
   };
-  Segment.Quadratic.prototype = {
-    constructor: Segment.Quadratic,
+  inherit( Segment, Segment.Quadratic, {
     
     degree: 2,
     
@@ -164,6 +164,18 @@ define( function( require ) {
       return this.offsetTo( lineWidth / 2, true );
     },
     
+    getInteriorExtremaTs: function() {
+      var result = [];
+      var epsilon = 0.0000000001; // TODO: general kite epsilon?
+      if ( this.tCriticalX !== undefined && this.tCriticalX > epsilon && this.tCriticalX < 1 - epsilon ) {
+        result.push( this.tCriticalX );
+      }
+      if ( this.tCriticalY !== undefined && this.tCriticalY > epsilon && this.tCriticalY < 1 - epsilon ) {
+        result.push( this.tCriticalY );
+      }
+      return result.sort();
+    },
+    
     intersectsBounds: function( bounds ) {
       throw new Error( 'Segment.Quadratic.intersectsBounds unimplemented' ); // TODO: implement
     },
@@ -225,7 +237,7 @@ define( function( require ) {
     transformed: function( matrix ) {
       return new Segment.Quadratic( matrix.timesVector2( this.start ), matrix.timesVector2( this.control ), matrix.timesVector2( this.end ) );
     }
-  };
+  } );
   
   return Segment.Quadratic;
 } );

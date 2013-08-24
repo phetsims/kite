@@ -1,2 +1,5 @@
-kite.iml
-node_modules
+build/
+node_modules/
+*.iml
+.DS_Store
+.DS_Store?

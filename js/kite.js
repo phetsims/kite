@@ -1,4 +1,4 @@
-// Copyright 2002-2012, University of Colorado
+// Copyright 2002-2013, University of Colorado Boulder
 
 /**
  * The main 'kite' namespace object for the exported (non-Require.js) API. Used internally
@@ -11,6 +11,8 @@
  */
 
 define( function( require ) {
+  'use strict';
+  
   // will be filled in by other modules
   return {};
 } );

@@ -1,4 +1,4 @@
-// Copyright 2002-2012, University of Colorado
+// Copyright 2002-2013, University of Colorado Boulder
 
 /**
  * Linear segment
@@ -7,12 +7,13 @@
  */
 
 define( function( require ) {
-  "use strict";
+  'use strict';
   
   var assert = require( 'ASSERT/assert' )( 'kite' );
 
   var kite = require( 'KITE/kite' );
   
+  var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
   
@@ -33,8 +34,7 @@ define( function( require ) {
     // acceleration for intersection
     this.bounds = Bounds2.NOTHING.withPoint( start ).withPoint( end );
   };
-  Segment.Line.prototype = {
-    constructor: Segment.Line,
+  inherit( Segment, Segment.Line, {
     
     positionAt: function( t ) {
       return this.start.plus( this.end.minus( this.start ).times( t ) );
@@ -61,6 +61,17 @@ define( function( require ) {
     strokeRight: function( lineWidth ) {
       var offset = this.startTangent.perpendicular().times( lineWidth / 2 );
       return [new Segment.Line( this.end.plus( offset ), this.start.plus( offset ) )];
+    },
+    
+    // lines are already monotone
+    getInteriorExtremaTs: function() { return []; },
+    
+    subdivided: function( t ) {
+      var pt = this.positionAt( t );
+      return [
+        new Segment.Line( this.start, pt ),
+        new Segment.Line( pt, this.end )
+      ];
     },
     
     intersectsBounds: function( bounds ) {
@@ -124,7 +135,7 @@ define( function( require ) {
     transformed: function( matrix ) {
       return new Segment.Line( matrix.timesVector2( this.start ), matrix.timesVector2( this.end ) );
     }
-  };
+  } );
   
   return Segment.Line;
 } );
