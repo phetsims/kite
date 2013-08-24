@@ -15,11 +15,11 @@ module.exports = function( grunt ) {
         options: {
           almond: true,
           mainConfigFile: "js/config.js",
-          out: "dist/development/kite.js",
+          out: "build/development/kite.js",
           name: "config",
           optimize: 'none',
           wrap: {
-            startFile: [ "js/wrap-start.frag", "contrib/has.js" ],
+            startFile: [ "js/wrap-start.frag", "lib/has.js" ],
             endFile: [ "js/wrap-end.frag" ]
           }
         }
@@ -30,13 +30,13 @@ module.exports = function( grunt ) {
         options: {
           almond: true,
           mainConfigFile: "js/production-config.js",
-          out: "dist/standalone/kite.min.js",
+          out: "build/standalone/kite.min.js",
           name: "production-config",
           optimize: 'uglify2',
           generateSourceMaps: true,
           preserveLicenseComments: false,
           wrap: {
-            startFile: [ "js/wrap-start.frag", "contrib/has.js" ],
+            startFile: [ "js/wrap-start.frag", "lib/has.js" ],
             endFile: [ "js/wrap-end.frag" ]
           }
         }
@@ -47,7 +47,7 @@ module.exports = function( grunt ) {
         options: {
           almond: true,
           mainConfigFile: "js/production-config.js",
-          out: "dist/production/kite.min.js",
+          out: "build/production/kite.min.js",
           name: "production-config",
           optimize: 'uglify2',
           generateSourceMaps: true,
