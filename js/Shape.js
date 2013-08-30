@@ -438,21 +438,27 @@ define( function( require ) {
     },
     
     intersectsBounds: function( bounds ) {
-      var intersects = false;
-      // TODO: break-out-early optimizations
-      _.each( this.subpaths, function( subpath ) {
+      var numSubpaths = this.subpaths.length;
+      for ( var i = 0; i < numSubpaths; i++ ) {
+        var subpath = this.subpaths[i];
+        
         if ( subpath.isDrawable() ) {
-          _.each( subpath.segments, function( segment ) {
-            intersects = intersects && segment.intersectsBounds( bounds );
-          } );
+          var numSegments = subpath.segments.length;
+          for ( var k = 0; k < numSegments; k++ ) {
+            if ( subpath.segments[k].intersectsBounds( bounds ) ) {
+              return true;
+            }
+          }
           
           // handle the implicit closing line segment
           if ( subpath.hasClosingSegment() ) {
-            intersects = intersects && subpath.getClosingSegment().intersectsBounds( bounds );
+            if ( subpath.getClosingSegment().intersectsBounds( bounds ) ) {
+              return true;
+            }
           }
         }
-      } );
-      return intersects;
+      }
+      return false;
     },
     
     // returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be nested (doesn't do intersection computations yet)
