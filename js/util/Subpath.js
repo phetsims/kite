@@ -112,9 +112,10 @@ define( function( require ) {
         var startPoint = this.getFirstSegment().start;
         context.moveTo( startPoint.x, startPoint.y ); // the segments assume the current context position is at their start
         
-        _.each( this.segments, function( segment ) {
-          segment.writeToContext( context );
-        } );
+        var len = this.segments.length;
+        for ( var i = 0; i < len; i++ ) {
+          this.segments[i].writeToContext( context );
+        }
         
         if ( this.closed ) {
           context.closePath();
