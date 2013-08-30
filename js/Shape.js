@@ -417,18 +417,22 @@ define( function( require ) {
     windingIntersection: function( ray ) {
       var wind = 0;
       
-      _.each( this.subpaths, function( subpath ) {
+      var numSubpaths = this.subpaths.length;
+      for ( var i = 0; i < numSubpaths; i++ ) {
+        var subpath = this.subpaths[i];
+        
         if ( subpath.isDrawable() ) {
-          _.each( subpath.segments, function( segment ) {
-            wind += segment.windingIntersection( ray );
-          } );
+          var numSegments = subpath.segments.length;
+          for ( var k = 0; k < numSegments; k++ ) {
+            wind += subpath.segments[k].windingIntersection( ray );
+          }
           
           // handle the implicit closing line segment
           if ( subpath.hasClosingSegment() ) {
             wind += subpath.getClosingSegment().windingIntersection( ray );
           }
         }
-      } );
+      }
       
       return wind;
     },
