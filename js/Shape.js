@@ -63,8 +63,7 @@ define( function( require ) {
     
     var that = this;
     if ( subpaths && typeof subpaths !== 'object' ) {
-      assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' )
-      ;
+      assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' );
       // parse the SVG path
       _.each( svgPath.parse( subpaths ), function( item ) {
         assert && assert( Shape.prototype[item.cmd] !== undefined, 'method ' + item.cmd + ' from parsed SVG does not exist' );
@@ -350,7 +349,9 @@ define( function( require ) {
     // returns something like "M150 0 L75 200 L225 200 Z" for a triangle
     getSVGPath: function() {
       var subpathStrings = [];
-      _.each( this.subpaths, function( subpath ) {
+      var len = this.subpaths.length;
+      for ( var i = 0; i < len; i++ ) {
+        var subpath = this.subpaths[i];
         if( subpath.isDrawable() ) {
           // since the commands after this are relative to the previous 'point', we need to specify a move to the initial point
           var startPoint = subpath.getFirstSegment().start;
@@ -364,7 +365,7 @@ define( function( require ) {
           }
           subpathStrings.push( string );
         }
-      } );
+      }
       return subpathStrings.join( ' ' );
     },
     
