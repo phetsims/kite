@@ -388,7 +388,7 @@ define( function( require ) {
     
     containsPoint: function( point ) {
       // we pick a ray, and determine the winding number over that ray. if the number of segments crossing it CCW == number of segments crossing it CW, then the point is contained in the shape
-      var ray = new Ray2( point, p( 1, 0 ) );
+      var ray = new Ray2( point, Vector2.X_UNIT );
       
       return this.windingIntersection( ray ) !== 0;
     },
