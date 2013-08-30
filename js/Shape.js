@@ -395,21 +395,22 @@ define( function( require ) {
     
     intersection: function( ray ) {
       var hits = [];
-      _.each( this.subpaths, function( subpath ) {
+      var numSubpaths = this.subpaths.length;
+      for ( var i = 0; i < numSubpaths; i++ ) {
+        var subpath = this.subpaths[i];
+        
         if ( subpath.isDrawable() ) {
-          _.each( subpath.segments, function( segment ) {
-            _.each( segment.intersection( ray ), function( hit ) {
-              hits.push( hit );
-            } );
-          } );
+          var numSegments = subpath.segments.length;
+          for ( var k = 0; k < numSegments; k++ ) {
+            var segment = subpath.segments[k];
+            hits = hits.concat( segment.intersection( ray ) );
+          }
           
           if ( subpath.hasClosingSegment() ) {
-            _.each( subpath.getClosingSegment().intersection( ray ), function( hit ) {
-              hits.push( hit );
-            } );
+            hits = hits.concat( subpath.getClosingSegment().intersection( ray ) );
           }
         }
-      } );
+      }
       return _.sortBy( hits, function( hit ) { return hit.distance; } );
     },
     
