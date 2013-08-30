@@ -341,9 +341,10 @@ define( function( require ) {
     
     // write out this shape's path to a canvas 2d context. does NOT include the beginPath()!
     writeToContext: function( context ) {
-      _.each( this.subpaths, function( subpath ) {
-        subpath.writeToContext( context );
-      } );
+      var len = this.subpaths.length;
+      for ( var i = 0; i < len; i++ ) {
+        this.subpaths[i].writeToContext( context );
+      }
     },
     
     // returns something like "M150 0 L75 200 L225 200 Z" for a triangle
