@@ -229,10 +229,10 @@ define( function( require ) {
       var lastSegment = this.getLastSegment();
       
       function addLeftSegments( segments ) {
-        _.each( segments, function( segment ) { leftSegments.push( segment ); } );
+        leftSegments = leftSegments.concat( segments );
       }
       function addRightSegments( segments ) {
-        _.each( segments, function( segment ) { rightSegments.push( segment ); } );
+        rightSegments = rightSegments.concat( segments );
       }
       
       // we don't need to insert an implicit closing segment if the start and end points are the same
