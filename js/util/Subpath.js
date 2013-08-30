@@ -141,7 +141,7 @@ define( function( require ) {
     stroked: function( lineStyles ) {
       // non-drawable subpaths convert to empty subpaths
       if ( !this.isDrawable() ) {
-        return new Subpath();
+        return [];
       }
       
       if ( lineStyles === undefined ) {

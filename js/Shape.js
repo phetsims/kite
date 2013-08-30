@@ -464,8 +464,18 @@ define( function( require ) {
     // returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be nested (doesn't do intersection computations yet)
     // TODO: rename stroked( lineStyles )
     getStrokedShape: function( lineStyles ) {
-      var subpaths = _.flatten( _.map( this.subpaths, function( subpath ) { return subpath.stroked( lineStyles ); } ) );
-      var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.computeBounds() ); }, Bounds2.NOTHING );
+      var subpaths = [];
+      var bounds = Bounds2.NOTHING.copy();
+      var subLen = this.subpaths.length;
+      for ( var i = 0; i < subLen; i++ ) {
+        var subpath = this.subpaths[i];
+        var strokedSubpath = subpath.stroked( lineStyles );
+        subpaths = subpaths.concat( strokedSubpath );
+      }
+      subLen = subpaths.length;
+      for ( i = 0; i < subLen; i++ ) {
+        bounds.includeBounds( subpaths[i].computeBounds() );
+      }
       return new Shape( subpaths, bounds );
     },
     
