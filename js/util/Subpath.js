@@ -132,9 +132,12 @@ define( function( require ) {
     },
     
     computeBounds: function() {
-      return _.reduce( this.segments, function( bounds, segment ) {
-        return bounds.union( segment.bounds );
-      }, Bounds2.NOTHING );
+      var bounds = Bounds2.NOTHING.copy();
+      var len = this.segments.length;
+      for ( var i = 0; i < len; i++ ) {
+        bounds.includeBounds( this.segments[i].bounds );
+      }
+      return bounds;
     },
     
     // returns an array of subpaths (one if open, two if closed) that represent a stroked copy of this subpath.
