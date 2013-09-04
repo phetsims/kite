@@ -13,6 +13,9 @@
 define( function( require ) {
   'use strict';
   
+  // object allocation tracking
+  window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
+  
   // will be filled in by other modules
   return {};
 } );

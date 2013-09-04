@@ -70,6 +70,8 @@ define( function( require ) {
         that[item.cmd].apply( that, item.args );
       } );
     }
+    
+    phetAllocation && phetAllocation( 'Shape' );
   };
   var Shape = kite.Shape;
   

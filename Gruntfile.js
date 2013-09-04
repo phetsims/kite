@@ -38,6 +38,14 @@ module.exports = function( grunt ) {
           wrap: {
             startFile: [ "js/wrap-start.frag", "lib/has.js" ],
             endFile: [ "js/wrap-end.frag" ]
+          },
+          uglify2: {
+            compress: {
+              global_defs: {
+                phetAllocation: false
+              },
+              dead_code: true
+            }
           }
         }
       },
@@ -55,6 +63,14 @@ module.exports = function( grunt ) {
           wrap: {
             startFile: [ "js/wrap-start.frag" ],
             endFile: [ "js/wrap-end.frag" ]
+          },
+          uglify2: {
+            compress: {
+              global_defs: {
+                phetAllocation: false
+              },
+              dead_code: true
+            }
           }
         }
       }
