@@ -56,8 +56,6 @@
     var point = dot( -131.07772925764198, -274.65043668122274 );
     var ray = new dot.Ray2( point, dot( 1, 0 ) );
 
-    console.log( shape.intersection( ray ) );
-//    debugger;
     equal(0,shape.windingIntersection(ray),'The winding intersection should be zero');
   });
 })();
