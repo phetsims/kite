@@ -335,6 +335,17 @@ define( function( require ) {
       return this;
     },
     
+    polygon: function( vertices ) {
+      var length = vertices.length;
+      if ( length > 0 ) {
+        this.moveToPoint( vertices[0] );
+        for ( var i = 1; i < length; i++ ) {
+          this.lineToPoint( vertices[i] );
+        }
+      }
+      return this.close();
+    },
+    
     copy: function() {
       // copy each individual subpath, so future modifications to either Shape doesn't affect the other one
       return new Shape( _.map( this.subpaths, function( subpath ) { return subpath.copy(); } ), this.bounds );
@@ -567,6 +578,10 @@ define( function( require ) {
     return new Shape().roundRect( x, y, width, height, arcw, arch );
   };
   Shape.roundRectangle = Shape.roundRect;
+  
+  Shape.polygon = function( vertices ) {
+    return new Shape().polygon( vertices );
+  };
   
   Shape.bounds = function( bounds ) {
     return new Shape().rect( bounds.minX, bounds.minY, bounds.maxX - bounds.minX, bounds.maxY - bounds.minY );
