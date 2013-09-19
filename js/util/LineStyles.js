@@ -20,9 +20,11 @@ define( function( require ) {
     this.lineWidth = args.lineWidth !== undefined ? args.lineWidth : 1;
     this.lineCap = args.lineCap !== undefined ? args.lineCap : 'butt'; // butt, round, square
     this.lineJoin = args.lineJoin !== undefined ? args.lineJoin : 'miter'; // miter, round, bevel
-    this.lineDash = args.lineDash !== undefined ? args.lineDash : []; // null is default, otherwise an array of numbers
+    this.lineDash = args.lineDash ? args.lineDash : []; // [] is default, otherwise an array of numbers
     this.lineDashOffset = args.lineDashOffset !== undefined ? args.lineDashOffset : 0; // 0 default, any number
     this.miterLimit = args.miterLimit !== undefined ? args.miterLimit : 10; // see https://svgwg.org/svg2-draft/painting.html for miterLimit computations
+    
+    assert && assert( Array.isArray( this.lineDash ) );
   };
   var LineStyles = kite.LineStyles;
   LineStyles.prototype = {
