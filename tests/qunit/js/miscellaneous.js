@@ -46,13 +46,13 @@
     ok( shape.bounds.isFinite() || shape.bounds.isEmpty() ); // relies on the boundary case from dot
   } );
 
-  test('bucket hit region',function(){
+  test( 'bucket hit region', function() {
     var shape = new kite.Shape().moveTo( -60, 0 )
-      .lineTo( -48, 42 )
-      .cubicCurveTo( -36, 51, 36, 51, 48, 42 )
-      .lineTo( 60, 0 )
-      .ellipticalArc( 0, 0, 60, 7.5, 0, 0, -Math.PI, false )
-      .close();
+                        .lineTo( -48, 42 )
+                        .cubicCurveTo( -36, 51, 36, 51, 48, 42 )
+                        .lineTo( 60, 0 )
+                        .ellipticalArc( 0, 0, 60, 7.5, 0, 0, -Math.PI, false )
+                        .close();
     var point = dot( -131.07772925764198, -274.65043668122274 );
     var ray = new dot.Ray2( point, dot( 1, 0 ) );
 
