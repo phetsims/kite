@@ -13,9 +13,15 @@
 define( function( require ) {
   'use strict';
   
+  var assert = require( 'ASSERT/assert' )( 'kite' );
+  
   // object allocation tracking
   window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
   
+  var kite = {};
+  
+  kite.assert = assert;
+  
   // will be filled in by other modules
-  return {};
+  return kite;
 } );
