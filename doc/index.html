@@ -171,6 +171,34 @@
       
       <p>Add one!</p>
       
+      <h2 id="get-the-code">Get the code</h2>
+      
+      <p>
+        Kite depends on a few other libraries, and needs to have them checked out as siblings. It is recommended to
+        place all of these inside a containing directory. Make sure you have <a href="https://help.github.com/articles/set-up-git">git</a> installed, then run:
+      </p>
+      
+      <pre>
+git clone https://github.com/phetsims/sherpa.git
+git clone https://github.com/phetsims/chipper.git
+git clone https://github.com/phetsims/assert.git
+git clone https://github.com/phetsims/phet-core.git
+git clone https://github.com/phetsims/dot.git
+git clone https://github.com/phetsims/kite.git</pre>
+      
+      <p>
+        For some examples and tests, and to build a custom version, you'll need to install <a href="http://nodejs.org/">node.js</a>, and <a href="https://github.com/gruntjs/grunt-cli">grunt-cli</a>. Then,
+      </p>
+      
+      <pre>
+cd kite
+npm install
+grunt</pre>
+      
+      <p>
+        You will now have the built files under build/
+      </p>
+      
       <h2 id="dependencies">Dependencies</h2>
       
       <strong>External</strong> dependencies (please provide these in your page before loading Kite):
