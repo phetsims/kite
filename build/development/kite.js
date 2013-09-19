@@ -2,160 +2,159 @@
 
 ;(function(g){
 
-    // summary: A simple feature detection function/framework.
-    //
-    // name: String
-    //      The name of the feature to detect, as defined by the overall `has` tests.
-    //      Tests can be registered via `has.add(testname, testfunction)`.
-    //
-    // example:
-    //      mylibrary.bind = has("native-bind") ? function(fn, context){
-    //          return fn.bind(context);
-    //      } : function(fn, context){
-    //          return function(){
-    //              fn.apply(context, arguments);
-    //          }
-    //      }
+  // summary: A simple feature detection function/framework.
+  //
+  // name: String
+  //      The name of the feature to detect, as defined by the overall `has` tests.
+  //      Tests can be registered via `has.add(testname, testfunction)`.
+  //
+  // example:
+  //      mylibrary.bind = has("native-bind") ? function(fn, context){
+  //          return fn.bind(context);
+  //      } : function(fn, context){
+  //          return function(){
+  //              fn.apply(context, arguments);
+  //          }
+  //      }
 
-    var NON_HOST_TYPES = { "boolean": 1, "number": 1, "string": 1, "undefined": 1 },
-        VENDOR_PREFIXES = ["Webkit", "Moz", "O", "ms", "Khtml"],
-        d = isHostType(g, "document") && g.document,
-        el = d && isHostType(d, "createElement") && d.createElement("DiV"),
-        freeExports = typeof exports == "object" && exports,
-        freeModule = typeof module == "object" && module,
-        testCache = {}
+  var NON_HOST_TYPES = { "boolean": 1, "number": 1, "string": 1, "undefined": 1 },
+    VENDOR_PREFIXES = ["Webkit", "Moz", "O", "ms", "Khtml"],
+    d = isHostType(g, "document") && g.document,
+    el = d && isHostType(d, "createElement") && d.createElement("DiV"),
+    freeExports = typeof exports == "object" && exports,
+    freeModule = typeof module == "object" && module,
+    testCache = {}
     ;
 
-    function has(/* String */name){
-        if(typeof testCache[name] == "function"){
-            testCache[name] = testCache[name](g, d, el);
+  function has(/* String */name){
+    if(typeof testCache[name] == "function"){
+      testCache[name] = testCache[name](g, d, el);
+    }
+    return testCache[name]; // Boolean
+  }
+
+  function add(/* String */name, /* Function */test, /* Boolean? */now){
+    // summary: Register a new feature detection test for some named feature
+    //
+    // name: String
+    //      The name of the feature to test.
+    //
+    // test: Function
+    //      A test function to register. If a function, queued for testing until actually
+    //      needed. The test function should return a boolean indicating
+    //      the presence of a feature or bug.
+    //
+    // now: Boolean?
+    //      Optional. Omit if `test` is not a function. Provides a way to immediately
+    //      run the test and cache the result.
+    // example:
+    //      A redundant test, testFn with immediate execution:
+    //  |       has.add("javascript", function(){ return true; }, true);
+    //
+    // example:
+    //      Again with the redundantness. You can do this in your tests, but we should
+    //      not be doing this in any internal has.js tests
+    //  |       has.add("javascript", true);
+    //
+    // example:
+    //      Three things are passed to the testFunction. `global`, `document`, and a generic element
+    //      from which to work your test should the need arise.
+    //  |       has.add("bug-byid", function(g, d, el){
+    //  |           // g  == global, typically window, yadda yadda
+    //  |           // d  == document object
+    //  |           // el == the generic element. a `has` element.
+    //  |           return false; // fake test, byid-when-form-has-name-matching-an-id is slightly longer
+    //  |       });
+    testCache[name] = now ? test(g, d, el) : test;
+  }
+
+  // cssprop adapted from http://gist.github.com/598008 (thanks, ^pi)
+  function cssprop(name, el){
+    var supported = false,
+      capitalized = name.charAt(0).toUpperCase() + name.slice(1),
+      length = VENDOR_PREFIXES.length,
+      style = el.style;
+
+    if(typeof style[name] == "string"){
+      supported = true;
+    }else{
+      while(length--){
+        if(typeof style[VENDOR_PREFIXES[length] + capitalized] == "string"){
+          supported = true;
+          break;
         }
-        return testCache[name]; // Boolean
+      }
     }
+    return supported;
+  }
 
-    function add(/* String */name, /* Function */test, /* Boolean? */now){
-        // summary: Register a new feature detection test for some named feature
-        //
-        // name: String
-        //      The name of the feature to test.
-        //
-        // test: Function
-        //      A test function to register. If a function, queued for testing until actually
-        //      needed. The test function should return a boolean indicating
-        //      the presence of a feature or bug.
-        //
-        // now: Boolean?
-        //      Optional. Omit if `test` is not a function. Provides a way to immediately
-        //      run the test and cache the result.
-        // example:
-        //      A redundant test, testFn with immediate execution:
-        //  |       has.add("javascript", function(){ return true; }, true);
-        //
-        // example:
-        //      Again with the redundantness. You can do this in your tests, but we should
-        //      not be doing this in any internal has.js tests
-        //  |       has.add("javascript", true);
-        //
-        // example:
-        //      Three things are passed to the testFunction. `global`, `document`, and a generic element
-        //      from which to work your test should the need arise.
-        //  |       has.add("bug-byid", function(g, d, el){
-        //  |           // g  == global, typically window, yadda yadda
-        //  |           // d  == document object
-        //  |           // el == the generic element. a `has` element.
-        //  |           return false; // fake test, byid-when-form-has-name-matching-an-id is slightly longer
-        //  |       });
-        testCache[name] = now ? test(g, d, el) : test;
+  function clearElement(el){
+    if(el){
+      while(el.lastChild){
+        el.removeChild(el.lastChild);
+      }
     }
+    return el;
+  }
 
-    // cssprop adapted from http://gist.github.com/598008 (thanks, ^pi)
-    function cssprop(name, el){
-        var supported = false,
-            capitalized = name.charAt(0).toUpperCase() + name.slice(1),
-            length = VENDOR_PREFIXES.length,
-            style = el.style;
+  // Host objects can return type values that are different from their actual
+  // data type. The objects we are concerned with usually return non-primitive
+  // types of object, function, or unknown.
+  function isHostType(object, property){
+    var type = typeof object[property];
+    return type == "object" ? !!object[property] : !NON_HOST_TYPES[type];
+  }
 
-        if(typeof style[name] == "string"){
-            supported = true;
-        }else{
-            while(length--){
-                if(typeof style[VENDOR_PREFIXES[length] + capitalized] == "string"){
-                    supported = true;
-                    break;
-                }
-            }
-        }
-        return supported;
-    }
+    has.add = add;
+  has.clearElement = clearElement;
+  has.cssprop = cssprop;
+  has.isHostType = isHostType;
+  has._tests = testCache;
 
-    function clearElement(el){
-        if(el){
-            while(el.lastChild){
-                el.removeChild(el.lastChild);
-            }
-        }
-        return el;
-    }
+  has.add("dom", function(g, d, el){
+    return d && el && isHostType(g, "location") && isHostType(d, "documentElement") &&
+           isHostType(d, "getElementById") && isHostType(d, "getElementsByName") &&
+           isHostType(d, "getElementsByTagName") && isHostType(d, "createComment") &&
+           isHostType(d, "createElement") && isHostType(d, "createTextNode") &&
+           isHostType(el, "appendChild") && isHostType(el, "insertBefore") &&
+           isHostType(el, "removeChild") && isHostType(el, "getAttribute") &&
+           isHostType(el, "setAttribute") && isHostType(el, "removeAttribute") &&
+           isHostType(el, "style") && typeof el.style.cssText == "string";
+  });
 
-    // Host objects can return type values that are different from their actual
-    // data type. The objects we are concerned with usually return non-primitive
-    // types of object, function, or unknown.
-    function isHostType(object, property){
-        var type = typeof object[property];
-        return type == "object" ? !!object[property] : !NON_HOST_TYPES[type];
-    }
+  // Stop repeat background-image requests and reduce memory consumption in IE6 SP1
+  // http://misterpixel.blogspot.com/2006/09/forensic-analysis-of-ie6.html
+  // http://blogs.msdn.com/b/cwilso/archive/2006/11/07/ie-re-downloading-background-images.aspx?PageIndex=1
+  // http://support.microsoft.com/kb/823727
+  try{
+    document.execCommand("BackgroundImageCache", false, true);
+  }catch(e){}
 
-        has.add = add;
-    has.clearElement = clearElement;
-    has.cssprop = cssprop;
-    has.isHostType = isHostType;
-    has._tests = testCache;
-
-    has.add("dom", function(g, d, el){
-        return d && el && isHostType(g, "location") && isHostType(d, "documentElement") &&
-            isHostType(d, "getElementById") && isHostType(d, "getElementsByName") &&
-            isHostType(d, "getElementsByTagName") && isHostType(d, "createComment") &&
-            isHostType(d, "createElement") && isHostType(d, "createTextNode") &&
-            isHostType(el, "appendChild") && isHostType(el, "insertBefore") &&
-            isHostType(el, "removeChild") && isHostType(el, "getAttribute") &&
-            isHostType(el, "setAttribute") && isHostType(el, "removeAttribute") &&
-            isHostType(el, "style") && typeof el.style.cssText == "string";
+  // Expose has()
+  // some AMD build optimizers, like r.js, check for specific condition patterns like the following:
+  if(typeof define == "function" && typeof define.amd == "object" && define.amd){
+    define("has", function(){
+      return has;
     });
-
-    // Stop repeat background-image requests and reduce memory consumption in IE6 SP1
-    // http://misterpixel.blogspot.com/2006/09/forensic-analysis-of-ie6.html
-    // http://blogs.msdn.com/b/cwilso/archive/2006/11/07/ie-re-downloading-background-images.aspx?PageIndex=1
-    // http://support.microsoft.com/kb/823727
-    try{
-        document.execCommand("BackgroundImageCache", false, true);
-    }catch(e){}
-
-    // Expose has()
-    // some AMD build optimizers, like r.js, check for specific condition patterns like the following:
-    if(typeof define == "function" && typeof define.amd == "object" && define.amd){
-        define("has", function(){
-            return has;
-        });
+  }
+  // check for `exports` after `define` in case a build optimizer adds an `exports` object
+  else if(freeExports){
+    // in Node.js or RingoJS v0.8.0+
+    if(freeModule && freeModule.exports == freeExports){
+      (freeModule.exports = has).has = has;
     }
-    // check for `exports` after `define` in case a build optimizer adds an `exports` object
-    else if(freeExports){
-        // in Node.js or RingoJS v0.8.0+
-        if(freeModule && freeModule.exports == freeExports){
-          (freeModule.exports = has).has = has;
-        }
-        // in Narwhal or RingoJS v0.7.0-
-        else{
-          freeExports.has = has;
-        }
-    }
-    // in a browser or Rhino
+    // in Narwhal or RingoJS v0.7.0-
     else{
-        // use square bracket notation so Closure Compiler won't munge `has`
-        // http://code.google.com/closure/compiler/docs/api-tutorial3.html#export
-        g["has"] = has;
+      freeExports.has = has;
     }
+  }
+  // in a browser or Rhino
+  else{
+    // use square bracket notation so Closure Compiler won't munge `has`
+    // http://code.google.com/closure/compiler/docs/api-tutorial3.html#export
+    g["has"] = has;
+  }
 })(this);
-
 /**
  * almond 0.2.6 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
@@ -571,25 +570,6 @@ define("almond", function(){});
 
 // Copyright 2002-2013, University of Colorado Boulder
 
-/**
- * The main 'kite' namespace object for the exported (non-Require.js) API. Used internally
- * since it prevents Require.js issues with circular dependencies.
- *
- * The returned kite object namespace may be incomplete if not all modules are listed as
- * dependencies. Please use the 'main' module for that purpose if all of Kite is desired.
- *
- * @author Jonathan Olson <olsonsjc@gmail.com>
- */
-
-define( 'KITE/kite',['require'],function( require ) {
-  
-  
-  // will be filled in by other modules
-  return {};
-} );
-
-// Copyright 2002-2013, University of Colorado Boulder
-
 /*
  * Usage:
  * var assert = require( '<assert>' )( 'flagName' );
@@ -606,7 +586,8 @@ define( 'KITE/kite',['require'],function( require ) {
 define( 'ASSERT/assert',['require'],function( require ) {
   
   
-  var assert = function( name, excludeByDefault ) {
+  // CAUTION: if using the AST modifier for assertions, do not separate this out into its own 'assert' variable
+  return function assert( name, excludeByDefault ) {
     var hasName = 'assert.' + name;
     
     var flagDefined = window.has && window.has( hasName ) !== undefined;
@@ -633,15 +614,84 @@ define( 'ASSERT/assert',['require'],function( require ) {
       };
     }
   };
+} );
+
+// Copyright 2002-2013, University of Colorado Boulder
+
+/**
+ * Object instance allocation tracking, so we can cut down on garbage collection.
+ *
+ * @author Jonathan Olson <olsonsjc@gmail.com>
+ */
+
+define( 'PHET_CORE/phetAllocation',['require'],function( require ) {
   
-  return assert;
+  
+  return function phetAllocation( name ) {
+    if ( window.alloc ) {
+      var stack;
+      try { throw new Error(); } catch ( e ) { stack = e.stack; }
+      
+      if ( !window.alloc[name] ) {
+        window.alloc[name] = { count: 0, stacks: {} };
+      }
+      var log = window.alloc[name];
+      
+      log.count++;
+      if ( !log.stacks[stack] ) {
+        log.stacks[stack] = 1;
+      } else {
+        log.stacks[stack] += 1;
+      }
+      log.report = function() {
+        var stacks = Object.keys( log.stacks );
+        stacks = _.sortBy( stacks, function( key ) { return log.stacks[key]; } );
+        _.each( stacks, function( stack ) {
+          console.log( log.stacks[stack] + ': ' + stack );
+        } );
+      };
+    }
+  };
+} );
+
+// Copyright 2002-2013, University of Colorado Boulder
+
+/**
+ * The main 'kite' namespace object for the exported (non-Require.js) API. Used internally
+ * since it prevents Require.js issues with circular dependencies.
+ *
+ * The returned kite object namespace may be incomplete if not all modules are listed as
+ * dependencies. Please use the 'main' module for that purpose if all of Kite is desired.
+ *
+ * @author Jonathan Olson <olsonsjc@gmail.com>
+ */
+
+define( 'KITE/kite',['require','ASSERT/assert','PHET_CORE/phetAllocation'],function( require ) {
+  
+  
+  var assert = require( 'ASSERT/assert' )( 'kite' );
+  
+  // object allocation tracking
+  window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
+  
+  var kite = {};
+  
+  kite.assert = assert;
+  
+  // will be filled in by other modules
+  return kite;
 } );
 
 
 // Copyright 2002-2013, University of Colorado Boulder
 
-define( 'DOT/dot',['require'],function( require ) {
+define( 'DOT/dot',['require','ASSERT/assert','PHET_CORE/phetAllocation'],function( require ) {
   
+  
+  var assert = require( 'ASSERT/assert' )( 'dot' );
+  
+  // object allocation tracking
+  window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
   
   var dot = function dot() {
     switch ( arguments.length ) {
@@ -658,6 +708,8 @@ define( 'DOT/dot',['require'],function( require ) {
   
   // TODO: performance: check browser speed to compare how fast this is. We may need to add a 32 option for GL ES.
   dot.FastArray = window.Float64Array ? window.Float64Array : window.Array;
+  
+  dot.assert = assert;
   
   // will be filled in by other modules
   return dot;
@@ -740,6 +792,87 @@ define( 'PHET_CORE/inherit',['require','PHET_CORE/extend'],function( require ) {
   }
 
   return inherit;
+} );
+
+// Copyright 2002-2013, University of Colorado
+
+/**
+ * Experimental object pooling mix-in
+ *
+ * @author Jonathan Olson <olsonsjc@gmail.com>
+ */
+
+define( 'PHET_CORE/Poolable',['require','PHET_CORE/extend'],function( require ) {
+  
+  
+  var extend = require( 'PHET_CORE/extend' );
+  
+  /*
+   * For option details, please see documentation inside this constructor body for now
+   */
+  return function Poolable( type, options ) {
+    var proto = type.prototype;
+    
+    // defaults
+    options = extend( {
+      maxPoolSize: 50, // since we don't want to blow too much memory
+      initialSize: 0
+    }, options );
+    
+    var pool = type.pool = [];
+    
+    /*
+     * For example: defaultFactory: function() { return new Vector2(); }
+     */
+    if ( options.defaultFactory ) {
+      type.dirtyFromPool = function() {
+        if ( pool.length ) {
+          // return an instance in an arbitrary (dirty) state
+          return pool.pop();
+        } else {
+          // else return a new default instance
+          return options.defaultFactory();
+        }
+      };
+      
+      // fills the object pool up to n instances
+      type.fillPool = function( n ) {
+        // fill up the object pool to the initial size
+        while ( pool.length < n ) {
+          pool.push( options.defaultFactory() );
+        }
+      };
+      
+      // fill the pool initially to the initial size
+      type.fillPool( options.initialSize );
+    }
+    
+    /*
+     * For example: constructorDuplicateFactory:
+     *                function( pool ) {
+     *                  return function( x, y ) {
+     *                    if ( pool.length ) {
+     *                      return pool.pop().set( x, y );
+     *                    } else {
+     *                      return new Vector2( x, y );
+     *                    }
+     *                  }
+     *                }
+     * It allows arbitrary creation (from the constructor / etc) or mutation (from the pooled instance).
+     */
+    if ( options.constructorDuplicateFactory ) {
+      type.createFromPool = options.constructorDuplicateFactory( pool );
+    }
+    
+    /*
+     * Frees the object to the pool (instance.freeToPool())
+     */
+    proto.freeToPool = function() {
+      if ( pool.length < options.maxPoolSize ) {
+        pool.push( this );
+      }
+    };
+  };
 } );
 
 // Copyright 2002-2013, University of Colorado Boulder
@@ -831,6 +964,13 @@ define( 'DOT/Util',['require','ASSERT/assert','DOT/dot'],function( require ) {
     
     // return an array of real roots of ax^2 + bx + c = 0
     solveQuadraticRootsReal: function( a, b, c ) {
+      var epsilon = 1E7;
+      
+      //We need to test whether a is several orders of magnitude less than b or c. If so, return the result as a solution to the linear (easy) equation
+      if ( a === 0 || Math.abs( b / a ) > epsilon || Math.abs( c / a ) > epsilon ) {
+        return [ -c / b ];
+      }
+      
       var discriminant = b * b - 4 * a * c;
       if ( discriminant < 0 ) {
         return [];
@@ -945,7 +1085,7 @@ define( 'DOT/Util',['require','ASSERT/assert','DOT/dot'],function( require ) {
  * @author Jonathan Olson <olsonsjc@gmail.com>
  */
 
-define( 'DOT/Vector2',['require','ASSERT/assert','DOT/dot','PHET_CORE/inherit','DOT/Util'],function( require ) {
+define( 'DOT/Vector2',['require','ASSERT/assert','DOT/dot','PHET_CORE/inherit','PHET_CORE/Poolable','DOT/Util'],function( require ) {
   
   
   var assert = require( 'ASSERT/assert' )( 'dot' );
@@ -953,6 +1093,7 @@ define( 'DOT/Vector2',['require','ASSERT/assert','DOT/dot','PHET_CORE/inherit','
   var dot = require( 'DOT/dot' );
   
   var inherit = require( 'PHET_CORE/inherit' );
+  var Poolable = require( 'PHET_CORE/Poolable' );
   require( 'DOT/Util' );
   // require( 'DOT/Vector3' ); // commented out since Require.js complains about the circular dependency
   
@@ -963,6 +1104,8 @@ define( 'DOT/Vector2',['require','ASSERT/assert','DOT/dot','PHET_CORE/inherit','
     
     assert && assert( typeof this.x === 'number', 'x needs to be a number' );
     assert && assert( typeof this.y === 'number', 'y needs to be a number' );
+    
+    phetAllocation && phetAllocation( 'Vector2' );
   };
   var Vector2 = dot.Vector2;
   
@@ -982,17 +1125,26 @@ define( 'DOT/Vector2',['require','ASSERT/assert','DOT/dot','PHET_CORE/inherit','
     },
     
     magnitudeSquared: function() {
-      return this.dot( this );
+      return this.x * this.x + this.y * this.y;
     },
     
     // the distance between this vector (treated as a point) and another point
     distance: function( point ) {
-      return this.minus( point ).magnitude();
+      return Math.sqrt( this.distanceSquared( point ) );
+    },
+
+    // the distance between this vector (treated as a point) and another point specified as x:Number, y:Number
+    distanceXY: function( x, y ) {
+      var dx = this.x - x;
+      var dy = this.y - y;
+      return Math.sqrt( dx * dx + dy * dy );
     },
     
     // the squared distance between this vector (treated as a point) and another point
     distanceSquared: function( point ) {
-      return this.minus( point ).magnitudeSquared();
+      var dx = this.x - point.x;
+      var dy = this.y - point.y;
+      return dx * dx + dy * dy;
     },
     
     dot: function( v ) {
@@ -1019,7 +1171,7 @@ define( 'DOT/Vector2',['require','ASSERT/assert','DOT/dot','PHET_CORE/inherit','
      *----------------------------------------------------------------------------*/
     
     copy: function() {
-      return new this.constructor( this.x, this.y );
+      return new Vector2( this.x, this.y );
     },
     
     // z component of the equivalent 3-dimensional cross product (this.x, this.y,0) x (v.x, v.y, 0)
@@ -1033,12 +1185,12 @@ define( 'DOT/Vector2',['require','ASSERT/assert','DOT/dot','PHET_CORE/inherit','
         throw new Error( "Cannot normalize a zero-magnitude vector" );
       }
       else {
-        return new this.constructor( this.x / mag, this.y / mag );
+        return new Vector2( this.x / mag, this.y / mag );
       }
     },
     
     timesScalar: function( scalar ) {
-      return new this.constructor( this.x * scalar, this.y * scalar );
+      return new Vector2( this.x * scalar, this.y * scalar );
     },
     
     times: function( scalar ) {
@@ -1048,31 +1200,31 @@ define( 'DOT/Vector2',['require','ASSERT/assert','DOT/dot','PHET_CORE/inherit','
     },
     
     componentTimes: function( v ) {
-      return new this.constructor( this.x * v.x, this.y * v.y );
+      return new Vector2( this.x * v.x, this.y * v.y );
     },
     
     plus: function( v ) {
-      return new this.constructor( this.x + v.x, this.y + v.y );
+      return new Vector2( this.x + v.x, this.y + v.y );
     },
     
     plusScalar: function( scalar ) {
-      return new this.constructor( this.x + scalar, this.y + scalar );
+      return new Vector2( this.x + scalar, this.y + scalar );
     },
     
     minus: function( v ) {
-      return new this.constructor( this.x - v.x, this.y - v.y );
+      return new Vector2( this.x - v.x, this.y - v.y );
     },
     
     minusScalar: function( scalar ) {
-      return new this.constructor( this.x - scalar, this.y - scalar );
+      return new Vector2( this.x - scalar, this.y - scalar );
     },
     
     dividedScalar: function( scalar ) {
-      return new this.constructor( this.x / scalar, this.y / scalar );
+      return new Vector2( this.x / scalar, this.y / scalar );
     },
     
     negated: function() {
-      return new this.constructor( -this.x, -this.y );
+      return new Vector2( -this.x, -this.y );
     },
     
     angle: function() {
@@ -1081,21 +1233,24 @@ define( 'DOT/Vector2',['require','ASSERT/assert','DOT/dot','PHET_CORE/inherit','
     
     // equivalent to a -PI/2 rotation (right hand rotation)
     perpendicular: function() {
-      return new this.constructor( this.y, -this.x );
+      return new Vector2( this.y, -this.x );
     },
     
     angleBetween: function( v ) {
-      return Math.acos( dot.clamp( this.normalized().dot( v.normalized() ), -1, 1 ) );
+      var thisMagnitude = this.magnitude();
+      var vMagnitude = v.magnitude();
+      return Math.acos( dot.clamp( ( this.x * v.x + this.y * v.y ) / ( thisMagnitude * vMagnitude ), -1, 1 ) );
     },
     
     rotated: function( angle ) {
       var newAngle = this.angle() + angle;
-      return new this.constructor( Math.cos( newAngle ), Math.sin( newAngle ) ).timesScalar( this.magnitude() );
+      var mag = this.magnitude();
+      return new Vector2( mag * Math.cos( newAngle ), mag * Math.sin( newAngle ) );
     },
     
     // linear interpolation from this (ratio=0) to vector (ratio=1)
     blend: function( vector, ratio ) {
-      return this.plus( vector.minus( this ).times( ratio ) );
+      return new Vector2( this.x + (vector.x - this.x) * ratio, this.y + (vector.y - this.y) * ratio );
     },
     
     toString: function() {
@@ -1170,6 +1325,21 @@ define( 'DOT/Vector2',['require','ASSERT/assert','DOT/dot','PHET_CORE/inherit','
     
   };
   
+  // experimental object pooling
+  /* jshint -W064 */
+  Poolable( Vector2, {
+    defaultFactory: function() { return new Vector2(); },
+    constructorDuplicateFactory: function( pool ) {
+      return function( x, y ) {
+        if ( pool.length ) {
+          return pool.pop().set( x, y );
+        } else {
+          return new Vector2( x, y );
+        }
+      };
+    }
+  } );
+  
   /*---------------------------------------------------------------------------*
    * Immutable Vector form
    *----------------------------------------------------------------------------*/
@@ -1191,7 +1361,6 @@ define( 'DOT/Vector2',['require','ASSERT/assert','DOT/dot','PHET_CORE/inherit','
   Immutable.mutableOverrideHelper( 'set' );
   Immutable.mutableOverrideHelper( 'setX' );
   Immutable.mutableOverrideHelper( 'setY' );
-  Immutable.mutableOverrideHelper( 'copy' );
   Immutable.mutableOverrideHelper( 'add' );
   Immutable.mutableOverrideHelper( 'addScalar' );
   Immutable.mutableOverrideHelper( 'subtract' );
@@ -1232,6 +1401,8 @@ define( 'DOT/Bounds2',['require','ASSERT/assert','DOT/dot','DOT/Vector2'],functi
     this.minY = minY;
     this.maxX = maxX;
     this.maxY = maxY;
+    
+    phetAllocation && phetAllocation( 'Bounds2' );
   };
   var Bounds2 = dot.Bounds2;
 
@@ -1570,6 +1741,8 @@ define( 'DOT/Ray2',['require','ASSERT/assert','DOT/dot'],function( require ) {
     this.dir = dir;
     
     assert && assert( Math.abs( dir.magnitude() - 1 ) < 0.01 );
+    
+    phetAllocation && phetAllocation( 'Ray2' );
   };
   var Ray2 = dot.Ray2;
 
@@ -2517,6 +2690,8 @@ define( 'DOT/Matrix3',['require','DOT/dot','DOT/Vector2','DOT/Vector3','DOT/Matr
                    v10 || 0, v11 === undefined ? 1 : v11, v12 || 0,
                    v20 || 0, v21 || 0, v22 === undefined ? 1 : v22,
                    type );
+    
+    phetAllocation && phetAllocation( 'Matrix3' );
   };
   var Matrix3 = dot.Matrix3;
 
@@ -3259,7 +3434,7 @@ define( 'DOT/Matrix3',['require','DOT/dot','DOT/Vector2','DOT/Vector3','DOT/Matr
       }
     }
   };
-
+  
   // create an immutable
   Matrix3.IDENTITY = new Matrix3( 1, 0, 0,
                                   0, 1, 0,
@@ -3278,6 +3453,25 @@ define( 'DOT/Matrix3',['require','DOT/dot','DOT/Vector2','DOT/Vector3','DOT/Matr
                                       0,  0, 1,
                                       Types.AFFINE );
   Matrix3.Y_REFLECTION.makeImmutable();
+  
+  //Shortcut for translation times a matrix (without allocating a translation matrix), see scenery#119
+  Matrix3.translationTimesMatrix = function( x, y, m ) {
+    var type;
+    if ( m.type === Types.IDENTITY || m.type === Types.TRANSLATION_2D ) {
+      return new Matrix3( 1, 0, m.m02() + x,
+                          0, 1, m.m12() + y,
+                          0, 0, 1,
+                          Types.TRANSLATION_2D );
+    } else if ( m.type === Types.OTHER ) {
+      type = Types.OTHER;
+    } else {
+      type = Types.AFFINE;
+    }
+    return new Matrix3( m.m00(), m.m01(), m.m02() + x,
+                        m.m10(), m.m11(), m.m12() + y,
+                        m.m20(), m.m21(), m.m22(),
+                        type );
+  };
   
   Matrix3.printer = {
     print: function( matrix ) {
@@ -3313,6 +3507,8 @@ define( 'DOT/Transform3',['require','ASSERT/assert','DOT/dot','DOT/Matrix3','DOT
     
     // using immutable version for now. change it to the mutable identity copy if we need mutable operations on the matrices
     this.set( matrix === undefined ? dot.Matrix3.IDENTITY : matrix );
+    
+    phetAllocation && phetAllocation( 'Transform3' );
   };
   var Transform3 = dot.Transform3;
 
@@ -3351,6 +3547,11 @@ define( 'DOT/Transform3',['require','ASSERT/assert','DOT/dot','DOT/Matrix3','DOT
     
     prepend: function( matrix ) {
       this.set( matrix.timesMatrix( this.matrix ) );
+    },
+
+    //Simpler case of prepending a translation without having to allocate a matrix for it, see scenery#119
+    prependTranslation: function( x, y ) {
+      this.set( dot.Matrix3.translationTimesMatrix( x, y, this.matrix ) );
     },
 
     append: function( matrix ) {
@@ -3433,21 +3634,41 @@ define( 'DOT/Transform3',['require','ASSERT/assert','DOT/dot','DOT/Matrix3','DOT
 
     // transform a vector (exclude translation)
     transformDelta2: function( vec2 ) {
-      // transform actually has the translation rolled into the other coefficients, so we have to make this longer
-      return this.transformPosition2( vec2 ).minus( this.transformPosition2( dot.Vector2.ZERO ) );
+      var m = this.getMatrix();
+      // m . vec2 - m . Vector2.ZERO
+      return new dot.Vector2( m.m00() * vec2.x + m.m01() * vec2.y, m.m10() * vec2.x + m.m11() * vec2.y );
     },
 
     // transform a normal vector (different than a normal vector)
     transformNormal2: function( vec2 ) {
       return this.getInverse().timesTransposeVector2( vec2 );
     },
-
-    transformDeltaX: function( x ) {
-      return this.transformDelta2( new dot.Vector2( x, 0 ) ).x;
+    
+    transformX: function( x ) {
+      var m = this.getMatrix();
+      // TODO: ensure assertions are stripped out
+      assert && assert( !m.m01(), 'Transforming an X value with a rotation/shear is ill-defined' );
+      return m.m00() * x + m.m02();
     },
-
+    
+    transformY: function( y ) {
+      var m = this.getMatrix();
+      assert && assert( !m.m10(), 'Transforming a Y value with a rotation/shear is ill-defined' );
+      return m.m11() * y + m.m12();
+    },
+    
+    transformDeltaX: function( x ) {
+      var m = this.getMatrix();
+      assert && assert( !m.m01(), 'Transforming an X value with a rotation/shear is ill-defined' );
+      // same as this.transformDelta2( new dot.Vector2( x, 0 ) ).x;
+      return m.m00() * x;
+    },
+    
     transformDeltaY: function( y ) {
-      return this.transformDelta2( new dot.Vector2( 0, y ) ).y;
+      var m = this.getMatrix();
+      assert && assert( !m.m10(), 'Transforming a Y value with a rotation/shear is ill-defined' );
+      // same as this.transformDelta2( new dot.Vector2( 0, y ) ).y;
+      return m.m11() * y;
     },
     
     transformBounds2: function( bounds2 ) {
@@ -3471,20 +3692,39 @@ define( 'DOT/Transform3',['require','ASSERT/assert','DOT/dot','DOT/Matrix3','DOT
     },
 
     inverseDelta2: function( vec2 ) {
-      // inverse actually has the translation rolled into the other coefficients, so we have to make this longer
-      return this.inversePosition2( vec2 ).minus( this.inversePosition2( dot.Vector2.ZERO ) );
+      var m = this.getInverse();
+      // m . vec2 - m . Vector2.ZERO
+      return new dot.Vector2( m.m00() * vec2.x + m.m01() * vec2.y, m.m10() * vec2.x + m.m11() * vec2.y );
     },
 
     inverseNormal2: function( vec2 ) {
       return this.matrix.timesTransposeVector2( vec2 );
     },
-
+    
+    inverseX: function( x ) {
+      var m = this.getInverse();
+      assert && assert( !m.m01(), 'Inverting an X value with a rotation/shear is ill-defined' );
+      return m.m00() * x + m.m02();
+    },
+    
+    inverseY: function( y ) {
+      var m = this.getInverse();
+      assert && assert( !m.m10(), 'Inverting a Y value with a rotation/shear is ill-defined' );
+      return m.m11() * y + m.m12();
+    },
+    
     inverseDeltaX: function( x ) {
-      return this.inverseDelta2( new dot.Vector2( x, 0 ) ).x;
+      var m = this.getInverse();
+      assert && assert( !m.m01(), 'Inverting an X value with a rotation/shear is ill-defined' );
+      // same as this.inverseDelta2( new dot.Vector2( x, 0 ) ).x;
+      return m.m00() * x;
     },
 
     inverseDeltaY: function( y ) {
-      return this.inverseDelta2( new dot.Vector2( 0, y ) ).y;
+      var m = this.getInverse();
+      assert && assert( !m.m10(), 'Inverting a Y value with a rotation/shear is ill-defined' );
+      // same as this.inverseDelta2( new dot.Vector2( 0, y ) ).y;
+      return m.m11() * y;
     },
     
     inverseBounds2: function( bounds2 ) {
@@ -4187,9 +4427,10 @@ define( 'KITE/util/Subpath',['require','ASSERT/assert','DOT/Vector2','DOT/Bounds
         var startPoint = this.getFirstSegment().start;
         context.moveTo( startPoint.x, startPoint.y ); // the segments assume the current context position is at their start
         
-        _.each( this.segments, function( segment ) {
-          segment.writeToContext( context );
-        } );
+        var len = this.segments.length;
+        for ( var i = 0; i < len; i++ ) {
+          this.segments[i].writeToContext( context );
+        }
         
         if ( this.closed ) {
           context.closePath();
@@ -4206,16 +4447,19 @@ define( 'KITE/util/Subpath',['require','ASSERT/assert','DOT/Vector2','DOT/Bounds
     },
     
     computeBounds: function() {
-      return _.reduce( this.segments, function( bounds, segment ) {
-        return bounds.union( segment.bounds );
-      }, Bounds2.NOTHING );
+      var bounds = Bounds2.NOTHING.copy();
+      var len = this.segments.length;
+      for ( var i = 0; i < len; i++ ) {
+        bounds.includeBounds( this.segments[i].bounds );
+      }
+      return bounds;
     },
     
     // returns an array of subpaths (one if open, two if closed) that represent a stroked copy of this subpath.
     stroked: function( lineStyles ) {
       // non-drawable subpaths convert to empty subpaths
       if ( !this.isDrawable() ) {
-        return new Subpath();
+        return [];
       }
       
       if ( lineStyles === undefined ) {
@@ -4303,10 +4547,10 @@ define( 'KITE/util/Subpath',['require','ASSERT/assert','DOT/Vector2','DOT/Bounds
       var lastSegment = this.getLastSegment();
       
       function addLeftSegments( segments ) {
-        _.each( segments, function( segment ) { leftSegments.push( segment ); } );
+        leftSegments = leftSegments.concat( segments );
       }
       function addRightSegments( segments ) {
-        _.each( segments, function( segment ) { rightSegments.push( segment ); } );
+        rightSegments = rightSegments.concat( segments );
       }
       
       // we don't need to insert an implicit closing segment if the start and end points are the same
@@ -7943,14 +8187,15 @@ define( 'KITE/Shape',['require','ASSERT/assert','ASSERT/assert','KITE/kite','DOT
     
     var that = this;
     if ( subpaths && typeof subpaths !== 'object' ) {
-      assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' )
-      ;
+      assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' );
       // parse the SVG path
       _.each( svgPath.parse( subpaths ), function( item ) {
         assert && assert( Shape.prototype[item.cmd] !== undefined, 'method ' + item.cmd + ' from parsed SVG does not exist' );
         that[item.cmd].apply( that, item.args );
       } );
     }
+    
+    phetAllocation && phetAllocation( 'Shape' );
   };
   var Shape = kite.Shape;
   
@@ -8221,15 +8466,18 @@ define( 'KITE/Shape',['require','ASSERT/assert','ASSERT/assert','KITE/kite','DOT
     
     // write out this shape's path to a canvas 2d context. does NOT include the beginPath()!
     writeToContext: function( context ) {
-      _.each( this.subpaths, function( subpath ) {
-        subpath.writeToContext( context );
-      } );
+      var len = this.subpaths.length;
+      for ( var i = 0; i < len; i++ ) {
+        this.subpaths[i].writeToContext( context );
+      }
     },
     
     // returns something like "M150 0 L75 200 L225 200 Z" for a triangle
     getSVGPath: function() {
       var subpathStrings = [];
-      _.each( this.subpaths, function( subpath ) {
+      var len = this.subpaths.length;
+      for ( var i = 0; i < len; i++ ) {
+        var subpath = this.subpaths[i];
         if( subpath.isDrawable() ) {
           // since the commands after this are relative to the previous 'point', we need to specify a move to the initial point
           var startPoint = subpath.getFirstSegment().start;
@@ -8243,7 +8491,7 @@ define( 'KITE/Shape',['require','ASSERT/assert','ASSERT/assert','KITE/kite','DOT
           }
           subpathStrings.push( string );
         }
-      } );
+      }
       return subpathStrings.join( ' ' );
     },
     
@@ -8266,73 +8514,94 @@ define( 'KITE/Shape',['require','ASSERT/assert','ASSERT/assert','KITE/kite','DOT
     
     containsPoint: function( point ) {
       // we pick a ray, and determine the winding number over that ray. if the number of segments crossing it CCW == number of segments crossing it CW, then the point is contained in the shape
-      var ray = new Ray2( point, p( 1, 0 ) );
+      var ray = new Ray2( point, Vector2.X_UNIT );
       
       return this.windingIntersection( ray ) !== 0;
     },
     
     intersection: function( ray ) {
       var hits = [];
-      _.each( this.subpaths, function( subpath ) {
+      var numSubpaths = this.subpaths.length;
+      for ( var i = 0; i < numSubpaths; i++ ) {
+        var subpath = this.subpaths[i];
+        
         if ( subpath.isDrawable() ) {
-          _.each( subpath.segments, function( segment ) {
-            _.each( segment.intersection( ray ), function( hit ) {
-              hits.push( hit );
-            } );
-          } );
+          var numSegments = subpath.segments.length;
+          for ( var k = 0; k < numSegments; k++ ) {
+            var segment = subpath.segments[k];
+            hits = hits.concat( segment.intersection( ray ) );
+          }
           
           if ( subpath.hasClosingSegment() ) {
-            _.each( subpath.getClosingSegment().intersection( ray ), function( hit ) {
-              hits.push( hit );
-            } );
+            hits = hits.concat( subpath.getClosingSegment().intersection( ray ) );
           }
         }
-      } );
+      }
       return _.sortBy( hits, function( hit ) { return hit.distance; } );
     },
     
     windingIntersection: function( ray ) {
       var wind = 0;
       
-      _.each( this.subpaths, function( subpath ) {
+      var numSubpaths = this.subpaths.length;
+      for ( var i = 0; i < numSubpaths; i++ ) {
+        var subpath = this.subpaths[i];
+        
         if ( subpath.isDrawable() ) {
-          _.each( subpath.segments, function( segment ) {
-            wind += segment.windingIntersection( ray );
-          } );
+          var numSegments = subpath.segments.length;
+          for ( var k = 0; k < numSegments; k++ ) {
+            wind += subpath.segments[k].windingIntersection( ray );
+          }
           
           // handle the implicit closing line segment
           if ( subpath.hasClosingSegment() ) {
             wind += subpath.getClosingSegment().windingIntersection( ray );
           }
         }
-      } );
+      }
       
       return wind;
     },
     
     intersectsBounds: function( bounds ) {
-      var intersects = false;
-      // TODO: break-out-early optimizations
-      _.each( this.subpaths, function( subpath ) {
+      var numSubpaths = this.subpaths.length;
+      for ( var i = 0; i < numSubpaths; i++ ) {
+        var subpath = this.subpaths[i];
+        
         if ( subpath.isDrawable() ) {
-          _.each( subpath.segments, function( segment ) {
-            intersects = intersects && segment.intersectsBounds( bounds );
-          } );
+          var numSegments = subpath.segments.length;
+          for ( var k = 0; k < numSegments; k++ ) {
+            if ( subpath.segments[k].intersectsBounds( bounds ) ) {
+              return true;
+            }
+          }
           
           // handle the implicit closing line segment
           if ( subpath.hasClosingSegment() ) {
-            intersects = intersects && subpath.getClosingSegment().intersectsBounds( bounds );
+            if ( subpath.getClosingSegment().intersectsBounds( bounds ) ) {
+              return true;
+            }
           }
         }
-      } );
-      return intersects;
+      }
+      return false;
     },
     
     // returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be nested (doesn't do intersection computations yet)
     // TODO: rename stroked( lineStyles )
     getStrokedShape: function( lineStyles ) {
-      var subpaths = _.flatten( _.map( this.subpaths, function( subpath ) { return subpath.stroked( lineStyles ); } ) );
-      var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.computeBounds() ); }, Bounds2.NOTHING );
+      var subpaths = [];
+      var bounds = Bounds2.NOTHING.copy();
+      var subLen = this.subpaths.length;
+      for ( var i = 0; i < subLen; i++ ) {
+        var subpath = this.subpaths[i];
+        var strokedSubpath = subpath.stroked( lineStyles );
+        subpaths = subpaths.concat( strokedSubpath );
+      }
+      subLen = subpaths.length;
+      for ( i = 0; i < subLen; i++ ) {
+        bounds.includeBounds( subpaths[i].computeBounds() );
+      }
       return new Shape( subpaths, bounds );
     },
     
@@ -11373,6 +11642,34 @@ define( 'DOT/Ray3',['require','DOT/dot'],function( require ) {
 // Copyright 2002-2013, University of Colorado Boulder
 
 /**
+ * A 2D rectangle-shaped bounded area, with a convenience name and constructor. Totally functionally
+ * equivalent to Bounds2, but with a different constructor.
+ *
+ * @author Jonathan Olson <olsonsjc@gmail.com>
+ */
+
+define( 'DOT/Rectangle',['require','ASSERT/assert','DOT/dot','PHET_CORE/inherit','DOT/Bounds2'],function( require ) {
+  
+  
+  var assert = require( 'ASSERT/assert' )( 'dot' );
+  var dot = require( 'DOT/dot' );
+  var inherit = require( 'PHET_CORE/inherit' );
+  var Bounds2 = require( 'DOT/Bounds2' );
+  
+  dot.Rectangle = function Rectangle( x, y, width, height ) {
+    assert && assert( height !== undefined, 'Rectangle requires 4 parameters' );
+    Bounds2.call( this, x, y, x + width, y + height );
+  };
+  var Rectangle = dot.Rectangle;
+  
+  inherit( Bounds2, Rectangle );
+  
+  return Rectangle;
+} );
+
+// Copyright 2002-2013, University of Colorado Boulder
+
+/**
  * Forward and inverse transforms with 4x4 matrices, allowing flexibility including affine and perspective transformations.
  *
  * @author Jonathan Olson <olsonsjc@gmail.com>
@@ -11552,6 +11849,7 @@ define( 'DOT/main',[
   'DOT/QRDecomposition',
   'DOT/Ray2',
   'DOT/Ray3',
+  'DOT/Rectangle',
   'DOT/SingularValueDecomposition',
   'DOT/Transform3',
   'DOT/Transform4',
@@ -11591,7 +11889,7 @@ define( 'PHET_CORE/callSuper',['require'],function( require ) {
    * SubType.prototype = new SuperType(); // prototype chaining
    *
    * SubType.prototype.reset = function() {
-   *     Inheritance.callSuper( SuperType, "reset", this ); // call overridden super method
+   *     callSuper( SuperType, "reset", this ); // call overridden super method
    *     // do subtype-specific stuff
    * }
    * </code>
@@ -11760,7 +12058,7 @@ define( 'PHET_CORE/loadScript',['require'],function( require ) {
 
 // Copyright 2002-2013, University of Colorado Boulder
 
-define( 'PHET_CORE/main',['require','PHET_CORE/callSuper','PHET_CORE/collect','PHET_CORE/escapeHTML','PHET_CORE/inherit','PHET_CORE/inheritPrototype','PHET_CORE/isArray','PHET_CORE/extend','PHET_CORE/loadScript'],function( require ) {
+define( 'PHET_CORE/main',['require','PHET_CORE/callSuper','PHET_CORE/collect','PHET_CORE/escapeHTML','PHET_CORE/inherit','PHET_CORE/inheritPrototype','PHET_CORE/isArray','PHET_CORE/extend','PHET_CORE/loadScript','PHET_CORE/phetAllocation','PHET_CORE/Poolable'],function( require ) {
   
   
   return {
@@ -11771,7 +12069,9 @@ define( 'PHET_CORE/main',['require','PHET_CORE/callSuper','PHET_CORE/collect','P
     inheritPrototype: require( 'PHET_CORE/inheritPrototype' ),
     isArray: require( 'PHET_CORE/isArray' ),
     extend: require( 'PHET_CORE/extend' ),
-    loadScript: require( 'PHET_CORE/loadScript' )
+    loadScript: require( 'PHET_CORE/loadScript' ),
+    phetAllocation: require( 'PHET_CORE/phetAllocation' ),
+    Poolable: require( 'PHET_CORE/Poolable' )
   };
 } );
 
@@ -11810,4 +12110,4 @@ require.config( {
 } );
 
 define("config", function(){});
- window.kite = require( 'main' ); window.dot = require( 'DOT/main' ); }());
+ window.kite = require( 'main' ); window.dot = require( 'DOT/main' ); window.core = require( 'PHET_CORE/main' ); }());
