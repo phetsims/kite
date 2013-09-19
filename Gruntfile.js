@@ -1,9 +1,18 @@
+var escodegen = require( 'escodegen' );
+var esprima = require( 'esprima' );
+
+var chipperRewrite = require( '../chipper/ast/chipperRewrite.js' );
+
 /*global module:false*/
 module.exports = function( grunt ) {
   'use strict';
   
   // print this immediately, so it is clear what project grunt is building
   grunt.log.writeln( 'Kite' );
+  
+  var onBuildRead = function( name, path, contents ) {
+    return chipperRewrite.chipperRewrite( contents, esprima, escodegen );
+  };
   
   // Project configuration.
   grunt.initConfig( {
@@ -19,7 +28,7 @@ module.exports = function( grunt ) {
           name: "config",
           optimize: 'none',
           wrap: {
-            startFile: [ "js/wrap-start.frag", "lib/has.js" ],
+            startFile: [ "js/wrap-start.frag", "../sherpa/has.js" ],
             endFile: [ "js/wrap-end.frag" ]
           }
         }
@@ -36,9 +45,18 @@ module.exports = function( grunt ) {
           generateSourceMaps: true,
           preserveLicenseComments: false,
           wrap: {
-            startFile: [ "js/wrap-start.frag", "lib/has.js" ],
+            startFile: [ "js/wrap-start.frag", "../sherpa/has.js" ],
             endFile: [ "js/wrap-end.frag" ]
-          }
+          },
+          uglify2: {
+            compress: {
+              global_defs: {
+                phetAllocation: false
+              },
+              dead_code: true
+            }
+          },
+          onBuildRead: onBuildRead
         }
       },
       
@@ -55,7 +73,16 @@ module.exports = function( grunt ) {
           wrap: {
             startFile: [ "js/wrap-start.frag" ],
             endFile: [ "js/wrap-end.frag" ]
-          }
+          },
+          uglify2: {
+            compress: {
+              global_defs: {
+                phetAllocation: false
+              },
+              dead_code: true
+            }
+          },
+          onBuildRead: onBuildRead
         }
       }
     },

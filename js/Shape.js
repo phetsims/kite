@@ -63,14 +63,15 @@ define( function( require ) {
     
     var that = this;
     if ( subpaths && typeof subpaths !== 'object' ) {
-      assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' )
-      ;
+      assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' );
       // parse the SVG path
       _.each( svgPath.parse( subpaths ), function( item ) {
         assert && assert( Shape.prototype[item.cmd] !== undefined, 'method ' + item.cmd + ' from parsed SVG does not exist' );
         that[item.cmd].apply( that, item.args );
       } );
     }
+    
+    phetAllocation && phetAllocation( 'Shape' );
   };
   var Shape = kite.Shape;
   
@@ -341,15 +342,18 @@ define( function( require ) {
     
     // write out this shape's path to a canvas 2d context. does NOT include the beginPath()!
     writeToContext: function( context ) {
-      _.each( this.subpaths, function( subpath ) {
-        subpath.writeToContext( context );
-      } );
+      var len = this.subpaths.length;
+      for ( var i = 0; i < len; i++ ) {
+        this.subpaths[i].writeToContext( context );
+      }
     },
     
     // returns something like "M150 0 L75 200 L225 200 Z" for a triangle
     getSVGPath: function() {
       var subpathStrings = [];
-      _.each( this.subpaths, function( subpath ) {
+      var len = this.subpaths.length;
+      for ( var i = 0; i < len; i++ ) {
+        var subpath = this.subpaths[i];
         if( subpath.isDrawable() ) {
           // since the commands after this are relative to the previous 'point', we need to specify a move to the initial point
           var startPoint = subpath.getFirstSegment().start;
@@ -363,7 +367,7 @@ define( function( require ) {
           }
           subpathStrings.push( string );
         }
-      } );
+      }
       return subpathStrings.join( ' ' );
     },
     
@@ -386,73 +390,94 @@ define( function( require ) {
     
     containsPoint: function( point ) {
       // we pick a ray, and determine the winding number over that ray. if the number of segments crossing it CCW == number of segments crossing it CW, then the point is contained in the shape
-      var ray = new Ray2( point, p( 1, 0 ) );
+      var ray = new Ray2( point, Vector2.X_UNIT );
       
       return this.windingIntersection( ray ) !== 0;
     },
     
     intersection: function( ray ) {
       var hits = [];
-      _.each( this.subpaths, function( subpath ) {
+      var numSubpaths = this.subpaths.length;
+      for ( var i = 0; i < numSubpaths; i++ ) {
+        var subpath = this.subpaths[i];
+        
         if ( subpath.isDrawable() ) {
-          _.each( subpath.segments, function( segment ) {
-            _.each( segment.intersection( ray ), function( hit ) {
-              hits.push( hit );
-            } );
-          } );
+          var numSegments = subpath.segments.length;
+          for ( var k = 0; k < numSegments; k++ ) {
+            var segment = subpath.segments[k];
+            hits = hits.concat( segment.intersection( ray ) );
+          }
           
           if ( subpath.hasClosingSegment() ) {
-            _.each( subpath.getClosingSegment().intersection( ray ), function( hit ) {
-              hits.push( hit );
-            } );
+            hits = hits.concat( subpath.getClosingSegment().intersection( ray ) );
           }
         }
-      } );
+      }
       return _.sortBy( hits, function( hit ) { return hit.distance; } );
     },
     
     windingIntersection: function( ray ) {
       var wind = 0;
       
-      _.each( this.subpaths, function( subpath ) {
+      var numSubpaths = this.subpaths.length;
+      for ( var i = 0; i < numSubpaths; i++ ) {
+        var subpath = this.subpaths[i];
+        
         if ( subpath.isDrawable() ) {
-          _.each( subpath.segments, function( segment ) {
-            wind += segment.windingIntersection( ray );
-          } );
+          var numSegments = subpath.segments.length;
+          for ( var k = 0; k < numSegments; k++ ) {
+            wind += subpath.segments[k].windingIntersection( ray );
+          }
           
           // handle the implicit closing line segment
           if ( subpath.hasClosingSegment() ) {
             wind += subpath.getClosingSegment().windingIntersection( ray );
           }
         }
-      } );
+      }
       
       return wind;
     },
     
     intersectsBounds: function( bounds ) {
-      var intersects = false;
-      // TODO: break-out-early optimizations
-      _.each( this.subpaths, function( subpath ) {
+      var numSubpaths = this.subpaths.length;
+      for ( var i = 0; i < numSubpaths; i++ ) {
+        var subpath = this.subpaths[i];
+        
         if ( subpath.isDrawable() ) {
-          _.each( subpath.segments, function( segment ) {
-            intersects = intersects && segment.intersectsBounds( bounds );
-          } );
+          var numSegments = subpath.segments.length;
+          for ( var k = 0; k < numSegments; k++ ) {
+            if ( subpath.segments[k].intersectsBounds( bounds ) ) {
+              return true;
+            }
+          }
           
           // handle the implicit closing line segment
           if ( subpath.hasClosingSegment() ) {
-            intersects = intersects && subpath.getClosingSegment().intersectsBounds( bounds );
+            if ( subpath.getClosingSegment().intersectsBounds( bounds ) ) {
+              return true;
+            }
           }
         }
-      } );
-      return intersects;
+      }
+      return false;
     },
     
     // returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be nested (doesn't do intersection computations yet)
     // TODO: rename stroked( lineStyles )
     getStrokedShape: function( lineStyles ) {
-      var subpaths = _.flatten( _.map( this.subpaths, function( subpath ) { return subpath.stroked( lineStyles ); } ) );
-      var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.computeBounds() ); }, Bounds2.NOTHING );
+      var subpaths = [];
+      var bounds = Bounds2.NOTHING.copy();
+      var subLen = this.subpaths.length;
+      for ( var i = 0; i < subLen; i++ ) {
+        var subpath = this.subpaths[i];
+        var strokedSubpath = subpath.stroked( lineStyles );
+        subpaths = subpaths.concat( strokedSubpath );
+      }
+      subLen = subpaths.length;
+      for ( i = 0; i < subLen; i++ ) {
+        bounds.includeBounds( subpaths[i].computeBounds() );
+      }
       return new Shape( subpaths, bounds );
     },
     

@@ -112,9 +112,10 @@ define( function( require ) {
         var startPoint = this.getFirstSegment().start;
         context.moveTo( startPoint.x, startPoint.y ); // the segments assume the current context position is at their start
         
-        _.each( this.segments, function( segment ) {
-          segment.writeToContext( context );
-        } );
+        var len = this.segments.length;
+        for ( var i = 0; i < len; i++ ) {
+          this.segments[i].writeToContext( context );
+        }
         
         if ( this.closed ) {
           context.closePath();
@@ -131,16 +132,19 @@ define( function( require ) {
     },
     
     computeBounds: function() {
-      return _.reduce( this.segments, function( bounds, segment ) {
-        return bounds.union( segment.bounds );
-      }, Bounds2.NOTHING );
+      var bounds = Bounds2.NOTHING.copy();
+      var len = this.segments.length;
+      for ( var i = 0; i < len; i++ ) {
+        bounds.includeBounds( this.segments[i].bounds );
+      }
+      return bounds;
     },
     
     // returns an array of subpaths (one if open, two if closed) that represent a stroked copy of this subpath.
     stroked: function( lineStyles ) {
       // non-drawable subpaths convert to empty subpaths
       if ( !this.isDrawable() ) {
-        return new Subpath();
+        return [];
       }
       
       if ( lineStyles === undefined ) {
@@ -228,10 +232,10 @@ define( function( require ) {
       var lastSegment = this.getLastSegment();
       
       function addLeftSegments( segments ) {
-        _.each( segments, function( segment ) { leftSegments.push( segment ); } );
+        leftSegments = leftSegments.concat( segments );
       }
       function addRightSegments( segments ) {
-        _.each( segments, function( segment ) { rightSegments.push( segment ); } );
+        rightSegments = rightSegments.concat( segments );
       }
       
       // we don't need to insert an implicit closing segment if the start and end points are the same
