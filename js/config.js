@@ -20,9 +20,9 @@ require.config( {
   paths: {
     underscore: '../../sherpa/lodash-2.0.0',
     KITE: '.',
-    DOT: '../common/dot/js',
-    PHET_CORE: '../common/phet-core/js',
-    ASSERT: '../common/assert/js'
+    DOT: '../../dot/js',
+    PHET_CORE: '../../phet-core/js',
+    ASSERT: '../../assert/js'
   },
   
   shim: {
