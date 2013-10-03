@@ -21,9 +21,6 @@
 define( function( require ) {
   'use strict';
   
-  var assert = require( 'ASSERT/assert' )( 'kite' );
-  var assertExtra = require( 'ASSERT/assert' )( 'kite.extra', true );
-  
   var kite = require( 'KITE/kite' );
   
   // TODO: clean up imports

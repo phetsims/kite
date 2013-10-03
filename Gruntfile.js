@@ -51,6 +51,8 @@ module.exports = function( grunt ) {
           uglify2: {
             compress: {
               global_defs: {
+                assert: false,
+                assertSlow: false,
                 phetAllocation: false
               },
               dead_code: true
@@ -77,6 +79,8 @@ module.exports = function( grunt ) {
           uglify2: {
             compress: {
               global_defs: {
+                assert: false,
+                assertSlow: false,
                 phetAllocation: false
               },
               dead_code: true

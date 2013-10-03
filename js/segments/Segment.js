@@ -9,8 +9,6 @@
 define( function( require ) {
   'use strict';
   
-  var assert = require( 'ASSERT/assert' )( 'kite' );
-
   var kite = require( 'KITE/kite' );
   
   var DotUtil = require( 'DOT/Util' );
