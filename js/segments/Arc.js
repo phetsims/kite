@@ -310,6 +310,10 @@ define( function( require ) {
       
       // reverse the 'clockwiseness' if our transform includes a reflection
       var anticlockwise = matrix.getDeterminant() >= 0 ? this.anticlockwise : !this.anticlockwise;
+      
+      if ( Math.abs( this.endAngle - this.startAngle ) === Math.PI * 2 ) {
+        endAngle = anticlockwise ? startAngle - Math.PI * 2 : startAngle + Math.PI * 2;
+      }
 
       var scaleVector = matrix.getScaleVector();
       if ( scaleVector.x !== scaleVector.y ) {

@@ -349,6 +349,10 @@ define( function( require ) {
       var startAngle = reflected ? -this.startAngle : this.startAngle;
       var endAngle = reflected ? -this.endAngle : this.endAngle;
       
+      if ( Math.abs( this.endAngle - this.startAngle ) === Math.PI * 2 ) {
+        endAngle = anticlockwise ? startAngle - Math.PI * 2 : startAngle + Math.PI * 2;
+      }
+      
       return new Segment.EllipticalArc( matrix.timesVector2( this.center ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
     }
   } );
