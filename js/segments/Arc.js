@@ -105,6 +105,10 @@ define( function( require ) {
   };
   inherit( Segment, Segment.Arc, {
     
+    // temporary shims
+    getBounds: function() { return this.bounds; },
+    getNondegenerateSegments: function() { return this.invalid ? [] : [this]; },
+    
     // maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
     mapAngle: function( angle ) {
       // consider an assert that we contain that angle?
