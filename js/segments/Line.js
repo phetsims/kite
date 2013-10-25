@@ -13,6 +13,7 @@ define( function( require ) {
   
   var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
+  var Util = require( 'DOT/Util' );
   var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
   
   var Segment = require( 'KITE/segments/Segment' );
@@ -167,6 +168,19 @@ define( function( require ) {
     
     transformed: function( matrix ) {
       return new Segment.Line( matrix.timesVector2( this._start ), matrix.timesVector2( this._end ) );
+    },
+    
+    explicitClosestToPoint: function( point ) {
+      var diff = this._end.minus( this._start );
+      var t = point.minus( this._start ).dot( diff ) / diff.magnitudeSquared();
+      t = Util.clamp( t, 0, 1 );
+      var closestPoint = this.positionAt( t );
+      return [{
+        segment: this,
+        t: t,
+        closestPoint: closestPoint,
+        distanceSquared: point.distanceSquared( closestPoint )
+      }];
     }
   } );
   

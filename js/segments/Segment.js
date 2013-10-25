@@ -15,7 +15,7 @@ define( function( require ) {
   
   /*
    * Will contain (for segments):
-   * properties:
+   * properties (backed by ES5 getters, created usually lazily):
    * start        - start point of this segment
    * end          - end point of this segment
    * startTangent - the tangent vector (normalized) to the segment at the start, pointing in the direction of motion (from start to end)
@@ -26,7 +26,7 @@ define( function( require ) {
    * positionAt( t )          - returns the position parametrically, with 0 <= t <= 1. this does NOT guarantee a constant magnitude tangent... don't feel like adding elliptical functions yet!
    * tangentAt( t )           - returns the non-normalized tangent (dx/dt, dy/dt) parametrically, with 0 <= t <= 1.
    * curvatureAt( t )         - returns the signed curvature (positive for visual clockwise - mathematical counterclockwise)
-   * subdivided( t, skip )    - returns an array with 2 sub-segments, split at the parametric t value. if skip is passed, expensive operations are not performed
+   * subdivided( t )          - returns an array with 2 sub-segments, split at the parametric t value.
    * getSVGPathFragment()     - returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls this needs to put the M calls first
    * strokeLeft( lineWidth )  - returns an array of segments that will draw an offset curve on the logical left side
    * strokeRight( lineWidth ) - returns an array of segments that will draw an offset curve on the logical right side
@@ -67,7 +67,40 @@ define( function( require ) {
     // return an array of segments from breaking this segment into monotone pieces
     subdividedIntoMonotone: function() {
       return this.subdivisions( this.getInteriorExtremaTs() );
-    },
+    }
+  };
+  
+  // list of { segment: ..., t: ..., closestPoint: ..., distanceSquared: ... } (since there can be duplicates)
+  Segment.closestToPoint = function( segments, point ) {
+    // TODO: threshold!
+    // TODO: complete implementation!
+    var remainingSegments = [];
+    var bestList = [];
+    var bestDistanceSquared = Number.POSITIVE_INFINITY;
+    
+    console.log( bestDistanceSquared );
+    _.each( segments, function( segment ) {
+      if ( segment.explicitClosestToPoint ) {
+        var infos = segment.explicitClosestToPoint( point );
+        _.each( infos, function( info ) {
+          if ( info.distanceSquared < bestDistanceSquared ) {
+            bestList = [info];
+            bestDistanceSquared = info.distanceSquared;
+          } else if ( info.distanceSquared === bestDistanceSquared ) {
+            bestList.push( info );
+          }
+        } );
+      } else {
+        var bounds = segment.getBounds();
+        var minDistanceSquared = bounds.minimumDistanceToPointSquared( point );
+        if ( minDistanceSquared <= bestDistanceSquared ) {
+          bestDistanceSquared = Math.min( bestDistanceSquared, bounds.maximumDistanceToPointSquared( point ) + 1e-7 ); // epsilon here so we don't mess ourselves up in the iteration
+          remainingSegments.push( segment );
+        }
+      }
+    } );
+    
+    return bestList;
   };
   
   return Segment;
