@@ -337,6 +337,22 @@ define( function( require ) {
     
     transformed: function( matrix ) {
       return new Segment.Quadratic( matrix.timesVector2( this._start ), matrix.timesVector2( this._control ), matrix.timesVector2( this._end ) );
+    },
+    
+    // given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
+    reparameterized: function( a, b ) {
+      // to the polynomial pt^2 + qt + r:
+      var p = this._start.plus( this._end.plus( this._control.timesScalar( -2 ) ) );
+      var q = this._control.minus( this._start ).timesScalar( 2 );
+      var r = this._start;
+      
+      // to the polynomial alpha*x^2 + beta*x + gamma:
+      var alpha = p.timesScalar( a * a );
+      var beta = p.timesScalar( a * b ).timesScalar( 2 ).plus( q.timesScalar( a ) );
+      var gamma = p.timesScalar( b * b ).plus( q.timesScalar( b ) ).plus( r );
+      
+      // back to the form start,control,end
+      return new Segment.Quadratic( gamma, beta.timesScalar( 0.5 ).plus( gamma ), alpha.plus( beta ).plus( gamma ) );
     }
   } );
   

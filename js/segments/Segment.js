@@ -33,6 +33,7 @@ define( function( require ) {
    * strokeRight( lineWidth ) - returns an array of segments that will draw an offset curve on the logical right side
    * intersectsBounds         - whether this segment intersects the specified bounding box (not just the segment's bounding box, but the actual segment)
    * windingIntersection      - returns the winding number for intersection with a ray
+   * getInteriorExtremaTs     - returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
    *
    * writeToContext( context ) - draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
    * transformed( matrix )     - returns a new segment that represents this segment after transformation by the matrix

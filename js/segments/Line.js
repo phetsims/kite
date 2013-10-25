@@ -181,6 +181,11 @@ define( function( require ) {
         closestPoint: closestPoint,
         distanceSquared: point.distanceSquared( closestPoint )
       }];
+    },
+    
+    // given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
+    reparameterized: function( a, b ) {
+      return new Segment.Line( this.positionAt( b ), this.positionAt( a + b ) );
     }
   } );
   
