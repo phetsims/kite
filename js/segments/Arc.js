@@ -143,7 +143,6 @@ define( function( require ) {
     },
     get isFullPerimeter() { return this.getIsFullPerimeter(); },
     
-    
     getAngleDifference: function() {
       if ( this._angleDifference === undefined ) {
         // compute an angle difference that represents how "much" of the circle our arc covers
