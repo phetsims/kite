@@ -265,6 +265,7 @@ define( function( require ) {
     },
     
     getInteriorExtremaTs: function() {
+      // TODO: we assume here we are reduce, so that a criticalX doesn't equal a criticalY?
       var result = [];
       var epsilon = 0.0000000001; // TODO: general kite epsilon?
       if ( this.tCriticalX !== undefined && this.tCriticalX > epsilon && this.tCriticalX < 1 - epsilon ) {

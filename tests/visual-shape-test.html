@@ -744,7 +744,7 @@
                   segments.push( segment );
                 } );
               } );
-              var closestList = kite.Segment.closestToPoint( segments, pos );
+              var closestList = kite.Segment.closestToPoint( segments, pos, 1e-3 );
               
               _.each( closestList, function( info ) {
                 context.beginPath();

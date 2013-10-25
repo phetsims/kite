@@ -12,6 +12,7 @@ define( function( require ) {
   var kite = require( 'KITE/kite' );
   
   var DotUtil = require( 'DOT/Util' );
+  var Bounds2 = require( 'DOT/Bounds2' );
   
   /*
    * Will contain (for segments):
@@ -43,14 +44,14 @@ define( function( require ) {
     constructor: Segment,
     
     // tList should be a list of sorted t values from 0 <= t <= 1
-    subdivisions: function( tList, skipComputation ) {
+    subdivisions: function( tList ) {
       // this could be solved by recursion, but we don't plan on the JS engine doing tail-call optimization
       var right = this;
       var result = [];
       for ( var i = 0; i < tList.length; i++ ) {
         // assume binary subdivision
         var t = tList[i];
-        var arr = right.subdivided( t, skipComputation );
+        var arr = right.subdivided( t );
         assert && assert( arr.length === 2 );
         result.push( arr[0] );
         right = arr[1];
@@ -70,16 +71,18 @@ define( function( require ) {
     }
   };
   
-  // list of { segment: ..., t: ..., closestPoint: ..., distanceSquared: ... } (since there can be duplicates)
-  Segment.closestToPoint = function( segments, point ) {
-    // TODO: threshold!
-    // TODO: complete implementation!
-    var remainingSegments = [];
+  // list of { segment: ..., t: ..., closestPoint: ..., distanceSquared: ... } (since there can be duplicates), threshold is used for subdivision,
+  // where it will exit if all of the segments are shorter than the threshold
+  // TODO: solve segments to determine this analytically!
+  Segment.closestToPoint = function( segments, point, threshold ) {
+    var thresholdSquared = threshold * threshold;
+    var items = [];
     var bestList = [];
     var bestDistanceSquared = Number.POSITIVE_INFINITY;
+    var thresholdOk = false;
     
-    console.log( bestDistanceSquared );
     _.each( segments, function( segment ) {
+      // if we have an explicit computation for this segment, use it
       if ( segment.explicitClosestToPoint ) {
         var infos = segment.explicitClosestToPoint( point );
         _.each( infos, function( info ) {
@@ -91,13 +94,104 @@ define( function( require ) {
           }
         } );
       } else {
-        var bounds = segment.getBounds();
-        var minDistanceSquared = bounds.minimumDistanceToPointSquared( point );
-        if ( minDistanceSquared <= bestDistanceSquared ) {
-          bestDistanceSquared = Math.min( bestDistanceSquared, bounds.maximumDistanceToPointSquared( point ) + 1e-7 ); // epsilon here so we don't mess ourselves up in the iteration
-          remainingSegments.push( segment );
+        // otherwise, we will split based on monotonicity, so we can subdivide
+        // separate, so we can map the subdivided segments 
+        var ts = [0].concat( segment.getInteriorExtremaTs() ).concat([1]);
+        for ( var i = 0; i < ts.length - 1; i++ ) {
+          var ta = ts[i];
+          var tb = ts[i+1];
+          var pa = segment.positionAt( ta );
+          var pb = segment.positionAt( tb );
+          var bounds = Bounds2.point( pa ).addPoint( pb );
+          var minDistanceSquared = bounds.minimumDistanceToPointSquared( point );
+          if ( minDistanceSquared <= bestDistanceSquared ) {
+            var maxDistanceSquared = bounds.maximumDistanceToPointSquared( point );
+            if ( maxDistanceSquared < bestDistanceSquared ) {
+              bestDistanceSquared = maxDistanceSquared;
+              bestList = []; // clear it
+            }
+            items.push( {
+              ta: ta,
+              tb: tb,
+              pa: pa,
+              pb: pb,
+              segment: segment,
+              bounds: bounds,
+              min: minDistanceSquared,
+              max: maxDistanceSquared
+            } );
+          }
         }
       }
+    } );
+    
+    while ( items.length && !thresholdOk ) {
+      var curItems = items;
+      items = [];
+      
+      // whether all of the segments processed are shorter than the threshold
+      thresholdOk = true;
+      
+      _.each( curItems, function( item ) {
+        if ( item.minDistanceSquared > bestDistanceSquared ) {
+          return; // drop this item
+        }
+        if ( thresholdOk && item.pa.distanceSquared( item.pb ) > thresholdSquared ) {
+          thresholdOk = false;
+        }
+        var tmid = ( item.ta + item.tb ) / 2;
+        var pmid = item.segment.positionAt( tmid );
+        var boundsA = Bounds2.point( item.pa ).addPoint( pmid );
+        var boundsB = Bounds2.point( item.pb ).addPoint( pmid );
+        var minA = boundsA.minimumDistanceToPointSquared( point );
+        var minB = boundsB.minimumDistanceToPointSquared( point );
+        if ( minA <= bestDistanceSquared ) {
+          var maxA = boundsA.maximumDistanceToPointSquared( point );
+          if ( maxA < bestDistanceSquared ) {
+            bestDistanceSquared = maxA;
+            bestList = []; // clear it
+          }
+          items.push( {
+            ta: item.ta,
+            tb: tmid,
+            pa: item.pa,
+            pb: pmid,
+            segment: item.segment,
+            bounds: boundsA,
+            min: minA,
+            max: maxA
+          } );
+        }
+        if ( minB <= bestDistanceSquared ) {
+          var maxB = boundsB.maximumDistanceToPointSquared( point );
+          if ( maxB < bestDistanceSquared ) {
+            bestDistanceSquared = maxB;
+            bestList = []; // clear it
+          }
+          items.push( {
+            ta: tmid,
+            tb: item.tb,
+            pa: pmid,
+            pb: item.pb,
+            segment: item.segment,
+            bounds: boundsB,
+            min: minB,
+            max: maxB
+          } );
+        }
+      } );
+    }
+    
+    // if there are any closest regions, they are within the threshold, so we will add them all
+    _.each( items, function( item ) {
+      var t = ( item.ta + item.tb ) / 2;
+      var closestPoint = item.segment.positionAt( t );
+      bestList.push( {
+        segment: item.segment,
+        t: t,
+        closestPoint: closestPoint,
+        distanceSquared: point.distanceSquared( closestPoint )
+      } );
     } );
     
     return bestList;
