@@ -20,6 +20,8 @@ define( function( require ) {
   Segment.Line = function Line( start, end ) {
     this._start = start;
     this._end = end;
+    
+    // TODO: performance test removal of these undefined declarations
     this._tangent = undefined;
     this._bounds = undefined;
   };

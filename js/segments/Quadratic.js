@@ -25,6 +25,8 @@ define( function( require ) {
     this._start = start;
     this._control = control;
     this._end = end;
+    
+    // TODO: performance test removal of these undefined declarations
     this._startTangent = undefined;
     this._endTangent = undefined;
     this._tCriticalX = undefined; // replaced with null if not in range

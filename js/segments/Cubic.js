@@ -32,7 +32,7 @@ define( function( require ) {
     this._control2 = control2;
     this._end = end;
     
-    // performance: consider unsetting some of these?
+    // TODO: performance test removal of these undefined declarations
     this._startTangent = undefined;
     this._endTangent = undefined;
     this._r = undefined;

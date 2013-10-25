@@ -163,8 +163,8 @@ define( function( require ) {
       var arc = new kite.Segment.Arc( center, radius, startAngle, endAngle, anticlockwise );
       
       // we are assuming that the normal conditions were already met (or exceptioned out) so that these actually work with canvas
-      var startPoint = arc.start;
-      var endPoint = arc.end;
+      var startPoint = arc.getStart();
+      var endPoint = arc.getEnd();
       
       // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
       if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
