@@ -6,7 +6,7 @@ See the website with documentation and examples at http://phetsims.github.io/kit
 By PhET Interactive Simulations
 http://phet.colorado.edu/
 
-NOTE: This repository has dependency on other repositories. Those repositories
+NOTE: This repository has dependency on other dependencies. Those repositories
 much be checked out as siblings to this repository in your directory structure.
 
 Third-Party Dependencies
