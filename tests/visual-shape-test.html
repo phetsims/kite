@@ -127,6 +127,7 @@
       <button id="hit-stroke">stroke</button>
       <button id="hit-mouse">mouse</button>
       <button id="hit-mouseSpan">mouseSpan</button>
+      <button id="hit-distance">distance</button>
     </div>
   </div>
   
@@ -166,6 +167,7 @@
           var hitMouse = false; // show a starburst pattern with winding colors
           var hitMouseSpan = false;
           var endpoints = false;
+          var hitDistance = false;
           
           var shapeBounds = false;
           
@@ -639,6 +641,9 @@
           updateListener( 'hit-mouseSpan', function() {
             hitMouseSpan = !hitMouseSpan;
           } );
+          updateListener( 'hit-distance', function() {
+            hitDistance = !hitDistance;
+          } );
           
           canvas.addEventListener( 'mousemove', function( domEvent ) {
             if ( hitMouse ) {
@@ -727,6 +732,28 @@
                   drawSegment( 0, displayLength, windColor( 0 ) );
                 }
               }
+            }
+            if ( hitDistance ) {
+              render();
+              var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
+              
+              // use strokedShape
+              var segments = [];
+              _.each( strokedShape.subpaths, function( subpath ) {
+                _.each( subpath.segments, function( segment ) {
+                  segments.push( segment );
+                } );
+              } );
+              var closestList = kite.Segment.closestToPoint( segments, pos, 1e-3 );
+              
+              _.each( closestList, function( info ) {
+                context.beginPath();
+                context.moveTo( pos.x, pos.y );
+                context.lineTo( info.closestPoint.x, info.closestPoint.y );
+                context.strokeStyle = '#aaa';
+                context.lineWidth = 1;
+                context.stroke();
+              } );
             }
           } );
           

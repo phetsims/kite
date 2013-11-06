@@ -56,7 +56,7 @@ define( function( require ) {
     assert && assert( this.subpaths.length === 0 || this.subpaths[0].constructor.name !== 'Array' );
     
     // computed bounds for all pieces added so far
-    this.bounds = bounds || Bounds2.NOTHING;
+    this.bounds = ( bounds || Bounds2.NOTHING ).copy();
     
     var that = this;
     if ( subpaths && typeof subpaths !== 'object' ) {
@@ -90,13 +90,10 @@ define( function( require ) {
       if ( this.hasSubpaths() ) {
         var start = this.getLastSubpath().getLastPoint();
         var end = point;
-      var line = new kite.Segment.Line( start, end );
+        var line = new kite.Segment.Line( start, end );
         this.getLastSubpath().addPoint( end );
-        if ( !line.invalid ) {
-          this.getLastSubpath().addSegment( line );
-          this.bounds = this.bounds.withPoint( start ).withPoint( end );
-          assert && assert( !isNaN( this.bounds.getX() ) );
-        }
+        this.addSegmentAndBounds( line );
+        assert && assert( !isNaN( this.bounds.getX() ) );
       } else {
         this.ensure( point );
       }
@@ -120,16 +117,18 @@ define( function( require ) {
     smoothQuadraticCurveTo: function( x, y ) { return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ) ); },
     smoothQuadraticCurveToRelative: function( x, y ) { return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ).plus( this.getRelativePoint() ) ); },
     quadraticCurveToPoint: function( controlPoint, point ) {
+      var shape = this;
+      
       // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
       this.ensure( controlPoint );
       var start = this.getLastSubpath().getLastPoint();
       var quadratic = new kite.Segment.Quadratic( start, controlPoint, point );
       this.getLastSubpath().addPoint( point );
-      if ( !quadratic.invalid ) {
-        this.getLastSubpath().addSegment( quadratic );
-        this.bounds = this.bounds.union( quadratic.bounds );
-      }
-      
+      var nondegenerateSegments = quadratic.getNondegenerateSegments();
+      _.each( nondegenerateSegments, function( segment ) {
+        // TODO: optimization
+        shape.addSegmentAndBounds( segment );
+      } );
       return this;
     },
     
@@ -142,22 +141,16 @@ define( function( require ) {
     smoothCubicCurveTo: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ), v( x, y ) ); },
     smoothCubicCurveToRelative: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ).plus( this.getRelativePoint() ), v( x, y ).plus( this.getRelativePoint() ) ); },
     cubicCurveToPoint: function( control1, control2, point ) {
+      var shape = this;
       // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
       this.ensure( control1 );
       var start = this.getLastSubpath().getLastPoint();
       var cubic = new kite.Segment.Cubic( start, control1, control2, point );
       
-      if ( !cubic.invalid ) {
-        // if there is a cusp, we add the two (split) quadratic segments instead so that stroking treats the 'join' between them with the proper lineJoin
-        if ( cubic.hasCusp() ) {
-          this.getLastSubpath().addSegment( cubic.startQuadratic );
-          this.getLastSubpath().addSegment( cubic.endQuadratic );
-        } else {
-          this.getLastSubpath().addSegment( cubic );
-        }
-        
-        this.bounds = this.bounds.union( cubic.bounds );
-      }
+      var nondegenerateSegments = cubic.getNondegenerateSegments();
+      _.each( nondegenerateSegments, function( segment ) {
+        shape.addSegmentAndBounds( segment );
+      } );
       this.getLastSubpath().addPoint( point );
       
       return this;
@@ -170,12 +163,12 @@ define( function( require ) {
       var arc = new kite.Segment.Arc( center, radius, startAngle, endAngle, anticlockwise );
       
       // we are assuming that the normal conditions were already met (or exceptioned out) so that these actually work with canvas
-      var startPoint = arc.start;
-      var endPoint = arc.end;
+      var startPoint = arc.getStart();
+      var endPoint = arc.getEnd();
       
       // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
       if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
-        this.getLastSubpath().addSegment( new kite.Segment.Line( this.getLastSubpath().getLastPoint(), startPoint ) );
+        this.addSegmentAndBounds( new kite.Segment.Line( this.getLastSubpath().getLastPoint(), startPoint ) );
       }
       
       if ( !this.hasSubpaths() ) {
@@ -186,12 +179,7 @@ define( function( require ) {
       this.getLastSubpath().addPoint( startPoint );
       this.getLastSubpath().addPoint( endPoint );
       
-      if ( !arc.invalid ) {
-        this.getLastSubpath().addSegment( arc );
-        
-        // and update the bounds
-        this.bounds = this.bounds.union( arc.bounds );
-      }
+      this.addSegmentAndBounds( arc );
       
       return this;
     },
@@ -208,7 +196,7 @@ define( function( require ) {
       
       // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
       if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
-        this.getLastSubpath().addSegment( new kite.Segment.Line( this.getLastSubpath().getLastPoint(), startPoint ) );
+        this.addSegmentAndBounds( new kite.Segment.Line( this.getLastSubpath().getLastPoint(), startPoint ) );
       }
       
       if ( !this.hasSubpaths() ) {
@@ -219,12 +207,7 @@ define( function( require ) {
       this.getLastSubpath().addPoint( startPoint );
       this.getLastSubpath().addPoint( endPoint );
       
-      if ( !ellipticalArc.invalid ) {
-        this.getLastSubpath().addSegment( ellipticalArc );
-        
-        // and update the bounds
-        this.bounds = this.bounds.union( ellipticalArc.bounds );
-      }
+      this.addSegmentAndBounds( ellipticalArc );
       
       return this;
     },
@@ -295,13 +278,12 @@ define( function( require ) {
       subpath.addPoint( v( x + width, y ) );
       subpath.addPoint( v( x + width, y + height ) );
       subpath.addPoint( v( x, y + height ) );
-      subpath.addSegment( new kite.Segment.Line( subpath.points[0], subpath.points[1] ) );
-      subpath.addSegment( new kite.Segment.Line( subpath.points[1], subpath.points[2] ) );
-      subpath.addSegment( new kite.Segment.Line( subpath.points[2], subpath.points[3] ) );
+      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[0], subpath.points[1] ) );
+      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[1], subpath.points[2] ) );
+      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[2], subpath.points[3] ) );
       subpath.close();
       this.addSubpath( new kite.Subpath() );
       this.getLastSubpath().addPoint( v( x, y ) );
-      this.bounds = this.bounds.withCoordinates( x, y ).withCoordinates( x + width, y + height );
       assert && assert( !isNaN( this.bounds.getX() ) );
       
       return this;
@@ -381,8 +363,9 @@ define( function( require ) {
     
     // return a new Shape that is transformed by the associated matrix
     transformed: function( matrix ) {
+      // TODO: allocation reduction
       var subpaths = _.map( this.subpaths, function( subpath ) { return subpath.transformed( matrix ); } );
-      var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.computeBounds() ); }, Bounds2.NOTHING );
+      var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.bounds ); }, Bounds2.NOTHING );
       return new Shape( subpaths, bounds );
     },
     
@@ -484,7 +467,7 @@ define( function( require ) {
       }
       subLen = subpaths.length;
       for ( i = 0; i < subLen; i++ ) {
-        bounds.includeBounds( subpaths[i].computeBounds() );
+        bounds.includeBounds( subpaths[i].bounds );
       }
       return new Shape( subpaths, bounds );
     },
@@ -497,6 +480,11 @@ define( function( require ) {
     /*---------------------------------------------------------------------------*
     * Internal subpath computations
     *----------------------------------------------------------------------------*/
+    
+    addSegmentAndBounds: function( segment ) {
+      this.getLastSubpath().addSegment( segment );
+      this.bounds = this.bounds.includeBounds( this.getLastSubpath().bounds );
+    },
     
     ensure: function( point ) {
       if ( !this.hasSubpaths() ) {

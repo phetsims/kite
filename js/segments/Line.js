@@ -13,34 +13,70 @@ define( function( require ) {
   
   var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
+  var Util = require( 'DOT/Util' );
   var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
   
   var Segment = require( 'KITE/segments/Segment' );
 
   Segment.Line = function Line( start, end ) {
-    this.start = start;
-    this.end = end;
+    this._start = start;
+    this._end = end;
     
-    if ( start.equals( end, 0 ) ) {
-      this.invalid = true;
-      return;
-    }
-    
-    this.startTangent = end.minus( start ).normalized();
-    this.endTangent = this.startTangent;
-    
-    // acceleration for intersection
-    this.bounds = Bounds2.NOTHING.withPoint( start ).withPoint( end );
+    // TODO: performance test removal of these undefined declarations
+    this._tangent = undefined;
+    this._bounds = undefined;
   };
   inherit( Segment, Segment.Line, {
     
+    getStart: function() {
+      return this._start;
+    },
+    get start() { return this._start; },
+    
+    getEnd: function() {
+      return this._end;
+    },
+    get end() { return this._end; },
+    
+    getStartTangent: function() {
+      if ( this._tangent === undefined ) {
+        // TODO: allocation reduction
+        this._tangent = this._end.minus( this._start ).normalized();
+      }
+      return this._tangent;
+    },
+    get startTangent() { return this.getStartTangent(); },
+    
+    getEndTangent: function() {
+      return this.getStartTangent();
+    },
+    get endTangent() { return this.getEndTangent(); },
+    
+    getBounds: function() {
+      // TODO: allocation reduction
+      if ( this._bounds === undefined ) {
+        this._bounds = Bounds2.NOTHING.withPoint( this._start ).withPoint( this._end );
+      }
+      return this._bounds;
+    },
+    get bounds() { return this.getBounds(); },
+    
+    getNondegenerateSegments: function() {
+      // if it is degenerate (0-length), just ignore it
+      if ( this._start.equals( this._end ) ) {
+        return [];
+      } else {
+        return [this];
+      }
+    },
+    
     positionAt: function( t ) {
-      return this.start.plus( this.end.minus( this.start ).times( t ) );
+      return this._start.plus( this._end.minus( this._start ).times( t ) );
     },
     
     tangentAt: function( t ) {
       // tangent always the same, just use the start tanget
-      return this.startTangent;
+      return this.getStartTangent();
     },
     
     curvatureAt: function( t ) {
@@ -48,17 +84,17 @@ define( function( require ) {
     },
     
     getSVGPathFragment: function() {
-      return 'L ' + this.end.x + ' ' + this.end.y;
+      return 'L ' + this._end.x + ' ' + this._end.y;
     },
     
     strokeLeft: function( lineWidth ) {
-      var offset = this.endTangent.perpendicular().negated().times( lineWidth / 2 );
-      return [new Segment.Line( this.start.plus( offset ), this.end.plus( offset ) )];
+      var offset = this.getEndTangent().perpendicular().negated().times( lineWidth / 2 );
+      return [new Segment.Line( this._start.plus( offset ), this._end.plus( offset ) )];
     },
     
     strokeRight: function( lineWidth ) {
-      var offset = this.startTangent.perpendicular().times( lineWidth / 2 );
-      return [new Segment.Line( this.end.plus( offset ), this.start.plus( offset ) )];
+      var offset = this.getStartTangent().perpendicular().times( lineWidth / 2 );
+      return [new Segment.Line( this._end.plus( offset ), this._start.plus( offset ) )];
     },
     
     // lines are already monotone
@@ -67,8 +103,8 @@ define( function( require ) {
     subdivided: function( t ) {
       var pt = this.positionAt( t );
       return [
-        new Segment.Line( this.start, pt ),
-        new Segment.Line( pt, this.end )
+        new Segment.Line( this._start, pt ),
+        new Segment.Line( pt, this._end )
       ];
     },
     
@@ -79,8 +115,8 @@ define( function( require ) {
     intersection: function( ray ) {
       var result = [];
       
-      var start = this.start;
-      var end = this.end;
+      var start = this._start;
+      var end = this._end;
       
       var intersection = lineLineIntersection( start, end, ray.pos, ray.pos.plus( ray.dir ) );
       
@@ -127,11 +163,29 @@ define( function( require ) {
     
     // assumes the current position is at start
     writeToContext: function( context ) {
-      context.lineTo( this.end.x, this.end.y );
+      context.lineTo( this._end.x, this._end.y );
     },
     
     transformed: function( matrix ) {
-      return new Segment.Line( matrix.timesVector2( this.start ), matrix.timesVector2( this.end ) );
+      return new Segment.Line( matrix.timesVector2( this._start ), matrix.timesVector2( this._end ) );
+    },
+    
+    explicitClosestToPoint: function( point ) {
+      var diff = this._end.minus( this._start );
+      var t = point.minus( this._start ).dot( diff ) / diff.magnitudeSquared();
+      t = Util.clamp( t, 0, 1 );
+      var closestPoint = this.positionAt( t );
+      return [{
+        segment: this,
+        t: t,
+        closestPoint: closestPoint,
+        distanceSquared: point.distanceSquared( closestPoint )
+      }];
+    },
+    
+    // given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
+    reparameterized: function( a, b ) {
+      return new Segment.Line( this.positionAt( b ), this.positionAt( a + b ) );
     }
   } );
   
