@@ -2,7 +2,7 @@
   "name": "kite",
   "version": "0.0.0",
   "license": "MIT",
-  "phetLibs": "sherpa chipper assert phet-core dot kite",
+  "phetLibs": "sherpa chipper axon assert phet-core dot kite",
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-requirejs": "~0.4.0",

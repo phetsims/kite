@@ -17,7 +17,8 @@ require.config( {
     KITE: '.',
     DOT: '../../dot/js',
     PHET_CORE: '../../phet-core/js',
-    ASSERT: '../../assert/js'
+    ASSERT: '../../assert/js',
+    AXON: '../../axon/js'
   },
   
   shim: {
