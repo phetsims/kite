@@ -12,7 +12,6 @@
 define( function( require ) {
   'use strict';
   
-  var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
   
