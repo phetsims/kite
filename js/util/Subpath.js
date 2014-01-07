@@ -178,7 +178,6 @@ define( function( require ) {
               return [new kite.Segment.Arc( center, lineWidth / 2, fromAngle, toAngle, true )];
             case 'miter':
               var theta = fromTangent.angleBetween( toTangent.negated() );
-              var notStraight = theta < Math.PI - 0.00001; // if fromTangent is approximately equal to toTangent, just bevel. it will be indistinguishable
               if ( 1 / Math.sin( theta / 2 ) <= lineStyles.miterLimit && theta < Math.PI - 0.00001 ) {
                 // draw the miter
                 var miterPoint = lineLineIntersection( fromPoint, fromPoint.plus( fromTangent ), toPoint, toPoint.plus( toTangent ) );
@@ -299,27 +298,6 @@ define( function( require ) {
       return subpaths;
     }
   };
-  
-  // TODO: performance / cleanliness to have these as methods instead?
-  function segmentStartLeft( segment, lineWidth ) {
-    assert && assert( lineWidth !== undefined );
-    return segment.start.plus( segment.startTangent.perpendicular().negated().times( lineWidth / 2 ) );
-  }
-  
-  function segmentEndLeft( segment, lineWidth ) {
-    assert && assert( lineWidth !== undefined );
-    return segment.end.plus( segment.endTangent.perpendicular().negated().times( lineWidth / 2 ) );
-  }
-  
-  function segmentStartRight( segment, lineWidth ) {
-    assert && assert( lineWidth !== undefined );
-    return segment.start.plus( segment.startTangent.perpendicular().times( lineWidth / 2 ) );
-  }
-  
-  function segmentEndRight( segment, lineWidth ) {
-    assert && assert( lineWidth !== undefined );
-    return segment.end.plus( segment.endTangent.perpendicular().times( lineWidth / 2 ) );
-  }
-  
+
   return kite.Subpath;
 } );

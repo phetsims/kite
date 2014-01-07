@@ -13,8 +13,6 @@
 define( function( require ) {
   'use strict';
   
-  var kite = require( 'KITE/kite' );
-  
   var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Vector2 = require( 'DOT/Vector2' );
@@ -211,8 +209,7 @@ define( function( require ) {
       var a = this._start.times( -1 ).plus( this._control1.times( 3 ) ).plus( this._control2.times( -3 ) ).plus( this._end );
       var b = this._start.times( 3 ).plus( this._control1.times( -6 ) ).plus( this._control2.times( 3 ) );
       var c = this._start.times( -3 ).plus( this._control1.times( 3 ) );
-      var d = this._start;
-      
+
       var aPerp = a.perpendicular();
       var bPerp = b.perpendicular();
       var aPerpDotB = aPerp.dot( b );

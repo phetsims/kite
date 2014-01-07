@@ -9,8 +9,6 @@
 define( function( require ) {
   'use strict';
   
-  var kite = require( 'KITE/kite' );
-  
   var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Util = require( 'DOT/Util' );

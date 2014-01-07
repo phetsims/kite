@@ -11,8 +11,6 @@
 define( function( require ) {
   'use strict';
   
-  var kite = require( 'KITE/kite' );
-  
   var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Matrix3 = require( 'DOT/Matrix3' );
