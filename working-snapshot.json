@@ -1,26 +1,30 @@
 {
   "sherpa": {
-    "sha": "bb78b8b67b9ddb5033d0e4b6764ecd9eafeae211",
+    "sha": "3b0523b0de3260529a17ca7ff8ff23108ad1d42e",
     "branch": "master"
   },
   "chipper": {
-    "sha": "94a47da45936eb9f4915c21fec4bb198e1e56a40",
+    "sha": "d0d0d6b16348db3abbb10c1ebcbc8c4490ecb770",
+    "branch": "master"
+  },
+  "axon": {
+    "sha": "46a7d5a01020eac95d4bfd2c91579b3f3a098161",
     "branch": "master"
   },
   "assert": {
-    "sha": "243a1befeb048c0a5354812fa0ee24b5a62df742",
+    "sha": "0c480cdecbd6e3b34f152271788fcac4a1590d58",
     "branch": "master"
   },
   "phet-core": {
-    "sha": "0224cba319fec8a03b986085916f63b8dc6916b0",
+    "sha": "94ed6796b3686f42686ace5ef7314e92011605d2",
     "branch": "master"
   },
   "dot": {
-    "sha": "57591de55bf9445ef5dcffeab84b5b0c9ca73658",
+    "sha": "9762473c672e62dde726e7d4e465b708cb5a4327",
     "branch": "master"
   },
   "kite": {
-    "sha": "c3a5ef17fc3beea037f4939e088ac455461611fa",
+    "sha": "6e8f789e67f3490b6016560676263656764a6454",
     "branch": "master"
   },
 }
