@@ -53,7 +53,7 @@ define( function( require ) {
     getBounds: function() {
       // TODO: allocation reduction
       if ( this._bounds === undefined ) {
-        this._bounds = Bounds2.NOTHING.withPoint( this._start ).withPoint( this._end );
+        this._bounds = Bounds2.dirtyFromPool().addPoint( this._start ).addPoint( this._end );
       }
       return this._bounds;
     },
