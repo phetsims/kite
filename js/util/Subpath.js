@@ -12,9 +12,6 @@
 define( function( require ) {
   'use strict';
   
-  var assert = require( 'ASSERT/assert' )( 'kite' );
-  
-  var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
   
@@ -35,6 +32,11 @@ define( function( require ) {
     this._strokedSubpaths = null;
     this._strokedSubpathsComputed = false;
     this._strokedStyles = null;
+    
+    var bounds = this.bounds = Bounds2.NOTHING.copy();
+    _.each( this.segments, function( segment ) {
+      bounds.includeBounds( segment.bounds );
+    } );
   };
   var Subpath = kite.Subpath;
   Subpath.prototype = {
@@ -52,16 +54,25 @@ define( function( require ) {
       return this; // allow chaining
     },
     
+    addSegmentDirectly: function( segment ) {
+      assert && assert( segment.start.isFinite(), 'Segment start is infinite' );
+      assert && assert( segment.end.isFinite(), 'Segment end is infinite' );
+      assert && assert( segment.startTangent.isFinite(), 'Segment startTangent is infinite' );
+      assert && assert( segment.endTangent.isFinite(), 'Segment endTangent is infinite' );
+      assert && assert( segment.bounds.isEmpty() || segment.bounds.isFinite(), 'Segment bounds is infinite and non-empty' );
+      this.segments.push( segment );
+      this.invalidate();
+      
+      this.bounds.includeBounds( segment.getBounds() );
+      
+      return this; // allow chaining
+    },
+    
     addSegment: function( segment ) {
-      if ( !segment.invalid ) {
-        assert && assert( segment.start.isFinite(), 'Segment start is infinite' );
-        assert && assert( segment.end.isFinite(), 'Segment end is infinite' );
-        assert && assert( segment.startTangent.isFinite(), 'Segment startTangent is infinite' );
-        assert && assert( segment.endTangent.isFinite(), 'Segment endTangent is infinite' );
-        assert && assert( segment.bounds.isEmpty() || segment.bounds.isFinite(), 'Segment bounds is infinite and non-empty' );
-        this.segments.push( segment );
-        this.invalidate();
-      }
+      var subpath = this;
+      _.each( segment.getNondegenerateSegments(), function( segment ) {
+        subpath.addSegmentDirectly( segment );
+      } );
       
       return this; // allow chaining
     },
@@ -131,15 +142,6 @@ define( function( require ) {
       );
     },
     
-    computeBounds: function() {
-      var bounds = Bounds2.NOTHING.copy();
-      var len = this.segments.length;
-      for ( var i = 0; i < len; i++ ) {
-        bounds.includeBounds( this.segments[i].bounds );
-      }
-      return bounds;
-    },
-    
     // returns an array of subpaths (one if open, two if closed) that represent a stroked copy of this subpath.
     stroked: function( lineStyles ) {
       // non-drawable subpaths convert to empty subpaths
@@ -176,7 +178,6 @@ define( function( require ) {
               return [new kite.Segment.Arc( center, lineWidth / 2, fromAngle, toAngle, true )];
             case 'miter':
               var theta = fromTangent.angleBetween( toTangent.negated() );
-              var notStraight = theta < Math.PI - 0.00001; // if fromTangent is approximately equal to toTangent, just bevel. it will be indistinguishable
               if ( 1 / Math.sin( theta / 2 ) <= lineStyles.miterLimit && theta < Math.PI - 0.00001 ) {
                 // draw the miter
                 var miterPoint = lineLineIntersection( fromPoint, fromPoint.plus( fromTangent ), toPoint, toPoint.plus( toTangent ) );
@@ -297,27 +298,6 @@ define( function( require ) {
       return subpaths;
     }
   };
-  
-  // TODO: performance / cleanliness to have these as methods instead?
-  function segmentStartLeft( segment, lineWidth ) {
-    assert && assert( lineWidth !== undefined );
-    return segment.start.plus( segment.startTangent.perpendicular().negated().times( lineWidth / 2 ) );
-  }
-  
-  function segmentEndLeft( segment, lineWidth ) {
-    assert && assert( lineWidth !== undefined );
-    return segment.end.plus( segment.endTangent.perpendicular().negated().times( lineWidth / 2 ) );
-  }
-  
-  function segmentStartRight( segment, lineWidth ) {
-    assert && assert( lineWidth !== undefined );
-    return segment.start.plus( segment.startTangent.perpendicular().times( lineWidth / 2 ) );
-  }
-  
-  function segmentEndRight( segment, lineWidth ) {
-    assert && assert( lineWidth !== undefined );
-    return segment.end.plus( segment.endTangent.perpendicular().times( lineWidth / 2 ) );
-  }
-  
+
   return kite.Subpath;
 } );

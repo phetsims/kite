@@ -14,9 +14,13 @@
   <script type="text/javascript" src="../../../phet-core/tests/qunit/afterJSHintOptions.js"></script>
   
   <script src="../../../sherpa/jquery-2.0.3.min.js"></script>
-  <script src="../../../sherpa/lodash-2.0.0.min.js"></script>
+  <script src="../../../sherpa/lodash-2.4.1.min.js"></script>
   <script src="../../../sherpa/has.js"></script>
-  <script src="../../../sherpa/jshint-2.1.2.js"></script>
+  <script type="text/javascript">
+    has.add( 'assert.basic', function( global, document, anElement ) { return true; } );
+    has.add( 'assert.slow', function( global, document, anElement ) { return true; } );
+  </script>
+  <script src="../../../sherpa/jshint-2.4.1.js"></script>
   <script src="../../../sherpa/qunit-1.12.0.js"></script>
   <script src="../../../sherpa/qhint.js"></script>
   
@@ -44,9 +48,9 @@
       $( '#qunit-tests .fail ol' ).css( 'display', 'none' );
     }
     
-    QUnit.moduleDone( function( details ) {
-      collapseTests();
-    } );
+    // QUnit.moduleDone( function( details ) {
+    //   collapseTests();
+    // } );
     
     runKiteTests( '.' );
     runDotTests( '../../../dot/tests/qunit' );

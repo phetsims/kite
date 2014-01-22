@@ -9,8 +9,6 @@
 define( function( require ) {
   'use strict';
   
-  var assert = require( 'ASSERT/assert' )( 'kite' );
-  
   var kite = require( 'KITE/kite' );
   
   kite.LineStyles = function( args ) {
@@ -20,9 +18,11 @@ define( function( require ) {
     this.lineWidth = args.lineWidth !== undefined ? args.lineWidth : 1;
     this.lineCap = args.lineCap !== undefined ? args.lineCap : 'butt'; // butt, round, square
     this.lineJoin = args.lineJoin !== undefined ? args.lineJoin : 'miter'; // miter, round, bevel
-    this.lineDash = args.lineDash !== undefined ? args.lineDash : null; // null is default, otherwise an array of numbers
+    this.lineDash = args.lineDash ? args.lineDash : []; // [] is default, otherwise an array of numbers
     this.lineDashOffset = args.lineDashOffset !== undefined ? args.lineDashOffset : 0; // 0 default, any number
     this.miterLimit = args.miterLimit !== undefined ? args.miterLimit : 10; // see https://svgwg.org/svg2-draft/painting.html for miterLimit computations
+    
+    assert && assert( Array.isArray( this.lineDash ) );
   };
   var LineStyles = kite.LineStyles;
   LineStyles.prototype = {
@@ -38,28 +38,18 @@ define( function( require ) {
         return false;
       }
       
-      // now we need to compare the line dashes
-      /* jshint -W018 */
-      //jshint -W018
-      if ( !this.lineDash !== !other.lineDash ) {
-        // one is defined, the other is not
-        return false;
-      }
-      
-      if ( this.lineDash ) {
-        if ( this.lineDash.length !== other.lineDash.length ) {
-          return false;
-        }
+      if ( this.lineDash.length === other.lineDash.length ) {
         for ( var i = 0; i < this.lineDash.length; i++ ) {
           if ( this.lineDash[i] !== other.lineDash[i] ) {
             return false;
           }
         }
-        return true;
       } else {
-        // both have no line dash, so they are equal
-        return true;
+        // line dashes must be different
+        return false;
       }
+      
+      return true;
     }
   };
   
