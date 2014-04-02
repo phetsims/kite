@@ -250,6 +250,8 @@ define( function( require ) {
      * Draws an ellipse using the ellipticalArc() call with the following parameters:
      * ellipse( center, radiusX, radiusY, rotation ) // center is a Vector2
      * ellipse( centerX, centerY, radiusX, radiusY, rotation )
+     *
+     * The rotation is about the centerX, centerY.
      */
     ellipse: function( centerX, centerY, radiusX, radiusY, rotation ) {
       // TODO: separate into ellipse() and ellipsePoint()?
@@ -598,16 +600,16 @@ define( function( require ) {
   };
   
   /*
-   * Supports ellipse( centerX, centerY, radiusX, radiusY ), ellipse( center, radiusX, radiusY ), and ellipse( radiusX, radiusY )
-   * with the center default to 0,0 and rotation of 0
+   * Supports ellipse( centerX, centerY, radiusX, radiusY, rotation ), ellipse( center, radiusX, radiusY, rotation ), and ellipse( radiusX, radiusY, rotation )
+   * with the center default to 0,0 and rotation of 0.  The rotation is about the centerX, centerY.
    */
-  Shape.ellipse = function( centerX, centerY, radiusX, radiusY ) {
+  Shape.ellipse = function( centerX, centerY, radiusX, radiusY, rotation ) {
     // TODO: Ellipse/EllipticalArc has a mess of parameters. Consider parameter object, or double-check parameter handling
-    if ( radiusX === undefined ) {
+    if ( radiusY === undefined ) {
       // ellipse( radiusX, radiusY ), center = 0,0
-      return new Shape().ellipse( 0, 0, centerX, centerY );
+      return new Shape().ellipse( 0, 0, centerX, centerY, radiusX );
     }
-    return new Shape().ellipse( centerX, centerY, radiusX, radiusY ).close();
+    return new Shape().ellipse( centerX, centerY, radiusX, radiusY, rotation ).close();
   };
   
   // supports both arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) and arc( center, radius, startAngle, endAngle, anticlockwise )
