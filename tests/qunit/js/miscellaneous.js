@@ -26,6 +26,12 @@
     equal( shape.containsPoint( p( 1.5, 0.5 ) ), false, '1.5, 0.5' );
     equal( shape.containsPoint( p( -0.5, 0.5 ) ), false, '-0.5, 0.5' );
   } );
+
+  //See https://github.com/phetsims/kite/issues/34
+  test( 'Trapezoid hit testing', function() {
+    var shape = new kite.Shape( 'M 415 298.5 L 414.99999999999994 94.5 L 468.596798162286 101.08659447295564 L 468.59679816228606 291.91340552704435 Z' );
+    equal( shape.containsPoint( p( 441, 125 ) ), true, 'trapezoid should report that an interior point is "containsPoint" true' );
+  } );
   
   test( 'Un-closed shape hit testing', function() {
     var shape = new Shape().moveTo( 0, 0 ).lineTo( 10, 10 ).lineTo( 0, 10 );
