@@ -77,6 +77,18 @@ define( function( require ) {
       return this; // allow chaining
     },
     
+    // Adds a line segment from the start to end (if non-zero length) and marks the subpath as closed.
+    // NOTE: normally you just want to mark the subpath as closed, and not generate the closing segment this way?
+    addClosingSegment: function() {
+      if ( this.hasClosingSegment() ) {
+        var closingSegment = this.getClosingSegment();
+        this.addSegmentDirectly( closingSegment );
+        this.addPoint( this.getFirstPoint() );
+        this.closed = true;
+      }
+    },
+    
+    // TODO: consider always adding a closing segment into our segments list for easier processing!! see addClosingSegment()
     close: function() {
       this.closed = true;
     },

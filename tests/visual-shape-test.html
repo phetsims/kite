@@ -260,10 +260,11 @@
                 }
               }
               
-              var segments = subpath.segments;
-              if ( subpath.isClosed() && subpath.hasClosingSegment() ) {
-                segments.push( subpath.getClosingSegment() );
+              if ( subpath.isClosed() ) {
+                subpath.addClosingSegment();
               }
+              
+              var segments = subpath.segments;
               
               if ( pointMonotone ) {
                 segments = _.flatten( _.map( segments, function( segment ) {

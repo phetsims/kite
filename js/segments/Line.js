@@ -12,7 +12,6 @@ define( function( require ) {
   var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Util = require( 'DOT/Util' );
-  var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
   
   var Segment = require( 'KITE/segments/Segment' );
 
@@ -111,40 +110,51 @@ define( function( require ) {
     },
     
     intersection: function( ray ) {
+      // We solve for the parametric line-line intersection, and then ensure the parameters are within both
+      // the line segment and forwards from the ray.
+      
       var result = [];
       
       var start = this._start;
       var end = this._end;
       
-      var intersection = lineLineIntersection( start, end, ray.pos, ray.pos.plus( ray.dir ) );
+      var diff = end.minus( start );
       
-      if ( !isFinite( intersection.x ) || !isFinite( intersection.y ) ) {
-        // lines must be parallel
+      if ( diff.magnitudeSquared() === 0 ) {
         return result;
       }
       
-      // check to make sure our point is in our line segment (specifically, in the bounds (start,end], not including the start point so we don't double-count intersections)
-      if ( start.x !== end.x && ( start.x > end.x ? ( intersection.x >= start.x || intersection.x < end.x ) : ( intersection.x <= start.x || intersection.x > end.x ) ) ) {
-        return result;
-      }
-      if ( start.y !== end.y && ( start.y > end.y ? ( intersection.y >= start.y || intersection.y < end.y ) : ( intersection.y <= start.y || intersection.y > end.y ) ) ) {
+      var denom = ray.dir.y * diff.x - ray.dir.x * diff.y;
+
+      // If denominator is 0, the lines are parallel or coincident
+      if ( denom === 0 ) {
         return result;
       }
       
-      // make sure the intersection is not behind the ray
-      var t = intersection.minus( ray.pos ).dot( ray.dir );
-      if ( t < 0 ) {
+      // linear parameter where start (0) to end (1)
+      var t = ( ray.dir.x * ( start.y - ray.pos.y ) - ray.dir.y * ( start.x - ray.pos.x ) ) / denom;
+      
+      // check that the intersection point is between the line segment's endpoints
+      if ( t < 0 || t >= 1 ) {
+        return result;
+      }
+      
+      // linear parameter where ray.pos (0) to ray.pos+ray.dir (1)
+      var s = ( diff.x * ( start.y - ray.pos.y ) - diff.y * ( start.x - ray.pos.x ) ) / denom;
+      
+      // bail if it is behind our ray
+      if ( s < 0.000001 ) {
         return result;
       }
       
       // return the proper winding direction depending on what way our line intersection is "pointed"
-      var diff = end.minus( start );
       var perp = diff.perpendicular();
       result.push( {
-        distance: t,
-        point: ray.pointAtDistance( t ),
+        distance: s,
+        point: start.plus( diff.times( t ) ),
         normal: perp.dot( ray.dir ) > 0 ? perp.negated() : perp,
-        wind: ray.dir.perpendicular().dot( diff ) < 0 ? 1 : -1
+        wind: ray.dir.perpendicular().dot( diff ) < 0 ? 1 : -1,
+        segment: this
       } );
       return result;
     },
