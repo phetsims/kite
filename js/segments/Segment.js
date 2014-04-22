@@ -3,7 +3,7 @@
 /**
  * A segment represents a specific curve with a start and end.
  *
- * @author Jonathan Olson <olsonsjc@gmail.com>
+ * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
 define( function( require ) {

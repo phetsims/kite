@@ -6,7 +6,7 @@
  * See http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#concept-path
  * for the path / subpath Canvas concept.
  *
- * @author Jonathan Olson <olsonsjc@gmail.com>
+ * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
 define( function( require ) {
