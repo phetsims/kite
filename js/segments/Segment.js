@@ -41,6 +41,8 @@ define( function( require ) {
   kite.Segment = function Segment(){}; // no common construction for now
   var Segment = kite.Segment;
   
+  var identityFunction = function identityFunction( x ) { return x; };
+  
   Segment.prototype = {
     constructor: Segment,
     
@@ -69,6 +71,52 @@ define( function( require ) {
     // return an array of segments from breaking this segment into monotone pieces
     subdividedIntoMonotone: function() {
       return this.subdivisions( this.getInteriorExtremaTs() );
+    },
+    
+    /*
+     * toPiecewiseLinearSegments( options ), with the following options provided:
+     * - minLevels:                       how many levels to force subdivisions
+     * - maxLevels:                       prevent subdivision past this level
+     * - distanceEpsilon (optional null): controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve
+     * - curveEpsilon (optional null):    controls level of subdivision by attempting to ensure a maximum curvature change between segments
+     * - pointMap (optional):             function( Vector2 ) : Vector2, represents a (usually non-linear) transformation applied
+     * - methodName (optional):           if the method name is found on the segment, it is called with the expected signature function( options ) : Array[Segment]
+     *                                    instead of using our brute-force logic
+     */
+    toPiecewiseLinearSegments: function( options, minLevels, maxLevels, segments, start, end ) {
+      // for the first call, initialize min/max levels from our options
+      minLevels = minLevels === undefined ? options.minLevels : minLevels;
+      maxLevels = maxLevels === undefined ? options.maxLevels : maxLevels;
+      segments = segments || [];
+      var pointMap = options.pointMap || identityFunction;
+      
+      // points mapped by the (possibly-nonlinear) pointMap.
+      start = start || pointMap( this.start );
+      end = end || pointMap( this.end );
+      var middle = pointMap( this.positionAt( 0.5 ) );
+      
+      assert && assert( minLevels <= maxLevels );
+      assert && assert( options.distanceEpsilon === null || typeof options.distanceEpsilon === 'number' );
+      assert && assert( options.curveEpsilon === null || typeof options.curveEpsilon === 'number' );
+      assert && assert( !pointMap || typeof pointMap === 'function' );
+      
+      // i.e. we will have finished = maxLevels === 0 || ( minLevels <= 0 && epsilonConstraints ), just didn't want to one-line it
+      var finished = maxLevels === 0; // bail out once we reach our maximum number of subdivision levels
+      if ( !finished && minLevels <= 0 ) { // force subdivision if minLevels hasn't been reached
+                   // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
+        finished = ( options.curveEpsilon === null || ( DotUtil.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) < options.curveEpsilon ) ) &&
+                   // deviation criterion
+                   ( options.distanceEpsilon === null || ( DotUtil.distToSegmentSquared( middle, start, end ) < options.distanceEpsilon ) );
+      }
+      
+      if ( finished ) {
+        segments.push( new Segment.Line( start, end ) );
+      } else {
+        var subdividedSegments = this.subdivided( 0.5 );
+        subdividedSegments[0].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, start, middle );
+        subdividedSegments[1].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, middle, end );
+      }
+      return segments;
     }
   };
   

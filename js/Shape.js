@@ -367,6 +367,62 @@ define( function( require ) {
       return new Shape( subpaths, bounds );
     },
     
+    /*
+     * Provided options (see Segment.nonlinearTransformed)
+     * - minLevels:                       how many levels to force subdivisions
+     * - maxLevels:                       prevent subdivision past this level
+     * - distanceEpsilon (optional null): controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve. smaller => more subdivision
+     * - curveEpsilon (optional null):    controls level of subdivision by attempting to ensure a maximum curvature change between segments. smaller => more subdivision
+     * -   OR includeCurvature:           {Boolean}, whether to include a default curveEpsilon (usually off by default)
+     * - pointMap (optional):             function( Vector2 ) : Vector2, represents a (usually non-linear) transformation applied
+     * - methodName (optional):           if the method name is found on the segment, it is called with the expected signature function( options ) : Array[Segment]
+     *                                    instead of using our brute-force logic. Supports optimizations for custom non-linear transforms (like polar coordinates)
+     */
+    nonlinearTransformed: function( options ) {
+      // defaults
+      options = _.extend( {
+        minLevels: 0,
+        maxLevels: 7,
+        distanceEpsilon: 0.16, // NOTE: this will change when the Shape is scaled, since this is a threshold for the square of a distance value
+        curveEpsilon: ( options && options.includeCurvature ) ? 0.002 : null
+      }, options );
+      
+      // TODO: allocation reduction
+      var subpaths = _.map( this.subpaths, function( subpath ) { return subpath.nonlinearTransformed( options ); } );
+      var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.bounds ); }, Bounds2.NOTHING );
+      return new Shape( subpaths, bounds );
+    },
+    
+    /*
+     * Maps points by treating their x coordinate as polar angle, and y coordinate as polar magnitude.
+     * See http://en.wikipedia.org/wiki/Polar_coordinate_system
+     *
+     * Please see Shape.nonlinearTransformed for more documentation on adaptive discretization options (minLevels, maxLevels, distanceEpsilon, curveEpsilon)
+     *
+     * Example: A line from (0,10) to (pi,10) will be transformed to a circular arc from (10,0) to (-10,0) passing through (0,10).
+     */
+    polarToCartesian: function( options ) {
+      return this.nonlinearTransformed( _.extend( {
+        pointMap: function( p ) {
+          return Vector2.createPolar( p.y, p.x );
+          // return new Vector2( p.y * Math.cos( p.x ), p.y * Math.sin( p.x ) );
+        },
+        methodName: 'polarToCartesian' // this will be called on Segments if it exists to do more optimized conversion (see Line)
+      }, options ) );
+    },
+    
+    /*
+     * Converts each segment into lines, using an adaptive (midpoint distance subdivision) method.
+     *
+     * NOTE: uses nonlinearTransformed method internally, but since we don't provide a pointMap or methodName, it won't create anything but line segments.
+     * See nonlinearTransformed for documentation of options
+     */
+    toPiecewiseLinear: function( options ) {
+      assert && assert( !options.pointMap, 'No pointMap for toPiecewiseLinear allowed, since it could create non-linear segments' );
+      assert && assert( !options.methodName, 'No methodName for toPiecewiseLinear allowed, since it could create non-linear segments' );
+      return this.nonlinearTransformed( options );
+    },
+    
     // returns the bounds. if lineStyles exists, include the stroke in the bounds
     // TODO: consider renaming to getBounds()?
     computeBounds: function( lineStyles ) {

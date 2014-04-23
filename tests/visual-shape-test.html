@@ -82,6 +82,7 @@
       <button id="rrect">rrect</button>
       <button id="errect">errect</button>
       <button id="bucket">bucket</button>
+      <button id="polarrow">polarrow</button>
       <input id="svgPath" type="text"></input>
       
       <div class="label">Cap</div>
@@ -476,6 +477,24 @@
             var ray = new dot.Ray2( point, dot( 1, 0 ) );
             debugger;
             console.log( shape.intersection( ray ) );
+          } );
+          updateListener( 'polarrow', function() {
+            var tipAngle = Math.PI;
+            var baseAngle = Math.PI * ( 1 + 1/8 );
+            var tailAngle = Math.PI * 2;
+            var middleRadius = 70;
+            var halfHeadWidth = 40 / 2;
+            var halfTailWidth = 20 / 2;
+            shape = new kite.Shape().moveTo( tipAngle, middleRadius )
+                                    .lineTo( baseAngle, middleRadius + halfHeadWidth )
+                                    .lineTo( baseAngle, middleRadius + halfTailWidth )
+                                    .lineTo( tailAngle, middleRadius + halfTailWidth )
+                                    .lineTo( tailAngle, middleRadius - halfTailWidth )
+                                    .lineTo( baseAngle, middleRadius - halfTailWidth )
+                                    .lineTo( baseAngle, middleRadius - halfHeadWidth )
+                                    .close();
+
+            shape = shape.polarToCartesian();
           } );
           updateListener( 'svgPath', function() {
             var s;

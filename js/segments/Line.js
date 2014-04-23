@@ -11,6 +11,7 @@ define( function( require ) {
   
   var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
+  var Vector2 = require( 'DOT/Vector2' );
   var Util = require( 'DOT/Util' );
   
   var Segment = require( 'KITE/segments/Segment' );
@@ -194,6 +195,18 @@ define( function( require ) {
     // given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
     reparameterized: function( a, b ) {
       return new Segment.Line( this.positionAt( b ), this.positionAt( a + b ) );
+    },
+    
+    polarToCartesian: function( options ) {
+      if ( this._start.x === this._end.x ) {
+        // angle is the same, we are still a line segment!
+        return [new Segment.Line( Vector2.createPolar( this._start.y, this._start.x ), Vector2.createPolar( this._end.y, this._end.x ) )];
+      } else if ( this._start.y === this._end.y ) {
+        // we have a constant radius, so we are a circular arc
+        return [new Segment.Arc( Vector2.ZERO, this._start.y, this._start.x, this._end.x, this._start.x > this._end.x )];
+      } else {
+        return this.toPiecewiseLinearSegments( options );
+      }
     }
   } );
   

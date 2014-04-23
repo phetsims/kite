@@ -146,12 +146,38 @@ define( function( require ) {
       }
     },
     
+    // see Segment.toPiecewiseLinearSegments for documentation
+    toPiecewiseLinear: function( options ) {
+      assert && assert( !options.pointMap, 'For use with pointMap, please use nonlinearTransformed' );
+      return new Subpath( _.flatten( _.map( this.segments, function( segment ) {
+        return segment.toPiecewiseLinearSegments( options );
+      } ) ), null, this.closed );
+    },
+    
     transformed: function( matrix ) {
       return new Subpath(
         _.map( this.segments, function( segment ) { return segment.transformed( matrix ); } ),
         _.map( this.points, function( point ) { return matrix.timesVector2( point ); } ),
         this.closed
       );
+    },
+    
+    // see Segment.toPiecewiseLinearSegments for documentation
+    nonlinearTransformed: function( options ) {
+      // specify an actual closing segment, so it can be mapped properly by any non-linear transforms
+      // TODO: always create and add the closing segments when the subpath is closed!!!
+      if ( this.closed && this.hasClosingSegment() ) {
+        this.addClosingSegment();
+      }
+      
+      return new Subpath( _.flatten( _.map( this.segments, function( segment ) {
+        // check for this segment's support for the specific transform or discretization being applied
+        if ( options.methodName && segment[options.methodName] ) {
+          return segment[options.methodName]( options );
+        } else {
+          return segment.toPiecewiseLinearSegments( options );
+        }
+      } ) ), null, this.closed );
     },
     
     // returns an array of subpaths (one if open, two if closed) that represent a stroked copy of this subpath.
