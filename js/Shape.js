@@ -610,9 +610,7 @@ define( function( require ) {
   };
   Shape.rect = Shape.rectangle;
 
-  //Create a round rectangle. All arguments are number.
-  //Rounding is currently using quadraticCurveTo.  Please note, future versions may use arcTo
-  //TODO: rewrite with arcTo?
+  // Create a round rectangle {Shape}, with {Number} arguments. Uses circular or elliptical arcs if given.
   Shape.roundRect = function( x, y, width, height, arcw, arch ) {
     return new Shape().roundRect( x, y, width, height, arcw, arch );
   };
