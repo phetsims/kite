@@ -30,7 +30,7 @@ define( function( require ) {
 
   var Subpath = require( 'KITE/util/Subpath' );
   
-  var svgPath = require( 'KITE/../parser/svgPath' );
+  var svgPath = require( 'KITE/parser/svgPath' );
   require( 'KITE/util/LineStyles' );
   require( 'KITE/segments/Arc' );
   require( 'KITE/segments/Cubic' );

@@ -96,7 +96,8 @@ module.exports = function( grunt ) {
         'Gruntfile.js', 'js/**/*.js', '../dot/js/**/*.js', '../phet-core/js/**/*.js', '../assert/js/**/*.js'
       ],
       kite: [
-        'js/**/*.js'
+        'js/**/*.js',
+        '!js/parser/svgPath.js'
       ],
       // reference external JSHint options in jshint-options.js
       options: require( '../chipper/grunt/jshint-options' )
