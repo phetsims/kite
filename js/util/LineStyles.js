@@ -8,9 +8,9 @@
 
 define( function( require ) {
   'use strict';
-  
+
   var kite = require( 'KITE/kite' );
-  
+
   kite.LineStyles = function( args ) {
     if ( args === undefined ) {
       args = {};
@@ -21,13 +21,13 @@ define( function( require ) {
     this.lineDash = args.lineDash ? args.lineDash : []; // [] is default, otherwise an array of numbers
     this.lineDashOffset = args.lineDashOffset !== undefined ? args.lineDashOffset : 0; // 0 default, any number
     this.miterLimit = args.miterLimit !== undefined ? args.miterLimit : 10; // see https://svgwg.org/svg2-draft/painting.html for miterLimit computations
-    
+
     assert && assert( Array.isArray( this.lineDash ) );
   };
   var LineStyles = kite.LineStyles;
   LineStyles.prototype = {
     constructor: LineStyles,
-    
+
     equals: function( other ) {
       var typical = this.lineWidth === other.lineWidth &&
                     this.lineCap === other.lineCap &&
@@ -37,7 +37,7 @@ define( function( require ) {
       if ( !typical ) {
         return false;
       }
-      
+
       if ( this.lineDash.length === other.lineDash.length ) {
         for ( var i = 0; i < this.lineDash.length; i++ ) {
           if ( this.lineDash[i] !== other.lineDash[i] ) {
@@ -48,10 +48,10 @@ define( function( require ) {
         // line dashes must be different
         return false;
       }
-      
+
       return true;
     }
   };
-  
+
   return kite.LineStyles;
 } );

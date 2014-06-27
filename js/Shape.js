@@ -20,16 +20,16 @@
 
 define( function( require ) {
   'use strict';
-  
+
   var kite = require( 'KITE/kite' );
-  
+
   // TODO: clean up imports
   var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Ray2 = require( 'DOT/Ray2' );
 
   var Subpath = require( 'KITE/util/Subpath' );
-  
+
   var svgPath = require( 'KITE/parser/svgPath' );
   require( 'KITE/util/LineStyles' );
   require( 'KITE/segments/Arc' );
@@ -37,23 +37,23 @@ define( function( require ) {
   require( 'KITE/segments/EllipticalArc' );
   require( 'KITE/segments/Line' );
   require( 'KITE/segments/Quadratic' );
-  
+
   // for brevity
   function p( x,y ) { return new Vector2( x, y ); }
   function v( x,y ) { return new Vector2( x, y ); } // TODO: use this version in general, it makes more sense and is easier to type
-  
+
   // a normalized vector for non-zero winding checks
   // var weirdDir = p( Math.PI, 22 / 7 );
-  
+
   // all arguments optional, they are for the copy() method. if used, ensure that 'bounds' is consistent with 'subpaths'
   kite.Shape = function Shape( subpaths, bounds ) {
     // lower-level piecewise mathematical description using segments, also individually immutable
     this.subpaths = ( typeof subpaths === 'object' ) ? subpaths : [];
     assert && assert( this.subpaths.length === 0 || this.subpaths[0].constructor.name !== 'Array' );
-    
+
     // computed bounds for all pieces added so far
     this.bounds = ( bounds || Bounds2.NOTHING ).copy();
-    
+
     var that = this;
     if ( subpaths && typeof subpaths !== 'object' ) {
       assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' );
@@ -63,21 +63,21 @@ define( function( require ) {
         that[item.cmd].apply( that, item.args );
       } );
     }
-    
+
     phetAllocation && phetAllocation( 'Shape' );
   };
   var Shape = kite.Shape;
-  
+
   Shape.prototype = {
     constructor: Shape,
-    
+
     moveTo: function( x, y ) { return this.moveToPoint( v( x, y ) ); },
     moveToRelative: function( x, y ) { return this.moveToPointRelative( v( x, y ) ); },
     moveToPointRelative: function( point ) { return this.moveToPoint( this.getRelativePoint().plus( point ) ); },
     moveToPoint: function( point ) {
       return this.addSubpath( new kite.Subpath().addPoint( point ) );
     },
-    
+
     lineTo: function( x, y ) { return this.lineToPoint( v( x, y ) ); },
     lineToRelative: function( x, y ) { return this.lineToPointRelative( v( x, y ) ); },
     lineToPointRelative: function( point ) { return this.lineToPoint( this.getRelativePoint().plus( point ) ); },
@@ -93,16 +93,16 @@ define( function( require ) {
       } else {
         this.ensure( point );
       }
-      
+
       return this;
     },
-    
+
     horizontalLineTo: function( x ) { return this.lineTo( x, this.getRelativePoint().y ); },
     horizontalLineToRelative: function( x ) { return this.lineToRelative( x, 0 ); },
-    
+
     verticalLineTo: function( y ) { return this.lineTo( this.getRelativePoint().x, y ); },
     verticalLineToRelative: function( y ) { return this.lineToRelative( 0, y ); },
-    
+
     quadraticCurveTo: function( cpx, cpy, x, y ) { return this.quadraticCurveToPoint( v( cpx, cpy ), v( x, y ) ); },
     quadraticCurveToRelative: function( cpx, cpy, x, y ) { return this.quadraticCurveToPointRelative( v( cpx, cpy ), v( x, y ) ); },
     quadraticCurveToPointRelative: function( controlPoint, point ) {
@@ -114,7 +114,7 @@ define( function( require ) {
     smoothQuadraticCurveToRelative: function( x, y ) { return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ).plus( this.getRelativePoint() ) ); },
     quadraticCurveToPoint: function( controlPoint, point ) {
       var shape = this;
-      
+
       // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
       this.ensure( controlPoint );
       var start = this.getLastSubpath().getLastPoint();
@@ -127,7 +127,7 @@ define( function( require ) {
       } );
       return this;
     },
-    
+
     cubicCurveTo: function( cp1x, cp1y, cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) ); },
     cubicCurveToRelative: function( cp1x, cp1y, cp2x, cp2y, x, y ) { return this.cubicCurveToPointRelative( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) ); },
     cubicCurveToPointRelative: function( control1, control2, point ) {
@@ -142,84 +142,84 @@ define( function( require ) {
       this.ensure( control1 );
       var start = this.getLastSubpath().getLastPoint();
       var cubic = new kite.Segment.Cubic( start, control1, control2, point );
-      
+
       var nondegenerateSegments = cubic.getNondegenerateSegments();
       _.each( nondegenerateSegments, function( segment ) {
         shape.addSegmentAndBounds( segment );
       } );
       this.getLastSubpath().addPoint( point );
-      
+
       return this;
     },
-    
+
     arc: function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) { return this.arcPoint( v( centerX, centerY ), radius, startAngle, endAngle, anticlockwise ); },
     arcPoint: function( center, radius, startAngle, endAngle, anticlockwise ) {
       // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arc
-      
+
       var arc = new kite.Segment.Arc( center, radius, startAngle, endAngle, anticlockwise );
-      
+
       // we are assuming that the normal conditions were already met (or exceptioned out) so that these actually work with canvas
       var startPoint = arc.getStart();
       var endPoint = arc.getEnd();
-      
+
       // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
       if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
         this.addSegmentAndBounds( new kite.Segment.Line( this.getLastSubpath().getLastPoint(), startPoint ) );
       }
-      
+
       if ( !this.hasSubpaths() ) {
         this.addSubpath( new kite.Subpath() );
       }
-      
+
       // technically the Canvas spec says to add the start point, so we do this even though it is probably completely unnecessary (there is no conditional)
       this.getLastSubpath().addPoint( startPoint );
       this.getLastSubpath().addPoint( endPoint );
-      
+
       this.addSegmentAndBounds( arc );
-      
+
       return this;
     },
-    
+
     ellipticalArc: function( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) { return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ); },
     ellipticalArcPoint: function( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
       // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arc
-      
+
       var ellipticalArc = new kite.Segment.EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
-      
+
       // we are assuming that the normal conditions were already met (or exceptioned out) so that these actually work with canvas
       var startPoint = ellipticalArc.start;
       var endPoint = ellipticalArc.end;
-      
+
       // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
       if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
         this.addSegmentAndBounds( new kite.Segment.Line( this.getLastSubpath().getLastPoint(), startPoint ) );
       }
-      
+
       if ( !this.hasSubpaths() ) {
         this.addSubpath( new kite.Subpath() );
       }
-      
+
       // technically the Canvas spec says to add the start point, so we do this even though it is probably completely unnecessary (there is no conditional)
       this.getLastSubpath().addPoint( startPoint );
       this.getLastSubpath().addPoint( endPoint );
-      
+
       this.addSegmentAndBounds( ellipticalArc );
-      
+
       return this;
     },
-    
+
     close: function() {
       if ( this.hasSubpaths() ) {
         var previousPath = this.getLastSubpath();
         var nextPath = new kite.Subpath();
-        
+
         previousPath.close();
         this.addSubpath( nextPath );
         nextPath.addPoint( previousPath.getFirstPoint() );
       }
       return this;
     },
-    
+
     // matches SVG's elliptical arc from http://www.w3.org/TR/SVG/paths.html
     ellipticalArcToRelative: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
       var relativePoint = this.getRelativePoint();
@@ -228,7 +228,7 @@ define( function( require ) {
     ellipticalArcTo: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
       throw new Error( 'ellipticalArcTo unimplemented' );
     },
-    
+
     /*
      * Draws a circle using the arc() call with the following parameters:
      * circle( center, radius ) // center is a Vector2
@@ -245,7 +245,7 @@ define( function( require ) {
         return this.arcPoint( p( centerX, centerY ), radius, 0, Math.PI * 2, false );
       }
     },
-    
+
     /*
      * Draws an ellipse using the ellipticalArc() call with the following parameters:
      * ellipse( center, radiusX, radiusY, rotation ) // center is a Vector2
@@ -268,7 +268,7 @@ define( function( require ) {
         return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
       }
     },
-    
+
     rect: function( x, y, width, height ) {
       var subpath = new kite.Subpath();
       this.addSubpath( subpath );
@@ -283,7 +283,7 @@ define( function( require ) {
       this.addSubpath( new kite.Subpath() );
       this.getLastSubpath().addPoint( v( x, y ) );
       assert && assert( !isNaN( this.bounds.getX() ) );
-      
+
       return this;
     },
 
@@ -311,7 +311,7 @@ define( function( require ) {
       }
       return this;
     },
-    
+
     polygon: function( vertices ) {
       var length = vertices.length;
       if ( length > 0 ) {
@@ -322,12 +322,12 @@ define( function( require ) {
       }
       return this.close();
     },
-    
+
     copy: function() {
       // copy each individual subpath, so future modifications to either Shape doesn't affect the other one
       return new Shape( _.map( this.subpaths, function( subpath ) { return subpath.copy(); } ), this.bounds );
     },
-    
+
     // write out this shape's path to a canvas 2d context. does NOT include the beginPath()!
     writeToContext: function( context ) {
       var len = this.subpaths.length;
@@ -335,7 +335,7 @@ define( function( require ) {
         this.subpaths[i].writeToContext( context );
       }
     },
-    
+
     // returns something like "M150 0 L75 200 L225 200 Z" for a triangle
     getSVGPath: function() {
       var subpathStrings = [];
@@ -347,9 +347,9 @@ define( function( require ) {
           var startPoint = subpath.getFirstSegment().start;
           assert && assert( startPoint.equals( subpath.getFirstPoint(), 0.00001 ) ); // sanity check
           var string = 'M ' + startPoint.x + ' ' + startPoint.y + ' ';
-          
+
           string += _.map( subpath.segments, function( segment ) { return segment.getSVGPathFragment(); } ).join( ' ' );
-          
+
           if ( subpath.isClosed() ) {
             string += ' Z';
           }
@@ -358,7 +358,7 @@ define( function( require ) {
       }
       return subpathStrings.join( ' ' );
     },
-    
+
     // return a new Shape that is transformed by the associated matrix
     transformed: function( matrix ) {
       // TODO: allocation reduction
@@ -366,7 +366,7 @@ define( function( require ) {
       var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.bounds ); }, Bounds2.NOTHING );
       return new Shape( subpaths, bounds );
     },
-    
+
     /*
      * Provided options (see Segment.nonlinearTransformed)
      * - minLevels:                       how many levels to force subdivisions
@@ -386,13 +386,13 @@ define( function( require ) {
         distanceEpsilon: 0.16, // NOTE: this will change when the Shape is scaled, since this is a threshold for the square of a distance value
         curveEpsilon: ( options && options.includeCurvature ) ? 0.002 : null
       }, options );
-      
+
       // TODO: allocation reduction
       var subpaths = _.map( this.subpaths, function( subpath ) { return subpath.nonlinearTransformed( options ); } );
       var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.bounds ); }, Bounds2.NOTHING );
       return new Shape( subpaths, bounds );
     },
-    
+
     /*
      * Maps points by treating their x coordinate as polar angle, and y coordinate as polar magnitude.
      * See http://en.wikipedia.org/wiki/Polar_coordinate_system
@@ -410,7 +410,7 @@ define( function( require ) {
         methodName: 'polarToCartesian' // this will be called on Segments if it exists to do more optimized conversion (see Line)
       }, options ) );
     },
-    
+
     /*
      * Converts each segment into lines, using an adaptive (midpoint distance subdivision) method.
      *
@@ -422,7 +422,7 @@ define( function( require ) {
       assert && assert( !options.methodName, 'No methodName for toPiecewiseLinear allowed, since it could create non-linear segments' );
       return this.nonlinearTransformed( options );
     },
-    
+
     // returns the bounds. if lineStyles exists, include the stroke in the bounds
     // TODO: consider renaming to getBounds()?
     computeBounds: function( lineStyles ) {
@@ -432,27 +432,27 @@ define( function( require ) {
         return this.bounds;
       }
     },
-    
+
     containsPoint: function( point ) {
       // we pick a ray, and determine the winding number over that ray. if the number of segments crossing it CCW == number of segments crossing it CW, then the point is contained in the shape
       var ray = new Ray2( point, Vector2.X_UNIT );
-      
+
       return this.windingIntersection( ray ) !== 0;
     },
-    
+
     intersection: function( ray ) {
       var hits = [];
       var numSubpaths = this.subpaths.length;
       for ( var i = 0; i < numSubpaths; i++ ) {
         var subpath = this.subpaths[i];
-        
+
         if ( subpath.isDrawable() ) {
           var numSegments = subpath.segments.length;
           for ( var k = 0; k < numSegments; k++ ) {
             var segment = subpath.segments[k];
             hits = hits.concat( segment.intersection( ray ) );
           }
-          
+
           if ( subpath.hasClosingSegment() ) {
             hits = hits.concat( subpath.getClosingSegment().intersection( ray ) );
           }
@@ -460,35 +460,35 @@ define( function( require ) {
       }
       return _.sortBy( hits, function( hit ) { return hit.distance; } );
     },
-    
+
     windingIntersection: function( ray ) {
       var wind = 0;
-      
+
       var numSubpaths = this.subpaths.length;
       for ( var i = 0; i < numSubpaths; i++ ) {
         var subpath = this.subpaths[i];
-        
+
         if ( subpath.isDrawable() ) {
           var numSegments = subpath.segments.length;
           for ( var k = 0; k < numSegments; k++ ) {
             wind += subpath.segments[k].windingIntersection( ray );
           }
-          
+
           // handle the implicit closing line segment
           if ( subpath.hasClosingSegment() ) {
             wind += subpath.getClosingSegment().windingIntersection( ray );
           }
         }
       }
-      
+
       return wind;
     },
-    
+
     intersectsBounds: function( bounds ) {
       var numSubpaths = this.subpaths.length;
       for ( var i = 0; i < numSubpaths; i++ ) {
         var subpath = this.subpaths[i];
-        
+
         if ( subpath.isDrawable() ) {
           var numSegments = subpath.segments.length;
           for ( var k = 0; k < numSegments; k++ ) {
@@ -496,7 +496,7 @@ define( function( require ) {
               return true;
             }
           }
-          
+
           // handle the implicit closing line segment
           if ( subpath.hasClosingSegment() ) {
             if ( subpath.getClosingSegment().intersectsBounds( bounds ) ) {
@@ -507,7 +507,7 @@ define( function( require ) {
       }
       return false;
     },
-    
+
     // returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be nested (doesn't do intersection computations yet)
     // TODO: rename stroked( lineStyles )
     getStrokedShape: function( lineStyles ) {
@@ -525,86 +525,86 @@ define( function( require ) {
       }
       return new Shape( subpaths, bounds );
     },
-    
+
     toString: function() {
       // TODO: consider a more verbose but safer way?
       return 'new kite.Shape( \'' + this.getSVGPath() + '\' )';
     },
-    
+
     /*---------------------------------------------------------------------------*
     * Internal subpath computations
     *----------------------------------------------------------------------------*/
-    
+
     addSegmentAndBounds: function( segment ) {
       this.getLastSubpath().addSegment( segment );
       this.bounds = this.bounds.includeBounds( this.getLastSubpath().bounds );
     },
-    
+
     ensure: function( point ) {
       if ( !this.hasSubpaths() ) {
         this.addSubpath( new Subpath() );
         this.getLastSubpath().addPoint( point );
       }
     },
-    
+
     addSubpath: function( subpath ) {
       this.subpaths.push( subpath );
-      
+
       return this; // allow chaining
     },
-    
+
     hasSubpaths: function() {
       return this.subpaths.length > 0;
     },
-    
+
     getLastSubpath: function() {
       return _.last( this.subpaths );
     },
-    
+
     // gets the last point in the last subpath, or null if it doesn't exist
     getLastPoint: function() {
       return this.hasSubpaths() ? this.getLastSubpath().getLastPoint() : null;
     },
-    
+
     getLastSegment: function() {
       if ( !this.hasSubpaths() ) { return null; }
-      
+
       var subpath = this.getLastSubpath();
       if ( !subpath.isDrawable() ) { return null; }
-      
+
       return subpath.getLastSegment();
     },
-    
+
     // returns the point to be used for smooth quadratic segments
     getSmoothQuadraticControlPoint: function() {
       var lastPoint = this.getLastPoint();
-      
+
       var segment = this.getLastSegment();
       if ( !segment || !( segment instanceof kite.Segment.Quadratic ) ) { return lastPoint; }
-      
+
       return lastPoint.plus( lastPoint.minus( segment.control ) );
     },
-    
+
     // returns the point to be used for smooth cubic segments
     getSmoothCubicControlPoint: function() {
       var lastPoint = this.getLastPoint();
-      
+
       var segment = this.getLastSegment();
       if ( !segment || !( segment instanceof kite.Segment.Cubic ) ) { return lastPoint; }
-      
+
       return lastPoint.plus( lastPoint.minus( segment.control2 ) );
     },
-    
+
     getRelativePoint: function() {
       var lastPoint = this.getLastPoint();
       return lastPoint ? lastPoint : Vector2.ZERO;
     }
   };
-  
+
   /*---------------------------------------------------------------------------*
   * Shape shortcuts
   *----------------------------------------------------------------------------*/
-  
+
   Shape.rectangle = function( x, y, width, height ) {
     return new Shape().rect( x, y, width, height );
   };
@@ -615,11 +615,11 @@ define( function( require ) {
     return new Shape().roundRect( x, y, width, height, arcw, arch );
   };
   Shape.roundRectangle = Shape.roundRect;
-  
+
   Shape.polygon = function( vertices ) {
     return new Shape().polygon( vertices );
   };
-  
+
   Shape.bounds = function( bounds ) {
     return new Shape().rect( bounds.minX, bounds.minY, bounds.maxX - bounds.minX, bounds.maxY - bounds.minY );
   };
@@ -634,7 +634,7 @@ define( function( require ) {
       return new Shape().moveToPoint( a ).lineToPoint( b );
     }
   };
-  
+
   Shape.regularPolygon = function( sides, radius ) {
     var shape = new Shape();
     _.each( _.range( sides ), function( k ) {
@@ -643,7 +643,7 @@ define( function( require ) {
     } );
     return shape.close();
   };
-  
+
   // supports both circle( centerX, centerY, radius ), circle( center, radius ), and circle( radius ) with the center default to 0,0
   Shape.circle = function( centerX, centerY, radius ) {
     if ( centerY === undefined ) {
@@ -652,7 +652,7 @@ define( function( require ) {
     }
     return new Shape().circle( centerX, centerY, radius ).close();
   };
-  
+
   /*
    * Supports ellipse( centerX, centerY, radiusX, radiusY, rotation ), ellipse( center, radiusX, radiusY, rotation ), and ellipse( radiusX, radiusY, rotation )
    * with the center default to 0,0 and rotation of 0.  The rotation is about the centerX, centerY.
@@ -665,11 +665,11 @@ define( function( require ) {
     }
     return new Shape().ellipse( centerX, centerY, radiusX, radiusY, rotation ).close();
   };
-  
+
   // supports both arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) and arc( center, radius, startAngle, endAngle, anticlockwise )
   Shape.arc = function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) {
     return new Shape().arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise );
   };
-  
+
   return Shape;
 } );

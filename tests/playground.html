@@ -5,14 +5,14 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes">
-  
+
   <title>Kite Playground</title>
-  
+
   <script src="../../sherpa/lodash-2.4.1.min.js"></script>
   <script src="../../sherpa/has.js"></script>
-  
+
   <script data-main="../js/config.js" src="../../sherpa/require-2.1.11.js"></script>
-  
+
 </head>
 <body>
   <script>
@@ -23,9 +23,9 @@
           window.kite = kite;
           window.dot = dot;
           window.core = core;
-          
+
           console.log( 'loaded' );
-          
+
           window.initLineTest = function() {
             // intersection with one ray returns a different result than another. need to add indeterminate intersection handling
             window.shape = new kite.Shape( 'M -100 -100 L -50 50 L 50 50 L 30 0' );

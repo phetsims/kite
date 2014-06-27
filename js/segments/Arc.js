@@ -8,7 +8,7 @@
 
 define( function( require ) {
   'use strict';
-  
+
   var inherit = require( 'PHET_CORE/inherit' );
   var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
@@ -23,13 +23,13 @@ define( function( require ) {
       startAngle += Math.PI;
       endAngle += Math.PI;
     }
-    
+
     this._center = center;
     this._radius = radius;
     this._startAngle = startAngle;
     this._endAngle = endAngle;
     this._anticlockwise = anticlockwise;
-    
+
     // TODO: performance test removal of these undefined declarations
     this._start = undefined;
     this._end = undefined;
@@ -38,38 +38,38 @@ define( function( require ) {
     this._actualEndAngle = undefined;
     this._isFullPerimeter = undefined;
     this._angleDifference = undefined;
-    
+
     // constraints
     assert && assert( !( ( !anticlockwise && endAngle - startAngle <= -Math.PI * 2 ) || ( anticlockwise && startAngle - endAngle <= -Math.PI * 2 ) ), 'Not handling arcs with start/end angles that show differences in-between browser handling' );
     assert && assert( !( ( !anticlockwise && endAngle - startAngle > Math.PI * 2 ) || ( anticlockwise && startAngle - endAngle > Math.PI * 2 ) ), 'Not handling arcs with start/end angles that show differences in-between browser handling' );
   };
   inherit( Segment, Segment.Arc, {
-    
+
     getCenter: function() {
       return this._center;
     },
     get center() { return this.getCenter(); },
-    
+
     getRadius: function() {
       return this._radius;
     },
     get radius() { return this.getRadius(); },
-    
+
     getStartAngle: function() {
       return this._startAngle;
     },
     get startAngle() { return this.getStartAngle(); },
-    
+
     getEndAngle: function() {
       return this._endAngle;
     },
     get endAngle() { return this.getEndAngle(); },
-    
+
     getAnticlockwise: function() {
       return this._anticlockwise;
     },
     get anticlockwise() { return this.getAnticlockwise(); },
-    
+
     getStart: function() {
       if ( this._start === undefined ) {
         this._start = this.positionAtAngle( this._startAngle );
@@ -77,7 +77,7 @@ define( function( require ) {
       return this._start;
     },
     get start() { return this.getStart(); },
-    
+
     getEnd: function() {
       if ( this._end === undefined ) {
         this._end = this.positionAtAngle( this._endAngle );
@@ -85,7 +85,7 @@ define( function( require ) {
       return this._end;
     },
     get end() { return this.getEnd(); },
-    
+
     getStartTangent: function() {
       if ( this._startTangent === undefined ) {
         this._startTangent = this.tangentAtAngle( this._startAngle );
@@ -93,7 +93,7 @@ define( function( require ) {
       return this._startTangent;
     },
     get startTangent() { return this.getStartTangent(); },
-    
+
     getEndTangent: function() {
       if ( this._endTangent === undefined ) {
         this._endTangent = this.tangentAtAngle( this._endAngle );
@@ -101,7 +101,7 @@ define( function( require ) {
       return this._endTangent;
     },
     get endTangent() { return this.getEndTangent(); },
-    
+
     getActualEndAngle: function() {
       if ( this._actualEndAngle === undefined ) {
         // compute an actual end angle so that we can smoothly go from this._startAngle to this._actualEndAngle
@@ -132,7 +132,7 @@ define( function( require ) {
       return this._actualEndAngle;
     },
     get actualEndAngle() { return this.getActualEndAngle(); },
-    
+
     getIsFullPerimeter: function() {
       if ( this._isFullPerimeter === undefined ) {
         this._isFullPerimeter = ( !this._anticlockwise && this._endAngle - this._startAngle >= Math.PI * 2 ) || ( this._anticlockwise && this._startAngle - this._endAngle >= Math.PI * 2 );
@@ -140,7 +140,7 @@ define( function( require ) {
       return this._isFullPerimeter;
     },
     get isFullPerimeter() { return this.getIsFullPerimeter(); },
-    
+
     getAngleDifference: function() {
       if ( this._angleDifference === undefined ) {
         // compute an angle difference that represents how "much" of the circle our arc covers
@@ -153,13 +153,13 @@ define( function( require ) {
       return this._angleDifference;
     },
     get angleDifference() { return this.getAngleDifference(); },
-    
+
     getBounds: function() {
       if ( this._bounds === undefined ) {
         // acceleration for intersection
         this._bounds = Bounds2.NOTHING.copy().withPoint( this.getStart() )
                                              .withPoint( this.getEnd() );
-        
+
         // if the angles are different, check extrema points
         if ( this._startAngle !== this._endAngle ) {
           // check all of the extrema points
@@ -172,7 +172,7 @@ define( function( require ) {
       return this._bounds;
     },
     get bounds() { return this.getBounds(); },
-    
+
     getNondegenerateSegments: function() {
       if ( this._radius <= 0 || this._startAngle === this._endAngle ) {
         return [];
@@ -180,14 +180,14 @@ define( function( require ) {
         return [this]; // basically, Arcs aren't really degenerate that easily
       }
     },
-    
+
     includeBoundsAtAngle: function( angle ) {
       if ( this.containsAngle( angle ) ) {
         // the boundary point is in the arc
         this._bounds = this._bounds.withPoint( this._center.plus( Vector2.createPolar( this._radius, angle ) ) );
       }
     },
-    
+
     // maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
     mapAngle: function( angle ) {
       // consider an assert that we contain that angle?
@@ -195,53 +195,53 @@ define( function( require ) {
                DotUtil.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
                DotUtil.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
     },
-    
+
     tAtAngle: function( angle ) {
       return ( this.mapAngle( angle ) - this._startAngle ) / ( this.getActualEndAngle() - this._startAngle );
     },
-    
+
     angleAt: function( t ) {
       return this._startAngle + ( this.getActualEndAngle() - this._startAngle ) * t;
     },
-    
+
     positionAt: function( t ) {
       return this.positionAtAngle( this.angleAt( t ) );
     },
-    
+
     tangentAt: function( t ) {
       return this.tangentAtAngle( this.angleAt( t ) );
     },
-    
+
     curvatureAt: function( t ) {
       return ( this._anticlockwise ? -1 : 1 ) / this._radius;
     },
-    
+
     positionAtAngle: function( angle ) {
       return this._center.plus( Vector2.createPolar( this._radius, angle ) );
     },
-    
+
     tangentAtAngle: function( angle ) {
       var normal = Vector2.createPolar( 1, angle );
-      
+
       return this._anticlockwise ? normal.perpendicular() : normal.perpendicular().negated();
     },
-    
+
     // TODO: refactor? shared with Segment.EllipticalArc (use this improved version)
     containsAngle: function( angle ) {
       // transform the angle into the appropriate coordinate form
       // TODO: check anticlockwise version!
       var normalizedAngle = this._anticlockwise ? angle - this._endAngle : angle - this._startAngle;
-      
+
       // get the angle between 0 and 2pi
       var positiveMinAngle = DotUtil.moduloBetweenDown( normalizedAngle, 0, Math.PI * 2 );
-      
+
       return positiveMinAngle <= this.angleDifference;
     },
-    
+
     getSVGPathFragment: function() {
       // see http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands for more info
       // rx ry x-axis-rotation large-arc-flag sweep-flag x y
-      
+
       var epsilon = 0.01; // allow some leeway to render things as 'almost circles'
       var sweepFlag = this._anticlockwise ? '0' : '1';
       var largeArcFlag;
@@ -251,28 +251,28 @@ define( function( require ) {
       } else {
         // circle (or almost-circle) case needs to be handled differently
         // since SVG will not be able to draw (or know how to draw) the correct circle if we just have a start and end, we need to split it into two circular arcs
-        
+
         // get the angle that is between and opposite of both of the points
         var splitOppositeAngle = ( this._startAngle + this._endAngle ) / 2; // this _should_ work for the modular case?
         var splitPoint = this._center.plus( Vector2.createPolar( this._radius, splitOppositeAngle ) );
-        
+
         largeArcFlag = '0'; // since we split it in 2, it's always the small arc
-        
+
         var firstArc = 'A ' + this._radius + ' ' + this._radius + ' 0 ' + largeArcFlag + ' ' + sweepFlag + ' ' + splitPoint.x + ' ' + splitPoint.y;
         var secondArc = 'A ' + this._radius + ' ' + this._radius + ' 0 ' + largeArcFlag + ' ' + sweepFlag + ' ' + this.end.x + ' ' + this.end.y;
-        
+
         return firstArc + ' ' + secondArc;
       }
     },
-    
+
     strokeLeft: function( lineWidth ) {
       return [new Segment.Arc( this._center, this._radius + ( this._anticlockwise ? 1 : -1 ) * lineWidth / 2, this._startAngle, this._endAngle, this._anticlockwise )];
     },
-    
+
     strokeRight: function( lineWidth ) {
       return [new Segment.Arc( this._center, this._radius + ( this._anticlockwise ? -1 : 1 ) * lineWidth / 2, this._endAngle, this._startAngle, !this._anticlockwise )];
     },
-    
+
     // not including 0 and 1
     getInteriorExtremaTs: function() {
       var that = this;
@@ -288,7 +288,7 @@ define( function( require ) {
       } );
       return result.sort(); // modifies original, which is OK
     },
-    
+
     subdivided: function( t ) {
       // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles
       var angle0 = this.angleAt( 0 );
@@ -299,17 +299,17 @@ define( function( require ) {
         new Segment.Arc( this._center, this._radius, angleT, angle1, this._anticlockwise )
       ];
     },
-    
+
     intersectsBounds: function( bounds ) {
       throw new Error( 'Segment.intersectsBounds unimplemented!' );
     },
-    
+
     intersection: function( ray ) {
       var result = []; // hits in order
-      
+
       // left here, if in the future we want to better-handle boundary points
       var epsilon = 0;
-      
+
       // Run a general circle-intersection routine, then we can test the angles later.
       // Solves for the two solutions t such that ray.pos + ray.dir * t is on the circle.
       // Then we check whether the angle at each possible hit point is in our arc.
@@ -325,15 +325,15 @@ define( function( require ) {
       var sqt = Math.sqrt( discriminant ) / 2;
       var ta = base - sqt;
       var tb = base + sqt;
-      
+
       if ( tb < epsilon ) {
         // circle is behind ray
         return result;
       }
-      
+
       var pointB = ray.pointAtDistance( tb );
       var normalB = pointB.minus( this._center ).normalized();
-      
+
       if ( ta < epsilon ) {
         // we are inside the circle, so only one intersection is possible
         if ( this.containsAngle( normalB.angle() ) ) {
@@ -349,7 +349,7 @@ define( function( require ) {
         // two possible hits (outside circle)
         var pointA = ray.pointAtDistance( ta );
         var normalA = pointA.minus( this._center ).normalized();
-        
+
         if ( this.containsAngle( normalA.angle() ) ) {
           result.push( {
             distance: ta,
@@ -367,10 +367,10 @@ define( function( require ) {
           } );
         }
       }
-      
+
       return result;
     },
-    
+
     // returns the resultant winding number of this ray intersecting this segment.
     windingIntersection: function( ray ) {
       var wind = 0;
@@ -380,20 +380,20 @@ define( function( require ) {
       } );
       return wind;
     },
-    
+
     writeToContext: function( context ) {
       context.arc( this._center.x, this._center.y, this._radius, this._startAngle, this._endAngle, this._anticlockwise );
     },
-    
+
     // TODO: test various transform types, especially rotations, scaling, shears, etc.
     transformed: function( matrix ) {
       // so we can handle reflections in the transform, we do the general case handling for start/end angles
       var startAngle = matrix.timesVector2( Vector2.createPolar( 1, this._startAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle();
       var endAngle = matrix.timesVector2( Vector2.createPolar( 1, this._endAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle();
-      
+
       // reverse the 'clockwiseness' if our transform includes a reflection
       var anticlockwise = matrix.getDeterminant() >= 0 ? this._anticlockwise : !this._anticlockwise;
-      
+
       if ( Math.abs( this._endAngle - this._startAngle ) === Math.PI * 2 ) {
         endAngle = anticlockwise ? startAngle - Math.PI * 2 : startAngle + Math.PI * 2;
       }
@@ -409,6 +409,6 @@ define( function( require ) {
       }
     }
   } );
-  
+
   return Segment.Arc;
 } );

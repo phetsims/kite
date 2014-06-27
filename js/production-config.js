@@ -20,7 +20,7 @@ require.config( {
     ASSERT: '../../assert/js',
     AXON: '../../axon/js'
   },
-  
+
   shim: {
     underscore: { exports: '_' }
   },

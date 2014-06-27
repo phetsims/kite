@@ -4,7 +4,7 @@
       cmd: isRelative ? 'moveToRelative' : 'moveTo',
       args: [ args[0].x, args[0].y ]
     } ];
-    
+
     // any other coordinate pairs are implicit lineTos
     if ( args.length > 1 ) {
       for ( var i = 1; i < args.length; i++ ) {

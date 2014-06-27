@@ -8,12 +8,12 @@
 
 define( function( require ) {
   'use strict';
-  
+
   var kite = require( 'KITE/kite' );
-  
+
   var DotUtil = require( 'DOT/Util' );
   var Bounds2 = require( 'DOT/Bounds2' );
-  
+
   /*
    * Will contain (for segments):
    * properties (backed by ES5 getters, created usually lazily):
@@ -40,12 +40,12 @@ define( function( require ) {
    */
   kite.Segment = function Segment(){}; // no common construction for now
   var Segment = kite.Segment;
-  
+
   var identityFunction = function identityFunction( x ) { return x; };
-  
+
   Segment.prototype = {
     constructor: Segment,
-    
+
     // tList should be a list of sorted t values from 0 <= t <= 1
     subdivisions: function( tList ) {
       // this could be solved by recursion, but we don't plan on the JS engine doing tail-call optimization
@@ -58,7 +58,7 @@ define( function( require ) {
         assert && assert( arr.length === 2 );
         result.push( arr[0] );
         right = arr[1];
-        
+
         // scale up the remaining t values
         for ( var j = i + 1; j < tList.length; j++ ) {
           tList[j] = DotUtil.linear( t, 1, 0, 1, tList[j] );
@@ -67,12 +67,12 @@ define( function( require ) {
       result.push( right );
       return result;
     },
-    
+
     // return an array of segments from breaking this segment into monotone pieces
     subdividedIntoMonotone: function() {
       return this.subdivisions( this.getInteriorExtremaTs() );
     },
-    
+
     /*
      * toPiecewiseLinearSegments( options ), with the following options provided:
      * - minLevels:                       how many levels to force subdivisions
@@ -89,17 +89,17 @@ define( function( require ) {
       maxLevels = maxLevels === undefined ? options.maxLevels : maxLevels;
       segments = segments || [];
       var pointMap = options.pointMap || identityFunction;
-      
+
       // points mapped by the (possibly-nonlinear) pointMap.
       start = start || pointMap( this.start );
       end = end || pointMap( this.end );
       var middle = pointMap( this.positionAt( 0.5 ) );
-      
+
       assert && assert( minLevels <= maxLevels );
       assert && assert( options.distanceEpsilon === null || typeof options.distanceEpsilon === 'number' );
       assert && assert( options.curveEpsilon === null || typeof options.curveEpsilon === 'number' );
       assert && assert( !pointMap || typeof pointMap === 'function' );
-      
+
       // i.e. we will have finished = maxLevels === 0 || ( minLevels <= 0 && epsilonConstraints ), just didn't want to one-line it
       var finished = maxLevels === 0; // bail out once we reach our maximum number of subdivision levels
       if ( !finished && minLevels <= 0 ) { // force subdivision if minLevels hasn't been reached
@@ -108,7 +108,7 @@ define( function( require ) {
                    // deviation criterion
                    ( options.distanceEpsilon === null || ( DotUtil.distToSegmentSquared( middle, start, end ) < options.distanceEpsilon ) );
       }
-      
+
       if ( finished ) {
         segments.push( new Segment.Line( start, end ) );
       } else {
@@ -119,7 +119,7 @@ define( function( require ) {
       return segments;
     }
   };
-  
+
   // list of { segment: ..., t: ..., closestPoint: ..., distanceSquared: ... } (since there can be duplicates), threshold is used for subdivision,
   // where it will exit if all of the segments are shorter than the threshold
   // TODO: solve segments to determine this analytically!
@@ -129,7 +129,7 @@ define( function( require ) {
     var bestList = [];
     var bestDistanceSquared = Number.POSITIVE_INFINITY;
     var thresholdOk = false;
-    
+
     _.each( segments, function( segment ) {
       // if we have an explicit computation for this segment, use it
       if ( segment.explicitClosestToPoint ) {
@@ -144,7 +144,7 @@ define( function( require ) {
         } );
       } else {
         // otherwise, we will split based on monotonicity, so we can subdivide
-        // separate, so we can map the subdivided segments 
+        // separate, so we can map the subdivided segments
         var ts = [0].concat( segment.getInteriorExtremaTs() ).concat([1]);
         for ( var i = 0; i < ts.length - 1; i++ ) {
           var ta = ts[i];
@@ -173,14 +173,14 @@ define( function( require ) {
         }
       }
     } );
-    
+
     while ( items.length && !thresholdOk ) {
       var curItems = items;
       items = [];
-      
+
       // whether all of the segments processed are shorter than the threshold
       thresholdOk = true;
-      
+
       _.each( curItems, function( item ) {
         if ( item.minDistanceSquared > bestDistanceSquared ) {
           return; // drop this item
@@ -230,7 +230,7 @@ define( function( require ) {
         }
       } );
     }
-    
+
     // if there are any closest regions, they are within the threshold, so we will add them all
     _.each( items, function( item ) {
       var t = ( item.ta + item.tb ) / 2;
@@ -242,9 +242,9 @@ define( function( require ) {
         distanceSquared: point.distanceSquared( closestPoint )
       } );
     } );
-    
+
     return bestList;
   };
-  
+
   return Segment;
 } );
