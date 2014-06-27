@@ -39,8 +39,9 @@ define( function( require ) {
   require( 'KITE/segments/Quadratic' );
 
   // for brevity
-  function p( x,y ) { return new Vector2( x, y ); }
-  function v( x,y ) { return new Vector2( x, y ); } // TODO: use this version in general, it makes more sense and is easier to type
+  function p( x, y ) { return new Vector2( x, y ); }
+
+  function v( x, y ) { return new Vector2( x, y ); } // TODO: use this version in general, it makes more sense and is easier to type
 
   // a normalized vector for non-zero winding checks
   // var weirdDir = p( Math.PI, 22 / 7 );
@@ -90,7 +91,8 @@ define( function( require ) {
         this.getLastSubpath().addPoint( end );
         this.addSegmentAndBounds( line );
         assert && assert( !isNaN( this.bounds.getX() ) );
-      } else {
+      }
+      else {
         this.ensure( point );
       }
 
@@ -240,7 +242,8 @@ define( function( require ) {
         var center = centerX;
         radius = centerY;
         return this.arcPoint( center, radius, 0, Math.PI * 2, false );
-      } else {
+      }
+      else {
         // circle( centerX, centerY, radius )
         return this.arcPoint( p( centerX, centerY ), radius, 0, Math.PI * 2, false );
       }
@@ -263,7 +266,8 @@ define( function( require ) {
         radiusY = radiusX;
         radiusX = centerY;
         return this.ellipticalArcPoint( center, radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
-      } else {
+      }
+      else {
         // ellipse( centerX, centerY, radiusX, radiusY, rotation )
         return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
       }
@@ -296,18 +300,21 @@ define( function( require ) {
       // if ( true ) {
       if ( arcw === arch ) {
         // we can use circular arcs, which have well defined stroked offsets
-        this.arc( highX, lowY, arcw, -Math.PI / 2, 0, false )
-            .arc( highX, highY, arcw, 0, Math.PI / 2, false )
-            .arc( lowX, highY, arcw, Math.PI / 2, Math.PI, false )
-            .arc( lowX, lowY, arcw, Math.PI, Math.PI * 3 / 2, false )
-            .close();
-      } else {
+        this
+          .arc( highX, lowY, arcw, -Math.PI / 2, 0, false )
+          .arc( highX, highY, arcw, 0, Math.PI / 2, false )
+          .arc( lowX, highY, arcw, Math.PI / 2, Math.PI, false )
+          .arc( lowX, lowY, arcw, Math.PI, Math.PI * 3 / 2, false )
+          .close();
+      }
+      else {
         // we have to resort to elliptical arcs
-        this.ellipticalArc( highX, lowY, arcw, arch, 0, -Math.PI / 2, 0, false )
-            .ellipticalArc( highX, highY, arcw, arch, 0, 0, Math.PI / 2, false )
-            .ellipticalArc( lowX, highY, arcw, arch, 0, Math.PI / 2, Math.PI, false )
-            .ellipticalArc( lowX, lowY, arcw, arch, 0, Math.PI, Math.PI * 3 / 2, false )
-            .close();
+        this
+          .ellipticalArc( highX, lowY, arcw, arch, 0, -Math.PI / 2, 0, false )
+          .ellipticalArc( highX, highY, arcw, arch, 0, 0, Math.PI / 2, false )
+          .ellipticalArc( lowX, highY, arcw, arch, 0, Math.PI / 2, Math.PI, false )
+          .ellipticalArc( lowX, lowY, arcw, arch, 0, Math.PI, Math.PI * 3 / 2, false )
+          .close();
       }
       return this;
     },
@@ -342,7 +349,7 @@ define( function( require ) {
       var len = this.subpaths.length;
       for ( var i = 0; i < len; i++ ) {
         var subpath = this.subpaths[i];
-        if( subpath.isDrawable() ) {
+        if ( subpath.isDrawable() ) {
           // since the commands after this are relative to the previous 'point', we need to specify a move to the initial point
           var startPoint = subpath.getFirstSegment().start;
           assert && assert( startPoint.equals( subpath.getFirstPoint(), 0.00001 ) ); // sanity check
@@ -428,7 +435,8 @@ define( function( require ) {
     computeBounds: function( lineStyles ) {
       if ( lineStyles ) {
         return this.bounds.union( this.getStrokedShape( lineStyles ).bounds );
-      } else {
+      }
+      else {
         return this.bounds;
       }
     },

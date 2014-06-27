@@ -55,8 +55,8 @@ define( function( require ) {
         var controlIsStart = this._start.equals( this._control );
         // TODO: allocation reduction
         this._startTangent = controlIsStart ?
-                               this._end.minus( this._start ).normalized() :
-                               this._control.minus( this._start ).normalized();
+                             this._end.minus( this._start ).normalized() :
+                             this._control.minus( this._start ).normalized();
       }
       return this._startTangent;
     },
@@ -67,8 +67,8 @@ define( function( require ) {
         var controlIsEnd = this._end.equals( this._control );
         // TODO: allocation reduction
         this._endTangent = controlIsEnd ?
-                               this._end.minus( this._start ).normalized() :
-                               this._end.minus( this._control ).normalized();
+                           this._end.minus( this._start ).normalized() :
+                           this._end.minus( this._control ).normalized();
       }
       return this._endTangent;
     },
@@ -104,14 +104,16 @@ define( function( require ) {
       if ( startIsEnd && startIsControl ) {
         // all same points
         return [];
-      } else if ( startIsEnd ) {
+      }
+      else if ( startIsEnd ) {
         // this is a special collinear case, we basically line out to the farthest point and back
         var halfPoint = this.positionAt( 0.5 );
         return [
           new Segment.Line( start, halfPoint ),
           new Segment.Line( halfPoint, end )
         ];
-      } else if ( arePointsCollinear( start, control, end ) ) {
+      }
+      else if ( arePointsCollinear( start, control, end ) ) {
         // if they are collinear, we can reduce to start->control and control->end, or if control is between, just one line segment
         // also, start !== end (handled earlier)
         if ( startIsControl || endIsControl ) {
@@ -130,11 +132,13 @@ define( function( require ) {
             new Segment.Line( start, pt ).getNondegenerateSegments(),
             new Segment.Line( pt, end ).getNondegenerateSegments()
           ] );
-        } else {
+        }
+        else {
           // just provide a line segment, our rendered path doesn't go outside of this
           return [new Segment.Line( start, end )]; // no extra nondegenerate check since start !== end
         }
-      } else {
+      }
+      else {
         return [this];
       }
     },
@@ -185,7 +189,8 @@ define( function( require ) {
         var a = d10.magnitude();
         var h = ( isZero ? -1 : 1 ) * d10.perpendicular().normalized().dot( p2.minus( p1 ) );
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
-      } else {
+      }
+      else {
         return this.subdivided( t, true )[0].curvatureAt( 1 );
       }
     },
@@ -203,7 +208,7 @@ define( function( require ) {
       for ( var i = 0; i < depth; i++ ) {
         curves = _.flatten( _.map( curves, function( curve ) {
           return curve.subdivided( 0.5, true );
-        } ));
+        } ) );
       }
 
       var offsetCurves = _.map( curves, function( curve ) { return curve.approximateOffset( r ); } );
@@ -360,7 +365,8 @@ define( function( require ) {
     var divisorX = 2 * ( end - 2 * control + start );
     if ( divisorX !== 0 ) {
       return -2 * ( control - start ) / divisorX;
-    } else {
+    }
+    else {
       return null;
     }
   };

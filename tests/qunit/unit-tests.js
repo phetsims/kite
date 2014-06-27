@@ -1,4 +1,3 @@
-
 // path to test base, without a slash, e.g. '../../../scenery/tests/qunit'
 function runKiteTests( pathToTestBase ) {
   function loadTestFile( src ) {
@@ -14,4 +13,4 @@ function runKiteTests( pathToTestBase ) {
 
   loadTestFile( 'js/miscellaneous.js' );
   loadTestFile( 'js/linting.js' );
-};
+}

@@ -63,7 +63,8 @@ define( function( require ) {
       // if it is degenerate (0-length), just ignore it
       if ( this._start.equals( this._end ) ) {
         return [];
-      } else {
+      }
+      else {
         return [this];
       }
     },
@@ -165,7 +166,8 @@ define( function( require ) {
       var hits = this.intersection( ray );
       if ( hits.length ) {
         return hits[0].wind;
-      } else {
+      }
+      else {
         return 0;
       }
     },
@@ -184,12 +186,14 @@ define( function( require ) {
       var t = point.minus( this._start ).dot( diff ) / diff.magnitudeSquared();
       t = Util.clamp( t, 0, 1 );
       var closestPoint = this.positionAt( t );
-      return [{
-        segment: this,
-        t: t,
-        closestPoint: closestPoint,
-        distanceSquared: point.distanceSquared( closestPoint )
-      }];
+      return [
+        {
+          segment: this,
+          t: t,
+          closestPoint: closestPoint,
+          distanceSquared: point.distanceSquared( closestPoint )
+        }
+      ];
     },
 
     // given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
@@ -201,10 +205,12 @@ define( function( require ) {
       if ( this._start.x === this._end.x ) {
         // angle is the same, we are still a line segment!
         return [new Segment.Line( Vector2.createPolar( this._start.y, this._start.x ), Vector2.createPolar( this._end.y, this._end.x ) )];
-      } else if ( this._start.y === this._end.y ) {
+      }
+      else if ( this._start.y === this._end.y ) {
         // we have a constant radius, so we are a circular arc
         return [new Segment.Arc( Vector2.ZERO, this._start.y, this._start.x, this._end.x, this._start.x > this._end.x )];
-      } else {
+      }
+      else {
         return this.toPiecewiseLinearSegments( options );
       }
     }

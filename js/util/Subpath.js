@@ -25,7 +25,7 @@ define( function( require ) {
     this.segments = segments || [];
 
     // recombine points if necessary, based off of start points of segments + the end point of the last segment
-    this.points = points || ( ( segments && segments.length ) ? _.map( segments, function( segment ) { return segment.start; } ).concat( segments[segments.length-1].end ) : [] );
+    this.points = points || ( ( segments && segments.length ) ? _.map( segments, function( segment ) { return segment.start; } ).concat( segments[segments.length - 1].end ) : [] );
     this.closed = !!closed;
 
     // cached stroked shape (so hit testing can be done quickly on stroked shapes)
@@ -174,7 +174,8 @@ define( function( require ) {
         // check for this segment's support for the specific transform or discretization being applied
         if ( options.methodName && segment[options.methodName] ) {
           return segment[options.methodName]( options );
-        } else {
+        }
+        else {
           return segment.toPiecewiseLinearSegments( options );
         }
       } ) ), null, this.closed );
@@ -223,7 +224,8 @@ define( function( require ) {
                   new kite.Segment.Line( fromPoint, miterPoint ),
                   new kite.Segment.Line( miterPoint, toPoint )
                 ];
-              } else {
+              }
+              else {
                 // angle too steep, use bevel instead. same as below, but copied for linter
                 return bevel;
               }
@@ -231,7 +233,8 @@ define( function( require ) {
             case 'bevel':
               return bevel;
           }
-        } else {
+        }
+        else {
           // no join necessary here since we have the acute angle. just simple lineTo for now so that the next segment starts from the right place
           // TODO: can we prevent self-intersection here?
           return bevel;
@@ -273,6 +276,7 @@ define( function( require ) {
       function addLeftSegments( segments ) {
         leftSegments = leftSegments.concat( segments );
       }
+
       function addRightSegments( segments ) {
         rightSegments = rightSegments.concat( segments );
       }
@@ -280,12 +284,12 @@ define( function( require ) {
       // we don't need to insert an implicit closing segment if the start and end points are the same
       var alreadyClosed = lastSegment.end.equals( firstSegment.start );
       // if there is an implicit closing segment
-      var closingSegment = alreadyClosed ? null : new kite.Segment.Line( this.segments[this.segments.length-1].end, this.segments[0].start );
+      var closingSegment = alreadyClosed ? null : new kite.Segment.Line( this.segments[this.segments.length - 1].end, this.segments[0].start );
 
       // stroke the logical "left" side of our path
       for ( i = 0; i < this.segments.length; i++ ) {
         if ( i > 0 ) {
-          addLeftSegments( join( this.segments[i].start, this.segments[i-1].endTangent, this.segments[i].startTangent, true ) );
+          addLeftSegments( join( this.segments[i].start, this.segments[i - 1].endTangent, this.segments[i].startTangent, true ) );
         }
         addLeftSegments( this.segments[i].strokeLeft( lineWidth ) );
       }
@@ -293,7 +297,7 @@ define( function( require ) {
       // stroke the logical "right" side of our path
       for ( i = this.segments.length - 1; i >= 0; i-- ) {
         if ( i < this.segments.length - 1 ) {
-          addRightSegments( join( this.segments[i].end, this.segments[i+1].startTangent.negated(), this.segments[i].endTangent.negated(), false ) );
+          addRightSegments( join( this.segments[i].end, this.segments[i + 1].startTangent.negated(), this.segments[i].endTangent.negated(), false ) );
         }
         addRightSegments( this.segments[i].strokeRight( lineWidth ) );
       }
@@ -304,7 +308,8 @@ define( function( require ) {
           // add the joins between the start and end
           addLeftSegments( join( lastSegment.end, lastSegment.endTangent, firstSegment.startTangent ) );
           addRightSegments( join( lastSegment.end, firstSegment.startTangent.negated(), lastSegment.endTangent.negated() ) );
-        } else {
+        }
+        else {
           // logical "left" stroke on the implicit closing segment
           addLeftSegments( join( closingSegment.start, lastSegment.endTangent, closingSegment.startTangent ) );
           addLeftSegments( closingSegment.strokeLeft( lineWidth ) );
@@ -319,13 +324,14 @@ define( function( require ) {
           new Subpath( leftSegments, null, true ),
           new Subpath( rightSegments, null, true )
         ];
-      } else {
+      }
+      else {
         subpaths = [
           new Subpath( leftSegments
-                         .concat( cap( lastSegment.end, lastSegment.endTangent ) )
-                         .concat( rightSegments )
-                         .concat( cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
-                       null, true )
+              .concat( cap( lastSegment.end, lastSegment.endTangent ) )
+              .concat( rightSegments )
+              .concat( cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
+            null, true )
         ];
       }
 

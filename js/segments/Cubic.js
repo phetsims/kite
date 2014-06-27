@@ -220,7 +220,8 @@ define( function( require ) {
         var sqrtDet = Math.sqrt( this._tDeterminant );
         this._tInflection1 = this._tCusp - sqrtDet;
         this._tInflection2 = this._tCusp + sqrtDet;
-      } else {
+      }
+      else {
         this._tInflection1 = null;
         this._tInflection2 = null;
       }
@@ -234,7 +235,8 @@ define( function( require ) {
         var subdividedAtCusp = this.subdivided( this.getTCusp );
         this._startQuadratic = new Segment.Quadratic( subdividedAtCusp[0].start, subdividedAtCusp[0].control1, subdividedAtCusp[0].end, false );
         this._endQuadratic = new Segment.Quadratic( subdividedAtCusp[1].start, subdividedAtCusp[1].control2, subdividedAtCusp[1].end, false );
-      } else {
+      }
+      else {
         this._startQuadratic = null;
         this._endQuadratic = null;
       }
@@ -251,17 +253,21 @@ define( function( require ) {
       if ( start.equals( end ) && start.equals( control1 ) && start.equals( control2 ) ) {
         // degenerate point
         return [];
-      } else if ( this.hasCusp() ) {
+      }
+      else if ( this.hasCusp() ) {
         return _.flatten( [
           this._startQuadratic.getNondegenerateSegments(),
           this._endQuadratic.getNondegenerateSegments()
         ] );
-      } else if ( reduced ) {
+      }
+      else if ( reduced ) {
         // if we can reduce to a quadratic Bezier, always do this (and make sure it is non-degenerate)
         return reduced.getNondegenerateSegments();
-      } else if ( arePointsCollinear( start, control1, end ) && arePointsCollinear( start, control2, end ) ) {
+      }
+      else if ( arePointsCollinear( start, control1, end ) && arePointsCollinear( start, control2, end ) ) {
         throw new Error( 'TODO, use extrema T funcs' );
-      } else {
+      }
+      else {
         return [this];
       }
     },
@@ -298,7 +304,8 @@ define( function( require ) {
         var a = d10.magnitude();
         var h = ( isZero ? -1 : 1 ) * d10.perpendicular().normalized().dot( p2.minus( p1 ) );
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
-      } else {
+      }
+      else {
         return this.subdivided( t )[0].curvatureAt( 1 );
       }
     },
@@ -340,7 +347,7 @@ define( function( require ) {
 
         points.push( this.positionAt( t ).plus( this.tangentAt( t ).perpendicular().normalized().times( r ) ) );
         if ( i > 0 ) {
-          result.push( new Segment.Line( points[i-1], points[i] ) );
+          result.push( new Segment.Line( points[i - 1], points[i] ) );
         }
       }
 
@@ -451,7 +458,8 @@ define( function( require ) {
           controlA.average( controlB ), // average the control points for stability. they should be almost identical
           this._end
         );
-      } else {
+      }
+      else {
         // the two options for control points are too far away, this curve isn't easily reducible.
         return null;
       }
@@ -493,8 +501,8 @@ define( function( require ) {
   // finds what t values the cubic extrema are at (if any). This is just the 1-dimensional case, used for multiple purposes
   Segment.Cubic.extremaT = function( v0, v1, v2, v3 ) {
     // coefficients of derivative
-    var a = -3 * v0 + 9 * v1 -9 * v2 + 3 * v3;
-    var b =  6 * v0 - 12 * v1 + 6 * v2;
+    var a = -3 * v0 + 9 * v1 - 9 * v2 + 3 * v3;
+    var b = 6 * v0 - 12 * v1 + 6 * v2;
     var c = -3 * v0 + 3 * v1;
 
     return solveQuadraticRootsReal( a, b, c );

@@ -110,20 +110,25 @@ define( function( require ) {
           // -2pi <= end - start < 2pi
           if ( this._startAngle > this._endAngle ) {
             this._actualEndAngle = this._endAngle;
-          } else if ( this._startAngle < this._endAngle ) {
+          }
+          else if ( this._startAngle < this._endAngle ) {
             this._actualEndAngle = this._endAngle - 2 * Math.PI;
-          } else {
+          }
+          else {
             // equal
             this._actualEndAngle = this._startAngle;
           }
-        } else {
+        }
+        else {
           // angle is 'increasing'
           // -2pi < end - start <= 2pi
           if ( this._startAngle < this._endAngle ) {
             this._actualEndAngle = this._endAngle;
-          } else if ( this._startAngle > this._endAngle ) {
+          }
+          else if ( this._startAngle > this._endAngle ) {
             this._actualEndAngle = this._endAngle + Math.PI * 2;
-          } else {
+          }
+          else {
             // equal
             this._actualEndAngle = this._startAngle;
           }
@@ -158,7 +163,7 @@ define( function( require ) {
       if ( this._bounds === undefined ) {
         // acceleration for intersection
         this._bounds = Bounds2.NOTHING.copy().withPoint( this.getStart() )
-                                             .withPoint( this.getEnd() );
+          .withPoint( this.getEnd() );
 
         // if the angles are different, check extrema points
         if ( this._startAngle !== this._endAngle ) {
@@ -176,7 +181,8 @@ define( function( require ) {
     getNondegenerateSegments: function() {
       if ( this._radius <= 0 || this._startAngle === this._endAngle ) {
         return [];
-      } else {
+      }
+      else {
         return [this]; // basically, Arcs aren't really degenerate that easily
       }
     },
@@ -192,8 +198,8 @@ define( function( require ) {
     mapAngle: function( angle ) {
       // consider an assert that we contain that angle?
       return ( this._startAngle > this.getActualEndAngle() ) ?
-               DotUtil.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
-               DotUtil.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
+             DotUtil.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
+             DotUtil.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
     },
 
     tAtAngle: function( angle ) {
@@ -248,7 +254,8 @@ define( function( require ) {
       if ( this.angleDifference < Math.PI * 2 - epsilon ) {
         largeArcFlag = this.angleDifference < Math.PI ? '0' : '1';
         return 'A ' + this._radius + ' ' + this._radius + ' 0 ' + largeArcFlag + ' ' + sweepFlag + ' ' + this.end.x + ' ' + this.end.y;
-      } else {
+      }
+      else {
         // circle (or almost-circle) case needs to be handled differently
         // since SVG will not be able to draw (or know how to draw) the correct circle if we just have a start and end, we need to split it into two circular arcs
 
@@ -403,7 +410,8 @@ define( function( require ) {
         var radiusX = scaleVector.x * this._radius;
         var radiusY = scaleVector.y * this._radius;
         return new Segment.EllipticalArc( matrix.timesVector2( this._center ), radiusX, radiusY, 0, startAngle, endAngle, anticlockwise );
-      } else {
+      }
+      else {
         var radius = scaleVector.x * this._radius;
         return new Segment.Arc( matrix.timesVector2( this._center ), radius, startAngle, endAngle, anticlockwise );
       }

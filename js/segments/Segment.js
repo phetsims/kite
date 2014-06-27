@@ -38,7 +38,7 @@ define( function( require ) {
    * writeToContext( context ) - draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
    * transformed( matrix )     - returns a new segment that represents this segment after transformation by the matrix
    */
-  kite.Segment = function Segment(){}; // no common construction for now
+  kite.Segment = function Segment() {}; // no common construction for now
   var Segment = kite.Segment;
 
   var identityFunction = function identityFunction( x ) { return x; };
@@ -103,15 +103,16 @@ define( function( require ) {
       // i.e. we will have finished = maxLevels === 0 || ( minLevels <= 0 && epsilonConstraints ), just didn't want to one-line it
       var finished = maxLevels === 0; // bail out once we reach our maximum number of subdivision levels
       if ( !finished && minLevels <= 0 ) { // force subdivision if minLevels hasn't been reached
-                   // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
+        // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
         finished = ( options.curveEpsilon === null || ( DotUtil.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) < options.curveEpsilon ) ) &&
-                   // deviation criterion
+          // deviation criterion
                    ( options.distanceEpsilon === null || ( DotUtil.distToSegmentSquared( middle, start, end ) < options.distanceEpsilon ) );
       }
 
       if ( finished ) {
         segments.push( new Segment.Line( start, end ) );
-      } else {
+      }
+      else {
         var subdividedSegments = this.subdivided( 0.5 );
         subdividedSegments[0].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, start, middle );
         subdividedSegments[1].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, middle, end );
@@ -138,17 +139,19 @@ define( function( require ) {
           if ( info.distanceSquared < bestDistanceSquared ) {
             bestList = [info];
             bestDistanceSquared = info.distanceSquared;
-          } else if ( info.distanceSquared === bestDistanceSquared ) {
+          }
+          else if ( info.distanceSquared === bestDistanceSquared ) {
             bestList.push( info );
           }
         } );
-      } else {
+      }
+      else {
         // otherwise, we will split based on monotonicity, so we can subdivide
         // separate, so we can map the subdivided segments
-        var ts = [0].concat( segment.getInteriorExtremaTs() ).concat([1]);
+        var ts = [0].concat( segment.getInteriorExtremaTs() ).concat( [1] );
         for ( var i = 0; i < ts.length - 1; i++ ) {
           var ta = ts[i];
-          var tb = ts[i+1];
+          var tb = ts[i + 1];
           var pa = segment.positionAt( ta );
           var pb = segment.positionAt( tb );
           var bounds = Bounds2.point( pa ).addPoint( pb );

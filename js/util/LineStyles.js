@@ -44,7 +44,8 @@ define( function( require ) {
             return false;
           }
         }
-      } else {
+      }
+      else {
         // line dashes must be different
         return false;
       }

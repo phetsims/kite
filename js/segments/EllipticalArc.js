@@ -162,20 +162,25 @@ define( function( require ) {
           // -2pi <= end - start < 2pi
           if ( this._startAngle > this._endAngle ) {
             this._actualEndAngle = this._endAngle;
-          } else if ( this._startAngle < this._endAngle ) {
+          }
+          else if ( this._startAngle < this._endAngle ) {
             this._actualEndAngle = this._endAngle - 2 * Math.PI;
-          } else {
+          }
+          else {
             // equal
             this._actualEndAngle = this._startAngle;
           }
-        } else {
+        }
+        else {
           // angle is 'increasing'
           // -2pi < end - start <= 2pi
           if ( this._startAngle < this._endAngle ) {
             this._actualEndAngle = this._endAngle;
-          } else if ( this._startAngle > this._endAngle ) {
+          }
+          else if ( this._startAngle > this._endAngle ) {
             this._actualEndAngle = this._endAngle + Math.PI * 2;
-          } else {
+          }
+          else {
             // equal
             this._actualEndAngle = this._startAngle;
           }
@@ -218,7 +223,7 @@ define( function( require ) {
     getBounds: function() {
       if ( this._bounds === undefined ) {
         this._bounds = Bounds2.NOTHING.withPoint( this.getStart() )
-                                     .withPoint( this.getEnd() );
+          .withPoint( this.getEnd() );
 
         // if the angles are different, check extrema points
         if ( this._startAngle !== this._endAngle ) {
@@ -230,9 +235,9 @@ define( function( require ) {
           // check all of the extrema points
           this.possibleExtremaAngles = [
             xAngle,
-            xAngle + Math.PI,
+              xAngle + Math.PI,
             yAngle,
-            yAngle + Math.PI
+              yAngle + Math.PI
           ];
 
           _.each( this.possibleExtremaAngles, this.includeBoundsAtAngle.bind( this ) );
@@ -245,7 +250,8 @@ define( function( require ) {
     getNondegenerateSegments: function() {
       if ( this._radiusX <= 0 || this._radiusY <= 0 || this._startAngle === this._endAngle ) {
         return [];
-      } else if ( this._radiusX === this._radiusY ) {
+      }
+      else if ( this._radiusX === this._radiusY ) {
         // reduce to an Arc
         var startAngle = this._startAngle - this._rotation;
         var endAngle = this._endAngle - this._rotation;
@@ -255,7 +261,8 @@ define( function( require ) {
           endAngle = this._anticlockwise ? startAngle - Math.PI * 2 : startAngle + Math.PI * 2;
         }
         return [new Segment.Arc( this._center, this._radiusX, startAngle, endAngle, this._anticlockwise )];
-      } else {
+      }
+      else {
         return [this];
       }
     },
@@ -296,7 +303,7 @@ define( function( require ) {
       var angle = this.angleAt( t );
       var aq = this._radiusX * Math.sin( angle );
       var bq = this._radiusY * Math.cos( angle );
-      var denominator = Math.pow( bq * bq + aq * aq, 3/2 );
+      var denominator = Math.pow( bq * bq + aq * aq, 3 / 2 );
       return ( this._anticlockwise ? -1 : 1 ) * this._radiusX * this._radiusY / denominator;
     },
 
@@ -342,7 +349,7 @@ define( function( require ) {
 
         points.push( this.positionAtAngle( angle ).plus( this.tangentAtAngle( angle ).perpendicular().normalized().times( r ) ) );
         if ( i > 0 ) {
-          result.push( new Segment.Line( points[i-1], points[i] ) );
+          result.push( new Segment.Line( points[i - 1], points[i] ) );
         }
       }
 
@@ -359,7 +366,8 @@ define( function( require ) {
       if ( this.getAngleDifference() < Math.PI * 2 - epsilon ) {
         largeArcFlag = this.getAngleDifference() < Math.PI ? '0' : '1';
         return 'A ' + this._radiusX + ' ' + this._radiusY + ' ' + degreesRotation + ' ' + largeArcFlag + ' ' + sweepFlag + ' ' + this.getEnd().x + ' ' + this.getEnd().y;
-      } else {
+      }
+      else {
         // ellipse (or almost-ellipse) case needs to be handled differently
         // since SVG will not be able to draw (or know how to draw) the correct circle if we just have a start and end, we need to split it into two circular arcs
 
@@ -443,7 +451,8 @@ define( function( require ) {
     writeToContext: function( context ) {
       if ( context.ellipse ) {
         context.ellipse( this._center.x, this._center.y, this._radiusX, this._radiusY, this._rotation, this._startAngle, this._endAngle, this._anticlockwise );
-      } else {
+      }
+      else {
         // fake the ellipse call by using transforms
         this.getUnitTransform().getMatrix().canvasAppendTransform( context );
         context.arc( 0, 0, 1, this._startAngle, this._endAngle, this._anticlockwise );
@@ -478,8 +487,8 @@ define( function( require ) {
   // transforms the unit circle onto our ellipse
   Segment.EllipticalArc.computeUnitTransform = function( center, radiusX, radiusY, rotation ) {
     return new Transform3( Matrix3.translation( center.x, center.y ) // TODO: convert to Matrix3.translation( this._center) when available
-                                  .timesMatrix( Matrix3.rotation2( rotation ) )
-                                  .timesMatrix( Matrix3.scaling( radiusX, radiusY ) ) );
+      .timesMatrix( Matrix3.rotation2( rotation ) )
+      .timesMatrix( Matrix3.scaling( radiusX, radiusY ) ) );
   };
 
   return Segment.EllipticalArc;
