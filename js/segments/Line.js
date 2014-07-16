@@ -16,6 +16,8 @@ define( function( require ) {
 
   var Segment = require( 'KITE/segments/Segment' );
 
+  var scratchVector2 = new Vector2();
+
   Segment.Line = function Line( start, end ) {
     this._start = start;
     this._end = end;
@@ -53,11 +55,19 @@ define( function( require ) {
     getBounds: function() {
       // TODO: allocation reduction
       if ( this._bounds === undefined ) {
-        this._bounds = Bounds2.dirtyFromPool().addPoint( this._start ).addPoint( this._end );
+        this._bounds = Bounds2.NOTHING.copy().addPoint( this._start ).addPoint( this._end );
       }
       return this._bounds;
     },
     get bounds() { return this.getBounds(); },
+
+    getBoundsWithTransform: function( matrix ) {
+      // uses mutable calls
+      var bounds = Bounds2.NOTHING.copy();
+      bounds.addPoint( matrix.multiplyVector2( scratchVector2.set( this._start ) ) );
+      bounds.addPoint( matrix.multiplyVector2( scratchVector2.set( this._end ) ) );
+      return bounds;
+    },
 
     getNondegenerateSegments: function() {
       // if it is degenerate (0-length), just ignore it

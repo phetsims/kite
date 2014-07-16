@@ -181,6 +181,15 @@ define( function( require ) {
       } ) ), null, this.closed );
     },
 
+    getBoundsWithTransform: function( matrix ) {
+      var bounds = Bounds2.NOTHING.copy();
+      var numSegments = this.segments.length;
+      for ( var i = 0; i < numSegments; i++ ) {
+        bounds.includeBounds( this.segments[i].getBoundsWithTransform( matrix ) );
+      }
+      return bounds;
+    },
+
     // returns an array of subpaths (one if open, two if closed) that represent a stroked copy of this subpath.
     stroked: function( lineStyles ) {
       // non-drawable subpaths convert to empty subpaths

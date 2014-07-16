@@ -46,6 +46,12 @@ define( function( require ) {
   Segment.prototype = {
     constructor: Segment,
 
+    // TODO: override everywhere so this isn't necessary (it's not particularly efficient!)
+    getBoundsWithTransform: function( matrix ) {
+      var transformedSegment = this.transformed( matrix );
+      return transformedSegment.getBounds();
+    },
+
     // tList should be a list of sorted t values from 0 <= t <= 1
     subdivisions: function( tList ) {
       // this could be solved by recursion, but we don't plan on the JS engine doing tail-call optimization

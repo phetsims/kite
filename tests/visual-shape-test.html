@@ -111,6 +111,7 @@
 
     <div class="label">Other</div>
     <button id="bounds-shape">bounds</button>
+    <button id="bounds-shape-rot">bounds-rot</button>
     <button id="fill">fill</button>
     <button id="stroke-kite">kiteStroke</button>
     <button id="endpoints">subpath</button>
@@ -171,6 +172,7 @@
         var hitDistance = false;
 
         var shapeBounds = false;
+        var shapeRotBounds = false;
 
         var shape = new kite.Shape();
         var transformedShape;
@@ -185,6 +187,9 @@
         var scaling = 1;
         var shear = 0;
         var reflection = false;
+
+        var rotationMatrix = dot.Matrix3.rotation2( Math.PI / 4 );
+        var inverseRotationMatrix = rotationMatrix.inverted();
 
         /*---------------------------------------------------------------------------*
          * Drawing
@@ -368,6 +373,18 @@
             context.strokeStyle = 'rgba(255,0,255,0.8)';
             context.lineWidth = 1;
             context.stroke();
+          }
+
+          if ( shapeRotBounds ) {
+            var c = strokedShape.getBoundsWithTransform( rotationMatrix );
+            context.save();
+            inverseRotationMatrix.canvasAppendTransform( context );
+            context.beginPath();
+            context.rect( c.minX, c.minY, c.width, c.height );
+            context.strokeStyle = 'rgba(0,255,255,0.8)';
+            context.lineWidth = 1;
+            context.stroke();
+            context.restore();
           }
 
           if ( fill ) {
@@ -585,6 +602,10 @@
 
         updateListener( 'bounds-shape', function() {
           shapeBounds = !shapeBounds;
+        } );
+
+        updateListener( 'bounds-shape-rot', function() {
+          shapeRotBounds = !shapeRotBounds;
         } );
 
         /*---------------------------------------------------------------------------*

@@ -431,7 +431,7 @@ define( function( require ) {
     },
 
     // returns the bounds. if lineStyles exists, include the stroke in the bounds
-    // TODO: consider renaming to getBounds()?
+    // TODO: consider renaming to getBounds()? (yes, definitely rename)
     computeBounds: function( lineStyles ) {
       if ( lineStyles ) {
         return this.bounds.union( this.getStrokedShape( lineStyles ).bounds );
@@ -439,6 +439,27 @@ define( function( require ) {
       else {
         return this.bounds;
       }
+    },
+
+    getBoundsWithTransform: function( matrix, lineStyles ) {
+      // if we don't need to handle rotation/shear, don't use the extra effort!
+      if ( matrix.isAxisAligned() ) {
+        return this.computeBounds( lineStyles );
+      }
+
+      var bounds = Bounds2.NOTHING.copy();
+
+      var numSubpaths = this.subpaths.length;
+      for ( var i = 0; i < numSubpaths; i++ ) {
+        var subpath = this.subpaths[i];
+        bounds.includeBounds( subpath.getBoundsWithTransform( matrix ) );
+      }
+
+      if ( lineStyles ) {
+        bounds.includeBounds( this.getStrokedShape( lineStyles ).getBoundsWithTransform( matrix ) );
+      }
+
+      return bounds;
     },
 
     containsPoint: function( point ) {
