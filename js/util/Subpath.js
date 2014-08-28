@@ -13,7 +13,6 @@ define( function( require ) {
   'use strict';
 
   var Bounds2 = require( 'DOT/Bounds2' );
-  var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
 
   var kite = require( 'KITE/kite' );
 
@@ -208,74 +207,6 @@ define( function( require ) {
 
       var lineWidth = lineStyles.lineWidth;
 
-      // joins two segments together on the logical "left" side, at 'center' (where they meet), and normalized tangent vectors in the direction of the stroking
-      // to join on the "right" side, switch the tangent order and negate them
-      function join( center, fromTangent, toTangent ) {
-        // where our join path starts and ends
-        var fromPoint = center.plus( fromTangent.perpendicular().negated().times( lineWidth / 2 ) );
-        var toPoint = center.plus( toTangent.perpendicular().negated().times( lineWidth / 2 ) );
-
-        var bevel = ( fromPoint.equals( toPoint ) ? [] : [new kite.Segment.Line( fromPoint, toPoint )] );
-
-        // only insert a join on the non-acute-angle side
-        if ( fromTangent.perpendicular().dot( toTangent ) > 0 ) {
-          switch( lineStyles.lineJoin ) {
-            case 'round':
-              var fromAngle = fromTangent.angle() + Math.PI / 2;
-              var toAngle = toTangent.angle() + Math.PI / 2;
-              return [new kite.Segment.Arc( center, lineWidth / 2, fromAngle, toAngle, true )];
-            case 'miter':
-              var theta = fromTangent.angleBetween( toTangent.negated() );
-              if ( 1 / Math.sin( theta / 2 ) <= lineStyles.miterLimit && theta < Math.PI - 0.00001 ) {
-                // draw the miter
-                var miterPoint = lineLineIntersection( fromPoint, fromPoint.plus( fromTangent ), toPoint, toPoint.plus( toTangent ) );
-                return [
-                  new kite.Segment.Line( fromPoint, miterPoint ),
-                  new kite.Segment.Line( miterPoint, toPoint )
-                ];
-              }
-              else {
-                // angle too steep, use bevel instead. same as below, but copied for linter
-                return bevel;
-              }
-              break;
-            case 'bevel':
-              return bevel;
-          }
-        }
-        else {
-          // no join necessary here since we have the acute angle. just simple lineTo for now so that the next segment starts from the right place
-          // TODO: can we prevent self-intersection here?
-          return bevel;
-        }
-      }
-
-      // draws the necessary line cap from the endpoint 'center' in the direction of the tangent
-      function cap( center, tangent ) {
-        var fromPoint = center.plus( tangent.perpendicular().times( -lineWidth / 2 ) );
-        var toPoint = center.plus( tangent.perpendicular().times( lineWidth / 2 ) );
-
-        switch( lineStyles.lineCap ) {
-          case 'butt':
-            return [new kite.Segment.Line( fromPoint, toPoint )];
-          case 'round':
-            var tangentAngle = tangent.angle();
-            return [new kite.Segment.Arc( center, lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true )];
-          case 'square':
-            var toLeft = tangent.perpendicular().negated().times( lineWidth / 2 );
-            var toRight = tangent.perpendicular().times( lineWidth / 2 );
-            var toFront = tangent.times( lineWidth / 2 );
-
-            var left = center.plus( toLeft ).plus( toFront );
-            var right = center.plus( toRight ).plus( toFront );
-            return [
-              new kite.Segment.Line( fromPoint, left ),
-              new kite.Segment.Line( left, right ),
-              new kite.Segment.Line( right, toPoint )
-            ];
-        }
-      }
-
       var i;
       var leftSegments = [];
       var rightSegments = [];
@@ -298,7 +229,7 @@ define( function( require ) {
       // stroke the logical "left" side of our path
       for ( i = 0; i < this.segments.length; i++ ) {
         if ( i > 0 ) {
-          addLeftSegments( join( this.segments[i].start, this.segments[i - 1].endTangent, this.segments[i].startTangent, true ) );
+          addLeftSegments( lineStyles.leftJoin( this.segments[i].start, this.segments[i - 1].endTangent, this.segments[i].startTangent ) );
         }
         addLeftSegments( this.segments[i].strokeLeft( lineWidth ) );
       }
@@ -306,7 +237,7 @@ define( function( require ) {
       // stroke the logical "right" side of our path
       for ( i = this.segments.length - 1; i >= 0; i-- ) {
         if ( i < this.segments.length - 1 ) {
-          addRightSegments( join( this.segments[i].end, this.segments[i + 1].startTangent.negated(), this.segments[i].endTangent.negated(), false ) );
+          addRightSegments( lineStyles.rightJoin( this.segments[i].end, this.segments[i].endTangent, this.segments[i + 1].startTangent ) );
         }
         addRightSegments( this.segments[i].strokeRight( lineWidth ) );
       }
@@ -315,19 +246,19 @@ define( function( require ) {
       if ( this.closed ) {
         if ( alreadyClosed ) {
           // add the joins between the start and end
-          addLeftSegments( join( lastSegment.end, lastSegment.endTangent, firstSegment.startTangent ) );
-          addRightSegments( join( lastSegment.end, firstSegment.startTangent.negated(), lastSegment.endTangent.negated() ) );
+          addLeftSegments( lineStyles.leftJoin( lastSegment.end, lastSegment.endTangent, firstSegment.startTangent ) );
+          addRightSegments( lineStyles.rightJoin( lastSegment.end, lastSegment.endTangent, firstSegment.startTangent ) );
         }
         else {
           // logical "left" stroke on the implicit closing segment
-          addLeftSegments( join( closingSegment.start, lastSegment.endTangent, closingSegment.startTangent ) );
+          addLeftSegments( lineStyles.leftJoin( closingSegment.start, lastSegment.endTangent, closingSegment.startTangent ) );
           addLeftSegments( closingSegment.strokeLeft( lineWidth ) );
-          addLeftSegments( join( closingSegment.end, closingSegment.endTangent, firstSegment.startTangent ) );
+          addLeftSegments( lineStyles.leftJoin( closingSegment.end, closingSegment.endTangent, firstSegment.startTangent ) );
 
           // logical "right" stroke on the implicit closing segment
-          addRightSegments( join( closingSegment.end, firstSegment.startTangent.negated(), closingSegment.endTangent.negated() ) );
+          addRightSegments( lineStyles.rightJoin( closingSegment.end, closingSegment.endTangent, firstSegment.startTangent ) );
           addRightSegments( closingSegment.strokeRight( lineWidth ) );
-          addRightSegments( join( closingSegment.start, closingSegment.startTangent.negated(), lastSegment.endTangent.negated() ) );
+          addRightSegments( lineStyles.rightJoin( closingSegment.start, lastSegment.endTangent, closingSegment.startTangent ) );
         }
         subpaths = [
           new Subpath( leftSegments, null, true ),
@@ -337,9 +268,9 @@ define( function( require ) {
       else {
         subpaths = [
           new Subpath( leftSegments
-              .concat( cap( lastSegment.end, lastSegment.endTangent ) )
+              .concat( lineStyles.cap( lastSegment.end, lastSegment.endTangent ) )
               .concat( rightSegments )
-              .concat( cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
+              .concat( lineStyles.cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
             null, true )
         ];
       }
