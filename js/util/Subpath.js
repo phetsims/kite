@@ -189,6 +189,46 @@ define( function( require ) {
       return bounds;
     },
 
+    // {experimental} returns a subpath
+    offset: function( distance ) {
+      if ( !this.isDrawable() ) {
+        return new Subpath( [], null, this.closed );
+      }
+      if ( distance === 0 ) {
+        return new Subpath( this.segments.slice(), null, this.closed );
+      }
+
+      var i;
+
+      var regularSegments = this.segments.slice();
+      if ( this.closed && this.hasClosingSegment() ) {
+        regularSegments.push( this.getClosingSegment() );
+      }
+      var offsets = [];
+
+      for ( i = 0; i < regularSegments.length; i++ ) {
+        offsets.push( regularSegments[i].strokeLeft( 2 * distance ) );
+      }
+
+      var segments = [];
+      for ( i = 0; i < regularSegments.length; i++ ) {
+        if ( this.closed || i > 0 ) {
+          var previousI = ( i > 0 ? i : regularSegments.length ) - 1;
+          var center = regularSegments[i].start;
+          var fromTangent = regularSegments[previousI].endTangent;
+          var toTangent = regularSegments[i].startTangent;
+
+          var startAngle = fromTangent.perpendicular().negated().times( distance ).angle();
+          var endAngle = toTangent.perpendicular().negated().times( distance ).angle();
+          var anticlockwise = fromTangent.perpendicular().dot( toTangent ) > 0;
+          segments.push( new kite.Segment.Arc( center, Math.abs( distance ), startAngle, endAngle, anticlockwise ) );
+        }
+        segments = segments.concat( offsets[i] );
+      }
+
+      return new Subpath( segments, null, this.closed );
+    },
+
     // returns an array of subpaths (one if open, two if closed) that represent a stroked copy of this subpath.
     stroked: function( lineStyles ) {
       // non-drawable subpaths convert to empty subpaths
@@ -213,11 +253,11 @@ define( function( require ) {
       var firstSegment = this.getFirstSegment();
       var lastSegment = this.getLastSegment();
 
-      function addLeftSegments( segments ) {
+      function appendLeftSegments( segments ) {
         leftSegments = leftSegments.concat( segments );
       }
 
-      function addRightSegments( segments ) {
+      function appendRightSegments( segments ) {
         rightSegments = rightSegments.concat( segments );
       }
 
@@ -229,36 +269,36 @@ define( function( require ) {
       // stroke the logical "left" side of our path
       for ( i = 0; i < this.segments.length; i++ ) {
         if ( i > 0 ) {
-          addLeftSegments( lineStyles.leftJoin( this.segments[i].start, this.segments[i - 1].endTangent, this.segments[i].startTangent ) );
+          appendLeftSegments( lineStyles.leftJoin( this.segments[i].start, this.segments[i - 1].endTangent, this.segments[i].startTangent ) );
         }
-        addLeftSegments( this.segments[i].strokeLeft( lineWidth ) );
+        appendLeftSegments( this.segments[i].strokeLeft( lineWidth ) );
       }
 
       // stroke the logical "right" side of our path
       for ( i = this.segments.length - 1; i >= 0; i-- ) {
         if ( i < this.segments.length - 1 ) {
-          addRightSegments( lineStyles.rightJoin( this.segments[i].end, this.segments[i].endTangent, this.segments[i + 1].startTangent ) );
+          appendRightSegments( lineStyles.rightJoin( this.segments[i].end, this.segments[i].endTangent, this.segments[i + 1].startTangent ) );
         }
-        addRightSegments( this.segments[i].strokeRight( lineWidth ) );
+        appendRightSegments( this.segments[i].strokeRight( lineWidth ) );
       }
 
       var subpaths;
       if ( this.closed ) {
         if ( alreadyClosed ) {
           // add the joins between the start and end
-          addLeftSegments( lineStyles.leftJoin( lastSegment.end, lastSegment.endTangent, firstSegment.startTangent ) );
-          addRightSegments( lineStyles.rightJoin( lastSegment.end, lastSegment.endTangent, firstSegment.startTangent ) );
+          appendLeftSegments( lineStyles.leftJoin( lastSegment.end, lastSegment.endTangent, firstSegment.startTangent ) );
+          appendRightSegments( lineStyles.rightJoin( lastSegment.end, lastSegment.endTangent, firstSegment.startTangent ) );
         }
         else {
           // logical "left" stroke on the implicit closing segment
-          addLeftSegments( lineStyles.leftJoin( closingSegment.start, lastSegment.endTangent, closingSegment.startTangent ) );
-          addLeftSegments( closingSegment.strokeLeft( lineWidth ) );
-          addLeftSegments( lineStyles.leftJoin( closingSegment.end, closingSegment.endTangent, firstSegment.startTangent ) );
+          appendLeftSegments( lineStyles.leftJoin( closingSegment.start, lastSegment.endTangent, closingSegment.startTangent ) );
+          appendLeftSegments( closingSegment.strokeLeft( lineWidth ) );
+          appendLeftSegments( lineStyles.leftJoin( closingSegment.end, closingSegment.endTangent, firstSegment.startTangent ) );
 
           // logical "right" stroke on the implicit closing segment
-          addRightSegments( lineStyles.rightJoin( closingSegment.end, closingSegment.endTangent, firstSegment.startTangent ) );
-          addRightSegments( closingSegment.strokeRight( lineWidth ) );
-          addRightSegments( lineStyles.rightJoin( closingSegment.start, lastSegment.endTangent, closingSegment.startTangent ) );
+          appendRightSegments( lineStyles.rightJoin( closingSegment.end, closingSegment.endTangent, firstSegment.startTangent ) );
+          appendRightSegments( closingSegment.strokeRight( lineWidth ) );
+          appendRightSegments( lineStyles.rightJoin( closingSegment.start, lastSegment.endTangent, closingSegment.startTangent ) );
         }
         subpaths = [
           new Subpath( leftSegments, null, true ),
@@ -267,10 +307,9 @@ define( function( require ) {
       }
       else {
         subpaths = [
-          new Subpath( leftSegments
-              .concat( lineStyles.cap( lastSegment.end, lastSegment.endTangent ) )
-              .concat( rightSegments )
-              .concat( lineStyles.cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
+          new Subpath( leftSegments.concat( lineStyles.cap( lastSegment.end, lastSegment.endTangent ) )
+                                   .concat( rightSegments )
+                                   .concat( lineStyles.cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
             null, true )
         ];
       }

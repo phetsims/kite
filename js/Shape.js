@@ -555,6 +555,22 @@ define( function( require ) {
       return new Shape( subpaths, bounds );
     },
 
+    // {experimental!}
+    getOffsetShape: function( distance ) {
+      // TODO: abstract away this type of behavior
+      var subpaths = [];
+      var bounds = Bounds2.NOTHING.copy();
+      var subLen = this.subpaths.length;
+      for ( var i = 0; i < subLen; i++ ) {
+        subpaths.push( this.subpaths[i].offset( distance ) );
+      }
+      subLen = subpaths.length;
+      for ( i = 0; i < subLen; i++ ) {
+        bounds.includeBounds( subpaths[i].bounds );
+      }
+      return new Shape( subpaths, bounds );
+    },
+
     toString: function() {
       // TODO: consider a more verbose but safer way?
       return 'new kite.Shape( \'' + this.getSVGPath() + '\' )';

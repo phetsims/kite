@@ -39,11 +39,6 @@
     .label {
       text-align: center;
     }
-
-    input {
-      display: block;
-      margin: 0 auto;
-    }
   </style>
 
 </head>
@@ -119,10 +114,12 @@
     <div class="label">Transform</div>
     <button id="transform-active">active</button>
     <button id="transform-reflect">reflect</button>
-    <input id="translation" type="range" min="-50" max="50" step="1" value="0"/>
-    <input id="rotation" type="range" min="-180" max="180" step="1" value="0"/>
-    <input id="scaling" type="range" min="0.1" max="1.5" step="0.01" value="1"/>
-    <input id="shear" type="range" min="-2" max="2" step="0.01" value="0"/>
+    <br>
+    Translation: <input id="translation" type="range" min="-50" max="50" step="1" value="0"/><br>
+    Rotation: <input id="rotation" type="range" min="-180" max="180" step="1" value="0"/><br>
+    Scale: <input id="scaling" type="range" min="0.1" max="1.5" step="0.01" value="1"/><br>
+    Shear: <input id="shear" type="range" min="-2" max="2" step="0.01" value="0"/><br>
+    Offset: <input id="offset" type="range" min="-20" max="20" step="0.01" value="0"/><br>
 
     <div class="label">Hit test</div>
     <button id="hit-fill">fill</button>
@@ -186,6 +183,7 @@
         var rotation = 0;
         var scaling = 1;
         var shear = 0;
+        var offset = 0;
         var reflection = false;
 
         var rotationMatrix = dot.Matrix3.rotation2( Math.PI / 4 );
@@ -221,6 +219,9 @@
           }
           if ( close ) {
             transformedShape = transformedShape.copy().close();
+          }
+          if ( transformActive ) {
+            transformedShape = transformedShape.getOffsetShape( offset );
           }
 
           // main shape stroked in black
@@ -649,6 +650,9 @@
         }, 'input' );
         updateListener( 'shear', function() {
           shear = parseFloat( document.getElementById( 'shear' ).value );
+        }, 'input' );
+        updateListener( 'offset', function() {
+          offset = parseFloat( document.getElementById( 'offset' ).value );
         }, 'input' );
 
         /*---------------------------------------------------------------------------*
