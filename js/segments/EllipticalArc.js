@@ -17,6 +17,7 @@ define( function( require ) {
   var toDegrees = require( 'DOT/Util' ).toDegrees;
   var DotUtil = require( 'DOT/Util' );
 
+  var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
   require( 'KITE/util/Subpath' );
 
@@ -365,7 +366,8 @@ define( function( require ) {
       var degreesRotation = toDegrees( this._rotation ); // bleh, degrees?
       if ( this.getAngleDifference() < Math.PI * 2 - epsilon ) {
         largeArcFlag = this.getAngleDifference() < Math.PI ? '0' : '1';
-        return 'A ' + this._radiusX + ' ' + this._radiusY + ' ' + degreesRotation + ' ' + largeArcFlag + ' ' + sweepFlag + ' ' + this.getEnd().x + ' ' + this.getEnd().y;
+        return 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' + degreesRotation +
+               ' ' + largeArcFlag + ' ' + sweepFlag + ' ' + kite.svgNumber( this.getEnd().x ) + ' ' + kite.svgNumber( this.getEnd().y );
       }
       else {
         // ellipse (or almost-ellipse) case needs to be handled differently
@@ -377,8 +379,12 @@ define( function( require ) {
 
         largeArcFlag = '0'; // since we split it in 2, it's always the small arc
 
-        var firstArc = 'A ' + this._radiusX + ' ' + this._radiusY + ' ' + degreesRotation + ' ' + largeArcFlag + ' ' + sweepFlag + ' ' + splitPoint.x + ' ' + splitPoint.y;
-        var secondArc = 'A ' + this._radiusX + ' ' + this._radiusY + ' ' + degreesRotation + ' ' + largeArcFlag + ' ' + sweepFlag + ' ' + this.getEnd().x + ' ' + this.getEnd().y;
+        var firstArc = 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' +
+                       degreesRotation + ' ' + largeArcFlag + ' ' + sweepFlag + ' ' +
+                       kite.svgNumber( splitPoint.x ) + ' ' + kite.svgNumber( splitPoint.y );
+        var secondArc = 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' +
+                        degreesRotation + ' ' + largeArcFlag + ' ' + sweepFlag + ' ' +
+                        kite.svgNumber( this.getEnd().x ) + ' ' + kite.svgNumber( this.getEnd().y );
 
         return firstArc + ' ' + secondArc;
       }

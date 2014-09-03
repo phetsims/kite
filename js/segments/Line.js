@@ -14,6 +14,7 @@ define( function( require ) {
   var Vector2 = require( 'DOT/Vector2' );
   var Util = require( 'DOT/Util' );
 
+  var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
 
   var scratchVector2 = new Vector2();
@@ -93,7 +94,7 @@ define( function( require ) {
     },
 
     getSVGPathFragment: function() {
-      return 'L ' + this._end.x + ' ' + this._end.y;
+      return 'L ' + kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
     },
 
     strokeLeft: function( lineWidth ) {

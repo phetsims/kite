@@ -21,6 +21,7 @@ define( function( require ) {
   var solveCubicRootsReal = require( 'DOT/Util' ).solveCubicRootsReal;
   var arePointsCollinear = require( 'DOT/Util' ).arePointsCollinear;
 
+  var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
   require( 'KITE/segments/Quadratic' );
 
@@ -355,7 +356,9 @@ define( function( require ) {
     },
 
     getSVGPathFragment: function() {
-      return 'C ' + this._control1.x + ' ' + this._control1.y + ' ' + this._control2.x + ' ' + this._control2.y + ' ' + this._end.x + ' ' + this._end.y;
+      return 'C ' + kite.svgNumber( this._control1.x ) + ' ' + kite.svgNumber( this._control1.y ) + ' ' +
+             kite.svgNumber( this._control2.x ) + ' ' + kite.svgNumber( this._control2.y ) + ' ' +
+             kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
     },
 
     strokeLeft: function( lineWidth ) {

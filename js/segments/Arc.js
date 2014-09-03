@@ -14,6 +14,7 @@ define( function( require ) {
   var Bounds2 = require( 'DOT/Bounds2' );
   var DotUtil = require( 'DOT/Util' );
 
+  var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
 
   Segment.Arc = function Arc( center, radius, startAngle, endAngle, anticlockwise ) {
@@ -253,7 +254,8 @@ define( function( require ) {
       var largeArcFlag;
       if ( this.angleDifference < Math.PI * 2 - epsilon ) {
         largeArcFlag = this.angleDifference < Math.PI ? '0' : '1';
-        return 'A ' + this._radius + ' ' + this._radius + ' 0 ' + largeArcFlag + ' ' + sweepFlag + ' ' + this.end.x + ' ' + this.end.y;
+        return 'A ' + kite.svgNumber( this._radius ) + ' ' + kite.svgNumber( this._radius ) + ' 0 ' + largeArcFlag +
+               ' ' + sweepFlag + ' ' + kite.svgNumber( this.end.x ) + ' ' + kite.svgNumber( this.end.y );
       }
       else {
         // circle (or almost-circle) case needs to be handled differently
@@ -265,8 +267,10 @@ define( function( require ) {
 
         largeArcFlag = '0'; // since we split it in 2, it's always the small arc
 
-        var firstArc = 'A ' + this._radius + ' ' + this._radius + ' 0 ' + largeArcFlag + ' ' + sweepFlag + ' ' + splitPoint.x + ' ' + splitPoint.y;
-        var secondArc = 'A ' + this._radius + ' ' + this._radius + ' 0 ' + largeArcFlag + ' ' + sweepFlag + ' ' + this.end.x + ' ' + this.end.y;
+        var firstArc = 'A ' + kite.svgNumber( this._radius ) + ' ' + kite.svgNumber( this._radius ) + ' 0 ' +
+                       largeArcFlag + ' ' + sweepFlag + ' ' + kite.svgNumber( splitPoint.x ) + ' ' + kite.svgNumber( splitPoint.y );
+        var secondArc = 'A ' + kite.svgNumber( this._radius ) + ' ' + kite.svgNumber( this._radius ) + ' 0 ' +
+                        largeArcFlag + ' ' + sweepFlag + ' ' + kite.svgNumber( this.end.x ) + ' ' + kite.svgNumber( this.end.y );
 
         return firstArc + ' ' + secondArc;
       }

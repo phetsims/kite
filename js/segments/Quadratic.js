@@ -17,6 +17,7 @@ define( function( require ) {
   var solveQuadraticRootsReal = require( 'DOT/Util' ).solveQuadraticRootsReal;
   var arePointsCollinear = require( 'DOT/Util' ).arePointsCollinear;
 
+  var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
 
   Segment.Quadratic = function Quadratic( start, control, end ) {
@@ -256,7 +257,8 @@ define( function( require ) {
     },
 
     getSVGPathFragment: function() {
-      return 'Q ' + this._control.x + ' ' + this._control.y + ' ' + this._end.x + ' ' + this._end.y;
+      return 'Q ' + kite.svgNumber( this._control.x ) + ' ' + kite.svgNumber( this._control.y ) + ' ' +
+             kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
     },
 
     strokeLeft: function( lineWidth ) {

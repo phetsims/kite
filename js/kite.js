@@ -19,7 +19,11 @@ define( function( require ) {
   // object allocation tracking
   window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
 
-  var kite = {};
+  var kite = {
+    svgNumber: function( n ) {
+      return n.toFixed( 20 );
+    }
+  };
 
   // will be filled in by other modules
   return kite;
