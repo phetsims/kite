@@ -145,6 +145,23 @@ define( function( require ) {
       }
     },
 
+    writeToPixi: function( graphics ) {
+      if ( this.isDrawable() ) {
+        var startPoint = this.getFirstSegment().start;
+        graphics.moveTo( startPoint.x, startPoint.y ); // the segments assume the current context position is at their start
+
+        var len = this.segments.length;
+        for ( var i = 0; i < len; i++ ) {
+          this.segments[i].writeToPixi( graphics );
+        }
+
+        if ( this.closed ) {
+          graphics.endFill();//TODO: ????
+        }
+      }
+    },
+
+
     // see Segment.toPiecewiseLinearSegments for documentation
     toPiecewiseLinear: function( options ) {
       assert && assert( !options.pointMap, 'For use with pointMap, please use nonlinearTransformed' );

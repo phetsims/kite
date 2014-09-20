@@ -188,6 +188,10 @@ define( function( require ) {
       context.lineTo( this._end.x, this._end.y );
     },
 
+    writeToPixi: function( graphics ) {
+      graphics.lineTo( this._end.x, this._end.y );
+    },
+
     transformed: function( matrix ) {
       return new Segment.Line( matrix.timesVector2( this._start ), matrix.timesVector2( this._end ) );
     },
