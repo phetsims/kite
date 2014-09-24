@@ -65,6 +65,8 @@ define( function( require ) {
       } );
     }
 
+    this.resetControlPoints();
+
     phetAllocation && phetAllocation( 'Shape' );
   };
   var Shape = kite.Shape;
@@ -72,11 +74,29 @@ define( function( require ) {
   Shape.prototype = {
     constructor: Shape,
 
+    // for tracking the last quadratic/cubic control point for smooth* functions
+    // see https://github.com/phetsims/kite/issues/38
+    resetControlPoints: function() {
+      this.lastQuadraticControlPoint = null;
+      this.lastCubicControlPoint = null;
+    },
+    setQuadraticControlPoint: function( point ) {
+      this.lastQuadraticControlPoint = point;
+      this.lastCubicControlPoint = null;
+    },
+    setCubicControlPoint: function( point ) {
+      this.lastQuadraticControlPoint = null;
+      this.lastCubicControlPoint = point;
+    },
+
     moveTo: function( x, y ) { return this.moveToPoint( v( x, y ) ); },
     moveToRelative: function( x, y ) { return this.moveToPointRelative( v( x, y ) ); },
     moveToPointRelative: function( point ) { return this.moveToPoint( this.getRelativePoint().plus( point ) ); },
     moveToPoint: function( point ) {
-      return this.addSubpath( new kite.Subpath().addPoint( point ) );
+      this.addSubpath( new kite.Subpath().addPoint( point ) );
+      this.resetControlPoints();
+
+      return this;
     },
 
     lineTo: function( x, y ) { return this.lineToPoint( v( x, y ) ); },
@@ -95,6 +115,7 @@ define( function( require ) {
       else {
         this.ensure( point );
       }
+      this.resetControlPoints();
 
       return this;
     },
@@ -127,6 +148,8 @@ define( function( require ) {
         // TODO: optimization
         shape.addSegmentAndBounds( segment );
       } );
+      this.setQuadraticControlPoint( controlPoint );
+
       return this;
     },
 
@@ -150,6 +173,8 @@ define( function( require ) {
         shape.addSegmentAndBounds( segment );
       } );
       this.getLastSubpath().addPoint( point );
+
+      this.setCubicControlPoint( control2 );
 
       return this;
     },
@@ -178,6 +203,7 @@ define( function( require ) {
       this.getLastSubpath().addPoint( endPoint );
 
       this.addSegmentAndBounds( arc );
+      this.resetControlPoints();
 
       return this;
     },
@@ -206,6 +232,7 @@ define( function( require ) {
       this.getLastSubpath().addPoint( endPoint );
 
       this.addSegmentAndBounds( ellipticalArc );
+      this.resetControlPoints();
 
       return this;
     },
@@ -219,6 +246,7 @@ define( function( require ) {
         this.addSubpath( nextPath );
         nextPath.addPoint( previousPath.getFirstPoint() );
       }
+      this.resetControlPoints();
       return this;
     },
 
@@ -287,6 +315,7 @@ define( function( require ) {
       this.addSubpath( new kite.Subpath() );
       this.getLastSubpath().addPoint( v( x, y ) );
       assert && assert( !isNaN( this.bounds.getX() ) );
+      this.resetControlPoints();
 
       return this;
     },
@@ -624,20 +653,22 @@ define( function( require ) {
     getSmoothQuadraticControlPoint: function() {
       var lastPoint = this.getLastPoint();
 
-      var segment = this.getLastSegment();
-      if ( !segment || !( segment instanceof kite.Segment.Quadratic ) ) { return lastPoint; }
-
-      return lastPoint.plus( lastPoint.minus( segment.control ) );
+      if ( this.lastQuadraticControlPoint ) {
+        return lastPoint.plus( lastPoint.minus( this.lastQuadraticControlPoint ) );
+      } else {
+        return lastPoint;
+      }
     },
 
     // returns the point to be used for smooth cubic segments
     getSmoothCubicControlPoint: function() {
       var lastPoint = this.getLastPoint();
 
-      var segment = this.getLastSegment();
-      if ( !segment || !( segment instanceof kite.Segment.Cubic ) ) { return lastPoint; }
-
-      return lastPoint.plus( lastPoint.minus( segment.control2 ) );
+      if ( this.lastCubicControlPoint ) {
+        return lastPoint.plus( lastPoint.minus( this.lastCubicControlPoint ) );
+      } else {
+        return lastPoint;
+      }
     },
 
     getRelativePoint: function() {
