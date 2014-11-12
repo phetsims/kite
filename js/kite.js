@@ -13,9 +13,6 @@
 define( function( require ) {
   'use strict';
 
-  window.assert = window.assert || require( 'ASSERT/assert' )( 'basic' );
-  window.assertSlow = window.assertSlow || require( 'ASSERT/assert' )( 'slow', true );
-
   // object allocation tracking
   window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
 

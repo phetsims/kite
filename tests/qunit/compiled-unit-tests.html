@@ -16,10 +16,7 @@
   <script src="../../../sherpa/jquery-2.1.0.min.js"></script>
   <script src="../../../sherpa/lodash-2.4.1.min.js"></script>
   <script src="../../../sherpa/has.js"></script>
-  <script type="text/javascript">
-    has.add( 'assert.basic', function( global, document, anElement ) { return true; } );
-    has.add( 'assert.slow', function( global, document, anElement ) { return true; } );
-  </script>
+  <script src="../../../assert/js/assert.js"></script>
   <script src="../../../sherpa/jshint-2.5.0.js"></script>
   <script src="../../../sherpa/qunit-1.14.0.js"></script>
   <script src="../../../sherpa/qhint.js"></script>
@@ -27,7 +24,6 @@
   <!-- Dependency for the linting tests -->
   <script type="text/javascript" src="../../../phet-core/tests/qunit/unitTestLintFilesMatching.js"></script>
 
-  <!-- <script data-main="../../js/config.js" src="../../../sherpa/require-2.1.4.js"></script> -->
   <script src="../../build/production/kite.min.js"></script>
 
   <script src="unit-tests.js"></script>
@@ -36,7 +32,6 @@
 
 </head>
 <body>
-  <!-- <div style="position: fixed; top: 0; right: 50%; background-color: #fff; padding: 5px;"><a href="#" style="color: #000;" onclick="collapseTests();">Collapse All</a></div> -->
   <div id="qunit"></div>
   <div id="qunit-fixture">
   </div>
@@ -44,14 +39,6 @@
 
   <!-- this needs to be run after the qunit-fixture is in the DOM, but before the document is loaded because QUnit scans the fixture then -->
   <script>
-    function collapseTests() {
-      $( '#qunit-tests .fail ol' ).css( 'display', 'none' );
-    }
-
-    // QUnit.moduleDone( function( details ) {
-    //   collapseTests();
-    // } );
-
     runKiteTests( '.' );
     runDotTests( '../../../dot/tests/qunit' );
     runPhetCoreTests( '../../../phet-core/tests/qunit' );
