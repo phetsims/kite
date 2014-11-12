@@ -9,32 +9,32 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
 
   <title>Documentation - Kite</title>
-  
+
   <link rel="stylesheet" href="../../sherpa/bootstrap-2.2.2.css">
   <link rel="stylesheet" href="../../sherpa/bootstrap-responsive-2.2.2.css">
   <link rel="stylesheet" href="../../sherpa/syntaxhighlighter-3.0.83/shCore.css">
   <link rel="stylesheet" href="../../sherpa/syntaxhighlighter-3.0.83/shThemeDefault.css">
-  
+
   <!-- jQuery and LoDash are dependencies -->
-  <script src="../../sherpa/jquery-2.0.3.min.js"></script>
+  <script src="../../sherpa/jquery-2.1.0.min.js"></script>
   <script src="../../sherpa/lodash-2.4.1.min.js"></script>
-  
+
   <!-- For the styling -->
   <script src="../../sherpa/bootstrap-2.2.2.js"></script>
-  
+
   <script src="../../sherpa/syntaxhighlighter-3.0.83/shCore.js"></script>
   <script src="../../sherpa/syntaxhighlighter-3.0.83/shBrushJScript.js"></script>
   <script src="../../sherpa/syntaxhighlighter-3.0.83/shBrushXml.js"></script>
-  
+
   <!-- MathJax config -->
   <script type="text/x-mathjax-config">
   MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
   </script>
   <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-  
+
   <!-- Our code, in either the concatenated 'with comments' version or the minified version -->
   <script src="../build/development/kite.js"></script>
-  
+
   <script type="text/javascript">
     function docExample( id, draw ) {
       var canvas = document.getElementById( id );
@@ -50,15 +50,15 @@
       $( canvas ).after( $code );
     }
   </script>
-  
+
   <style type="text/css">
-    
+
     .exampleScene {
       margin: 15px auto;
       border: 1px solid black;
       display: block;
     }
-    
+
     #sidebar {
       background-color: #eee;
       position: fixed;
@@ -72,7 +72,7 @@
       border-right: 1px solid #bbb;
       box-shadow: 0 0 20px #ccc; -webkit-box-shadow: 0 0 20px #ccc; -moz-box-shadow: 0 0 20px #ccc;
     }
-    
+
     #apiList {
       background-color: #eee;
       position: relative;
@@ -80,26 +80,26 @@
       border-left: none;
       padding: 10px;
     }
-    
+
     .ph2 {
       font-weight: bold;
       font-size: 18px;
     }
-    
+
     .navlink {
       font-weight: bold;
     }
-    
+
     .sublink {
       padding-left: 1em;
     }
-    
+
     .args {
       font-weight: normal;
       font-size: 80%;
     }
   </style>
-  
+
 </head>
 
 <body>
@@ -124,24 +124,24 @@
       </ul>
     </div>
   </div>
-  
+
   <div class="row-fluid">
     <div class="span3"></div>
     <div class="span6">
       <div class="page-header" style="text-align: center;">
         <h1>Kite Documentation</h1>
       </div>
-      
+
       <p class="lead" style="color: #a00;">Currently incomplete!</p>
-      
+
     </div>
     <div class="span3"></div>
   </div>
-  
+
   <div class="row-fluid">
     <div class="span3" id="apiList">
       <div class="ph2"><a href="#api">Kite API</a></div>
-      
+
       <a class="navlink" href="#shape">Shape</a><br>
       <a class="sublink" href="#shape-moveTo">moveTo</a><br>
       <a class="sublink" href="#shape-lineTo">lineTo</a><br>
@@ -168,16 +168,16 @@
     </div>
     <div class="span6">
       <h2 id="tutorials">Tutorials</h2>
-      
+
       <p>Add one!</p>
-      
+
       <h2 id="get-the-code">Get the code</h2>
-      
+
       <p>
         Kite depends on a few other libraries, and needs to have them checked out as siblings. It is recommended to
         place all of these inside a containing directory. Make sure you have <a href="https://help.github.com/articles/set-up-git">git</a> installed, then run:
       </p>
-      
+
       <pre>
 git clone https://github.com/phetsims/sherpa.git
 git clone https://github.com/phetsims/chipper.git
@@ -185,36 +185,36 @@ git clone https://github.com/phetsims/assert.git
 git clone https://github.com/phetsims/phet-core.git
 git clone https://github.com/phetsims/dot.git
 git clone https://github.com/phetsims/kite.git</pre>
-      
+
       <p>
         For some examples and tests, and to build a custom version, you'll need to install <a href="http://nodejs.org/">node.js</a>, and <a href="https://github.com/gruntjs/grunt-cli">grunt-cli</a>. Then,
       </p>
-      
+
       <pre>
 cd kite
 npm install
 grunt</pre>
-      
+
       <p>
         You will now have the built files under build/
       </p>
-      
+
       <h2 id="dependencies">Dependencies</h2>
-      
+
       <strong>External</strong> dependencies (please provide these in your page before loading Kite):
       <ul>
         <li><a href="http://lodash.com/">Lo-Dash</a> for utility functions, as a replacement for <a href="http://underscorejs.org/">Underscore.js</a>.</li>
       </ul>
-      
+
       <strong>Internal</strong> dependencies:
       <ul>
-        <li><a href="https://github.com/phetsims/assert">assert</a> for assertion handling. If you want assertions different from the defaults, include <a href="https://github.com/phiggins42/has.js/">has.js</a>.</li>
+        <li><a href="https://github.com/phetsims/assert">assert</a> for assertion handling. Use <code>window.assertions.enableAssert()</code> for basic assertions.</li>
         <li><a href="https://github.com/phetsims/phet-core">phet-core</a> for other utility functions.</li>
         <li><a href="../../dot">Dot</a> for math.</li>
       </ul>
-      
+
       <h2 id="api">Kite API</h2>
-      
+
       <h3 id="shape" class="section">Shape</h3>
       <p>
         Represents a shape that is composed of one or more subpaths. <code>new kite.Shape()</code> will create an empty shape, which can then
@@ -225,7 +225,7 @@ grunt</pre>
         (since the quadratic curve is also a Bézier curve), and the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arcto">context.arcTo</a> varieties are not implemented, in
         favor of <a href="#shape-arc">shape.arc</a> and <a href="#shape-ellipticalArc">ellipticalArc</a>.
       </p>
-      
+
       <h4 id="shape-moveTo">moveTo( <span class="args">x, y</span> )</h4>
       <p>
         Moves the current position to the (x,y) location, without drawing a line. See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-moveto">context.moveTo</a> for detailed semantics.
@@ -249,7 +249,7 @@ new kite.Shape().moveTo( 10, 22 )
 shape.writeToContext( context );
 } );
       </script>
-      
+
       <h4 id="shape-lineTo">lineTo( <span class="args">x, y</span> )</h4>
       <p>
         Draws a line from the current position to the (x,y) location. See <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-lineto">context.lineTo</a> for detailed semantics.
@@ -272,7 +272,7 @@ new kite.Shape().moveTo( 20, 32 )
 shape.writeToContext( context );
 } );
       </script>
-      
+
       <h4 id="shape-quadraticCurveTo">quadraticCurveTo( <span class="args">cpx, cpy, x, y</span> )</h4>
       <p>
         Draws a quadratic <a href="http://en.wikipedia.org/wiki/B%C3%A9zier_curve">Bézier curve</a> with a control net
@@ -296,7 +296,7 @@ new kite.Shape().moveTo( 10, 10 )
 shape.writeToContext( context );
 } );
       </script>
-      
+
       <h4 id="shape-cubicCurveTo">cubicCurveTo( <span class="args">cp1x, cp1y, cp2x, cp2y, x, y</span> )</h4>
       <p>
         Draws a cubic <a href="http://en.wikipedia.org/wiki/B%C3%A9zier_curve">Bézier curve</a> with a control net
@@ -306,7 +306,7 @@ shape.writeToContext( context );
       <p>
         Also currently supports <code>cubicCurveToPoint( controlPoint1, controlPoint2, endPoint )</code> where the parameters are <a href="../../dot/doc#vector2">dot.Vector2</a> instances.
       </p>
-      
+
       <h4 id="shape-arc">arc( <span class="args">centerX, centerY, radius, startAngle, endAngle, anticlockwise</span> )</h4>
       <p>
         Draws a circular arc centered at (centerX,centerY) with the specified radius, between the two angles.
@@ -316,7 +316,7 @@ shape.writeToContext( context );
       <p>
         Also currently supports <code>arcPoint( center, radius, startAngle, endAngle, anticlockwise )</code> where the center is an <a href="../../dot/doc#vector2">dot.Vector2</a> instance.
       </p>
-      
+
       <h4 id="shape-ellipticalArc">ellipticalArc( <span class="args">centerX, centerY, radiusX, radiusy, rotation, startAngle, endAngle, anticlockwise</span> )</h4>
       <p>
         Draws an elliptical arc centered at (centerX,centerY) with the specified semi-major (<code>radiusX</code>) and semi-minor (<code>radiusY</code>) axes, between the two angles. The entire ellipse is rotated by <code>rotation</code>
@@ -326,8 +326,8 @@ shape.writeToContext( context );
       <p>
         Also currently supports <code>ellipticalArcPoint( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise )</code> where the center is an <a href="../../dot/doc#vector2">dot.Vector2</a> instance.
       </p>
-      
-      <!-- 
+
+      <!--
       <a class="sublink" href="#shape-rect">rect</a><br>
       <a class="sublink" href="#shape-roundRect">roundRect</a><br>
       <a class="sublink" href="#shape-circle">circle</a><br>
@@ -348,7 +348,7 @@ shape.writeToContext( context );
     </div>
     <div class="span3"></div>
   </div>
-  
+
   <script type="text/javascript">
     SyntaxHighlighter.all();
   </script>
