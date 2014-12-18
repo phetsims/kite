@@ -6,7 +6,7 @@
  * Shapes are internally made up of Subpaths, which contain a series of segments, and are optionally closed.
  * Familiarity with how Canvas handles subpaths is helpful for understanding this code.
  *
- * Canvas spec: http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
+ * Canvas spec: http://www.w3.org/TR/2dcontext/
  * SVG spec: http://www.w3.org/TR/SVG/expanded-toc.html
  *           http://www.w3.org/TR/SVG/paths.html#PathData (for paths)
  * Notes for elliptical arcs: http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
@@ -103,7 +103,7 @@ define( function( require ) {
     lineToRelative: function( x, y ) { return this.lineToPointRelative( v( x, y ) ); },
     lineToPointRelative: function( point ) { return this.lineToPoint( this.getRelativePoint().plus( point ) ); },
     lineToPoint: function( point ) {
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-lineto
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-lineto
       if ( this.hasSubpaths() ) {
         var start = this.getLastSubpath().getLastPoint();
         var end = point;
@@ -138,7 +138,7 @@ define( function( require ) {
     quadraticCurveToPoint: function( controlPoint, point ) {
       var shape = this;
 
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
       this.ensure( controlPoint );
       var start = this.getLastSubpath().getLastPoint();
       var quadratic = new kite.Segment.Quadratic( start, controlPoint, point );
@@ -163,7 +163,7 @@ define( function( require ) {
     smoothCubicCurveToRelative: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ).plus( this.getRelativePoint() ), v( x, y ).plus( this.getRelativePoint() ) ); },
     cubicCurveToPoint: function( control1, control2, point ) {
       var shape = this;
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
       this.ensure( control1 );
       var start = this.getLastSubpath().getLastPoint();
       var cubic = new kite.Segment.Cubic( start, control1, control2, point );
@@ -181,7 +181,7 @@ define( function( require ) {
 
     arc: function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) { return this.arcPoint( v( centerX, centerY ), radius, startAngle, endAngle, anticlockwise ); },
     arcPoint: function( center, radius, startAngle, endAngle, anticlockwise ) {
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arc
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
 
       var arc = new kite.Segment.Arc( center, radius, startAngle, endAngle, anticlockwise );
 
@@ -210,7 +210,7 @@ define( function( require ) {
 
     ellipticalArc: function( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) { return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ); },
     ellipticalArcPoint: function( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arc
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
 
       var ellipticalArc = new kite.Segment.EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
 

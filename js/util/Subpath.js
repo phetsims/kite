@@ -3,7 +3,7 @@
 /**
  * A Canvas-style stateful (mutable) subpath, which tracks segments in addition to the points.
  *
- * See http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#concept-path
+ * See http://www.w3.org/TR/2dcontext/#concept-path
  * for the path / subpath Canvas concept.
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>

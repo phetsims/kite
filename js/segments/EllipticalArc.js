@@ -22,7 +22,8 @@ define( function( require ) {
   require( 'KITE/util/Subpath' );
 
   // TODO: notes at http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
-  // Canvas notes at http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
+  // Canvas notes were at http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
+  // context.ellipse was removed from the Canvas spec
   Segment.EllipticalArc = function EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
     if ( radiusX < 0 ) {
       // support this case since we might actually need to handle it inside of strokes?
