@@ -237,9 +237,9 @@ define( function( require ) {
           // check all of the extrema points
           this.possibleExtremaAngles = [
             xAngle,
-              xAngle + Math.PI,
+            xAngle + Math.PI,
             yAngle,
-              yAngle + Math.PI
+            yAngle + Math.PI
           ];
 
           _.each( this.possibleExtremaAngles, this.includeBoundsAtAngle.bind( this ) );
@@ -262,10 +262,10 @@ define( function( require ) {
         if ( Math.abs( this._endAngle - this._startAngle ) === Math.PI * 2 ) {
           endAngle = this._anticlockwise ? startAngle - Math.PI * 2 : startAngle + Math.PI * 2;
         }
-        return [new Segment.Arc( this._center, this._radiusX, startAngle, endAngle, this._anticlockwise )];
+        return [ new Segment.Arc( this._center, this._radiusX, startAngle, endAngle, this._anticlockwise ) ];
       }
       else {
-        return [this];
+        return [ this ];
       }
     },
 
@@ -351,7 +351,7 @@ define( function( require ) {
 
         points.push( this.positionAtAngle( angle ).plus( this.tangentAtAngle( angle ).perpendicular().normalized().times( r ) ) );
         if ( i > 0 ) {
-          result.push( new Segment.Line( points[i - 1], points[i] ) );
+          result.push( new Segment.Line( points[ i - 1 ], points[ i ] ) );
         }
       }
 

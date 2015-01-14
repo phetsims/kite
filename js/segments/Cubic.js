@@ -234,8 +234,8 @@ define( function( require ) {
         // if there is a cusp, we'll split at the cusp into two quadratic bezier curves.
         // see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.94.8088&rep=rep1&type=pdf (Singularities of rational Bezier curves - J Monterde, 2001)
         var subdividedAtCusp = this.subdivided( this.getTCusp );
-        this._startQuadratic = new Segment.Quadratic( subdividedAtCusp[0].start, subdividedAtCusp[0].control1, subdividedAtCusp[0].end, false );
-        this._endQuadratic = new Segment.Quadratic( subdividedAtCusp[1].start, subdividedAtCusp[1].control2, subdividedAtCusp[1].end, false );
+        this._startQuadratic = new Segment.Quadratic( subdividedAtCusp[ 0 ].start, subdividedAtCusp[ 0 ].control1, subdividedAtCusp[ 0 ].end, false );
+        this._endQuadratic = new Segment.Quadratic( subdividedAtCusp[ 1 ].start, subdividedAtCusp[ 1 ].control2, subdividedAtCusp[ 1 ].end, false );
       }
       else {
         this._startQuadratic = null;
@@ -269,7 +269,7 @@ define( function( require ) {
         throw new Error( 'TODO, use extrema T funcs' );
       }
       else {
-        return [this];
+        return [ this ];
       }
     },
 
@@ -307,7 +307,7 @@ define( function( require ) {
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
       }
       else {
-        return this.subdivided( t )[0].curvatureAt( 1 );
+        return this.subdivided( t )[ 0 ].curvatureAt( 1 );
       }
     },
 
@@ -348,7 +348,7 @@ define( function( require ) {
 
         points.push( this.positionAt( t ).plus( this.tangentAt( t ).perpendicular().normalized().times( r ) ) );
         if ( i > 0 ) {
-          result.push( new Segment.Line( points[i - 1], points[i] ) );
+          result.push( new Segment.Line( points[ i - 1 ], points[ i ] ) );
         }
       }
 

@@ -76,7 +76,7 @@ define( function( require ) {
         return [];
       }
       else {
-        return [this];
+        return [ this ];
       }
     },
 
@@ -99,12 +99,12 @@ define( function( require ) {
 
     strokeLeft: function( lineWidth ) {
       var offset = this.getEndTangent().perpendicular().negated().times( lineWidth / 2 );
-      return [new Segment.Line( this._start.plus( offset ), this._end.plus( offset ) )];
+      return [ new Segment.Line( this._start.plus( offset ), this._end.plus( offset ) ) ];
     },
 
     strokeRight: function( lineWidth ) {
       var offset = this.getStartTangent().perpendicular().times( lineWidth / 2 );
-      return [new Segment.Line( this._end.plus( offset ), this._start.plus( offset ) )];
+      return [ new Segment.Line( this._end.plus( offset ), this._start.plus( offset ) ) ];
     },
 
     // lines are already monotone
@@ -176,7 +176,7 @@ define( function( require ) {
     windingIntersection: function( ray ) {
       var hits = this.intersection( ray );
       if ( hits.length ) {
-        return hits[0].wind;
+        return hits[ 0 ].wind;
       }
       else {
         return 0;
@@ -215,11 +215,11 @@ define( function( require ) {
     polarToCartesian: function( options ) {
       if ( this._start.x === this._end.x ) {
         // angle is the same, we are still a line segment!
-        return [new Segment.Line( Vector2.createPolar( this._start.y, this._start.x ), Vector2.createPolar( this._end.y, this._end.x ) )];
+        return [ new Segment.Line( Vector2.createPolar( this._start.y, this._start.x ), Vector2.createPolar( this._end.y, this._end.x ) ) ];
       }
       else if ( this._start.y === this._end.y ) {
         // we have a constant radius, so we are a circular arc
-        return [new Segment.Arc( Vector2.ZERO, this._start.y, this._start.x, this._end.x, this._start.x > this._end.x )];
+        return [ new Segment.Arc( Vector2.ZERO, this._start.y, this._start.x, this._end.x, this._start.x > this._end.x ) ];
       }
       else {
         return this.toPiecewiseLinearSegments( options );

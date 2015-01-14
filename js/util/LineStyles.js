@@ -41,7 +41,7 @@ define( function( require ) {
 
       if ( this.lineDash.length === other.lineDash.length ) {
         for ( var i = 0; i < this.lineDash.length; i++ ) {
-          if ( this.lineDash[i] !== other.lineDash[i] ) {
+          if ( this.lineDash[ i ] !== other.lineDash[ i ] ) {
             return false;
           }
         }
@@ -65,7 +65,7 @@ define( function( require ) {
       var fromPoint = center.plus( fromTangent.perpendicular().negated().times( this.lineWidth / 2 ) );
       var toPoint = center.plus( toTangent.perpendicular().negated().times( this.lineWidth / 2 ) );
 
-      var bevel = ( fromPoint.equals( toPoint ) ? [] : [new kite.Segment.Line( fromPoint, toPoint )] );
+      var bevel = ( fromPoint.equals( toPoint ) ? [] : [ new kite.Segment.Line( fromPoint, toPoint ) ] );
 
       // only insert a join on the non-acute-angle side
       if ( fromTangent.perpendicular().dot( toTangent ) > 0 ) {
@@ -73,7 +73,7 @@ define( function( require ) {
           case 'round':
             var fromAngle = fromTangent.angle() + Math.PI / 2;
             var toAngle = toTangent.angle() + Math.PI / 2;
-            return [new kite.Segment.Arc( center, this.lineWidth / 2, fromAngle, toAngle, true )];
+            return [ new kite.Segment.Arc( center, this.lineWidth / 2, fromAngle, toAngle, true ) ];
           case 'miter':
             var theta = fromTangent.angleBetween( toTangent.negated() );
             if ( 1 / Math.sin( theta / 2 ) <= this.miterLimit && theta < Math.PI - 0.00001 ) {
@@ -119,10 +119,10 @@ define( function( require ) {
 
       switch( this.lineCap ) {
         case 'butt':
-          return [new kite.Segment.Line( fromPoint, toPoint )];
+          return [ new kite.Segment.Line( fromPoint, toPoint ) ];
         case 'round':
           var tangentAngle = tangent.angle();
-          return [new kite.Segment.Arc( center, this.lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true )];
+          return [ new kite.Segment.Arc( center, this.lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true ) ];
         case 'square':
           var toLeft = tangent.perpendicular().negated().times( this.lineWidth / 2 );
           var toRight = tangent.perpendicular().times( this.lineWidth / 2 );

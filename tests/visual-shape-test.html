@@ -260,7 +260,7 @@
           _.each( transformedShape.subpaths, function( subpath ) {
             if ( endpoints ) {
               for ( var k = 0; k < subpath.points.length; k++ ) {
-                var subpoint = subpath.points[k];
+                var subpoint = subpath.points[ k ];
                 context.beginPath();
                 context.arc( subpoint.x, subpoint.y, 7, 0, Math.PI * 2, false );
                 context.strokeStyle = k === 0 ? '#f80' : ( k === subpath.points.length - 1 ? '#0f8' : '#80f' );
@@ -282,7 +282,7 @@
                   return segment.subdividedIntoMonotone();
                 }
                 else {
-                  return [segment];
+                  return [ segment ];
                 }
               } ) );
             }
@@ -350,8 +350,8 @@
                 if ( pts.length ) {
                   // path along the net
                   context.beginPath();
-                  context.moveTo( pts[0].x, pts[0].y );
-                  for ( var qi = 1; qi < pts.length; qi++ ) { context.lineTo( pts[qi].x, pts[qi].y ); }
+                  context.moveTo( pts[ 0 ].x, pts[ 0 ].y );
+                  for ( var qi = 1; qi < pts.length; qi++ ) { context.lineTo( pts[ qi ].x, pts[ qi ].y ); }
                   context.strokeStyle = '#0f0';
                   context.lineWidth = 1;
                   context.stroke();
@@ -359,7 +359,7 @@
                   // control points
                   for ( var qi = 1; qi < pts.length - 1; qi++ ) {
                     context.beginPath();
-                    context.arc( pts[qi].x, pts[qi].y, 3, 0, Math.PI * 2, false );
+                    context.arc( pts[ qi ].x, pts[ qi ].y, 3, 0, Math.PI * 2, false );
                     context.fillStyle = '#00f';
                     context.fill();
                   }
@@ -780,14 +780,14 @@
               }
 
               if ( hits.length ) {
-                drawSegment( 0, hits[0].distance, windColor( 0 ) );
+                drawSegment( 0, hits[ 0 ].distance, windColor( 0 ) );
                 var w = 0;
                 for ( var j = 0; j < hits.length - 1; j++ ) {
-                  w += hits[j].wind;
-                  drawSegment( hits[j].distance, hits[j + 1].distance, windColor( w ) );
+                  w += hits[ j ].wind;
+                  drawSegment( hits[ j ].distance, hits[ j + 1 ].distance, windColor( w ) );
                 }
-                w += hits[hits.length - 1].wind;
-                drawSegment( hits[hits.length - 1].distance, displayLength, windColor( w ) );
+                w += hits[ hits.length - 1 ].wind;
+                drawSegment( hits[ hits.length - 1 ].distance, displayLength, windColor( w ) );
               }
               else {
                 drawSegment( 0, displayLength, windColor( 0 ) );

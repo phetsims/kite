@@ -119,7 +119,7 @@ define( function( require ) {
         // also, start !== end (handled earlier)
         if ( startIsControl || endIsControl ) {
           // just a line segment!
-          return [new Segment.Line( start, end )]; // no extra nondegenerate check since start !== end
+          return [ new Segment.Line( start, end ) ]; // no extra nondegenerate check since start !== end
         }
         // now control point must be unique. we check to see if our rendered path will be outside of the start->end line segment
         var delta = end.minus( start );
@@ -136,11 +136,11 @@ define( function( require ) {
         }
         else {
           // just provide a line segment, our rendered path doesn't go outside of this
-          return [new Segment.Line( start, end )]; // no extra nondegenerate check since start !== end
+          return [ new Segment.Line( start, end ) ]; // no extra nondegenerate check since start !== end
         }
       }
       else {
-        return [this];
+        return [ this ];
       }
     },
 
@@ -192,7 +192,7 @@ define( function( require ) {
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
       }
       else {
-        return this.subdivided( t, true )[0].curvatureAt( 1 );
+        return this.subdivided( t, true )[ 0 ].curvatureAt( 1 );
       }
     },
 
@@ -202,7 +202,7 @@ define( function( require ) {
     offsetTo: function( r, reverse ) {
       // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html
       // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
-      var curves = [this];
+      var curves = [ this ];
 
       // subdivide this curve
       var depth = 5; // generates 2^depth curves

@@ -22,15 +22,15 @@ define( function( require ) {
      * because JSHint does not like the first and IE the second.
      */
     return '"' + s
-      .replace( /\\/g, '\\\\' )  // backslash
-      .replace( /"/g, '\\"' )    // closing quote character
-      .replace( /\x08/g, '\\b' ) // backspace
-      .replace( /\t/g, '\\t' )   // horizontal tab
-      .replace( /\n/g, '\\n' )   // line feed
-      .replace( /\f/g, '\\f' )   // form feed
-      .replace( /\r/g, '\\r' )   // carriage return
-      .replace( /[\x00-\x07\x0B\x0E-\x1F\x80-\uFFFF]/g, escape )
-      + '"';
+        .replace( /\\/g, '\\\\' )  // backslash
+        .replace( /"/g, '\\"' )    // closing quote character
+        .replace( /\x08/g, '\\b' ) // backspace
+        .replace( /\t/g, '\\t' )   // horizontal tab
+        .replace( /\n/g, '\\n' )   // line feed
+        .replace( /\f/g, '\\f' )   // form feed
+        .replace( /\r/g, '\\r' )   // carriage return
+        .replace( /[\x00-\x07\x0B\x0E-\x1F\x80-\uFFFF]/g, escape )
+           + '"';
   }
 
   kite.svgPath = {
@@ -86,7 +86,7 @@ define( function( require ) {
       };
 
       if ( startRule !== undefined ) {
-        if ( parseFunctions[startRule] === undefined ) {
+        if ( parseFunctions[ startRule ] === undefined ) {
           throw new Error( "Invalid rule name: " + quote( startRule ) + "." );
         }
       }
@@ -163,7 +163,7 @@ define( function( require ) {
               result3 = parse_wsp();
             }
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -180,7 +180,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, path ) { return path ? path : []; })( pos0, result0[1] );
+          result0 = (function( offset, path ) { return path ? path : []; })( pos0, result0[ 1 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -205,7 +205,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_movetoDrawtoCommandGroups();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -222,7 +222,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return a.concat( b ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return a.concat( b ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -258,7 +258,7 @@ define( function( require ) {
             result2 = parse_drawtoCommands();
             result2 = result2 !== null ? result2 : "";
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -275,7 +275,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, m, c ) { return c.length ? m.concat( c ) : m; })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, m, c ) { return c.length ? m.concat( c ) : m; })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -300,7 +300,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_drawtoCommands();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -317,7 +317,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, cmd, cmds ) { return cmd.concat( cmds ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, cmd, cmds ) { return cmd.concat( cmds ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -392,7 +392,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_movetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -409,7 +409,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return createMoveTo( args, false ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) { return createMoveTo( args, false ); })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -437,7 +437,7 @@ define( function( require ) {
             if ( result1 !== null ) {
               result2 = parse_movetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -454,7 +454,7 @@ define( function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return createMoveTo( args, true ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) { return createMoveTo( args, true ); })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -476,7 +476,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_linetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -493,7 +493,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, pair, list ) { return [pair].concat( list ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, pair, list ) { return [ pair ].concat( list ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -502,7 +502,7 @@ define( function( require ) {
           pos0 = pos;
           result0 = parse_coordinatePair();
           if ( result0 !== null ) {
-            result0 = (function( offset, pair ) { return [pair]; })( pos0, result0 );
+            result0 = (function( offset, pair ) { return [ pair ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -573,7 +573,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_linetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -590,7 +590,14 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'lineTo', args: [ arg.x, arg.y ] }; } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'lineTo',
+                args: [ arg.x, arg.y ]
+              };
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -618,7 +625,7 @@ define( function( require ) {
             if ( result1 !== null ) {
               result2 = parse_linetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -635,7 +642,14 @@ define( function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'lineToRelative', args: [ arg.x, arg.y ] }; } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'lineToRelative',
+                  args: [ arg.x, arg.y ]
+                };
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -657,7 +671,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_linetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -674,7 +688,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return [a].concat( b ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return [ a ].concat( b ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -683,7 +697,7 @@ define( function( require ) {
           pos0 = pos;
           result0 = parse_coordinatePair();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -718,7 +732,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_horizontalLinetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -735,7 +749,14 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'horizontalLineTo', args: [ arg ] } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'horizontalLineTo',
+                args: [ arg ]
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -763,7 +784,7 @@ define( function( require ) {
             if ( result1 !== null ) {
               result2 = parse_horizontalLinetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -780,7 +801,14 @@ define( function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'horizontalLineToRelative', args: [ arg ] } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'horizontalLineToRelative',
+                  args: [ arg ]
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -802,7 +830,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_horizontalLinetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -819,7 +847,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return [a].concat( b ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return [ a ].concat( b ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -828,7 +856,7 @@ define( function( require ) {
           pos0 = pos;
           result0 = parse_number();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -863,7 +891,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_verticalLinetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -880,7 +908,14 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'verticalLineTo', args: [ arg ] } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'verticalLineTo',
+                args: [ arg ]
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -908,7 +943,7 @@ define( function( require ) {
             if ( result1 !== null ) {
               result2 = parse_verticalLinetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -925,7 +960,14 @@ define( function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'verticalLineToRelative', args: [ arg ] } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'verticalLineToRelative',
+                  args: [ arg ]
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -947,7 +989,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_verticalLinetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -964,7 +1006,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return [a].concat( b ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return [ a ].concat( b ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -973,7 +1015,7 @@ define( function( require ) {
           pos0 = pos;
           result0 = parse_number();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -1008,7 +1050,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_curvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1025,7 +1067,14 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'cubicCurveTo', args: arg } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'cubicCurveTo',
+                args: arg
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1053,7 +1102,7 @@ define( function( require ) {
             if ( result1 !== null ) {
               result2 = parse_curvetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -1070,7 +1119,14 @@ define( function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'cubicCurveToRelative', args: arg } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'cubicCurveToRelative',
+                  args: arg
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -1092,7 +1148,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_curvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1109,7 +1165,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, list ) { return [a].concat( list ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, list ) { return [ a ].concat( list ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1118,7 +1174,7 @@ define( function( require ) {
           pos0 = pos;
           result0 = parse_curvetoArgument();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -1145,7 +1201,7 @@ define( function( require ) {
               if ( result3 !== null ) {
                 result4 = parse_coordinatePair();
                 if ( result4 !== null ) {
-                  result0 = [result0, result1, result2, result3, result4];
+                  result0 = [ result0, result1, result2, result3, result4 ];
                 }
                 else {
                   result0 = null;
@@ -1172,7 +1228,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b, c ) { return [ a.x, a.y, b.x, b.y, c.x, c.y ]; })( pos0, result0[0], result0[2], result0[4] );
+          result0 = (function( offset, a, b, c ) { return [ a.x, a.y, b.x, b.y, c.x, c.y ]; })( pos0, result0[ 0 ], result0[ 2 ], result0[ 4 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1206,7 +1262,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_smoothCurvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1223,7 +1279,14 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'smoothCubicCurveTo', args: arg } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'smoothCubicCurveTo',
+                args: arg
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1251,7 +1314,7 @@ define( function( require ) {
             if ( result1 !== null ) {
               result2 = parse_smoothCurvetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -1268,7 +1331,14 @@ define( function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'smoothCubicCurveToRelative', args: arg } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'smoothCubicCurveToRelative',
+                  args: arg
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -1290,7 +1360,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_smoothCurvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1307,7 +1377,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, list ) { return [a].concat( list ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, list ) { return [ a ].concat( list ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1316,7 +1386,7 @@ define( function( require ) {
           pos0 = pos;
           result0 = parse_smoothCurvetoArgument();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -1338,7 +1408,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_coordinatePair();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1355,7 +1425,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return [ a.x, a.y, b.x, b.y ]; })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return [ a.x, a.y, b.x, b.y ]; })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1389,7 +1459,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_quadraticBezierCurvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1406,7 +1476,14 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'quadraticCurveTo', args: arg } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'quadraticCurveTo',
+                args: arg
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1434,7 +1511,7 @@ define( function( require ) {
             if ( result1 !== null ) {
               result2 = parse_quadraticBezierCurvetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -1451,7 +1528,14 @@ define( function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'quadraticCurveToRelative', args: arg } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'quadraticCurveToRelative',
+                  args: arg
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -1473,7 +1557,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_quadraticBezierCurvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1490,7 +1574,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, list ) { return [a].concat( list ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, list ) { return [ a ].concat( list ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1499,7 +1583,7 @@ define( function( require ) {
           pos0 = pos;
           result0 = parse_quadraticBezierCurvetoArgument();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -1521,7 +1605,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_coordinatePair();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1538,7 +1622,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return [ a.x, a.y, b.x, b.y ]; })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return [ a.x, a.y, b.x, b.y ]; })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1572,7 +1656,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_smoothQuadraticBezierCurvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1589,7 +1673,14 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'smoothQuadraticCurveTo', args: [ arg.x, arg.y ] } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'smoothQuadraticCurveTo',
+                args: [ arg.x, arg.y ]
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1617,7 +1708,7 @@ define( function( require ) {
             if ( result1 !== null ) {
               result2 = parse_smoothQuadraticBezierCurvetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -1634,7 +1725,14 @@ define( function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'smoothQuadraticCurveToRelative', args: [ arg.x, arg.y ] } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'smoothQuadraticCurveToRelative',
+                  args: [ arg.x, arg.y ]
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -1656,7 +1754,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_smoothQuadraticBezierCurvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1673,7 +1771,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, list ) { return [a].concat( list ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, list ) { return [ a ].concat( list ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1682,7 +1780,7 @@ define( function( require ) {
           pos0 = pos;
           result0 = parse_coordinatePair();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -1717,7 +1815,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_ellipticalArcArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1734,7 +1832,14 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'ellipticalArcTo', args: arg } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'ellipticalArcTo',
+                args: arg
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1762,7 +1867,7 @@ define( function( require ) {
             if ( result1 !== null ) {
               result2 = parse_ellipticalArcArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -1779,7 +1884,14 @@ define( function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'ellipticalArcToRelative', args: arg } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'ellipticalArcToRelative',
+                  args: arg
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -1801,7 +1913,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_ellipticalArcArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1818,7 +1930,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, list ) { return [a].concat( list ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, list ) { return [ a ].concat( list ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1827,7 +1939,7 @@ define( function( require ) {
           pos0 = pos;
           result0 = parse_ellipticalArcArgument();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -1868,7 +1980,7 @@ define( function( require ) {
                           if ( result9 !== null ) {
                             result10 = parse_coordinatePair();
                             if ( result10 !== null ) {
-                              result0 = [result0, result1, result2, result3, result4, result5, result6, result7, result8, result9, result10];
+                              result0 = [ result0, result1, result2, result3, result4, result5, result6, result7, result8, result9, result10 ];
                             }
                             else {
                               result0 = null;
@@ -1925,7 +2037,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, rx, ry, rot, largeArc, sweep, to ) { return [ rx, ry, rot, largeArc, sweep, to.x, to.y ] })( pos0, result0[0], result0[2], result0[4], result0[6], result0[8], result0[10] );
+          result0 = (function( offset, rx, ry, rot, largeArc, sweep, to ) { return [ rx, ry, rot, largeArc, sweep, to.x, to.y ] })( pos0, result0[ 0 ], result0[ 2 ], result0[ 4 ], result0[ 6 ], result0[ 8 ], result0[ 10 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -1946,7 +2058,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_number();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -1963,7 +2075,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return { x: a, y: b }; })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return { x: a, y: b }; })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -2007,7 +2119,7 @@ define( function( require ) {
         if ( result0 !== null ) {
           result1 = parse_floatingPointConstant();
           if ( result1 !== null ) {
-            result0 = [result0, result1];
+            result0 = [ result0, result1 ];
           }
           else {
             result0 = null;
@@ -2019,7 +2131,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, sign, number ) { return parseFloat( sign + number, 10 ); })( pos0, result0[0], result0[1] );
+          result0 = (function( offset, sign, number ) { return parseFloat( sign + number, 10 ); })( pos0, result0[ 0 ], result0[ 1 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -2032,7 +2144,7 @@ define( function( require ) {
           if ( result0 !== null ) {
             result1 = parse_digitSequence();
             if ( result1 !== null ) {
-              result0 = [result0, result1];
+              result0 = [ result0, result1 ];
             }
             else {
               result0 = null;
@@ -2044,7 +2156,7 @@ define( function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, sign, number ) { return parseInt( sign + number, 10 ); })( pos0, result0[0], result0[1] );
+            result0 = (function( offset, sign, number ) { return parseInt( sign + number, 10 ); })( pos0, result0[ 0 ], result0[ 1 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -2123,7 +2235,7 @@ define( function( require ) {
               result3 = parse_wsp();
             }
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -2150,7 +2262,7 @@ define( function( require ) {
               result2 = parse_wsp();
             }
             if ( result1 !== null ) {
-              result0 = [result0, result1];
+              result0 = [ result0, result1 ];
             }
             else {
               result0 = null;
@@ -2192,7 +2304,7 @@ define( function( require ) {
           result1 = parse_exponent();
           result1 = result1 !== null ? result1 : "";
           if ( result1 !== null ) {
-            result0 = [result0, result1];
+            result0 = [ result0, result1 ];
           }
           else {
             result0 = null;
@@ -2204,7 +2316,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return a + b; })( pos0, result0[0], result0[1] );
+          result0 = (function( offset, a, b ) { return a + b; })( pos0, result0[ 0 ], result0[ 1 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -2216,7 +2328,7 @@ define( function( require ) {
           if ( result0 !== null ) {
             result1 = parse_exponent();
             if ( result1 !== null ) {
-              result0 = [result0, result1];
+              result0 = [ result0, result1 ];
             }
             else {
               result0 = null;
@@ -2228,7 +2340,7 @@ define( function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, a, b ) { return a + b; })( pos0, result0[0], result0[1] );
+            result0 = (function( offset, a, b ) { return a + b; })( pos0, result0[ 0 ], result0[ 1 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -2259,7 +2371,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_digitSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -2276,7 +2388,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return a + '.' + b; })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return a + '.' + b; })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -2297,7 +2409,7 @@ define( function( require ) {
               }
             }
             if ( result1 !== null ) {
-              result0 = [result0, result1];
+              result0 = [ result0, result1 ];
             }
             else {
               result0 = null;
@@ -2309,7 +2421,7 @@ define( function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return a })( pos0, result0[0] );
+            result0 = (function( offset, a ) { return a })( pos0, result0[ 0 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -2352,7 +2464,7 @@ define( function( require ) {
           if ( result1 !== null ) {
             result2 = parse_digitSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -2369,7 +2481,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b, c ) { return a + b + c; })( pos0, result0[0], result0[1], result0[2] );
+          result0 = (function( offset, a, b, c ) { return a + b + c; })( pos0, result0[ 0 ], result0[ 1 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -2415,7 +2527,7 @@ define( function( require ) {
         if ( result0 !== null ) {
           result1 = parse_digitSequence();
           if ( result1 !== null ) {
-            result0 = [result0, result1];
+            result0 = [ result0, result1 ];
           }
           else {
             result0 = null;
@@ -2427,7 +2539,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return a + b; })( pos0, result0[0], result0[1] );
+          result0 = (function( offset, a, b ) { return a + b; })( pos0, result0[ 0 ], result0[ 1 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -2513,9 +2625,9 @@ define( function( require ) {
         var lastExpected = null;
         var cleanExpected = [];
         for ( var i = 0; i < expected.length; i++ ) {
-          if ( expected[i] !== lastExpected ) {
-            cleanExpected.push( expected[i] );
-            lastExpected = expected[i];
+          if ( expected[ i ] !== lastExpected ) {
+            cleanExpected.push( expected[ i ] );
+            lastExpected = expected[ i ];
           }
         }
         return cleanExpected;
@@ -2559,7 +2671,7 @@ define( function( require ) {
         var result = [
           {
             cmd: isRelative ? 'moveToRelative' : 'moveTo',
-            args: [ args[0].x, args[0].y ]
+            args: [ args[ 0 ].x, args[ 0 ].y ]
           }
         ];
 
@@ -2568,7 +2680,7 @@ define( function( require ) {
           for ( var i = 1; i < args.length; i++ ) {
             result.push( {
               cmd: isRelative ? 'lineToRelative' : 'lineTo',
-              args: [ args[i].x, args[i].y ]
+              args: [ args[ i ].x, args[ i ].y ]
             } );
           }
         }
@@ -2576,7 +2688,7 @@ define( function( require ) {
       }
 
 
-      var result = parseFunctions[startRule]();
+      var result = parseFunctions[ startRule ]();
 
       /*
        * The parser is now in one of the following three states:
@@ -2635,12 +2747,12 @@ define( function( require ) {
           expectedHumanized = "end of input";
           break;
         case 1:
-          expectedHumanized = expected[0];
+          expectedHumanized = expected[ 0 ];
           break;
         default:
           expectedHumanized = expected.slice( 0, expected.length - 1 ).join( ", " )
-                                + " or "
-            + expected[expected.length - 1];
+                              + " or "
+                              + expected[ expected.length - 1 ];
       }
 
       foundHumanized = found ? quote( found ) : "end of input";
