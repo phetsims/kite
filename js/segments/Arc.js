@@ -184,7 +184,7 @@ define( function( require ) {
         return [];
       }
       else {
-        return [this]; // basically, Arcs aren't really degenerate that easily
+        return [ this ]; // basically, Arcs aren't really degenerate that easily
       }
     },
 
@@ -277,11 +277,11 @@ define( function( require ) {
     },
 
     strokeLeft: function( lineWidth ) {
-      return [new Segment.Arc( this._center, this._radius + ( this._anticlockwise ? 1 : -1 ) * lineWidth / 2, this._startAngle, this._endAngle, this._anticlockwise )];
+      return [ new Segment.Arc( this._center, this._radius + ( this._anticlockwise ? 1 : -1 ) * lineWidth / 2, this._startAngle, this._endAngle, this._anticlockwise ) ];
     },
 
     strokeRight: function( lineWidth ) {
-      return [new Segment.Arc( this._center, this._radius + ( this._anticlockwise ? -1 : 1 ) * lineWidth / 2, this._endAngle, this._startAngle, !this._anticlockwise )];
+      return [ new Segment.Arc( this._center, this._radius + ( this._anticlockwise ? -1 : 1 ) * lineWidth / 2, this._endAngle, this._startAngle, !this._anticlockwise ) ];
     },
 
     // not including 0 and 1

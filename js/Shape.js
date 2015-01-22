@@ -6,7 +6,7 @@
  * Shapes are internally made up of Subpaths, which contain a series of segments, and are optionally closed.
  * Familiarity with how Canvas handles subpaths is helpful for understanding this code.
  *
- * Canvas spec: http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
+ * Canvas spec: http://www.w3.org/TR/2dcontext/
  * SVG spec: http://www.w3.org/TR/SVG/expanded-toc.html
  *           http://www.w3.org/TR/SVG/paths.html#PathData (for paths)
  * Notes for elliptical arcs: http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
@@ -50,7 +50,7 @@ define( function( require ) {
   kite.Shape = function Shape( subpaths, bounds ) {
     // lower-level piecewise mathematical description using segments, also individually immutable
     this.subpaths = ( typeof subpaths === 'object' ) ? subpaths : [];
-    assert && assert( this.subpaths.length === 0 || this.subpaths[0].constructor.name !== 'Array' );
+    assert && assert( this.subpaths.length === 0 || this.subpaths[ 0 ].constructor.name !== 'Array' );
 
     // computed bounds for all pieces added so far
     this.bounds = ( bounds || Bounds2.NOTHING ).copy();
@@ -60,8 +60,8 @@ define( function( require ) {
       assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' );
       // parse the SVG path
       _.each( svgPath.parse( subpaths ), function( item ) {
-        assert && assert( Shape.prototype[item.cmd] !== undefined, 'method ' + item.cmd + ' from parsed SVG does not exist' );
-        that[item.cmd].apply( that, item.args );
+        assert && assert( Shape.prototype[ item.cmd ] !== undefined, 'method ' + item.cmd + ' from parsed SVG does not exist' );
+        that[ item.cmd ].apply( that, item.args );
       } );
     }
 
@@ -103,7 +103,7 @@ define( function( require ) {
     lineToRelative: function( x, y ) { return this.lineToPointRelative( v( x, y ) ); },
     lineToPointRelative: function( point ) { return this.lineToPoint( this.getRelativePoint().plus( point ) ); },
     lineToPoint: function( point ) {
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-lineto
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-lineto
       if ( this.hasSubpaths() ) {
         var start = this.getLastSubpath().getLastPoint();
         var end = point;
@@ -138,7 +138,7 @@ define( function( require ) {
     quadraticCurveToPoint: function( controlPoint, point ) {
       var shape = this;
 
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
       this.ensure( controlPoint );
       var start = this.getLastSubpath().getLastPoint();
       var quadratic = new kite.Segment.Quadratic( start, controlPoint, point );
@@ -163,7 +163,7 @@ define( function( require ) {
     smoothCubicCurveToRelative: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ).plus( this.getRelativePoint() ), v( x, y ).plus( this.getRelativePoint() ) ); },
     cubicCurveToPoint: function( control1, control2, point ) {
       var shape = this;
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
       this.ensure( control1 );
       var start = this.getLastSubpath().getLastPoint();
       var cubic = new kite.Segment.Cubic( start, control1, control2, point );
@@ -181,7 +181,7 @@ define( function( require ) {
 
     arc: function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) { return this.arcPoint( v( centerX, centerY ), radius, startAngle, endAngle, anticlockwise ); },
     arcPoint: function( center, radius, startAngle, endAngle, anticlockwise ) {
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arc
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
 
       var arc = new kite.Segment.Arc( center, radius, startAngle, endAngle, anticlockwise );
 
@@ -210,7 +210,7 @@ define( function( require ) {
 
     ellipticalArc: function( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) { return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ); },
     ellipticalArcPoint: function( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arc
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
 
       var ellipticalArc = new kite.Segment.EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
 
@@ -308,9 +308,9 @@ define( function( require ) {
       subpath.addPoint( v( x + width, y ) );
       subpath.addPoint( v( x + width, y + height ) );
       subpath.addPoint( v( x, y + height ) );
-      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[0], subpath.points[1] ) );
-      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[1], subpath.points[2] ) );
-      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[2], subpath.points[3] ) );
+      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[ 0 ], subpath.points[ 1 ] ) );
+      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[ 1 ], subpath.points[ 2 ] ) );
+      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[ 2 ], subpath.points[ 3 ] ) );
       subpath.close();
       this.addSubpath( new kite.Subpath() );
       this.getLastSubpath().addPoint( v( x, y ) );
@@ -351,9 +351,9 @@ define( function( require ) {
     polygon: function( vertices ) {
       var length = vertices.length;
       if ( length > 0 ) {
-        this.moveToPoint( vertices[0] );
+        this.moveToPoint( vertices[ 0 ] );
         for ( var i = 1; i < length; i++ ) {
-          this.lineToPoint( vertices[i] );
+          this.lineToPoint( vertices[ i ] );
         }
       }
       return this.close();
@@ -368,7 +368,7 @@ define( function( require ) {
     writeToContext: function( context ) {
       var len = this.subpaths.length;
       for ( var i = 0; i < len; i++ ) {
-        this.subpaths[i].writeToContext( context );
+        this.subpaths[ i ].writeToContext( context );
       }
     },
 
@@ -377,7 +377,7 @@ define( function( require ) {
       var subpathStrings = [];
       var len = this.subpaths.length;
       for ( var i = 0; i < len; i++ ) {
-        var subpath = this.subpaths[i];
+        var subpath = this.subpaths[ i ];
         if ( subpath.isDrawable() ) {
           // since the commands after this are relative to the previous 'point', we need to specify a move to the initial point
           var startPoint = subpath.getFirstSegment().start;
@@ -480,7 +480,7 @@ define( function( require ) {
 
       var numSubpaths = this.subpaths.length;
       for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[i];
+        var subpath = this.subpaths[ i ];
         bounds.includeBounds( subpath.getBoundsWithTransform( matrix ) );
       }
 
@@ -502,12 +502,12 @@ define( function( require ) {
       var hits = [];
       var numSubpaths = this.subpaths.length;
       for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[i];
+        var subpath = this.subpaths[ i ];
 
         if ( subpath.isDrawable() ) {
           var numSegments = subpath.segments.length;
           for ( var k = 0; k < numSegments; k++ ) {
-            var segment = subpath.segments[k];
+            var segment = subpath.segments[ k ];
             hits = hits.concat( segment.intersection( ray ) );
           }
 
@@ -524,12 +524,12 @@ define( function( require ) {
 
       var numSubpaths = this.subpaths.length;
       for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[i];
+        var subpath = this.subpaths[ i ];
 
         if ( subpath.isDrawable() ) {
           var numSegments = subpath.segments.length;
           for ( var k = 0; k < numSegments; k++ ) {
-            wind += subpath.segments[k].windingIntersection( ray );
+            wind += subpath.segments[ k ].windingIntersection( ray );
           }
 
           // handle the implicit closing line segment
@@ -545,12 +545,12 @@ define( function( require ) {
     intersectsBounds: function( bounds ) {
       var numSubpaths = this.subpaths.length;
       for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[i];
+        var subpath = this.subpaths[ i ];
 
         if ( subpath.isDrawable() ) {
           var numSegments = subpath.segments.length;
           for ( var k = 0; k < numSegments; k++ ) {
-            if ( subpath.segments[k].intersectsBounds( bounds ) ) {
+            if ( subpath.segments[ k ].intersectsBounds( bounds ) ) {
               return true;
             }
           }
@@ -573,13 +573,13 @@ define( function( require ) {
       var bounds = Bounds2.NOTHING.copy();
       var subLen = this.subpaths.length;
       for ( var i = 0; i < subLen; i++ ) {
-        var subpath = this.subpaths[i];
+        var subpath = this.subpaths[ i ];
         var strokedSubpath = subpath.stroked( lineStyles );
         subpaths = subpaths.concat( strokedSubpath );
       }
       subLen = subpaths.length;
       for ( i = 0; i < subLen; i++ ) {
-        bounds.includeBounds( subpaths[i].bounds );
+        bounds.includeBounds( subpaths[ i ].bounds );
       }
       return new Shape( subpaths, bounds );
     },
@@ -591,11 +591,11 @@ define( function( require ) {
       var bounds = Bounds2.NOTHING.copy();
       var subLen = this.subpaths.length;
       for ( var i = 0; i < subLen; i++ ) {
-        subpaths.push( this.subpaths[i].offset( distance ) );
+        subpaths.push( this.subpaths[ i ].offset( distance ) );
       }
       subLen = subpaths.length;
       for ( i = 0; i < subLen; i++ ) {
-        bounds.includeBounds( subpaths[i].bounds );
+        bounds.includeBounds( subpaths[ i ].bounds );
       }
       return new Shape( subpaths, bounds );
     },
@@ -606,8 +606,8 @@ define( function( require ) {
     },
 
     /*---------------------------------------------------------------------------*
-    * Internal subpath computations
-    *----------------------------------------------------------------------------*/
+     * Internal subpath computations
+     *----------------------------------------------------------------------------*/
 
     addSegmentAndBounds: function( segment ) {
       this.getLastSubpath().addSegment( segment );
@@ -655,7 +655,8 @@ define( function( require ) {
 
       if ( this.lastQuadraticControlPoint ) {
         return lastPoint.plus( lastPoint.minus( this.lastQuadraticControlPoint ) );
-      } else {
+      }
+      else {
         return lastPoint;
       }
     },
@@ -666,7 +667,8 @@ define( function( require ) {
 
       if ( this.lastCubicControlPoint ) {
         return lastPoint.plus( lastPoint.minus( this.lastCubicControlPoint ) );
-      } else {
+      }
+      else {
         return lastPoint;
       }
     },
@@ -678,8 +680,8 @@ define( function( require ) {
   };
 
   /*---------------------------------------------------------------------------*
-  * Shape shortcuts
-  *----------------------------------------------------------------------------*/
+   * Shape shortcuts
+   *----------------------------------------------------------------------------*/
 
   Shape.rectangle = function( x, y, width, height ) {
     return new Shape().rect( x, y, width, height );

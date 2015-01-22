@@ -22,7 +22,8 @@ define( function( require ) {
   require( 'KITE/util/Subpath' );
 
   // TODO: notes at http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
-  // Canvas notes at http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
+  // Canvas notes were at http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
+  // context.ellipse was removed from the Canvas spec
   Segment.EllipticalArc = function EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
     if ( radiusX < 0 ) {
       // support this case since we might actually need to handle it inside of strokes?
@@ -236,9 +237,9 @@ define( function( require ) {
           // check all of the extrema points
           this.possibleExtremaAngles = [
             xAngle,
-              xAngle + Math.PI,
+            xAngle + Math.PI,
             yAngle,
-              yAngle + Math.PI
+            yAngle + Math.PI
           ];
 
           _.each( this.possibleExtremaAngles, this.includeBoundsAtAngle.bind( this ) );
@@ -261,10 +262,10 @@ define( function( require ) {
         if ( Math.abs( this._endAngle - this._startAngle ) === Math.PI * 2 ) {
           endAngle = this._anticlockwise ? startAngle - Math.PI * 2 : startAngle + Math.PI * 2;
         }
-        return [new Segment.Arc( this._center, this._radiusX, startAngle, endAngle, this._anticlockwise )];
+        return [ new Segment.Arc( this._center, this._radiusX, startAngle, endAngle, this._anticlockwise ) ];
       }
       else {
-        return [this];
+        return [ this ];
       }
     },
 
@@ -350,7 +351,7 @@ define( function( require ) {
 
         points.push( this.positionAtAngle( angle ).plus( this.tangentAtAngle( angle ).perpendicular().normalized().times( r ) ) );
         if ( i > 0 ) {
-          result.push( new Segment.Line( points[i - 1], points[i] ) );
+          result.push( new Segment.Line( points[ i - 1 ], points[ i ] ) );
         }
       }
 

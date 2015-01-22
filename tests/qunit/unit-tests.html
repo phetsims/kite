@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8"/>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 
   <title>Unit tests for Kite</title>
 
@@ -10,7 +10,7 @@
 
   <!-- load JSHint settings first, before window.module can't be overwritten -->
   <script type="text/javascript" src="../../../phet-core/tests/qunit/beforeJSHintOptions.js"></script>
-  <script type="text/javascript" src="../../../chipper/grunt/jshint-options.js"></script>
+  <script type="text/javascript" src="../../../chipper/grunt/jshintOptions.js"></script>
   <script type="text/javascript" src="../../../phet-core/tests/qunit/afterJSHintOptions.js"></script>
 
   <script src="../../../sherpa/jquery-2.1.0.js"></script>
@@ -36,30 +36,31 @@
 
 </head>
 <body>
-  <div id="qunit"></div>
-  <div id="qunit-fixture">
-  </div>
-  <div id="display"></div>
+<div id="qunit"></div>
+<div id="qunit-fixture">
+</div>
+<div id="display"></div>
 
-  <script>
+<script>
 
-    // we need to wait until our config file is loaded before our require statement. apparently this was not guaranteed
-    function check() {
-      if ( window.loadedKiteConfig ) {
-        require( [ 'main', 'DOT/main', 'PHET_CORE/main' ], function( kite, dot, core ) {
-          window.kite = kite;
-          window.dot = dot;
-          window.core = core;
+  // we need to wait until our config file is loaded before our require statement. apparently this was not guaranteed
+  function check() {
+    if ( window.loadedKiteConfig ) {
+      require( [ 'main', 'DOT/main', 'PHET_CORE/main' ], function( kite, dot, core ) {
+        window.kite = kite;
+        window.dot = dot;
+        window.core = core;
 
-          runKiteTests( '.' );
-          runDotTests( '../../../dot/tests/qunit' );
-          runPhetCoreTests( '../../../phet-core/tests/qunit' );
-        } );
-      } else {
-        setTimeout( check, 4 );
-      }
+        runKiteTests( '.' );
+        runDotTests( '../../../dot/tests/qunit' );
+        runPhetCoreTests( '../../../phet-core/tests/qunit' );
+      } );
     }
-    setTimeout( check, 4 );
-  </script>
+    else {
+      setTimeout( check, 4 );
+    }
+  }
+  setTimeout( check, 4 );
+</script>
 </body>
 </html>

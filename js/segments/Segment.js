@@ -59,15 +59,15 @@ define( function( require ) {
       var result = [];
       for ( var i = 0; i < tList.length; i++ ) {
         // assume binary subdivision
-        var t = tList[i];
+        var t = tList[ i ];
         var arr = right.subdivided( t );
         assert && assert( arr.length === 2 );
-        result.push( arr[0] );
-        right = arr[1];
+        result.push( arr[ 0 ] );
+        right = arr[ 1 ];
 
         // scale up the remaining t values
         for ( var j = i + 1; j < tList.length; j++ ) {
-          tList[j] = DotUtil.linear( t, 1, 0, 1, tList[j] );
+          tList[ j ] = DotUtil.linear( t, 1, 0, 1, tList[ j ] );
         }
       }
       result.push( right );
@@ -111,7 +111,7 @@ define( function( require ) {
       if ( !finished && minLevels <= 0 ) { // force subdivision if minLevels hasn't been reached
         // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
         finished = ( options.curveEpsilon === null || ( DotUtil.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) < options.curveEpsilon ) ) &&
-          // deviation criterion
+                   // deviation criterion
                    ( options.distanceEpsilon === null || ( DotUtil.distToSegmentSquared( middle, start, end ) < options.distanceEpsilon ) );
       }
 
@@ -120,8 +120,8 @@ define( function( require ) {
       }
       else {
         var subdividedSegments = this.subdivided( 0.5 );
-        subdividedSegments[0].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, start, middle );
-        subdividedSegments[1].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, middle, end );
+        subdividedSegments[ 0 ].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, start, middle );
+        subdividedSegments[ 1 ].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, middle, end );
       }
       return segments;
     }
@@ -143,7 +143,7 @@ define( function( require ) {
         var infos = segment.explicitClosestToPoint( point );
         _.each( infos, function( info ) {
           if ( info.distanceSquared < bestDistanceSquared ) {
-            bestList = [info];
+            bestList = [ info ];
             bestDistanceSquared = info.distanceSquared;
           }
           else if ( info.distanceSquared === bestDistanceSquared ) {
@@ -154,10 +154,10 @@ define( function( require ) {
       else {
         // otherwise, we will split based on monotonicity, so we can subdivide
         // separate, so we can map the subdivided segments
-        var ts = [0].concat( segment.getInteriorExtremaTs() ).concat( [1] );
+        var ts = [ 0 ].concat( segment.getInteriorExtremaTs() ).concat( [ 1 ] );
         for ( var i = 0; i < ts.length - 1; i++ ) {
-          var ta = ts[i];
-          var tb = ts[i + 1];
+          var ta = ts[ i ];
+          var tb = ts[ i + 1 ];
           var pa = segment.positionAt( ta );
           var pb = segment.positionAt( tb );
           var bounds = Bounds2.point( pa ).addPoint( pb );

@@ -3,7 +3,7 @@
 /**
  * A Canvas-style stateful (mutable) subpath, which tracks segments in addition to the points.
  *
- * See http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#concept-path
+ * See http://www.w3.org/TR/2dcontext/#concept-path
  * for the path / subpath Canvas concept.
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
@@ -24,7 +24,7 @@ define( function( require ) {
     this.segments = segments || [];
 
     // recombine points if necessary, based off of start points of segments + the end point of the last segment
-    this.points = points || ( ( segments && segments.length ) ? _.map( segments, function( segment ) { return segment.start; } ).concat( segments[segments.length - 1].end ) : [] );
+    this.points = points || ( ( segments && segments.length ) ? _.map( segments, function( segment ) { return segment.start; } ).concat( segments[ segments.length - 1 ].end ) : [] );
     this.closed = !!closed;
 
     // cached stroked shape (so hit testing can be done quickly on stroked shapes)
@@ -136,7 +136,7 @@ define( function( require ) {
 
         var len = this.segments.length;
         for ( var i = 0; i < len; i++ ) {
-          this.segments[i].writeToContext( context );
+          this.segments[ i ].writeToContext( context );
         }
 
         if ( this.closed ) {
@@ -171,8 +171,8 @@ define( function( require ) {
 
       return new Subpath( _.flatten( _.map( this.segments, function( segment ) {
         // check for this segment's support for the specific transform or discretization being applied
-        if ( options.methodName && segment[options.methodName] ) {
-          return segment[options.methodName]( options );
+        if ( options.methodName && segment[ options.methodName ] ) {
+          return segment[ options.methodName ]( options );
         }
         else {
           return segment.toPiecewiseLinearSegments( options );
@@ -184,7 +184,7 @@ define( function( require ) {
       var bounds = Bounds2.NOTHING.copy();
       var numSegments = this.segments.length;
       for ( var i = 0; i < numSegments; i++ ) {
-        bounds.includeBounds( this.segments[i].getBoundsWithTransform( matrix ) );
+        bounds.includeBounds( this.segments[ i ].getBoundsWithTransform( matrix ) );
       }
       return bounds;
     },
@@ -207,23 +207,23 @@ define( function( require ) {
       var offsets = [];
 
       for ( i = 0; i < regularSegments.length; i++ ) {
-        offsets.push( regularSegments[i].strokeLeft( 2 * distance ) );
+        offsets.push( regularSegments[ i ].strokeLeft( 2 * distance ) );
       }
 
       var segments = [];
       for ( i = 0; i < regularSegments.length; i++ ) {
         if ( this.closed || i > 0 ) {
           var previousI = ( i > 0 ? i : regularSegments.length ) - 1;
-          var center = regularSegments[i].start;
-          var fromTangent = regularSegments[previousI].endTangent;
-          var toTangent = regularSegments[i].startTangent;
+          var center = regularSegments[ i ].start;
+          var fromTangent = regularSegments[ previousI ].endTangent;
+          var toTangent = regularSegments[ i ].startTangent;
 
           var startAngle = fromTangent.perpendicular().negated().times( distance ).angle();
           var endAngle = toTangent.perpendicular().negated().times( distance ).angle();
           var anticlockwise = fromTangent.perpendicular().dot( toTangent ) > 0;
           segments.push( new kite.Segment.Arc( center, Math.abs( distance ), startAngle, endAngle, anticlockwise ) );
         }
-        segments = segments.concat( offsets[i] );
+        segments = segments.concat( offsets[ i ] );
       }
 
       return new Subpath( segments, null, this.closed );
@@ -264,22 +264,22 @@ define( function( require ) {
       // we don't need to insert an implicit closing segment if the start and end points are the same
       var alreadyClosed = lastSegment.end.equals( firstSegment.start );
       // if there is an implicit closing segment
-      var closingSegment = alreadyClosed ? null : new kite.Segment.Line( this.segments[this.segments.length - 1].end, this.segments[0].start );
+      var closingSegment = alreadyClosed ? null : new kite.Segment.Line( this.segments[ this.segments.length - 1 ].end, this.segments[ 0 ].start );
 
       // stroke the logical "left" side of our path
       for ( i = 0; i < this.segments.length; i++ ) {
         if ( i > 0 ) {
-          appendLeftSegments( lineStyles.leftJoin( this.segments[i].start, this.segments[i - 1].endTangent, this.segments[i].startTangent ) );
+          appendLeftSegments( lineStyles.leftJoin( this.segments[ i ].start, this.segments[ i - 1 ].endTangent, this.segments[ i ].startTangent ) );
         }
-        appendLeftSegments( this.segments[i].strokeLeft( lineWidth ) );
+        appendLeftSegments( this.segments[ i ].strokeLeft( lineWidth ) );
       }
 
       // stroke the logical "right" side of our path
       for ( i = this.segments.length - 1; i >= 0; i-- ) {
         if ( i < this.segments.length - 1 ) {
-          appendRightSegments( lineStyles.rightJoin( this.segments[i].end, this.segments[i].endTangent, this.segments[i + 1].startTangent ) );
+          appendRightSegments( lineStyles.rightJoin( this.segments[ i ].end, this.segments[ i ].endTangent, this.segments[ i + 1 ].startTangent ) );
         }
-        appendRightSegments( this.segments[i].strokeRight( lineWidth ) );
+        appendRightSegments( this.segments[ i ].strokeRight( lineWidth ) );
       }
 
       var subpaths;
@@ -308,8 +308,8 @@ define( function( require ) {
       else {
         subpaths = [
           new Subpath( leftSegments.concat( lineStyles.cap( lastSegment.end, lastSegment.endTangent ) )
-                                   .concat( rightSegments )
-                                   .concat( lineStyles.cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
+              .concat( rightSegments )
+              .concat( lineStyles.cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
             null, true )
         ];
       }
