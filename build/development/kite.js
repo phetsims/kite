@@ -9,7 +9,7 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-(function(){
+(function() {
   
 
   window.assertions = window.assertions || {};
@@ -511,23 +511,23 @@ define( 'PHET_CORE/phetAllocation',['require','PHET_CORE/core'],function( requir
       try { throw new Error(); }
       catch( e ) { stack = e.stack; }
 
-      if ( !window.alloc[name] ) {
-        window.alloc[name] = { count: 0, stacks: {} };
+      if ( !window.alloc[ name ] ) {
+        window.alloc[ name ] = { count: 0, stacks: {} };
       }
-      var log = window.alloc[name];
+      var log = window.alloc[ name ];
 
       log.count++;
-      if ( !log.stacks[stack] ) {
-        log.stacks[stack] = 1;
+      if ( !log.stacks[ stack ] ) {
+        log.stacks[ stack ] = 1;
       }
       else {
-        log.stacks[stack] += 1;
+        log.stacks[ stack ] += 1;
       }
       log.report = function() {
         var stacks = Object.keys( log.stacks );
-        stacks = _.sortBy( stacks, function( key ) { return log.stacks[key]; } );
+        stacks = _.sortBy( stacks, function( key ) { return log.stacks[ key ]; } );
         _.each( stacks, function( stack ) {
-          console.log( log.stacks[stack] + ': ' + stack );
+          console.log( log.stacks[ stack ] + ': ' + stack );
         } );
       };
     }
@@ -574,11 +574,11 @@ define( 'DOT/dot',['require','PHET_CORE/phetAllocation'],function( require ) {
   var dot = function dot() {
     switch( arguments.length ) {
       case 2:
-        return new dot.Vector2( arguments[0], arguments[1] );
+        return new dot.Vector2( arguments[ 0 ], arguments[ 1 ] );
       case 3:
-        return new dot.Vector3( arguments[0], arguments[1], arguments[2] );
+        return new dot.Vector3( arguments[ 0 ], arguments[ 1 ], arguments[ 2 ] );
       case 4:
-        return new dot.Vector4( arguments[0], arguments[1], arguments[2], arguments[3] );
+        return new dot.Vector4( arguments[ 0 ], arguments[ 1 ], arguments[ 2 ], arguments[ 3 ] );
       default:
         throw new Error( 'dot takes 2-4 arguments' );
     }
@@ -688,7 +688,7 @@ define( 'PHET_CORE/inherit',['require','PHET_CORE/core','PHET_CORE/extend'],func
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'PHET_CORE/Poolable',['require','PHET_CORE/core','PHET_CORE/extend'],function( require ) {
+define( 'PHET_CORE/PoolableMixin',['require','PHET_CORE/core','PHET_CORE/extend'],function( require ) {
   
 
   var core = require( 'PHET_CORE/core' );
@@ -697,7 +697,7 @@ define( 'PHET_CORE/Poolable',['require','PHET_CORE/core','PHET_CORE/extend'],fun
   /*
    * For option details, please see documentation inside this constructor body for now
    */
-  core.Poolable = function Poolable( type, options ) {
+  core.PoolableMixin = function PoolableMixin( type, options ) {
     var proto = type.prototype;
 
     // defaults
@@ -762,7 +762,7 @@ define( 'PHET_CORE/Poolable',['require','PHET_CORE/core','PHET_CORE/extend'],fun
     };
   };
 
-  return core.Poolable;
+  return core.PoolableMixin;
 } );
 // Copyright 2002-2014, University of Colorado Boulder
 
@@ -823,7 +823,7 @@ define( 'DOT/Util',['require','DOT/dot'],function( require ) {
       }
       var result = new Array( b - a + 1 );
       for ( var i = a; i <= b; i++ ) {
-        result[i - a] = i;
+        result[ i - a ] = i;
       }
       return result;
     },
@@ -859,8 +859,8 @@ define( 'DOT/Util',['require','DOT/dot'],function( require ) {
       var b = p3.x * p4.y - p3.y * p4.x;
 
       return new dot.Vector2(
-          ( a * x34 - x12 * b ) / denom,
-          ( a * y34 - y12 * b ) / denom
+        ( a * x34 - x12 * b ) / denom,
+        ( a * y34 - y12 * b ) / denom
       );
     },
 
@@ -943,8 +943,8 @@ define( 'DOT/Util',['require','DOT/dot'],function( require ) {
       // TODO: how to handle if discriminant is 0? give unique root or double it?
       // TODO: probably just use Complex for the future
       return [
-          ( -b - sqrt ) / ( 2 * a ),
-          ( -b + sqrt ) / ( 2 * a )
+        ( -b - sqrt ) / ( 2 * a ),
+        ( -b + sqrt ) / ( 2 * a )
       ];
     },
 
@@ -990,9 +990,9 @@ define( 'DOT/Util',['require','DOT/dot'],function( require ) {
         qX = Math.acos( r / Math.sqrt( qX ) );
         var rr = 2 * Math.sqrt( -q );
         return [
-            -b3 + rr * Math.cos( qX / 3 ),
-            -b3 + rr * Math.cos( ( qX + 2 * Math.PI ) / 3 ),
-            -b3 + rr * Math.cos( ( qX + 4 * Math.PI ) / 3 )
+          -b3 + rr * Math.cos( qX / 3 ),
+          -b3 + rr * Math.cos( ( qX + 2 * Math.PI ) / 3 ),
+          -b3 + rr * Math.cos( ( qX + 4 * Math.PI ) / 3 )
         ];
       }
     },
@@ -1138,13 +1138,13 @@ define( 'DOT/Util',['require','DOT/dot'],function( require ) {
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/Vector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/Poolable','DOT/Util'],function( require ) {
+define( 'DOT/Vector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/PoolableMixin','DOT/Util'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
 
   var inherit = require( 'PHET_CORE/inherit' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
+  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
   require( 'DOT/Util' );
   // require( 'DOT/Vector3' ); // commented out since Require.js complains about the circular dependency
 
@@ -1439,7 +1439,7 @@ define( 'DOT/Vector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/Poolab
 
   // experimental object pooling
   /* jshint -W064 */
-  Poolable( Vector2, {
+  PoolableMixin( Vector2, {
     defaultFactory: function() { return new Vector2(); },
     constructorDuplicateFactory: function( pool ) {
       return function( x, y ) {
@@ -1465,7 +1465,7 @@ define( 'DOT/Vector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/Poolab
 
   // throw errors whenever a mutable method is called on our immutable vector
   Immutable.mutableOverrideHelper = function( mutableFunctionName ) {
-    Immutable.prototype[mutableFunctionName] = function() {
+    Immutable.prototype[ mutableFunctionName ] = function() {
       throw new Error( "Cannot call mutable method '" + mutableFunctionName + "' on immutable Vector2" );
     };
   };
@@ -1498,11 +1498,11 @@ define( 'DOT/Vector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/Poolab
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/Bounds2',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2'],function( require ) {
+define( 'DOT/Bounds2',['require','DOT/dot','PHET_CORE/PoolableMixin','DOT/Vector2'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
+  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
 
   require( 'DOT/Vector2' );
 
@@ -1528,8 +1528,8 @@ define( 'DOT/Bounds2',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2'],f
     dimension: 2,
 
     /*---------------------------------------------------------------------------*
-    * Properties
-    *----------------------------------------------------------------------------*/
+     * Properties
+     *----------------------------------------------------------------------------*/
 
     getWidth: function() { return this.maxX - this.minX; },
     get width() { return this.getWidth(); },
@@ -1691,8 +1691,8 @@ define( 'DOT/Bounds2',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2'],f
     },
 
     /*---------------------------------------------------------------------------*
-    * Immutable operations
-    *----------------------------------------------------------------------------*/
+     * Immutable operations
+     *----------------------------------------------------------------------------*/
 
     // create a copy, or if bounds is passed in, set that bounds to our value
     copy: function( bounds ) {
@@ -1807,8 +1807,8 @@ define( 'DOT/Bounds2',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2'],f
     },
 
     /*---------------------------------------------------------------------------*
-    * Mutable operations
-    *----------------------------------------------------------------------------*/
+     * Mutable operations
+     *----------------------------------------------------------------------------*/
 
     // mutable core operations (all other mutations should be called through these)
     setMinMax: function( minX, minY, maxX, maxY ) {
@@ -1998,7 +1998,7 @@ define( 'DOT/Bounds2',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2'],f
 
   // experimental object pooling
   /* jshint -W064 */
-  Poolable( Bounds2, {
+  PoolableMixin( Bounds2, {
     defaultFactory: function() { return Bounds2.NOTHING.copy(); },
     constructorDuplicateFactory: function( pool ) {
       return function( minX, minY, maxX, maxY ) {
@@ -2122,15 +2122,15 @@ define( 'KITE/segments/Segment',['require','KITE/kite','DOT/Util','DOT/Bounds2']
       var result = [];
       for ( var i = 0; i < tList.length; i++ ) {
         // assume binary subdivision
-        var t = tList[i];
+        var t = tList[ i ];
         var arr = right.subdivided( t );
         assert && assert( arr.length === 2 );
-        result.push( arr[0] );
-        right = arr[1];
+        result.push( arr[ 0 ] );
+        right = arr[ 1 ];
 
         // scale up the remaining t values
         for ( var j = i + 1; j < tList.length; j++ ) {
-          tList[j] = DotUtil.linear( t, 1, 0, 1, tList[j] );
+          tList[ j ] = DotUtil.linear( t, 1, 0, 1, tList[ j ] );
         }
       }
       result.push( right );
@@ -2174,7 +2174,7 @@ define( 'KITE/segments/Segment',['require','KITE/kite','DOT/Util','DOT/Bounds2']
       if ( !finished && minLevels <= 0 ) { // force subdivision if minLevels hasn't been reached
         // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
         finished = ( options.curveEpsilon === null || ( DotUtil.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) < options.curveEpsilon ) ) &&
-          // deviation criterion
+                   // deviation criterion
                    ( options.distanceEpsilon === null || ( DotUtil.distToSegmentSquared( middle, start, end ) < options.distanceEpsilon ) );
       }
 
@@ -2183,8 +2183,8 @@ define( 'KITE/segments/Segment',['require','KITE/kite','DOT/Util','DOT/Bounds2']
       }
       else {
         var subdividedSegments = this.subdivided( 0.5 );
-        subdividedSegments[0].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, start, middle );
-        subdividedSegments[1].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, middle, end );
+        subdividedSegments[ 0 ].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, start, middle );
+        subdividedSegments[ 1 ].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, middle, end );
       }
       return segments;
     }
@@ -2206,7 +2206,7 @@ define( 'KITE/segments/Segment',['require','KITE/kite','DOT/Util','DOT/Bounds2']
         var infos = segment.explicitClosestToPoint( point );
         _.each( infos, function( info ) {
           if ( info.distanceSquared < bestDistanceSquared ) {
-            bestList = [info];
+            bestList = [ info ];
             bestDistanceSquared = info.distanceSquared;
           }
           else if ( info.distanceSquared === bestDistanceSquared ) {
@@ -2217,10 +2217,10 @@ define( 'KITE/segments/Segment',['require','KITE/kite','DOT/Util','DOT/Bounds2']
       else {
         // otherwise, we will split based on monotonicity, so we can subdivide
         // separate, so we can map the subdivided segments
-        var ts = [0].concat( segment.getInteriorExtremaTs() ).concat( [1] );
+        var ts = [ 0 ].concat( segment.getInteriorExtremaTs() ).concat( [ 1 ] );
         for ( var i = 0; i < ts.length - 1; i++ ) {
-          var ta = ts[i];
-          var tb = ts[i + 1];
+          var ta = ts[ i ];
+          var tb = ts[ i + 1 ];
           var pa = segment.positionAt( ta );
           var pb = segment.positionAt( tb );
           var bounds = Bounds2.point( pa ).addPoint( pb );
@@ -2399,7 +2399,7 @@ define( 'KITE/segments/Line',['require','PHET_CORE/inherit','DOT/Bounds2','DOT/V
         return [];
       }
       else {
-        return [this];
+        return [ this ];
       }
     },
 
@@ -2422,12 +2422,12 @@ define( 'KITE/segments/Line',['require','PHET_CORE/inherit','DOT/Bounds2','DOT/V
 
     strokeLeft: function( lineWidth ) {
       var offset = this.getEndTangent().perpendicular().negated().times( lineWidth / 2 );
-      return [new Segment.Line( this._start.plus( offset ), this._end.plus( offset ) )];
+      return [ new Segment.Line( this._start.plus( offset ), this._end.plus( offset ) ) ];
     },
 
     strokeRight: function( lineWidth ) {
       var offset = this.getStartTangent().perpendicular().times( lineWidth / 2 );
-      return [new Segment.Line( this._end.plus( offset ), this._start.plus( offset ) )];
+      return [ new Segment.Line( this._end.plus( offset ), this._start.plus( offset ) ) ];
     },
 
     // lines are already monotone
@@ -2499,7 +2499,7 @@ define( 'KITE/segments/Line',['require','PHET_CORE/inherit','DOT/Bounds2','DOT/V
     windingIntersection: function( ray ) {
       var hits = this.intersection( ray );
       if ( hits.length ) {
-        return hits[0].wind;
+        return hits[ 0 ].wind;
       }
       else {
         return 0;
@@ -2538,11 +2538,11 @@ define( 'KITE/segments/Line',['require','PHET_CORE/inherit','DOT/Bounds2','DOT/V
     polarToCartesian: function( options ) {
       if ( this._start.x === this._end.x ) {
         // angle is the same, we are still a line segment!
-        return [new Segment.Line( Vector2.createPolar( this._start.y, this._start.x ), Vector2.createPolar( this._end.y, this._end.x ) )];
+        return [ new Segment.Line( Vector2.createPolar( this._start.y, this._start.x ), Vector2.createPolar( this._end.y, this._end.x ) ) ];
       }
       else if ( this._start.y === this._end.y ) {
         // we have a constant radius, so we are a circular arc
-        return [new Segment.Arc( Vector2.ZERO, this._start.y, this._start.x, this._end.x, this._start.x > this._end.x )];
+        return [ new Segment.Arc( Vector2.ZERO, this._start.y, this._start.x, this._end.x, this._start.x > this._end.x ) ];
       }
       else {
         return this.toPiecewiseLinearSegments( options );
@@ -2739,7 +2739,7 @@ define( 'KITE/segments/Arc',['require','PHET_CORE/inherit','DOT/Vector2','DOT/Bo
         return [];
       }
       else {
-        return [this]; // basically, Arcs aren't really degenerate that easily
+        return [ this ]; // basically, Arcs aren't really degenerate that easily
       }
     },
 
@@ -2832,11 +2832,11 @@ define( 'KITE/segments/Arc',['require','PHET_CORE/inherit','DOT/Vector2','DOT/Bo
     },
 
     strokeLeft: function( lineWidth ) {
-      return [new Segment.Arc( this._center, this._radius + ( this._anticlockwise ? 1 : -1 ) * lineWidth / 2, this._startAngle, this._endAngle, this._anticlockwise )];
+      return [ new Segment.Arc( this._center, this._radius + ( this._anticlockwise ? 1 : -1 ) * lineWidth / 2, this._startAngle, this._endAngle, this._anticlockwise ) ];
     },
 
     strokeRight: function( lineWidth ) {
-      return [new Segment.Arc( this._center, this._radius + ( this._anticlockwise ? -1 : 1 ) * lineWidth / 2, this._endAngle, this._startAngle, !this._anticlockwise )];
+      return [ new Segment.Arc( this._center, this._radius + ( this._anticlockwise ? -1 : 1 ) * lineWidth / 2, this._endAngle, this._startAngle, !this._anticlockwise ) ];
     },
 
     // not including 0 and 1
@@ -2985,7 +2985,7 @@ define( 'KITE/segments/Arc',['require','PHET_CORE/inherit','DOT/Vector2','DOT/Bo
 /**
  * A Canvas-style stateful (mutable) subpath, which tracks segments in addition to the points.
  *
- * See http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#concept-path
+ * See http://www.w3.org/TR/2dcontext/#concept-path
  * for the path / subpath Canvas concept.
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
@@ -3006,7 +3006,7 @@ define( 'KITE/util/Subpath',['require','DOT/Bounds2','KITE/kite','KITE/segments/
     this.segments = segments || [];
 
     // recombine points if necessary, based off of start points of segments + the end point of the last segment
-    this.points = points || ( ( segments && segments.length ) ? _.map( segments, function( segment ) { return segment.start; } ).concat( segments[segments.length - 1].end ) : [] );
+    this.points = points || ( ( segments && segments.length ) ? _.map( segments, function( segment ) { return segment.start; } ).concat( segments[ segments.length - 1 ].end ) : [] );
     this.closed = !!closed;
 
     // cached stroked shape (so hit testing can be done quickly on stroked shapes)
@@ -3118,7 +3118,7 @@ define( 'KITE/util/Subpath',['require','DOT/Bounds2','KITE/kite','KITE/segments/
 
         var len = this.segments.length;
         for ( var i = 0; i < len; i++ ) {
-          this.segments[i].writeToContext( context );
+          this.segments[ i ].writeToContext( context );
         }
 
         if ( this.closed ) {
@@ -3153,8 +3153,8 @@ define( 'KITE/util/Subpath',['require','DOT/Bounds2','KITE/kite','KITE/segments/
 
       return new Subpath( _.flatten( _.map( this.segments, function( segment ) {
         // check for this segment's support for the specific transform or discretization being applied
-        if ( options.methodName && segment[options.methodName] ) {
-          return segment[options.methodName]( options );
+        if ( options.methodName && segment[ options.methodName ] ) {
+          return segment[ options.methodName ]( options );
         }
         else {
           return segment.toPiecewiseLinearSegments( options );
@@ -3166,7 +3166,7 @@ define( 'KITE/util/Subpath',['require','DOT/Bounds2','KITE/kite','KITE/segments/
       var bounds = Bounds2.NOTHING.copy();
       var numSegments = this.segments.length;
       for ( var i = 0; i < numSegments; i++ ) {
-        bounds.includeBounds( this.segments[i].getBoundsWithTransform( matrix ) );
+        bounds.includeBounds( this.segments[ i ].getBoundsWithTransform( matrix ) );
       }
       return bounds;
     },
@@ -3189,23 +3189,23 @@ define( 'KITE/util/Subpath',['require','DOT/Bounds2','KITE/kite','KITE/segments/
       var offsets = [];
 
       for ( i = 0; i < regularSegments.length; i++ ) {
-        offsets.push( regularSegments[i].strokeLeft( 2 * distance ) );
+        offsets.push( regularSegments[ i ].strokeLeft( 2 * distance ) );
       }
 
       var segments = [];
       for ( i = 0; i < regularSegments.length; i++ ) {
         if ( this.closed || i > 0 ) {
           var previousI = ( i > 0 ? i : regularSegments.length ) - 1;
-          var center = regularSegments[i].start;
-          var fromTangent = regularSegments[previousI].endTangent;
-          var toTangent = regularSegments[i].startTangent;
+          var center = regularSegments[ i ].start;
+          var fromTangent = regularSegments[ previousI ].endTangent;
+          var toTangent = regularSegments[ i ].startTangent;
 
           var startAngle = fromTangent.perpendicular().negated().times( distance ).angle();
           var endAngle = toTangent.perpendicular().negated().times( distance ).angle();
           var anticlockwise = fromTangent.perpendicular().dot( toTangent ) > 0;
           segments.push( new kite.Segment.Arc( center, Math.abs( distance ), startAngle, endAngle, anticlockwise ) );
         }
-        segments = segments.concat( offsets[i] );
+        segments = segments.concat( offsets[ i ] );
       }
 
       return new Subpath( segments, null, this.closed );
@@ -3246,22 +3246,22 @@ define( 'KITE/util/Subpath',['require','DOT/Bounds2','KITE/kite','KITE/segments/
       // we don't need to insert an implicit closing segment if the start and end points are the same
       var alreadyClosed = lastSegment.end.equals( firstSegment.start );
       // if there is an implicit closing segment
-      var closingSegment = alreadyClosed ? null : new kite.Segment.Line( this.segments[this.segments.length - 1].end, this.segments[0].start );
+      var closingSegment = alreadyClosed ? null : new kite.Segment.Line( this.segments[ this.segments.length - 1 ].end, this.segments[ 0 ].start );
 
       // stroke the logical "left" side of our path
       for ( i = 0; i < this.segments.length; i++ ) {
         if ( i > 0 ) {
-          appendLeftSegments( lineStyles.leftJoin( this.segments[i].start, this.segments[i - 1].endTangent, this.segments[i].startTangent ) );
+          appendLeftSegments( lineStyles.leftJoin( this.segments[ i ].start, this.segments[ i - 1 ].endTangent, this.segments[ i ].startTangent ) );
         }
-        appendLeftSegments( this.segments[i].strokeLeft( lineWidth ) );
+        appendLeftSegments( this.segments[ i ].strokeLeft( lineWidth ) );
       }
 
       // stroke the logical "right" side of our path
       for ( i = this.segments.length - 1; i >= 0; i-- ) {
         if ( i < this.segments.length - 1 ) {
-          appendRightSegments( lineStyles.rightJoin( this.segments[i].end, this.segments[i].endTangent, this.segments[i + 1].startTangent ) );
+          appendRightSegments( lineStyles.rightJoin( this.segments[ i ].end, this.segments[ i ].endTangent, this.segments[ i + 1 ].startTangent ) );
         }
-        appendRightSegments( this.segments[i].strokeRight( lineWidth ) );
+        appendRightSegments( this.segments[ i ].strokeRight( lineWidth ) );
       }
 
       var subpaths;
@@ -3290,8 +3290,8 @@ define( 'KITE/util/Subpath',['require','DOT/Bounds2','KITE/kite','KITE/segments/
       else {
         subpaths = [
           new Subpath( leftSegments.concat( lineStyles.cap( lastSegment.end, lastSegment.endTangent ) )
-                                   .concat( rightSegments )
-                                   .concat( lineStyles.cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
+              .concat( rightSegments )
+              .concat( lineStyles.cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
             null, true )
         ];
       }
@@ -3331,15 +3331,15 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
      * because JSHint does not like the first and IE the second.
      */
     return '"' + s
-      .replace( /\\/g, '\\\\' )  // backslash
-      .replace( /"/g, '\\"' )    // closing quote character
-      .replace( /\x08/g, '\\b' ) // backspace
-      .replace( /\t/g, '\\t' )   // horizontal tab
-      .replace( /\n/g, '\\n' )   // line feed
-      .replace( /\f/g, '\\f' )   // form feed
-      .replace( /\r/g, '\\r' )   // carriage return
-      .replace( /[\x00-\x07\x0B\x0E-\x1F\x80-\uFFFF]/g, escape )
-      + '"';
+        .replace( /\\/g, '\\\\' )  // backslash
+        .replace( /"/g, '\\"' )    // closing quote character
+        .replace( /\x08/g, '\\b' ) // backspace
+        .replace( /\t/g, '\\t' )   // horizontal tab
+        .replace( /\n/g, '\\n' )   // line feed
+        .replace( /\f/g, '\\f' )   // form feed
+        .replace( /\r/g, '\\r' )   // carriage return
+        .replace( /[\x00-\x07\x0B\x0E-\x1F\x80-\uFFFF]/g, escape )
+           + '"';
   }
 
   kite.svgPath = {
@@ -3395,7 +3395,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
       };
 
       if ( startRule !== undefined ) {
-        if ( parseFunctions[startRule] === undefined ) {
+        if ( parseFunctions[ startRule ] === undefined ) {
           throw new Error( "Invalid rule name: " + quote( startRule ) + "." );
         }
       }
@@ -3472,7 +3472,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
               result3 = parse_wsp();
             }
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -3489,7 +3489,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, path ) { return path ? path : []; })( pos0, result0[1] );
+          result0 = (function( offset, path ) { return path ? path : []; })( pos0, result0[ 1 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -3514,7 +3514,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_movetoDrawtoCommandGroups();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -3531,7 +3531,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return a.concat( b ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return a.concat( b ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -3567,7 +3567,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             result2 = parse_drawtoCommands();
             result2 = result2 !== null ? result2 : "";
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -3584,7 +3584,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, m, c ) { return c.length ? m.concat( c ) : m; })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, m, c ) { return c.length ? m.concat( c ) : m; })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -3609,7 +3609,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_drawtoCommands();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -3626,7 +3626,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, cmd, cmds ) { return cmd.concat( cmds ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, cmd, cmds ) { return cmd.concat( cmds ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -3701,7 +3701,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_movetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -3718,7 +3718,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return createMoveTo( args, false ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) { return createMoveTo( args, false ); })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -3746,7 +3746,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             if ( result1 !== null ) {
               result2 = parse_movetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -3763,7 +3763,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return createMoveTo( args, true ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) { return createMoveTo( args, true ); })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -3785,7 +3785,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_linetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -3802,7 +3802,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, pair, list ) { return [pair].concat( list ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, pair, list ) { return [ pair ].concat( list ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -3811,7 +3811,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos0 = pos;
           result0 = parse_coordinatePair();
           if ( result0 !== null ) {
-            result0 = (function( offset, pair ) { return [pair]; })( pos0, result0 );
+            result0 = (function( offset, pair ) { return [ pair ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -3882,7 +3882,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_linetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -3899,7 +3899,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'lineTo', args: [ arg.x, arg.y ] }; } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'lineTo',
+                args: [ arg.x, arg.y ]
+              };
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -3927,7 +3934,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             if ( result1 !== null ) {
               result2 = parse_linetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -3944,7 +3951,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'lineToRelative', args: [ arg.x, arg.y ] }; } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'lineToRelative',
+                  args: [ arg.x, arg.y ]
+                };
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -3966,7 +3980,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_linetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -3983,7 +3997,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return [a].concat( b ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return [ a ].concat( b ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -3992,7 +4006,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos0 = pos;
           result0 = parse_coordinatePair();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -4027,7 +4041,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_horizontalLinetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4044,7 +4058,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'horizontalLineTo', args: [ arg ] } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'horizontalLineTo',
+                args: [ arg ]
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4072,7 +4093,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             if ( result1 !== null ) {
               result2 = parse_horizontalLinetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -4089,7 +4110,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'horizontalLineToRelative', args: [ arg ] } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'horizontalLineToRelative',
+                  args: [ arg ]
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -4111,7 +4139,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_horizontalLinetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4128,7 +4156,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return [a].concat( b ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return [ a ].concat( b ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4137,7 +4165,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos0 = pos;
           result0 = parse_number();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -4172,7 +4200,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_verticalLinetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4189,7 +4217,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'verticalLineTo', args: [ arg ] } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'verticalLineTo',
+                args: [ arg ]
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4217,7 +4252,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             if ( result1 !== null ) {
               result2 = parse_verticalLinetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -4234,7 +4269,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'verticalLineToRelative', args: [ arg ] } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'verticalLineToRelative',
+                  args: [ arg ]
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -4256,7 +4298,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_verticalLinetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4273,7 +4315,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return [a].concat( b ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return [ a ].concat( b ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4282,7 +4324,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos0 = pos;
           result0 = parse_number();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -4317,7 +4359,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_curvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4334,7 +4376,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'cubicCurveTo', args: arg } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'cubicCurveTo',
+                args: arg
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4362,7 +4411,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             if ( result1 !== null ) {
               result2 = parse_curvetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -4379,7 +4428,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'cubicCurveToRelative', args: arg } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'cubicCurveToRelative',
+                  args: arg
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -4401,7 +4457,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_curvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4418,7 +4474,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, list ) { return [a].concat( list ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, list ) { return [ a ].concat( list ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4427,7 +4483,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos0 = pos;
           result0 = parse_curvetoArgument();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -4454,7 +4510,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
               if ( result3 !== null ) {
                 result4 = parse_coordinatePair();
                 if ( result4 !== null ) {
-                  result0 = [result0, result1, result2, result3, result4];
+                  result0 = [ result0, result1, result2, result3, result4 ];
                 }
                 else {
                   result0 = null;
@@ -4481,7 +4537,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b, c ) { return [ a.x, a.y, b.x, b.y, c.x, c.y ]; })( pos0, result0[0], result0[2], result0[4] );
+          result0 = (function( offset, a, b, c ) { return [ a.x, a.y, b.x, b.y, c.x, c.y ]; })( pos0, result0[ 0 ], result0[ 2 ], result0[ 4 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4515,7 +4571,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_smoothCurvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4532,7 +4588,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'smoothCubicCurveTo', args: arg } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'smoothCubicCurveTo',
+                args: arg
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4560,7 +4623,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             if ( result1 !== null ) {
               result2 = parse_smoothCurvetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -4577,7 +4640,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'smoothCubicCurveToRelative', args: arg } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'smoothCubicCurveToRelative',
+                  args: arg
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -4599,7 +4669,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_smoothCurvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4616,7 +4686,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, list ) { return [a].concat( list ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, list ) { return [ a ].concat( list ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4625,7 +4695,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos0 = pos;
           result0 = parse_smoothCurvetoArgument();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -4647,7 +4717,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_coordinatePair();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4664,7 +4734,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return [ a.x, a.y, b.x, b.y ]; })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return [ a.x, a.y, b.x, b.y ]; })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4698,7 +4768,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_quadraticBezierCurvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4715,7 +4785,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'quadraticCurveTo', args: arg } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'quadraticCurveTo',
+                args: arg
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4743,7 +4820,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             if ( result1 !== null ) {
               result2 = parse_quadraticBezierCurvetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -4760,7 +4837,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'quadraticCurveToRelative', args: arg } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'quadraticCurveToRelative',
+                  args: arg
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -4782,7 +4866,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_quadraticBezierCurvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4799,7 +4883,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, list ) { return [a].concat( list ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, list ) { return [ a ].concat( list ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4808,7 +4892,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos0 = pos;
           result0 = parse_quadraticBezierCurvetoArgument();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -4830,7 +4914,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_coordinatePair();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4847,7 +4931,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return [ a.x, a.y, b.x, b.y ]; })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return [ a.x, a.y, b.x, b.y ]; })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4881,7 +4965,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_smoothQuadraticBezierCurvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4898,7 +4982,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'smoothQuadraticCurveTo', args: [ arg.x, arg.y ] } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'smoothQuadraticCurveTo',
+                args: [ arg.x, arg.y ]
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4926,7 +5017,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             if ( result1 !== null ) {
               result2 = parse_smoothQuadraticBezierCurvetoArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -4943,7 +5034,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'smoothQuadraticCurveToRelative', args: [ arg.x, arg.y ] } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'smoothQuadraticCurveToRelative',
+                  args: [ arg.x, arg.y ]
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -4965,7 +5063,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_smoothQuadraticBezierCurvetoArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -4982,7 +5080,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, list ) { return [a].concat( list ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, list ) { return [ a ].concat( list ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -4991,7 +5089,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos0 = pos;
           result0 = parse_coordinatePair();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -5026,7 +5124,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_ellipticalArcArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -5043,7 +5141,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'ellipticalArcTo', args: arg } } ); })( pos0, result0[2] );
+          result0 = (function( offset, args ) {
+            return args.map( function( arg ) {
+              return {
+                cmd: 'ellipticalArcTo',
+                args: arg
+              }
+            } );
+          })( pos0, result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -5071,7 +5176,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             if ( result1 !== null ) {
               result2 = parse_ellipticalArcArgumentSequence();
               if ( result2 !== null ) {
-                result0 = [result0, result1, result2];
+                result0 = [ result0, result1, result2 ];
               }
               else {
                 result0 = null;
@@ -5088,7 +5193,14 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, args ) { return args.map( function( arg ) { return { cmd: 'ellipticalArcToRelative', args: arg } } ); })( pos0, result0[2] );
+            result0 = (function( offset, args ) {
+              return args.map( function( arg ) {
+                return {
+                  cmd: 'ellipticalArcToRelative',
+                  args: arg
+                }
+              } );
+            })( pos0, result0[ 2 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -5110,7 +5222,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_ellipticalArcArgumentSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -5127,7 +5239,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, list ) { return [a].concat( list ); })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, list ) { return [ a ].concat( list ); })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -5136,7 +5248,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos0 = pos;
           result0 = parse_ellipticalArcArgument();
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return [a]; })( pos0, result0 );
+            result0 = (function( offset, a ) { return [ a ]; })( pos0, result0 );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -5177,7 +5289,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
                           if ( result9 !== null ) {
                             result10 = parse_coordinatePair();
                             if ( result10 !== null ) {
-                              result0 = [result0, result1, result2, result3, result4, result5, result6, result7, result8, result9, result10];
+                              result0 = [ result0, result1, result2, result3, result4, result5, result6, result7, result8, result9, result10 ];
                             }
                             else {
                               result0 = null;
@@ -5234,7 +5346,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, rx, ry, rot, largeArc, sweep, to ) { return [ rx, ry, rot, largeArc, sweep, to.x, to.y ] })( pos0, result0[0], result0[2], result0[4], result0[6], result0[8], result0[10] );
+          result0 = (function( offset, rx, ry, rot, largeArc, sweep, to ) { return [ rx, ry, rot, largeArc, sweep, to.x, to.y ] })( pos0, result0[ 0 ], result0[ 2 ], result0[ 4 ], result0[ 6 ], result0[ 8 ], result0[ 10 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -5255,7 +5367,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_number();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -5272,7 +5384,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return { x: a, y: b }; })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return { x: a, y: b }; })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -5316,7 +5428,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
         if ( result0 !== null ) {
           result1 = parse_floatingPointConstant();
           if ( result1 !== null ) {
-            result0 = [result0, result1];
+            result0 = [ result0, result1 ];
           }
           else {
             result0 = null;
@@ -5328,7 +5440,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, sign, number ) { return parseFloat( sign + number, 10 ); })( pos0, result0[0], result0[1] );
+          result0 = (function( offset, sign, number ) { return parseFloat( sign + number, 10 ); })( pos0, result0[ 0 ], result0[ 1 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -5341,7 +5453,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result0 !== null ) {
             result1 = parse_digitSequence();
             if ( result1 !== null ) {
-              result0 = [result0, result1];
+              result0 = [ result0, result1 ];
             }
             else {
               result0 = null;
@@ -5353,7 +5465,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, sign, number ) { return parseInt( sign + number, 10 ); })( pos0, result0[0], result0[1] );
+            result0 = (function( offset, sign, number ) { return parseInt( sign + number, 10 ); })( pos0, result0[ 0 ], result0[ 1 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -5432,7 +5544,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
               result3 = parse_wsp();
             }
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -5459,7 +5571,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
               result2 = parse_wsp();
             }
             if ( result1 !== null ) {
-              result0 = [result0, result1];
+              result0 = [ result0, result1 ];
             }
             else {
               result0 = null;
@@ -5501,7 +5613,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           result1 = parse_exponent();
           result1 = result1 !== null ? result1 : "";
           if ( result1 !== null ) {
-            result0 = [result0, result1];
+            result0 = [ result0, result1 ];
           }
           else {
             result0 = null;
@@ -5513,7 +5625,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return a + b; })( pos0, result0[0], result0[1] );
+          result0 = (function( offset, a, b ) { return a + b; })( pos0, result0[ 0 ], result0[ 1 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -5525,7 +5637,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result0 !== null ) {
             result1 = parse_exponent();
             if ( result1 !== null ) {
-              result0 = [result0, result1];
+              result0 = [ result0, result1 ];
             }
             else {
               result0 = null;
@@ -5537,7 +5649,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, a, b ) { return a + b; })( pos0, result0[0], result0[1] );
+            result0 = (function( offset, a, b ) { return a + b; })( pos0, result0[ 0 ], result0[ 1 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -5568,7 +5680,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_digitSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -5585,7 +5697,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return a + '.' + b; })( pos0, result0[0], result0[2] );
+          result0 = (function( offset, a, b ) { return a + '.' + b; })( pos0, result0[ 0 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -5606,7 +5718,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
               }
             }
             if ( result1 !== null ) {
-              result0 = [result0, result1];
+              result0 = [ result0, result1 ];
             }
             else {
               result0 = null;
@@ -5618,7 +5730,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
             pos = pos1;
           }
           if ( result0 !== null ) {
-            result0 = (function( offset, a ) { return a })( pos0, result0[0] );
+            result0 = (function( offset, a ) { return a })( pos0, result0[ 0 ] );
           }
           if ( result0 === null ) {
             pos = pos0;
@@ -5661,7 +5773,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           if ( result1 !== null ) {
             result2 = parse_digitSequence();
             if ( result2 !== null ) {
-              result0 = [result0, result1, result2];
+              result0 = [ result0, result1, result2 ];
             }
             else {
               result0 = null;
@@ -5678,7 +5790,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b, c ) { return a + b + c; })( pos0, result0[0], result0[1], result0[2] );
+          result0 = (function( offset, a, b, c ) { return a + b + c; })( pos0, result0[ 0 ], result0[ 1 ], result0[ 2 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -5724,7 +5836,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
         if ( result0 !== null ) {
           result1 = parse_digitSequence();
           if ( result1 !== null ) {
-            result0 = [result0, result1];
+            result0 = [ result0, result1 ];
           }
           else {
             result0 = null;
@@ -5736,7 +5848,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, a, b ) { return a + b; })( pos0, result0[0], result0[1] );
+          result0 = (function( offset, a, b ) { return a + b; })( pos0, result0[ 0 ], result0[ 1 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -5822,9 +5934,9 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
         var lastExpected = null;
         var cleanExpected = [];
         for ( var i = 0; i < expected.length; i++ ) {
-          if ( expected[i] !== lastExpected ) {
-            cleanExpected.push( expected[i] );
-            lastExpected = expected[i];
+          if ( expected[ i ] !== lastExpected ) {
+            cleanExpected.push( expected[ i ] );
+            lastExpected = expected[ i ];
           }
         }
         return cleanExpected;
@@ -5868,7 +5980,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
         var result = [
           {
             cmd: isRelative ? 'moveToRelative' : 'moveTo',
-            args: [ args[0].x, args[0].y ]
+            args: [ args[ 0 ].x, args[ 0 ].y ]
           }
         ];
 
@@ -5877,7 +5989,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           for ( var i = 1; i < args.length; i++ ) {
             result.push( {
               cmd: isRelative ? 'lineToRelative' : 'lineTo',
-              args: [ args[i].x, args[i].y ]
+              args: [ args[ i ].x, args[ i ].y ]
             } );
           }
         }
@@ -5885,7 +5997,7 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
       }
 
 
-      var result = parseFunctions[startRule]();
+      var result = parseFunctions[ startRule ]();
 
       /*
        * The parser is now in one of the following three states:
@@ -5944,12 +6056,12 @@ define( 'KITE/parser/svgPath',['require','KITE/kite'],function( require ) {
           expectedHumanized = "end of input";
           break;
         case 1:
-          expectedHumanized = expected[0];
+          expectedHumanized = expected[ 0 ];
           break;
         default:
           expectedHumanized = expected.slice( 0, expected.length - 1 ).join( ", " )
-                                + " or "
-            + expected[expected.length - 1];
+                              + " or "
+                              + expected[ expected.length - 1 ];
       }
 
       foundHumanized = found ? quote( found ) : "end of input";
@@ -6014,7 +6126,7 @@ define( 'KITE/util/LineStyles',['require','KITE/kite','DOT/Util'],function( requ
 
       if ( this.lineDash.length === other.lineDash.length ) {
         for ( var i = 0; i < this.lineDash.length; i++ ) {
-          if ( this.lineDash[i] !== other.lineDash[i] ) {
+          if ( this.lineDash[ i ] !== other.lineDash[ i ] ) {
             return false;
           }
         }
@@ -6038,7 +6150,7 @@ define( 'KITE/util/LineStyles',['require','KITE/kite','DOT/Util'],function( requ
       var fromPoint = center.plus( fromTangent.perpendicular().negated().times( this.lineWidth / 2 ) );
       var toPoint = center.plus( toTangent.perpendicular().negated().times( this.lineWidth / 2 ) );
 
-      var bevel = ( fromPoint.equals( toPoint ) ? [] : [new kite.Segment.Line( fromPoint, toPoint )] );
+      var bevel = ( fromPoint.equals( toPoint ) ? [] : [ new kite.Segment.Line( fromPoint, toPoint ) ] );
 
       // only insert a join on the non-acute-angle side
       if ( fromTangent.perpendicular().dot( toTangent ) > 0 ) {
@@ -6046,7 +6158,7 @@ define( 'KITE/util/LineStyles',['require','KITE/kite','DOT/Util'],function( requ
           case 'round':
             var fromAngle = fromTangent.angle() + Math.PI / 2;
             var toAngle = toTangent.angle() + Math.PI / 2;
-            return [new kite.Segment.Arc( center, this.lineWidth / 2, fromAngle, toAngle, true )];
+            return [ new kite.Segment.Arc( center, this.lineWidth / 2, fromAngle, toAngle, true ) ];
           case 'miter':
             var theta = fromTangent.angleBetween( toTangent.negated() );
             if ( 1 / Math.sin( theta / 2 ) <= this.miterLimit && theta < Math.PI - 0.00001 ) {
@@ -6092,10 +6204,10 @@ define( 'KITE/util/LineStyles',['require','KITE/kite','DOT/Util'],function( requ
 
       switch( this.lineCap ) {
         case 'butt':
-          return [new kite.Segment.Line( fromPoint, toPoint )];
+          return [ new kite.Segment.Line( fromPoint, toPoint ) ];
         case 'round':
           var tangentAngle = tangent.angle();
-          return [new kite.Segment.Arc( center, this.lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true )];
+          return [ new kite.Segment.Arc( center, this.lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true ) ];
         case 'square':
           var toLeft = tangent.perpendicular().negated().times( this.lineWidth / 2 );
           var toRight = tangent.perpendicular().times( this.lineWidth / 2 );
@@ -6368,7 +6480,7 @@ define( 'DOT/Vector4',['require','DOT/dot','DOT/Util'],function( require ) {
 
   // throw errors whenever a mutable method is called on our immutable vector
   Immutable.mutableOverrideHelper = function( mutableFunctionName ) {
-    Immutable.prototype[mutableFunctionName] = function() {
+    Immutable.prototype[ mutableFunctionName ] = function() {
       throw new Error( "Cannot call mutable method '" + mutableFunctionName + "' on immutable Vector4" );
     };
   };
@@ -6478,9 +6590,9 @@ define( 'DOT/Vector3',['require','DOT/dot','DOT/Util','DOT/Vector2','DOT/Vector4
 
     cross: function( v ) {
       return new Vector3(
-          this.y * v.z - this.z * v.y,
-          this.z * v.x - this.x * v.z,
-          this.x * v.y - this.y * v.x
+        this.y * v.z - this.z * v.y,
+        this.z * v.x - this.x * v.z,
+        this.x * v.y - this.y * v.x
       );
     },
 
@@ -6673,7 +6785,7 @@ define( 'DOT/Vector3',['require','DOT/dot','DOT/Util','DOT/Vector2','DOT/Vector4
 
   // throw errors whenever a mutable method is called on our immutable vector
   Immutable.mutableOverrideHelper = function( mutableFunctionName ) {
-    Immutable.prototype[mutableFunctionName] = function() {
+    Immutable.prototype[ mutableFunctionName ] = function() {
       throw new Error( "Cannot call mutable method '" + mutableFunctionName + "' on immutable Vector3" );
     };
   };
@@ -6720,10 +6832,10 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
     this.entries = new Float32Array( 16 );
 
     this.rowMajor(
-        v00 === undefined ? 1 : v00, v01 || 0, v02 || 0, v03 || 0,
-        v10 || 0, v11 === undefined ? 1 : v11, v12 || 0, v13 || 0,
-        v20 || 0, v21 || 0, v22 === undefined ? 1 : v22, v23 || 0,
-        v30 || 0, v31 || 0, v32 || 0, v33 === undefined ? 1 : v33,
+      v00 === undefined ? 1 : v00, v01 || 0, v02 || 0, v03 || 0,
+      v10 || 0, v11 === undefined ? 1 : v11, v12 || 0, v13 || 0,
+      v20 || 0, v21 || 0, v22 === undefined ? 1 : v22, v23 || 0,
+      v30 || 0, v31 || 0, v32 || 0, v33 === undefined ? 1 : v33,
       type );
   };
   var Matrix4 = dot.Matrix4;
@@ -6780,9 +6892,9 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
     var C = 1 - c;
 
     return new Matrix4(
-        axis.x * axis.x * C + c, axis.x * axis.y * C - axis.z * s, axis.x * axis.z * C + axis.y * s, 0,
-        axis.y * axis.x * C + axis.z * s, axis.y * axis.y * C + c, axis.y * axis.z * C - axis.x * s, 0,
-        axis.z * axis.x * C - axis.y * s, axis.z * axis.y * C + axis.x * s, axis.z * axis.z * C + c, 0,
+      axis.x * axis.x * C + c, axis.x * axis.y * C - axis.z * s, axis.x * axis.z * C + axis.y * s, 0,
+      axis.y * axis.x * C + axis.z * s, axis.y * axis.y * C + c, axis.y * axis.z * C - axis.x * s, 0,
+      axis.z * axis.x * C - axis.y * s, axis.z * axis.y * C + axis.x * s, axis.z * axis.z * C + c, 0,
       0, 0, 0, 1,
       Types.AFFINE );
   };
@@ -6830,7 +6942,7 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
     var cotangent = Math.cos( fovYRadians ) / Math.sin( fovYRadians );
 
     return new Matrix4(
-        cotangent / aspect, 0, 0, 0,
+      cotangent / aspect, 0, 0, 0,
       0, cotangent, 0, 0,
       0, 0, ( zFar + zNear ) / ( zNear - zFar ), ( 2 * zFar * zNear ) / ( zNear - zFar ),
       0, 0, -1, 0 );
@@ -6840,22 +6952,22 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
     constructor: Matrix4,
 
     rowMajor: function( v00, v01, v02, v03, v10, v11, v12, v13, v20, v21, v22, v23, v30, v31, v32, v33, type ) {
-      this.entries[0] = v00;
-      this.entries[1] = v10;
-      this.entries[2] = v20;
-      this.entries[3] = v30;
-      this.entries[4] = v01;
-      this.entries[5] = v11;
-      this.entries[6] = v21;
-      this.entries[7] = v31;
-      this.entries[8] = v02;
-      this.entries[9] = v12;
-      this.entries[10] = v22;
-      this.entries[11] = v32;
-      this.entries[12] = v03;
-      this.entries[13] = v13;
-      this.entries[14] = v23;
-      this.entries[15] = v33;
+      this.entries[ 0 ] = v00;
+      this.entries[ 1 ] = v10;
+      this.entries[ 2 ] = v20;
+      this.entries[ 3 ] = v30;
+      this.entries[ 4 ] = v01;
+      this.entries[ 5 ] = v11;
+      this.entries[ 6 ] = v21;
+      this.entries[ 7 ] = v31;
+      this.entries[ 8 ] = v02;
+      this.entries[ 9 ] = v12;
+      this.entries[ 10 ] = v22;
+      this.entries[ 11 ] = v32;
+      this.entries[ 12 ] = v03;
+      this.entries[ 13 ] = v13;
+      this.entries[ 14 ] = v23;
+      this.entries[ 15 ] = v33;
 
       // TODO: consider performance of the affine check here
       this.type = type === undefined ? ( ( v30 === 0 && v31 === 0 && v32 === 0 && v33 === 1 ) ? Types.AFFINE : Types.OTHER ) : type;
@@ -6866,23 +6978,32 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
       return this.rowMajor( v00, v01, v02, v03, v10, v11, v12, v13, v20, v21, v22, v23, v30, v31, v32, v33, type );
     },
 
+    set: function( matrix ) {
+      return this.rowMajor(
+        matrix.m00(), matrix.m01(), matrix.m02(), matrix.m03(),
+        matrix.m10(), matrix.m11(), matrix.m12(), matrix.m13(),
+        matrix.m20(), matrix.m21(), matrix.m22(), matrix.m23(),
+        matrix.m30(), matrix.m31(), matrix.m32(), matrix.m33(),
+        matrix.type );
+    },
+
     // convenience getters. inline usages of these when performance is critical? TODO: test performance of inlining these, with / without closure compiler
-    m00: function() { return this.entries[0]; },
-    m01: function() { return this.entries[4]; },
-    m02: function() { return this.entries[8]; },
-    m03: function() { return this.entries[12]; },
-    m10: function() { return this.entries[1]; },
-    m11: function() { return this.entries[5]; },
-    m12: function() { return this.entries[9]; },
-    m13: function() { return this.entries[13]; },
-    m20: function() { return this.entries[2]; },
-    m21: function() { return this.entries[6]; },
-    m22: function() { return this.entries[10]; },
-    m23: function() { return this.entries[14]; },
-    m30: function() { return this.entries[3]; },
-    m31: function() { return this.entries[7]; },
-    m32: function() { return this.entries[11]; },
-    m33: function() { return this.entries[15]; },
+    m00: function() { return this.entries[ 0 ]; },
+    m01: function() { return this.entries[ 4 ]; },
+    m02: function() { return this.entries[ 8 ]; },
+    m03: function() { return this.entries[ 12 ]; },
+    m10: function() { return this.entries[ 1 ]; },
+    m11: function() { return this.entries[ 5 ]; },
+    m12: function() { return this.entries[ 9 ]; },
+    m13: function() { return this.entries[ 13 ]; },
+    m20: function() { return this.entries[ 2 ]; },
+    m21: function() { return this.entries[ 6 ]; },
+    m22: function() { return this.entries[ 10 ]; },
+    m23: function() { return this.entries[ 14 ]; },
+    m30: function() { return this.entries[ 3 ]; },
+    m31: function() { return this.entries[ 7 ]; },
+    m32: function() { return this.entries[ 11 ]; },
+    m33: function() { return this.entries[ 15 ]; },
 
     isFinite: function() {
       return isFinite( this.m00() ) &&
@@ -6940,22 +7061,22 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
       // the inner part of a CSS3 transform, but remember to add the browser-specific parts!
       // NOTE: the toFixed calls are inlined for performance reasons
       return 'matrix3d(' +
-             this.entries[0].toFixed( 20 ) + ',' +
-             this.entries[1].toFixed( 20 ) + ',' +
-             this.entries[2].toFixed( 20 ) + ',' +
-             this.entries[3].toFixed( 20 ) + ',' +
-             this.entries[4].toFixed( 20 ) + ',' +
-             this.entries[5].toFixed( 20 ) + ',' +
-             this.entries[6].toFixed( 20 ) + ',' +
-             this.entries[7].toFixed( 20 ) + ',' +
-             this.entries[8].toFixed( 20 ) + ',' +
-             this.entries[9].toFixed( 20 ) + ',' +
-             this.entries[10].toFixed( 20 ) + ',' +
-             this.entries[11].toFixed( 20 ) + ',' +
-             this.entries[12].toFixed( 20 ) + ',' +
-             this.entries[13].toFixed( 20 ) + ',' +
-             this.entries[14].toFixed( 20 ) + ',' +
-             this.entries[15].toFixed( 20 ) + ')';
+             this.entries[ 0 ].toFixed( 20 ) + ',' +
+             this.entries[ 1 ].toFixed( 20 ) + ',' +
+             this.entries[ 2 ].toFixed( 20 ) + ',' +
+             this.entries[ 3 ].toFixed( 20 ) + ',' +
+             this.entries[ 4 ].toFixed( 20 ) + ',' +
+             this.entries[ 5 ].toFixed( 20 ) + ',' +
+             this.entries[ 6 ].toFixed( 20 ) + ',' +
+             this.entries[ 7 ].toFixed( 20 ) + ',' +
+             this.entries[ 8 ].toFixed( 20 ) + ',' +
+             this.entries[ 9 ].toFixed( 20 ) + ',' +
+             this.entries[ 10 ].toFixed( 20 ) + ',' +
+             this.entries[ 11 ].toFixed( 20 ) + ',' +
+             this.entries[ 12 ].toFixed( 20 ) + ',' +
+             this.entries[ 13 ].toFixed( 20 ) + ',' +
+             this.entries[ 14 ].toFixed( 20 ) + ',' +
+             this.entries[ 15 ].toFixed( 20 ) + ')';
     },
     get cssTransform() { return this.getCSSTransform(); },
 
@@ -6988,8 +7109,8 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
     },
 
     /*---------------------------------------------------------------------------*
-    * Immutable operations (returning a new matrix)
-    *----------------------------------------------------------------------------*/
+     * Immutable operations (returning a new matrix)
+     *----------------------------------------------------------------------------*/
 
     copy: function() {
       return new Matrix4(
@@ -7003,19 +7124,19 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
 
     plus: function( m ) {
       return new Matrix4(
-          this.m00() + m.m00(), this.m01() + m.m01(), this.m02() + m.m02(), this.m03() + m.m03(),
-          this.m10() + m.m10(), this.m11() + m.m11(), this.m12() + m.m12(), this.m13() + m.m13(),
-          this.m20() + m.m20(), this.m21() + m.m21(), this.m22() + m.m22(), this.m23() + m.m23(),
-          this.m30() + m.m30(), this.m31() + m.m31(), this.m32() + m.m32(), this.m33() + m.m33()
+        this.m00() + m.m00(), this.m01() + m.m01(), this.m02() + m.m02(), this.m03() + m.m03(),
+        this.m10() + m.m10(), this.m11() + m.m11(), this.m12() + m.m12(), this.m13() + m.m13(),
+        this.m20() + m.m20(), this.m21() + m.m21(), this.m22() + m.m22(), this.m23() + m.m23(),
+        this.m30() + m.m30(), this.m31() + m.m31(), this.m32() + m.m32(), this.m33() + m.m33()
       );
     },
 
     minus: function( m ) {
       return new Matrix4(
-          this.m00() - m.m00(), this.m01() - m.m01(), this.m02() - m.m02(), this.m03() - m.m03(),
-          this.m10() - m.m10(), this.m11() - m.m11(), this.m12() - m.m12(), this.m13() - m.m13(),
-          this.m20() - m.m20(), this.m21() - m.m21(), this.m22() - m.m22(), this.m23() - m.m23(),
-          this.m30() - m.m30(), this.m31() - m.m31(), this.m32() - m.m32(), this.m33() - m.m33()
+        this.m00() - m.m00(), this.m01() - m.m01(), this.m02() - m.m02(), this.m03() - m.m03(),
+        this.m10() - m.m10(), this.m11() - m.m11(), this.m12() - m.m12(), this.m13() - m.m13(),
+        this.m20() - m.m20(), this.m21() - m.m21(), this.m22() - m.m22(), this.m23() - m.m23(),
+        this.m30() - m.m30(), this.m31() - m.m31(), this.m32() - m.m32(), this.m33() - m.m33()
       );
     },
 
@@ -7047,7 +7168,7 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
             0, 0, 0, 1, Types.TRANSLATION_3D );
         case Types.SCALING:
           return new Matrix4(
-              1 / this.m00(), 0, 0, 0,
+            1 / this.m00(), 0, 0, 0,
             0, 1 / this.m11(), 0, 0,
             0, 0, 1 / this.m22(), 0,
             0, 0, 0, 1 / this.m33(), Types.SCALING );
@@ -7056,22 +7177,22 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
           var det = this.getDeterminant();
           if ( det !== 0 ) {
             return new Matrix4(
-                ( -this.m31() * this.m22() * this.m13() + this.m21() * this.m32() * this.m13() + this.m31() * this.m12() * this.m23() - this.m11() * this.m32() * this.m23() - this.m21() * this.m12() * this.m33() + this.m11() * this.m22() * this.m33() ) / det,
-                ( this.m31() * this.m22() * this.m03() - this.m21() * this.m32() * this.m03() - this.m31() * this.m02() * this.m23() + this.m01() * this.m32() * this.m23() + this.m21() * this.m02() * this.m33() - this.m01() * this.m22() * this.m33() ) / det,
-                ( -this.m31() * this.m12() * this.m03() + this.m11() * this.m32() * this.m03() + this.m31() * this.m02() * this.m13() - this.m01() * this.m32() * this.m13() - this.m11() * this.m02() * this.m33() + this.m01() * this.m12() * this.m33() ) / det,
-                ( this.m21() * this.m12() * this.m03() - this.m11() * this.m22() * this.m03() - this.m21() * this.m02() * this.m13() + this.m01() * this.m22() * this.m13() + this.m11() * this.m02() * this.m23() - this.m01() * this.m12() * this.m23() ) / det,
-                ( this.m30() * this.m22() * this.m13() - this.m20() * this.m32() * this.m13() - this.m30() * this.m12() * this.m23() + this.m10() * this.m32() * this.m23() + this.m20() * this.m12() * this.m33() - this.m10() * this.m22() * this.m33() ) / det,
-                ( -this.m30() * this.m22() * this.m03() + this.m20() * this.m32() * this.m03() + this.m30() * this.m02() * this.m23() - this.m00() * this.m32() * this.m23() - this.m20() * this.m02() * this.m33() + this.m00() * this.m22() * this.m33() ) / det,
-                ( this.m30() * this.m12() * this.m03() - this.m10() * this.m32() * this.m03() - this.m30() * this.m02() * this.m13() + this.m00() * this.m32() * this.m13() + this.m10() * this.m02() * this.m33() - this.m00() * this.m12() * this.m33() ) / det,
-                ( -this.m20() * this.m12() * this.m03() + this.m10() * this.m22() * this.m03() + this.m20() * this.m02() * this.m13() - this.m00() * this.m22() * this.m13() - this.m10() * this.m02() * this.m23() + this.m00() * this.m12() * this.m23() ) / det,
-                ( -this.m30() * this.m21() * this.m13() + this.m20() * this.m31() * this.m13() + this.m30() * this.m11() * this.m23() - this.m10() * this.m31() * this.m23() - this.m20() * this.m11() * this.m33() + this.m10() * this.m21() * this.m33() ) / det,
-                ( this.m30() * this.m21() * this.m03() - this.m20() * this.m31() * this.m03() - this.m30() * this.m01() * this.m23() + this.m00() * this.m31() * this.m23() + this.m20() * this.m01() * this.m33() - this.m00() * this.m21() * this.m33() ) / det,
-                ( -this.m30() * this.m11() * this.m03() + this.m10() * this.m31() * this.m03() + this.m30() * this.m01() * this.m13() - this.m00() * this.m31() * this.m13() - this.m10() * this.m01() * this.m33() + this.m00() * this.m11() * this.m33() ) / det,
-                ( this.m20() * this.m11() * this.m03() - this.m10() * this.m21() * this.m03() - this.m20() * this.m01() * this.m13() + this.m00() * this.m21() * this.m13() + this.m10() * this.m01() * this.m23() - this.m00() * this.m11() * this.m23() ) / det,
-                ( this.m30() * this.m21() * this.m12() - this.m20() * this.m31() * this.m12() - this.m30() * this.m11() * this.m22() + this.m10() * this.m31() * this.m22() + this.m20() * this.m11() * this.m32() - this.m10() * this.m21() * this.m32() ) / det,
-                ( -this.m30() * this.m21() * this.m02() + this.m20() * this.m31() * this.m02() + this.m30() * this.m01() * this.m22() - this.m00() * this.m31() * this.m22() - this.m20() * this.m01() * this.m32() + this.m00() * this.m21() * this.m32() ) / det,
-                ( this.m30() * this.m11() * this.m02() - this.m10() * this.m31() * this.m02() - this.m30() * this.m01() * this.m12() + this.m00() * this.m31() * this.m12() + this.m10() * this.m01() * this.m32() - this.m00() * this.m11() * this.m32() ) / det,
-                ( -this.m20() * this.m11() * this.m02() + this.m10() * this.m21() * this.m02() + this.m20() * this.m01() * this.m12() - this.m00() * this.m21() * this.m12() - this.m10() * this.m01() * this.m22() + this.m00() * this.m11() * this.m22() ) / det
+              ( -this.m31() * this.m22() * this.m13() + this.m21() * this.m32() * this.m13() + this.m31() * this.m12() * this.m23() - this.m11() * this.m32() * this.m23() - this.m21() * this.m12() * this.m33() + this.m11() * this.m22() * this.m33() ) / det,
+              ( this.m31() * this.m22() * this.m03() - this.m21() * this.m32() * this.m03() - this.m31() * this.m02() * this.m23() + this.m01() * this.m32() * this.m23() + this.m21() * this.m02() * this.m33() - this.m01() * this.m22() * this.m33() ) / det,
+              ( -this.m31() * this.m12() * this.m03() + this.m11() * this.m32() * this.m03() + this.m31() * this.m02() * this.m13() - this.m01() * this.m32() * this.m13() - this.m11() * this.m02() * this.m33() + this.m01() * this.m12() * this.m33() ) / det,
+              ( this.m21() * this.m12() * this.m03() - this.m11() * this.m22() * this.m03() - this.m21() * this.m02() * this.m13() + this.m01() * this.m22() * this.m13() + this.m11() * this.m02() * this.m23() - this.m01() * this.m12() * this.m23() ) / det,
+              ( this.m30() * this.m22() * this.m13() - this.m20() * this.m32() * this.m13() - this.m30() * this.m12() * this.m23() + this.m10() * this.m32() * this.m23() + this.m20() * this.m12() * this.m33() - this.m10() * this.m22() * this.m33() ) / det,
+              ( -this.m30() * this.m22() * this.m03() + this.m20() * this.m32() * this.m03() + this.m30() * this.m02() * this.m23() - this.m00() * this.m32() * this.m23() - this.m20() * this.m02() * this.m33() + this.m00() * this.m22() * this.m33() ) / det,
+              ( this.m30() * this.m12() * this.m03() - this.m10() * this.m32() * this.m03() - this.m30() * this.m02() * this.m13() + this.m00() * this.m32() * this.m13() + this.m10() * this.m02() * this.m33() - this.m00() * this.m12() * this.m33() ) / det,
+              ( -this.m20() * this.m12() * this.m03() + this.m10() * this.m22() * this.m03() + this.m20() * this.m02() * this.m13() - this.m00() * this.m22() * this.m13() - this.m10() * this.m02() * this.m23() + this.m00() * this.m12() * this.m23() ) / det,
+              ( -this.m30() * this.m21() * this.m13() + this.m20() * this.m31() * this.m13() + this.m30() * this.m11() * this.m23() - this.m10() * this.m31() * this.m23() - this.m20() * this.m11() * this.m33() + this.m10() * this.m21() * this.m33() ) / det,
+              ( this.m30() * this.m21() * this.m03() - this.m20() * this.m31() * this.m03() - this.m30() * this.m01() * this.m23() + this.m00() * this.m31() * this.m23() + this.m20() * this.m01() * this.m33() - this.m00() * this.m21() * this.m33() ) / det,
+              ( -this.m30() * this.m11() * this.m03() + this.m10() * this.m31() * this.m03() + this.m30() * this.m01() * this.m13() - this.m00() * this.m31() * this.m13() - this.m10() * this.m01() * this.m33() + this.m00() * this.m11() * this.m33() ) / det,
+              ( this.m20() * this.m11() * this.m03() - this.m10() * this.m21() * this.m03() - this.m20() * this.m01() * this.m13() + this.m00() * this.m21() * this.m13() + this.m10() * this.m01() * this.m23() - this.m00() * this.m11() * this.m23() ) / det,
+              ( this.m30() * this.m21() * this.m12() - this.m20() * this.m31() * this.m12() - this.m30() * this.m11() * this.m22() + this.m10() * this.m31() * this.m22() + this.m20() * this.m11() * this.m32() - this.m10() * this.m21() * this.m32() ) / det,
+              ( -this.m30() * this.m21() * this.m02() + this.m20() * this.m31() * this.m02() + this.m30() * this.m01() * this.m22() - this.m00() * this.m31() * this.m22() - this.m20() * this.m01() * this.m32() + this.m00() * this.m21() * this.m32() ) / det,
+              ( this.m30() * this.m11() * this.m02() - this.m10() * this.m31() * this.m02() - this.m30() * this.m01() * this.m12() + this.m00() * this.m31() * this.m12() + this.m10() * this.m01() * this.m32() - this.m00() * this.m11() * this.m32() ) / det,
+              ( -this.m20() * this.m11() * this.m02() + this.m10() * this.m21() * this.m02() + this.m20() * this.m01() * this.m12() - this.m00() * this.m21() * this.m12() - this.m10() * this.m01() * this.m22() + this.m00() * this.m11() * this.m22() ) / det
             );
           }
           else {
@@ -7102,7 +7223,7 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
         else if ( this.type === Types.SCALING ) {
           // faster combination of scaling
           return new Matrix4(
-              this.m00() * m.m00(), 0, 0, 0,
+            this.m00() * m.m00(), 0, 0, 0,
             0, this.m11() * m.m11(), 0, 0,
             0, 0, this.m22() * m.m22(), 0,
             0, 0, 0, 1, Types.SCALING );
@@ -7114,39 +7235,39 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
 
         // affine case
         return new Matrix4(
-            this.m00() * m.m00() + this.m01() * m.m10() + this.m02() * m.m20(),
-            this.m00() * m.m01() + this.m01() * m.m11() + this.m02() * m.m21(),
-            this.m00() * m.m02() + this.m01() * m.m12() + this.m02() * m.m22(),
-            this.m00() * m.m03() + this.m01() * m.m13() + this.m02() * m.m23() + this.m03(),
-            this.m10() * m.m00() + this.m11() * m.m10() + this.m12() * m.m20(),
-            this.m10() * m.m01() + this.m11() * m.m11() + this.m12() * m.m21(),
-            this.m10() * m.m02() + this.m11() * m.m12() + this.m12() * m.m22(),
-            this.m10() * m.m03() + this.m11() * m.m13() + this.m12() * m.m23() + this.m13(),
-            this.m20() * m.m00() + this.m21() * m.m10() + this.m22() * m.m20(),
-            this.m20() * m.m01() + this.m21() * m.m11() + this.m22() * m.m21(),
-            this.m20() * m.m02() + this.m21() * m.m12() + this.m22() * m.m22(),
-            this.m20() * m.m03() + this.m21() * m.m13() + this.m22() * m.m23() + this.m23(),
+          this.m00() * m.m00() + this.m01() * m.m10() + this.m02() * m.m20(),
+          this.m00() * m.m01() + this.m01() * m.m11() + this.m02() * m.m21(),
+          this.m00() * m.m02() + this.m01() * m.m12() + this.m02() * m.m22(),
+          this.m00() * m.m03() + this.m01() * m.m13() + this.m02() * m.m23() + this.m03(),
+          this.m10() * m.m00() + this.m11() * m.m10() + this.m12() * m.m20(),
+          this.m10() * m.m01() + this.m11() * m.m11() + this.m12() * m.m21(),
+          this.m10() * m.m02() + this.m11() * m.m12() + this.m12() * m.m22(),
+          this.m10() * m.m03() + this.m11() * m.m13() + this.m12() * m.m23() + this.m13(),
+          this.m20() * m.m00() + this.m21() * m.m10() + this.m22() * m.m20(),
+          this.m20() * m.m01() + this.m21() * m.m11() + this.m22() * m.m21(),
+          this.m20() * m.m02() + this.m21() * m.m12() + this.m22() * m.m22(),
+          this.m20() * m.m03() + this.m21() * m.m13() + this.m22() * m.m23() + this.m23(),
           0, 0, 0, 1, Types.AFFINE );
       }
 
       // general case
       return new Matrix4(
-          this.m00() * m.m00() + this.m01() * m.m10() + this.m02() * m.m20() + this.m03() * m.m30(),
-          this.m00() * m.m01() + this.m01() * m.m11() + this.m02() * m.m21() + this.m03() * m.m31(),
-          this.m00() * m.m02() + this.m01() * m.m12() + this.m02() * m.m22() + this.m03() * m.m32(),
-          this.m00() * m.m03() + this.m01() * m.m13() + this.m02() * m.m23() + this.m03() * m.m33(),
-          this.m10() * m.m00() + this.m11() * m.m10() + this.m12() * m.m20() + this.m13() * m.m30(),
-          this.m10() * m.m01() + this.m11() * m.m11() + this.m12() * m.m21() + this.m13() * m.m31(),
-          this.m10() * m.m02() + this.m11() * m.m12() + this.m12() * m.m22() + this.m13() * m.m32(),
-          this.m10() * m.m03() + this.m11() * m.m13() + this.m12() * m.m23() + this.m13() * m.m33(),
-          this.m20() * m.m00() + this.m21() * m.m10() + this.m22() * m.m20() + this.m23() * m.m30(),
-          this.m20() * m.m01() + this.m21() * m.m11() + this.m22() * m.m21() + this.m23() * m.m31(),
-          this.m20() * m.m02() + this.m21() * m.m12() + this.m22() * m.m22() + this.m23() * m.m32(),
-          this.m20() * m.m03() + this.m21() * m.m13() + this.m22() * m.m23() + this.m23() * m.m33(),
-          this.m30() * m.m00() + this.m31() * m.m10() + this.m32() * m.m20() + this.m33() * m.m30(),
-          this.m30() * m.m01() + this.m31() * m.m11() + this.m32() * m.m21() + this.m33() * m.m31(),
-          this.m30() * m.m02() + this.m31() * m.m12() + this.m32() * m.m22() + this.m33() * m.m32(),
-          this.m30() * m.m03() + this.m31() * m.m13() + this.m32() * m.m23() + this.m33() * m.m33() );
+        this.m00() * m.m00() + this.m01() * m.m10() + this.m02() * m.m20() + this.m03() * m.m30(),
+        this.m00() * m.m01() + this.m01() * m.m11() + this.m02() * m.m21() + this.m03() * m.m31(),
+        this.m00() * m.m02() + this.m01() * m.m12() + this.m02() * m.m22() + this.m03() * m.m32(),
+        this.m00() * m.m03() + this.m01() * m.m13() + this.m02() * m.m23() + this.m03() * m.m33(),
+        this.m10() * m.m00() + this.m11() * m.m10() + this.m12() * m.m20() + this.m13() * m.m30(),
+        this.m10() * m.m01() + this.m11() * m.m11() + this.m12() * m.m21() + this.m13() * m.m31(),
+        this.m10() * m.m02() + this.m11() * m.m12() + this.m12() * m.m22() + this.m13() * m.m32(),
+        this.m10() * m.m03() + this.m11() * m.m13() + this.m12() * m.m23() + this.m13() * m.m33(),
+        this.m20() * m.m00() + this.m21() * m.m10() + this.m22() * m.m20() + this.m23() * m.m30(),
+        this.m20() * m.m01() + this.m21() * m.m11() + this.m22() * m.m21() + this.m23() * m.m31(),
+        this.m20() * m.m02() + this.m21() * m.m12() + this.m22() * m.m22() + this.m23() * m.m32(),
+        this.m20() * m.m03() + this.m21() * m.m13() + this.m22() * m.m23() + this.m23() * m.m33(),
+        this.m30() * m.m00() + this.m31() * m.m10() + this.m32() * m.m20() + this.m33() * m.m30(),
+        this.m30() * m.m01() + this.m31() * m.m11() + this.m32() * m.m21() + this.m33() * m.m31(),
+        this.m30() * m.m02() + this.m31() * m.m12() + this.m32() * m.m22() + this.m33() * m.m32(),
+        this.m30() * m.m03() + this.m31() * m.m13() + this.m32() * m.m23() + this.m33() * m.m33() );
     },
 
     timesVector4: function( v ) {
@@ -7237,11 +7358,11 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','DOT/Vector3','DOT/Matrix4'],function( require ) {
+define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/PoolableMixin','DOT/Vector2','DOT/Vector3','DOT/Matrix4'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
+  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
 
   var FastArray = dot.FastArray;
 
@@ -7250,13 +7371,13 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
   require( 'DOT/Matrix4' );
 
   var identityFastArray = new FastArray( 9 );
-  identityFastArray[0] = 1;
-  identityFastArray[4] = 1;
-  identityFastArray[8] = 1;
+  identityFastArray[ 0 ] = 1;
+  identityFastArray[ 4 ] = 1;
+  identityFastArray[ 8 ] = 1;
 
   var createIdentityArray = FastArray === Array ?
                             function() {
-                              return [1, 0, 0, 0, 1, 0, 0, 0, 1];
+                              return [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ];
                             } :
                             function() {
                               return new FastArray( identityFastArray );
@@ -7331,19 +7452,19 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
     constructor: Matrix3,
 
     /*---------------------------------------------------------------------------*
-    * "Properties"
-    *----------------------------------------------------------------------------*/
+     * "Properties"
+     *----------------------------------------------------------------------------*/
 
     // convenience getters. inline usages of these when performance is critical? TODO: test performance of inlining these, with / without closure compiler
-    m00: function() { return this.entries[0]; },
-    m01: function() { return this.entries[3]; },
-    m02: function() { return this.entries[6]; },
-    m10: function() { return this.entries[1]; },
-    m11: function() { return this.entries[4]; },
-    m12: function() { return this.entries[7]; },
-    m20: function() { return this.entries[2]; },
-    m21: function() { return this.entries[5]; },
-    m22: function() { return this.entries[8]; },
+    m00: function() { return this.entries[ 0 ]; },
+    m01: function() { return this.entries[ 3 ]; },
+    m02: function() { return this.entries[ 6 ]; },
+    m10: function() { return this.entries[ 1 ]; },
+    m11: function() { return this.entries[ 4 ]; },
+    m12: function() { return this.entries[ 7 ]; },
+    m20: function() { return this.entries[ 2 ]; },
+    m21: function() { return this.entries[ 5 ]; },
+    m22: function() { return this.entries[ 8 ]; },
 
     isIdentity: function() {
       return this.type === Types.IDENTITY || this.equals( Matrix3.IDENTITY );
@@ -7415,6 +7536,14 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
         0, 0, 0, 1 );
     },
 
+    toAffineMatrix4: function() {
+      return new dot.Matrix4(
+        this.m00(), this.m01(), 0, this.m02(),
+        this.m10(), this.m11(), 0, this.m12(),
+        0, 0, 1, 0,
+        0, 0, 0, 1 );
+    },
+
     toString: function() {
       return this.m00() + ' ' + this.m01() + ' ' + this.m02() + '\n' +
              this.m10() + ' ' + this.m11() + ' ' + this.m12() + '\n' +
@@ -7443,7 +7572,7 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
 
       // the inner part of a CSS3 transform, but remember to add the browser-specific parts!
       // NOTE: the toFixed calls are inlined for performance reasons
-      return 'matrix(' + this.entries[0].toFixed( 20 ) + ',' + this.entries[1].toFixed( 20 ) + ',' + this.entries[3].toFixed( 20 ) + ',' + this.entries[4].toFixed( 20 ) + ',' + this.entries[6].toFixed( 20 ) + ',' + this.entries[7].toFixed( 20 ) + ')';
+      return 'matrix(' + this.entries[ 0 ].toFixed( 20 ) + ',' + this.entries[ 1 ].toFixed( 20 ) + ',' + this.entries[ 3 ].toFixed( 20 ) + ',' + this.entries[ 4 ].toFixed( 20 ) + ',' + this.entries[ 6 ].toFixed( 20 ) + ',' + this.entries[ 7 ].toFixed( 20 ) + ')';
     },
     get cssTransform() { return this.getCSSTransform(); },
 
@@ -7460,11 +7589,11 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
         case Types.IDENTITY:
           return '';
         case Types.TRANSLATION_2D:
-          return 'translate(' + svgNumber( this.entries[6] ) + ',' + svgNumber( this.entries[7] ) + ')';
+          return 'translate(' + svgNumber( this.entries[ 6 ] ) + ',' + svgNumber( this.entries[ 7 ] ) + ')';
         case Types.SCALING:
-          return 'scale(' + svgNumber( this.entries[0] ) + ( this.entries[0] === this.entries[4] ? '' : ',' + svgNumber( this.entries[4] ) ) + ')';
+          return 'scale(' + svgNumber( this.entries[ 0 ] ) + ( this.entries[ 0 ] === this.entries[ 4 ] ? '' : ',' + svgNumber( this.entries[ 4 ] ) ) + ')';
         default:
-          return 'matrix(' + svgNumber( this.entries[0] ) + ',' + svgNumber( this.entries[1] ) + ',' + svgNumber( this.entries[3] ) + ',' + svgNumber( this.entries[4] ) + ',' + svgNumber( this.entries[6] ) + ',' + svgNumber( this.entries[7] ) + ')';
+          return 'matrix(' + svgNumber( this.entries[ 0 ] ) + ',' + svgNumber( this.entries[ 1 ] ) + ',' + svgNumber( this.entries[ 3 ] ) + ',' + svgNumber( this.entries[ 4 ] ) + ',' + svgNumber( this.entries[ 6 ] ) + ',' + svgNumber( this.entries[ 7 ] ) + ')';
       }
     },
     get svgTransform() { return this.getSVGTransform(); },
@@ -7480,7 +7609,7 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
         '-webkit-backface-visibility': 'hidden',
 
         '-webkit-transform': transformCSS + ' translateZ(0)', // trigger hardware acceleration if possible
-        '-moz-transform': transformCSS + ' translateZ(0)', // trigger hardware acceleration if possible
+        '-moz-transform':    transformCSS + ' translateZ(0)', // trigger hardware acceleration if possible
         '-ms-transform': transformCSS,
         '-o-transform': transformCSS,
         'transform': transformCSS,
@@ -7505,8 +7634,8 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
     },
 
     /*---------------------------------------------------------------------------*
-    * Immutable operations (returns a new matrix)
-    *----------------------------------------------------------------------------*/
+     * Immutable operations (returns a new matrix)
+     *----------------------------------------------------------------------------*/
 
     copy: function() {
       return Matrix3.createFromPool(
@@ -7519,17 +7648,17 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
 
     plus: function( m ) {
       return Matrix3.createFromPool(
-          this.m00() + m.m00(), this.m01() + m.m01(), this.m02() + m.m02(),
-          this.m10() + m.m10(), this.m11() + m.m11(), this.m12() + m.m12(),
-          this.m20() + m.m20(), this.m21() + m.m21(), this.m22() + m.m22()
+        this.m00() + m.m00(), this.m01() + m.m01(), this.m02() + m.m02(),
+        this.m10() + m.m10(), this.m11() + m.m11(), this.m12() + m.m12(),
+        this.m20() + m.m20(), this.m21() + m.m21(), this.m22() + m.m22()
       );
     },
 
     minus: function( m ) {
       return Matrix3.createFromPool(
-          this.m00() - m.m00(), this.m01() - m.m01(), this.m02() - m.m02(),
-          this.m10() - m.m10(), this.m11() - m.m11(), this.m12() - m.m12(),
-          this.m20() - m.m20(), this.m21() - m.m21(), this.m22() - m.m22()
+        this.m00() - m.m00(), this.m01() - m.m01(), this.m02() - m.m02(),
+        this.m10() - m.m10(), this.m11() - m.m11(), this.m12() - m.m12(),
+        this.m20() - m.m20(), this.m21() - m.m21(), this.m22() - m.m22()
       );
     },
 
@@ -7562,19 +7691,19 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
             0, 0, 1, Types.TRANSLATION_2D );
         case Types.SCALING:
           return Matrix3.createFromPool(
-              1 / this.m00(), 0, 0,
+            1 / this.m00(), 0, 0,
             0, 1 / this.m11(), 0,
             0, 0, 1 / this.m22(), Types.SCALING );
         case Types.AFFINE:
           det = this.getDeterminant();
           if ( det !== 0 ) {
             return Matrix3.createFromPool(
-                ( -this.m12() * this.m21() + this.m11() * this.m22() ) / det,
-                ( this.m02() * this.m21() - this.m01() * this.m22() ) / det,
-                ( -this.m02() * this.m11() + this.m01() * this.m12() ) / det,
-                ( this.m12() * this.m20() - this.m10() * this.m22() ) / det,
-                ( -this.m02() * this.m20() + this.m00() * this.m22() ) / det,
-                ( this.m02() * this.m10() - this.m00() * this.m12() ) / det,
+              ( -this.m12() * this.m21() + this.m11() * this.m22() ) / det,
+              ( this.m02() * this.m21() - this.m01() * this.m22() ) / det,
+              ( -this.m02() * this.m11() + this.m01() * this.m12() ) / det,
+              ( this.m12() * this.m20() - this.m10() * this.m22() ) / det,
+              ( -this.m02() * this.m20() + this.m00() * this.m22() ) / det,
+              ( this.m02() * this.m10() - this.m00() * this.m12() ) / det,
               0, 0, 1, Types.AFFINE
             );
           }
@@ -7586,15 +7715,15 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
           det = this.getDeterminant();
           if ( det !== 0 ) {
             return Matrix3.createFromPool(
-                ( -this.m12() * this.m21() + this.m11() * this.m22() ) / det,
-                ( this.m02() * this.m21() - this.m01() * this.m22() ) / det,
-                ( -this.m02() * this.m11() + this.m01() * this.m12() ) / det,
-                ( this.m12() * this.m20() - this.m10() * this.m22() ) / det,
-                ( -this.m02() * this.m20() + this.m00() * this.m22() ) / det,
-                ( this.m02() * this.m10() - this.m00() * this.m12() ) / det,
-                ( -this.m11() * this.m20() + this.m10() * this.m21() ) / det,
-                ( this.m01() * this.m20() - this.m00() * this.m21() ) / det,
-                ( -this.m01() * this.m10() + this.m00() * this.m11() ) / det,
+              ( -this.m12() * this.m21() + this.m11() * this.m22() ) / det,
+              ( this.m02() * this.m21() - this.m01() * this.m22() ) / det,
+              ( -this.m02() * this.m11() + this.m01() * this.m12() ) / det,
+              ( this.m12() * this.m20() - this.m10() * this.m22() ) / det,
+              ( -this.m02() * this.m20() + this.m00() * this.m22() ) / det,
+              ( this.m02() * this.m10() - this.m00() * this.m12() ) / det,
+              ( -this.m11() * this.m20() + this.m10() * this.m21() ) / det,
+              ( this.m01() * this.m20() - this.m00() * this.m21() ) / det,
+              ( -this.m01() * this.m10() + this.m00() * this.m11() ) / det,
               Types.OTHER
             );
           }
@@ -7625,7 +7754,7 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
         else if ( this.type === Types.SCALING ) {
           // faster combination of scaling
           return Matrix3.createFromPool(
-              this.m00() * m.m00(), 0, 0,
+            this.m00() * m.m00(), 0, 0,
             0, this.m11() * m.m11(), 0,
             0, 0, 1, Types.SCALING );
         }
@@ -7636,31 +7765,31 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
 
         // affine case
         return Matrix3.createFromPool(
-            this.m00() * m.m00() + this.m01() * m.m10(),
-            this.m00() * m.m01() + this.m01() * m.m11(),
-            this.m00() * m.m02() + this.m01() * m.m12() + this.m02(),
-            this.m10() * m.m00() + this.m11() * m.m10(),
-            this.m10() * m.m01() + this.m11() * m.m11(),
-            this.m10() * m.m02() + this.m11() * m.m12() + this.m12(),
+          this.m00() * m.m00() + this.m01() * m.m10(),
+          this.m00() * m.m01() + this.m01() * m.m11(),
+          this.m00() * m.m02() + this.m01() * m.m12() + this.m02(),
+          this.m10() * m.m00() + this.m11() * m.m10(),
+          this.m10() * m.m01() + this.m11() * m.m11(),
+          this.m10() * m.m02() + this.m11() * m.m12() + this.m12(),
           0, 0, 1, Types.AFFINE );
       }
 
       // general case
       return Matrix3.createFromPool(
-          this.m00() * m.m00() + this.m01() * m.m10() + this.m02() * m.m20(),
-          this.m00() * m.m01() + this.m01() * m.m11() + this.m02() * m.m21(),
-          this.m00() * m.m02() + this.m01() * m.m12() + this.m02() * m.m22(),
-          this.m10() * m.m00() + this.m11() * m.m10() + this.m12() * m.m20(),
-          this.m10() * m.m01() + this.m11() * m.m11() + this.m12() * m.m21(),
-          this.m10() * m.m02() + this.m11() * m.m12() + this.m12() * m.m22(),
-          this.m20() * m.m00() + this.m21() * m.m10() + this.m22() * m.m20(),
-          this.m20() * m.m01() + this.m21() * m.m11() + this.m22() * m.m21(),
-          this.m20() * m.m02() + this.m21() * m.m12() + this.m22() * m.m22() );
+        this.m00() * m.m00() + this.m01() * m.m10() + this.m02() * m.m20(),
+        this.m00() * m.m01() + this.m01() * m.m11() + this.m02() * m.m21(),
+        this.m00() * m.m02() + this.m01() * m.m12() + this.m02() * m.m22(),
+        this.m10() * m.m00() + this.m11() * m.m10() + this.m12() * m.m20(),
+        this.m10() * m.m01() + this.m11() * m.m11() + this.m12() * m.m21(),
+        this.m10() * m.m02() + this.m11() * m.m12() + this.m12() * m.m22(),
+        this.m20() * m.m00() + this.m21() * m.m10() + this.m22() * m.m20(),
+        this.m20() * m.m01() + this.m21() * m.m11() + this.m22() * m.m21(),
+        this.m20() * m.m02() + this.m21() * m.m12() + this.m22() * m.m22() );
     },
 
     /*---------------------------------------------------------------------------*
-    * Immutable operations (returns new form of a parameter)
-    *----------------------------------------------------------------------------*/
+     * Immutable operations (returns new form of a parameter)
+     *----------------------------------------------------------------------------*/
 
     timesVector2: function( v ) {
       var x = this.m00() * v.x + this.m01() * v.y + this.m02();
@@ -7689,20 +7818,20 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
     },
 
     /*---------------------------------------------------------------------------*
-    * Mutable operations (changes this matrix)
-    *----------------------------------------------------------------------------*/
+     * Mutable operations (changes this matrix)
+     *----------------------------------------------------------------------------*/
 
     // every mutable method goes through rowMajor
     rowMajor: function( v00, v01, v02, v10, v11, v12, v20, v21, v22, type ) {
-      this.entries[0] = v00;
-      this.entries[1] = v10;
-      this.entries[2] = v20;
-      this.entries[3] = v01;
-      this.entries[4] = v11;
-      this.entries[5] = v21;
-      this.entries[6] = v02;
-      this.entries[7] = v12;
-      this.entries[8] = v22;
+      this.entries[ 0 ] = v00;
+      this.entries[ 1 ] = v10;
+      this.entries[ 2 ] = v20;
+      this.entries[ 3 ] = v01;
+      this.entries[ 4 ] = v11;
+      this.entries[ 5 ] = v21;
+      this.entries[ 6 ] = v02;
+      this.entries[ 7 ] = v12;
+      this.entries[ 8 ] = v22;
 
       // TODO: consider performance of the affine check here
       this.type = type === undefined ? ( ( v20 === 0 && v21 === 0 && v22 === 1 ) ? Types.AFFINE : Types.OTHER ) : type;
@@ -7730,17 +7859,17 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
 
     add: function( m ) {
       return this.rowMajor(
-          this.m00() + m.m00(), this.m01() + m.m01(), this.m02() + m.m02(),
-          this.m10() + m.m10(), this.m11() + m.m11(), this.m12() + m.m12(),
-          this.m20() + m.m20(), this.m21() + m.m21(), this.m22() + m.m22()
+        this.m00() + m.m00(), this.m01() + m.m01(), this.m02() + m.m02(),
+        this.m10() + m.m10(), this.m11() + m.m11(), this.m12() + m.m12(),
+        this.m20() + m.m20(), this.m21() + m.m21(), this.m22() + m.m22()
       );
     },
 
     subtract: function( m ) {
       return this.rowMajor(
-          this.m00() - m.m00(), this.m01() - m.m01(), this.m02() - m.m02(),
-          this.m10() - m.m10(), this.m11() - m.m11(), this.m12() - m.m12(),
-          this.m20() - m.m20(), this.m21() - m.m21(), this.m22() - m.m22()
+        this.m00() - m.m00(), this.m01() - m.m01(), this.m02() - m.m02(),
+        this.m10() - m.m10(), this.m11() - m.m11(), this.m12() - m.m12(),
+        this.m20() - m.m20(), this.m21() - m.m21(), this.m22() - m.m22()
       );
     },
 
@@ -7774,19 +7903,19 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
             0, 0, 1, Types.TRANSLATION_2D );
         case Types.SCALING:
           return this.rowMajor(
-              1 / this.m00(), 0, 0,
+            1 / this.m00(), 0, 0,
             0, 1 / this.m11(), 0,
             0, 0, 1 / this.m22(), Types.SCALING );
         case Types.AFFINE:
           det = this.getDeterminant();
           if ( det !== 0 ) {
             return this.rowMajor(
-                ( -this.m12() * this.m21() + this.m11() * this.m22() ) / det,
-                ( this.m02() * this.m21() - this.m01() * this.m22() ) / det,
-                ( -this.m02() * this.m11() + this.m01() * this.m12() ) / det,
-                ( this.m12() * this.m20() - this.m10() * this.m22() ) / det,
-                ( -this.m02() * this.m20() + this.m00() * this.m22() ) / det,
-                ( this.m02() * this.m10() - this.m00() * this.m12() ) / det,
+              ( -this.m12() * this.m21() + this.m11() * this.m22() ) / det,
+              ( this.m02() * this.m21() - this.m01() * this.m22() ) / det,
+              ( -this.m02() * this.m11() + this.m01() * this.m12() ) / det,
+              ( this.m12() * this.m20() - this.m10() * this.m22() ) / det,
+              ( -this.m02() * this.m20() + this.m00() * this.m22() ) / det,
+              ( this.m02() * this.m10() - this.m00() * this.m12() ) / det,
               0, 0, 1, Types.AFFINE
             );
           }
@@ -7798,15 +7927,15 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
           det = this.getDeterminant();
           if ( det !== 0 ) {
             return this.rowMajor(
-                ( -this.m12() * this.m21() + this.m11() * this.m22() ) / det,
-                ( this.m02() * this.m21() - this.m01() * this.m22() ) / det,
-                ( -this.m02() * this.m11() + this.m01() * this.m12() ) / det,
-                ( this.m12() * this.m20() - this.m10() * this.m22() ) / det,
-                ( -this.m02() * this.m20() + this.m00() * this.m22() ) / det,
-                ( this.m02() * this.m10() - this.m00() * this.m12() ) / det,
-                ( -this.m11() * this.m20() + this.m10() * this.m21() ) / det,
-                ( this.m01() * this.m20() - this.m00() * this.m21() ) / det,
-                ( -this.m01() * this.m10() + this.m00() * this.m11() ) / det,
+              ( -this.m12() * this.m21() + this.m11() * this.m22() ) / det,
+              ( this.m02() * this.m21() - this.m01() * this.m22() ) / det,
+              ( -this.m02() * this.m11() + this.m01() * this.m12() ) / det,
+              ( this.m12() * this.m20() - this.m10() * this.m22() ) / det,
+              ( -this.m02() * this.m20() + this.m00() * this.m22() ) / det,
+              ( this.m02() * this.m10() - this.m00() * this.m12() ) / det,
+              ( -this.m11() * this.m20() + this.m10() * this.m21() ) / det,
+              ( this.m01() * this.m20() - this.m00() * this.m21() ) / det,
+              ( -this.m01() * this.m10() + this.m00() * this.m11() ) / det,
               Types.OTHER
             );
           }
@@ -7844,7 +7973,7 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
         else if ( this.type === Types.SCALING ) {
           // faster combination of scaling
           return this.rowMajor(
-              this.m00() * m.m00(), 0, 0,
+            this.m00() * m.m00(), 0, 0,
             0, this.m11() * m.m11(), 0,
             0, 0, 1, Types.SCALING );
         }
@@ -7855,26 +7984,26 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
 
         // affine case
         return this.rowMajor(
-            this.m00() * m.m00() + this.m01() * m.m10(),
-            this.m00() * m.m01() + this.m01() * m.m11(),
-            this.m00() * m.m02() + this.m01() * m.m12() + this.m02(),
-            this.m10() * m.m00() + this.m11() * m.m10(),
-            this.m10() * m.m01() + this.m11() * m.m11(),
-            this.m10() * m.m02() + this.m11() * m.m12() + this.m12(),
+          this.m00() * m.m00() + this.m01() * m.m10(),
+          this.m00() * m.m01() + this.m01() * m.m11(),
+          this.m00() * m.m02() + this.m01() * m.m12() + this.m02(),
+          this.m10() * m.m00() + this.m11() * m.m10(),
+          this.m10() * m.m01() + this.m11() * m.m11(),
+          this.m10() * m.m02() + this.m11() * m.m12() + this.m12(),
           0, 0, 1, Types.AFFINE );
       }
 
       // general case
       return this.rowMajor(
-          this.m00() * m.m00() + this.m01() * m.m10() + this.m02() * m.m20(),
-          this.m00() * m.m01() + this.m01() * m.m11() + this.m02() * m.m21(),
-          this.m00() * m.m02() + this.m01() * m.m12() + this.m02() * m.m22(),
-          this.m10() * m.m00() + this.m11() * m.m10() + this.m12() * m.m20(),
-          this.m10() * m.m01() + this.m11() * m.m11() + this.m12() * m.m21(),
-          this.m10() * m.m02() + this.m11() * m.m12() + this.m12() * m.m22(),
-          this.m20() * m.m00() + this.m21() * m.m10() + this.m22() * m.m20(),
-          this.m20() * m.m01() + this.m21() * m.m11() + this.m22() * m.m21(),
-          this.m20() * m.m02() + this.m21() * m.m12() + this.m22() * m.m22() );
+        this.m00() * m.m00() + this.m01() * m.m10() + this.m02() * m.m20(),
+        this.m00() * m.m01() + this.m01() * m.m11() + this.m02() * m.m21(),
+        this.m00() * m.m02() + this.m01() * m.m12() + this.m02() * m.m22(),
+        this.m10() * m.m00() + this.m11() * m.m10() + this.m12() * m.m20(),
+        this.m10() * m.m01() + this.m11() * m.m11() + this.m12() * m.m21(),
+        this.m10() * m.m02() + this.m11() * m.m12() + this.m12() * m.m22(),
+        this.m20() * m.m00() + this.m21() * m.m10() + this.m22() * m.m20(),
+        this.m20() * m.m01() + this.m21() * m.m11() + this.m22() * m.m21(),
+        this.m20() * m.m02() + this.m21() * m.m12() + this.m22() * m.m22() );
     },
 
     setToIdentity: function() {
@@ -7916,9 +8045,9 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
       var C = 1 - c;
 
       return this.rowMajor(
-          axis.x * axis.x * C + c, axis.x * axis.y * C - axis.z * s, axis.x * axis.z * C + axis.y * s,
-          axis.y * axis.x * C + axis.z * s, axis.y * axis.y * C + c, axis.y * axis.z * C - axis.x * s,
-          axis.z * axis.x * C - axis.y * s, axis.z * axis.y * C + axis.x * s, axis.z * axis.z * C + c,
+        axis.x * axis.x * C + c, axis.x * axis.y * C - axis.z * s, axis.x * axis.z * C + axis.y * s,
+        axis.y * axis.x * C + axis.z * s, axis.y * axis.y * C + c, axis.y * axis.z * C - axis.x * s,
+        axis.z * axis.x * C - axis.y * s, axis.z * axis.y * C + axis.x * s, axis.z * axis.z * C + c,
         Types.OTHER );
     },
 
@@ -8012,15 +8141,15 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
         c3 = c1 * c2 * u.dot( v );
 
         return this.rowMajor(
-            -c1 * u.x * u.x - c2 * v.x * v.x + c3 * v.x * u.x + 1,
-            -c1 * u.x * u.y - c2 * v.x * v.y + c3 * v.x * u.y,
-            -c1 * u.x * u.z - c2 * v.x * v.z + c3 * v.x * u.z,
-            -c1 * u.y * u.x - c2 * v.y * v.x + c3 * v.y * u.x,
-            -c1 * u.y * u.y - c2 * v.y * v.y + c3 * v.y * u.y + 1,
-            -c1 * u.y * u.z - c2 * v.y * v.z + c3 * v.y * u.z,
-            -c1 * u.z * u.x - c2 * v.z * v.x + c3 * v.z * u.x,
-            -c1 * u.z * u.y - c2 * v.z * v.y + c3 * v.z * u.y,
-            -c1 * u.z * u.z - c2 * v.z * v.z + c3 * v.z * u.z + 1
+          -c1 * u.x * u.x - c2 * v.x * v.x + c3 * v.x * u.x + 1,
+          -c1 * u.x * u.y - c2 * v.x * v.y + c3 * v.x * u.y,
+          -c1 * u.x * u.z - c2 * v.x * v.z + c3 * v.x * u.z,
+          -c1 * u.y * u.x - c2 * v.y * v.x + c3 * v.y * u.x,
+          -c1 * u.y * u.y - c2 * v.y * v.y + c3 * v.y * u.y + 1,
+          -c1 * u.y * u.z - c2 * v.y * v.z + c3 * v.y * u.z,
+          -c1 * u.z * u.x - c2 * v.z * v.x + c3 * v.z * u.x,
+          -c1 * u.z * u.y - c2 * v.z * v.y + c3 * v.z * u.y,
+          -c1 * u.z * u.z - c2 * v.z * v.z + c3 * v.z * u.z + 1
         );
       }
       else {
@@ -8034,52 +8163,52 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
         hvyz = hvz * v.y;
 
         return this.rowMajor(
-            e + hvx * v.x, hvxy - v.z, hvxz + v.y,
-            hvxy + v.z, e + h * v.y * v.y, hvyz - v.x,
-            hvxz - v.y, hvyz + v.x, e + hvz * v.z
+          e + hvx * v.x, hvxy - v.z, hvxz + v.y,
+          hvxy + v.z, e + h * v.y * v.y, hvyz - v.x,
+          hvxz - v.y, hvyz + v.x, e + hvz * v.z
         );
       }
     },
 
     /*---------------------------------------------------------------------------*
-    * Mutable operations (changes the parameter)
-    *----------------------------------------------------------------------------*/
+     * Mutable operations (changes the parameter)
+     *----------------------------------------------------------------------------*/
 
     multiplyVector2: function( v ) {
       return v.setXY(
-          this.m00() * v.x + this.m01() * v.y + this.m02(),
-          this.m10() * v.x + this.m11() * v.y + this.m12() );
+        this.m00() * v.x + this.m01() * v.y + this.m02(),
+        this.m10() * v.x + this.m11() * v.y + this.m12() );
     },
 
     multiplyVector3: function( v ) {
       return v.setXYZ(
-          this.m00() * v.x + this.m01() * v.y + this.m02() * v.z,
-          this.m10() * v.x + this.m11() * v.y + this.m12() * v.z,
-          this.m20() * v.x + this.m21() * v.y + this.m22() * v.z );
+        this.m00() * v.x + this.m01() * v.y + this.m02() * v.z,
+        this.m10() * v.x + this.m11() * v.y + this.m12() * v.z,
+        this.m20() * v.x + this.m21() * v.y + this.m22() * v.z );
     },
 
     multiplyTransposeVector2: function( v ) {
       return v.setXY(
-          this.m00() * v.x + this.m10() * v.y,
-          this.m01() * v.x + this.m11() * v.y );
+        this.m00() * v.x + this.m10() * v.y,
+        this.m01() * v.x + this.m11() * v.y );
     },
 
     multiplyRelativeVector2: function( v ) {
       return v.setXY(
-          this.m00() * v.x + this.m01() * v.y,
-          this.m10() * v.y + this.m11() * v.y );
+        this.m00() * v.x + this.m01() * v.y,
+        this.m10() * v.y + this.m11() * v.y );
     },
 
     // sets the transform of a Canvas 2D rendering context to the affine part of this matrix
     canvasSetTransform: function( context ) {
       context.setTransform(
         // inlined array entries
-        this.entries[0],
-        this.entries[1],
-        this.entries[3],
-        this.entries[4],
-        this.entries[6],
-        this.entries[7]
+        this.entries[ 0 ],
+        this.entries[ 1 ],
+        this.entries[ 3 ],
+        this.entries[ 4 ],
+        this.entries[ 6 ],
+        this.entries[ 7 ]
       );
     },
 
@@ -8088,19 +8217,19 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','D
       if ( this.type !== Types.IDENTITY ) {
         context.transform(
           // inlined array entries
-          this.entries[0],
-          this.entries[1],
-          this.entries[3],
-          this.entries[4],
-          this.entries[6],
-          this.entries[7]
+          this.entries[ 0 ],
+          this.entries[ 1 ],
+          this.entries[ 3 ],
+          this.entries[ 4 ],
+          this.entries[ 6 ],
+          this.entries[ 7 ]
         );
       }
     }
   };
 
   /* jshint -W064 */
-  Poolable( Matrix3, {
+  PoolableMixin( Matrix3, {
 
     //The default factory creates an identity matrix
     defaultFactory: function() { return new Matrix3(); },
@@ -8281,7 +8410,7 @@ define( 'KITE/segments/Quadratic',['require','PHET_CORE/inherit','DOT/Bounds2','
         // also, start !== end (handled earlier)
         if ( startIsControl || endIsControl ) {
           // just a line segment!
-          return [new Segment.Line( start, end )]; // no extra nondegenerate check since start !== end
+          return [ new Segment.Line( start, end ) ]; // no extra nondegenerate check since start !== end
         }
         // now control point must be unique. we check to see if our rendered path will be outside of the start->end line segment
         var delta = end.minus( start );
@@ -8298,11 +8427,11 @@ define( 'KITE/segments/Quadratic',['require','PHET_CORE/inherit','DOT/Bounds2','
         }
         else {
           // just provide a line segment, our rendered path doesn't go outside of this
-          return [new Segment.Line( start, end )]; // no extra nondegenerate check since start !== end
+          return [ new Segment.Line( start, end ) ]; // no extra nondegenerate check since start !== end
         }
       }
       else {
-        return [this];
+        return [ this ];
       }
     },
 
@@ -8354,7 +8483,7 @@ define( 'KITE/segments/Quadratic',['require','PHET_CORE/inherit','DOT/Bounds2','
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
       }
       else {
-        return this.subdivided( t, true )[0].curvatureAt( 1 );
+        return this.subdivided( t, true )[ 0 ].curvatureAt( 1 );
       }
     },
 
@@ -8364,7 +8493,7 @@ define( 'KITE/segments/Quadratic',['require','PHET_CORE/inherit','DOT/Bounds2','
     offsetTo: function( r, reverse ) {
       // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html
       // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
-      var curves = [this];
+      var curves = [ this ];
 
       // subdivide this curve
       var depth = 5; // generates 2^depth curves
@@ -8774,8 +8903,8 @@ define( 'KITE/segments/Cubic',['require','PHET_CORE/inherit','DOT/Bounds2','DOT/
         // if there is a cusp, we'll split at the cusp into two quadratic bezier curves.
         // see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.94.8088&rep=rep1&type=pdf (Singularities of rational Bezier curves - J Monterde, 2001)
         var subdividedAtCusp = this.subdivided( this.getTCusp );
-        this._startQuadratic = new Segment.Quadratic( subdividedAtCusp[0].start, subdividedAtCusp[0].control1, subdividedAtCusp[0].end, false );
-        this._endQuadratic = new Segment.Quadratic( subdividedAtCusp[1].start, subdividedAtCusp[1].control2, subdividedAtCusp[1].end, false );
+        this._startQuadratic = new Segment.Quadratic( subdividedAtCusp[ 0 ].start, subdividedAtCusp[ 0 ].control1, subdividedAtCusp[ 0 ].end, false );
+        this._endQuadratic = new Segment.Quadratic( subdividedAtCusp[ 1 ].start, subdividedAtCusp[ 1 ].control2, subdividedAtCusp[ 1 ].end, false );
       }
       else {
         this._startQuadratic = null;
@@ -8809,7 +8938,7 @@ define( 'KITE/segments/Cubic',['require','PHET_CORE/inherit','DOT/Bounds2','DOT/
         throw new Error( 'TODO, use extrema T funcs' );
       }
       else {
-        return [this];
+        return [ this ];
       }
     },
 
@@ -8847,7 +8976,7 @@ define( 'KITE/segments/Cubic',['require','PHET_CORE/inherit','DOT/Bounds2','DOT/
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
       }
       else {
-        return this.subdivided( t )[0].curvatureAt( 1 );
+        return this.subdivided( t )[ 0 ].curvatureAt( 1 );
       }
     },
 
@@ -8888,7 +9017,7 @@ define( 'KITE/segments/Cubic',['require','PHET_CORE/inherit','DOT/Bounds2','DOT/
 
         points.push( this.positionAt( t ).plus( this.tangentAt( t ).perpendicular().normalized().times( r ) ) );
         if ( i > 0 ) {
-          result.push( new Segment.Line( points[i - 1], points[i] ) );
+          result.push( new Segment.Line( points[ i - 1 ], points[ i ] ) );
         }
       }
 
@@ -9086,8 +9215,8 @@ define( 'DOT/Transform3',['require','DOT/dot','DOT/Matrix3','DOT/Vector2','DOT/R
     constructor: Transform3,
 
     /*---------------------------------------------------------------------------*
-    * mutators
-    *----------------------------------------------------------------------------*/
+     * mutators
+     *----------------------------------------------------------------------------*/
 
     setMatrix: function( matrix ) {
       // TODO: performance: don't notify or handle instances where the matrix is detected to be the identity matrix?
@@ -9107,7 +9236,7 @@ define( 'DOT/Transform3',['require','DOT/dot','DOT/Matrix3','DOT/Vector2','DOT/R
 
       // notify listeners before the change
       for ( i = 0; i < length; i++ ) {
-        this.listeners[i].before( matrix, oldMatrix );
+        this.listeners[ i ].before( matrix, oldMatrix );
       }
 
       this.matrix = matrix;
@@ -9119,7 +9248,7 @@ define( 'DOT/Transform3',['require','DOT/dot','DOT/Matrix3','DOT/Vector2','DOT/R
 
       // notify listeners after the change
       for ( i = 0; i < length; i++ ) {
-        this.listeners[i].after( matrix, oldMatrix );
+        this.listeners[ i ].after( matrix, oldMatrix );
       }
     },
 
@@ -9149,8 +9278,8 @@ define( 'DOT/Transform3',['require','DOT/dot','DOT/Matrix3','DOT/Vector2','DOT/R
     },
 
     /*---------------------------------------------------------------------------*
-    * getters
-    *----------------------------------------------------------------------------*/
+     * getters
+     *----------------------------------------------------------------------------*/
 
     // uses the same matrices, for use cases where the matrices are considered immutable
     copy: function() {
@@ -9317,8 +9446,8 @@ define( 'DOT/Transform3',['require','DOT/dot','DOT/Matrix3','DOT/Vector2','DOT/R
     },
 
     /*---------------------------------------------------------------------------*
-    * listeners
-    *----------------------------------------------------------------------------*/
+     * listeners
+     *----------------------------------------------------------------------------*/
 
     // note: listener.before( matrix, oldMatrix ) will be called before the change, listener.after( matrix, oldMatrix ) will be called after
     addTransformListener: function( listener ) {
@@ -9365,7 +9494,8 @@ define( 'KITE/segments/EllipticalArc',['require','PHET_CORE/inherit','DOT/Vector
   require( 'KITE/util/Subpath' );
 
   // TODO: notes at http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
-  // Canvas notes at http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
+  // Canvas notes were at http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
+  // context.ellipse was removed from the Canvas spec
   Segment.EllipticalArc = function EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
     if ( radiusX < 0 ) {
       // support this case since we might actually need to handle it inside of strokes?
@@ -9579,9 +9709,9 @@ define( 'KITE/segments/EllipticalArc',['require','PHET_CORE/inherit','DOT/Vector
           // check all of the extrema points
           this.possibleExtremaAngles = [
             xAngle,
-              xAngle + Math.PI,
+            xAngle + Math.PI,
             yAngle,
-              yAngle + Math.PI
+            yAngle + Math.PI
           ];
 
           _.each( this.possibleExtremaAngles, this.includeBoundsAtAngle.bind( this ) );
@@ -9604,10 +9734,10 @@ define( 'KITE/segments/EllipticalArc',['require','PHET_CORE/inherit','DOT/Vector
         if ( Math.abs( this._endAngle - this._startAngle ) === Math.PI * 2 ) {
           endAngle = this._anticlockwise ? startAngle - Math.PI * 2 : startAngle + Math.PI * 2;
         }
-        return [new Segment.Arc( this._center, this._radiusX, startAngle, endAngle, this._anticlockwise )];
+        return [ new Segment.Arc( this._center, this._radiusX, startAngle, endAngle, this._anticlockwise ) ];
       }
       else {
-        return [this];
+        return [ this ];
       }
     },
 
@@ -9693,7 +9823,7 @@ define( 'KITE/segments/EllipticalArc',['require','PHET_CORE/inherit','DOT/Vector
 
         points.push( this.positionAtAngle( angle ).plus( this.tangentAtAngle( angle ).perpendicular().normalized().times( r ) ) );
         if ( i > 0 ) {
-          result.push( new Segment.Line( points[i - 1], points[i] ) );
+          result.push( new Segment.Line( points[ i - 1 ], points[ i ] ) );
         }
       }
 
@@ -9851,7 +9981,7 @@ define( 'KITE/segments/EllipticalArc',['require','PHET_CORE/inherit','DOT/Vector
  * Shapes are internally made up of Subpaths, which contain a series of segments, and are optionally closed.
  * Familiarity with how Canvas handles subpaths is helpful for understanding this code.
  *
- * Canvas spec: http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html
+ * Canvas spec: http://www.w3.org/TR/2dcontext/
  * SVG spec: http://www.w3.org/TR/SVG/expanded-toc.html
  *           http://www.w3.org/TR/SVG/paths.html#PathData (for paths)
  * Notes for elliptical arcs: http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
@@ -9895,7 +10025,7 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
   kite.Shape = function Shape( subpaths, bounds ) {
     // lower-level piecewise mathematical description using segments, also individually immutable
     this.subpaths = ( typeof subpaths === 'object' ) ? subpaths : [];
-    assert && assert( this.subpaths.length === 0 || this.subpaths[0].constructor.name !== 'Array' );
+    assert && assert( this.subpaths.length === 0 || this.subpaths[ 0 ].constructor.name !== 'Array' );
 
     // computed bounds for all pieces added so far
     this.bounds = ( bounds || Bounds2.NOTHING ).copy();
@@ -9905,8 +10035,8 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
       assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' );
       // parse the SVG path
       _.each( svgPath.parse( subpaths ), function( item ) {
-        assert && assert( Shape.prototype[item.cmd] !== undefined, 'method ' + item.cmd + ' from parsed SVG does not exist' );
-        that[item.cmd].apply( that, item.args );
+        assert && assert( Shape.prototype[ item.cmd ] !== undefined, 'method ' + item.cmd + ' from parsed SVG does not exist' );
+        that[ item.cmd ].apply( that, item.args );
       } );
     }
 
@@ -9948,7 +10078,7 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
     lineToRelative: function( x, y ) { return this.lineToPointRelative( v( x, y ) ); },
     lineToPointRelative: function( point ) { return this.lineToPoint( this.getRelativePoint().plus( point ) ); },
     lineToPoint: function( point ) {
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-lineto
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-lineto
       if ( this.hasSubpaths() ) {
         var start = this.getLastSubpath().getLastPoint();
         var end = point;
@@ -9983,7 +10113,7 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
     quadraticCurveToPoint: function( controlPoint, point ) {
       var shape = this;
 
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
       this.ensure( controlPoint );
       var start = this.getLastSubpath().getLastPoint();
       var quadratic = new kite.Segment.Quadratic( start, controlPoint, point );
@@ -10008,7 +10138,7 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
     smoothCubicCurveToRelative: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ).plus( this.getRelativePoint() ), v( x, y ).plus( this.getRelativePoint() ) ); },
     cubicCurveToPoint: function( control1, control2, point ) {
       var shape = this;
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-quadraticcurveto
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
       this.ensure( control1 );
       var start = this.getLastSubpath().getLastPoint();
       var cubic = new kite.Segment.Cubic( start, control1, control2, point );
@@ -10026,7 +10156,7 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
 
     arc: function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) { return this.arcPoint( v( centerX, centerY ), radius, startAngle, endAngle, anticlockwise ); },
     arcPoint: function( center, radius, startAngle, endAngle, anticlockwise ) {
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arc
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
 
       var arc = new kite.Segment.Arc( center, radius, startAngle, endAngle, anticlockwise );
 
@@ -10055,7 +10185,7 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
 
     ellipticalArc: function( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) { return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ); },
     ellipticalArcPoint: function( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
-      // see http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-arc
+      // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
 
       var ellipticalArc = new kite.Segment.EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
 
@@ -10153,9 +10283,9 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
       subpath.addPoint( v( x + width, y ) );
       subpath.addPoint( v( x + width, y + height ) );
       subpath.addPoint( v( x, y + height ) );
-      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[0], subpath.points[1] ) );
-      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[1], subpath.points[2] ) );
-      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[2], subpath.points[3] ) );
+      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[ 0 ], subpath.points[ 1 ] ) );
+      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[ 1 ], subpath.points[ 2 ] ) );
+      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[ 2 ], subpath.points[ 3 ] ) );
       subpath.close();
       this.addSubpath( new kite.Subpath() );
       this.getLastSubpath().addPoint( v( x, y ) );
@@ -10196,9 +10326,9 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
     polygon: function( vertices ) {
       var length = vertices.length;
       if ( length > 0 ) {
-        this.moveToPoint( vertices[0] );
+        this.moveToPoint( vertices[ 0 ] );
         for ( var i = 1; i < length; i++ ) {
-          this.lineToPoint( vertices[i] );
+          this.lineToPoint( vertices[ i ] );
         }
       }
       return this.close();
@@ -10213,7 +10343,7 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
     writeToContext: function( context ) {
       var len = this.subpaths.length;
       for ( var i = 0; i < len; i++ ) {
-        this.subpaths[i].writeToContext( context );
+        this.subpaths[ i ].writeToContext( context );
       }
     },
 
@@ -10222,7 +10352,7 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
       var subpathStrings = [];
       var len = this.subpaths.length;
       for ( var i = 0; i < len; i++ ) {
-        var subpath = this.subpaths[i];
+        var subpath = this.subpaths[ i ];
         if ( subpath.isDrawable() ) {
           // since the commands after this are relative to the previous 'point', we need to specify a move to the initial point
           var startPoint = subpath.getFirstSegment().start;
@@ -10325,7 +10455,7 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
 
       var numSubpaths = this.subpaths.length;
       for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[i];
+        var subpath = this.subpaths[ i ];
         bounds.includeBounds( subpath.getBoundsWithTransform( matrix ) );
       }
 
@@ -10347,12 +10477,12 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
       var hits = [];
       var numSubpaths = this.subpaths.length;
       for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[i];
+        var subpath = this.subpaths[ i ];
 
         if ( subpath.isDrawable() ) {
           var numSegments = subpath.segments.length;
           for ( var k = 0; k < numSegments; k++ ) {
-            var segment = subpath.segments[k];
+            var segment = subpath.segments[ k ];
             hits = hits.concat( segment.intersection( ray ) );
           }
 
@@ -10369,12 +10499,12 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
 
       var numSubpaths = this.subpaths.length;
       for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[i];
+        var subpath = this.subpaths[ i ];
 
         if ( subpath.isDrawable() ) {
           var numSegments = subpath.segments.length;
           for ( var k = 0; k < numSegments; k++ ) {
-            wind += subpath.segments[k].windingIntersection( ray );
+            wind += subpath.segments[ k ].windingIntersection( ray );
           }
 
           // handle the implicit closing line segment
@@ -10390,12 +10520,12 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
     intersectsBounds: function( bounds ) {
       var numSubpaths = this.subpaths.length;
       for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[i];
+        var subpath = this.subpaths[ i ];
 
         if ( subpath.isDrawable() ) {
           var numSegments = subpath.segments.length;
           for ( var k = 0; k < numSegments; k++ ) {
-            if ( subpath.segments[k].intersectsBounds( bounds ) ) {
+            if ( subpath.segments[ k ].intersectsBounds( bounds ) ) {
               return true;
             }
           }
@@ -10418,13 +10548,13 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
       var bounds = Bounds2.NOTHING.copy();
       var subLen = this.subpaths.length;
       for ( var i = 0; i < subLen; i++ ) {
-        var subpath = this.subpaths[i];
+        var subpath = this.subpaths[ i ];
         var strokedSubpath = subpath.stroked( lineStyles );
         subpaths = subpaths.concat( strokedSubpath );
       }
       subLen = subpaths.length;
       for ( i = 0; i < subLen; i++ ) {
-        bounds.includeBounds( subpaths[i].bounds );
+        bounds.includeBounds( subpaths[ i ].bounds );
       }
       return new Shape( subpaths, bounds );
     },
@@ -10436,11 +10566,11 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
       var bounds = Bounds2.NOTHING.copy();
       var subLen = this.subpaths.length;
       for ( var i = 0; i < subLen; i++ ) {
-        subpaths.push( this.subpaths[i].offset( distance ) );
+        subpaths.push( this.subpaths[ i ].offset( distance ) );
       }
       subLen = subpaths.length;
       for ( i = 0; i < subLen; i++ ) {
-        bounds.includeBounds( subpaths[i].bounds );
+        bounds.includeBounds( subpaths[ i ].bounds );
       }
       return new Shape( subpaths, bounds );
     },
@@ -10451,8 +10581,8 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
     },
 
     /*---------------------------------------------------------------------------*
-    * Internal subpath computations
-    *----------------------------------------------------------------------------*/
+     * Internal subpath computations
+     *----------------------------------------------------------------------------*/
 
     addSegmentAndBounds: function( segment ) {
       this.getLastSubpath().addSegment( segment );
@@ -10500,7 +10630,8 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
 
       if ( this.lastQuadraticControlPoint ) {
         return lastPoint.plus( lastPoint.minus( this.lastQuadraticControlPoint ) );
-      } else {
+      }
+      else {
         return lastPoint;
       }
     },
@@ -10511,7 +10642,8 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
 
       if ( this.lastCubicControlPoint ) {
         return lastPoint.plus( lastPoint.minus( this.lastCubicControlPoint ) );
-      } else {
+      }
+      else {
         return lastPoint;
       }
     },
@@ -10523,8 +10655,8 @@ define( 'KITE/Shape',['require','KITE/kite','DOT/Vector2','DOT/Bounds2','DOT/Ray
   };
 
   /*---------------------------------------------------------------------------*
-  * Shape shortcuts
-  *----------------------------------------------------------------------------*/
+   * Shape shortcuts
+   *----------------------------------------------------------------------------*/
 
   Shape.rectangle = function( x, y, width, height ) {
     return new Shape().rect( x, y, width, height );
@@ -10622,7 +10754,7 @@ define( 'main',[
 
   'KITE/parser/svgPath'
 ], function( kite // note: we don't need any of the other parts, we just need to specify them as dependencies so they fill in the kite namespace
-  ) {
+) {
   
 
   return kite;
@@ -10671,8 +10803,8 @@ define( 'DOT/Bounds3',['require','DOT/dot','DOT/Vector3'],function( require ) {
     dimension: 3,
 
     /*---------------------------------------------------------------------------*
-    * Properties
-    *----------------------------------------------------------------------------*/
+     * Properties
+     *----------------------------------------------------------------------------*/
 
     getWidth: function() { return this.maxX - this.minX; },
     get width() { return this.getWidth(); },
@@ -10793,8 +10925,8 @@ define( 'DOT/Bounds3',['require','DOT/dot','DOT/Vector3'],function( require ) {
     },
 
     /*---------------------------------------------------------------------------*
-    * Immutable operations
-    *----------------------------------------------------------------------------*/
+     * Immutable operations
+     *----------------------------------------------------------------------------*/
 
     // create a copy, or if bounds is passed in, set that bounds to our value
     copy: function( bounds ) {
@@ -10931,8 +11063,8 @@ define( 'DOT/Bounds3',['require','DOT/dot','DOT/Vector3'],function( require ) {
     },
 
     /*---------------------------------------------------------------------------*
-    * Mutable operations
-    *----------------------------------------------------------------------------*/
+     * Mutable operations
+     *----------------------------------------------------------------------------*/
 
     // core mutations (every other mutator should call one of these once)
     setMinMax: function( minX, minY, minZ, maxX, maxY, maxZ ) {
@@ -11199,8 +11331,8 @@ define( 'DOT/Complex',['require','DOT/dot','PHET_CORE/inherit','DOT/Vector2'],fu
     dividedBy: function( c ) {
       var cMag = c.magnitudeSquared();
       return new Complex(
-          ( this.real * c.real + this.imaginary * c.imaginary ) / cMag,
-          ( this.imaginary * c.real - this.real * c.imaginary ) / cMag
+        ( this.real * c.real + this.imaginary * c.imaginary ) / cMag,
+        ( this.imaginary * c.real - this.real * c.imaginary ) / cMag
       );
     },
 
@@ -11208,7 +11340,7 @@ define( 'DOT/Complex',['require','DOT/dot','PHET_CORE/inherit','DOT/Vector2'],fu
     sqrt: function() {
       var mag = this.magnitude();
       return new Complex( Math.sqrt( ( mag + this.real ) / 2 ),
-          ( this.imaginary >= 0 ? 1 : -1 ) * Math.sqrt( ( mag - this.real ) / 2 ) );
+        ( this.imaginary >= 0 ? 1 : -1 ) * Math.sqrt( ( mag - this.real ) / 2 ) );
     },
 
     conjugate: function() {
@@ -11286,7 +11418,7 @@ define( 'DOT/ConvexHull2',['require','DOT/dot'],function( require ) {
       points.splice( _.indexOf( points, p ), 1 );
 
       // our result array
-      var result = [p];
+      var result = [ p ];
 
       _.each( points, function( point ) {
         // ignore points equal to our starting point
@@ -11296,7 +11428,7 @@ define( 'DOT/ConvexHull2',['require','DOT/dot'],function( require ) {
           if ( result.length < 2 ) {
             return false;
           }
-          var cross = ccw( result[result.length - 2], result[result.length - 1], point );
+          var cross = ccw( result[ result.length - 2 ], result[ result.length - 1 ], point );
           return includeCollinear ? ( cross < 0 ) : ( cross <= 0 );
         }
 
@@ -11426,14 +11558,14 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
     this.issymmetric = true;
     for ( j = 0; (j < n) && this.issymmetric; j++ ) {
       for ( i = 0; (i < n) && this.issymmetric; i++ ) {
-        this.issymmetric = (A[i * this.n + j] === A[j * this.n + i]);
+        this.issymmetric = (A[ i * this.n + j ] === A[ j * this.n + i ]);
       }
     }
 
     if ( this.issymmetric ) {
       for ( i = 0; i < n; i++ ) {
         for ( j = 0; j < n; j++ ) {
-          this.V[i * this.n + j] = A[i * this.n + j];
+          this.V[ i * this.n + j ] = A[ i * this.n + j ];
         }
       }
 
@@ -11450,7 +11582,7 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
 
       for ( j = 0; j < n; j++ ) {
         for ( i = 0; i < n; i++ ) {
-          this.H[i * this.n + j] = A[i * this.n + j];
+          this.H[ i * this.n + j ] = A[ i * this.n + j ];
         }
       }
 
@@ -11489,14 +11621,14 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
       var D = X.entries;
       for ( var i = 0; i < n; i++ ) {
         for ( var j = 0; j < n; j++ ) {
-          D[i * this.n + j] = 0.0;
+          D[ i * this.n + j ] = 0.0;
         }
-        D[i * this.n + i] = d[i];
-        if ( e[i] > 0 ) {
-          D[i * this.n + i + 1] = e[i];
+        D[ i * this.n + i ] = d[ i ];
+        if ( e[ i ] > 0 ) {
+          D[ i * this.n + i + 1 ] = e[ i ];
         }
-        else if ( e[i] < 0 ) {
-          D[i * this.n + i - 1] = e[i];
+        else if ( e[ i ] < 0 ) {
+          D[ i * this.n + i - 1 ] = e[ i ];
         }
       }
       return X;
@@ -11513,7 +11645,7 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
       //  Fortran subroutine in EISPACK.
 
       for ( j = 0; j < n; j++ ) {
-        d[j] = V[(n - 1) * n + j];
+        d[ j ] = V[ (n - 1) * n + j ];
       }
 
       // Householder reduction to tridiagonal form.
@@ -11525,14 +11657,14 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
         var scale = 0.0;
         h = 0.0;
         for ( k = 0; k < i; k++ ) {
-          scale = scale + Math.abs( d[k] );
+          scale = scale + Math.abs( d[ k ] );
         }
         if ( scale === 0.0 ) {
-          e[i] = d[i - 1];
+          e[ i ] = d[ i - 1 ];
           for ( j = 0; j < i; j++ ) {
-            d[j] = V[(i - 1) * n + j];
-            V[i * this.n + j] = 0.0;
-            V[j * this.n + i] = 0.0;
+            d[ j ] = V[ (i - 1) * n + j ];
+            V[ i * this.n + j ] = 0.0;
+            V[ j * this.n + i ] = 0.0;
           }
         }
         else {
@@ -11540,85 +11672,85 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
           // Generate Householder vector.
 
           for ( k = 0; k < i; k++ ) {
-            d[k] /= scale;
-            h += d[k] * d[k];
+            d[ k ] /= scale;
+            h += d[ k ] * d[ k ];
           }
-          f = d[i - 1];
+          f = d[ i - 1 ];
           g = Math.sqrt( h );
           if ( f > 0 ) {
             g = -g;
           }
-          e[i] = scale * g;
+          e[ i ] = scale * g;
           h = h - f * g;
-          d[i - 1] = f - g;
+          d[ i - 1 ] = f - g;
           for ( j = 0; j < i; j++ ) {
-            e[j] = 0.0;
+            e[ j ] = 0.0;
           }
 
           // Apply similarity transformation to remaining columns.
 
           for ( j = 0; j < i; j++ ) {
-            f = d[j];
-            V[j * this.n + i] = f;
-            g = e[j] + V[j * n + j] * f;
+            f = d[ j ];
+            V[ j * this.n + i ] = f;
+            g = e[ j ] + V[ j * n + j ] * f;
             for ( k = j + 1; k <= i - 1; k++ ) {
-              g += V[k * n + j] * d[k];
-              e[k] += V[k * n + j] * f;
+              g += V[ k * n + j ] * d[ k ];
+              e[ k ] += V[ k * n + j ] * f;
             }
-            e[j] = g;
+            e[ j ] = g;
           }
           f = 0.0;
           for ( j = 0; j < i; j++ ) {
-            e[j] /= h;
-            f += e[j] * d[j];
+            e[ j ] /= h;
+            f += e[ j ] * d[ j ];
           }
           var hh = f / (h + h);
           for ( j = 0; j < i; j++ ) {
-            e[j] -= hh * d[j];
+            e[ j ] -= hh * d[ j ];
           }
           for ( j = 0; j < i; j++ ) {
-            f = d[j];
-            g = e[j];
+            f = d[ j ];
+            g = e[ j ];
             for ( k = j; k <= i - 1; k++ ) {
-              V[k * n + j] -= (f * e[k] + g * d[k]);
+              V[ k * n + j ] -= (f * e[ k ] + g * d[ k ]);
             }
-            d[j] = V[(i - 1) * n + j];
-            V[i * this.n + j] = 0.0;
+            d[ j ] = V[ (i - 1) * n + j ];
+            V[ i * this.n + j ] = 0.0;
           }
         }
-        d[i] = h;
+        d[ i ] = h;
       }
 
       // Accumulate transformations.
 
       for ( i = 0; i < n - 1; i++ ) {
-        V[(n - 1) * n + i] = V[i * n + i];
-        V[i * n + i] = 1.0;
-        h = d[i + 1];
+        V[ (n - 1) * n + i ] = V[ i * n + i ];
+        V[ i * n + i ] = 1.0;
+        h = d[ i + 1 ];
         if ( h !== 0.0 ) {
           for ( k = 0; k <= i; k++ ) {
-            d[k] = V[k * n + (i + 1)] / h;
+            d[ k ] = V[ k * n + (i + 1) ] / h;
           }
           for ( j = 0; j <= i; j++ ) {
             g = 0.0;
             for ( k = 0; k <= i; k++ ) {
-              g += V[k * n + (i + 1)] * V[k * n + j];
+              g += V[ k * n + (i + 1) ] * V[ k * n + j ];
             }
             for ( k = 0; k <= i; k++ ) {
-              V[k * n + j] -= g * d[k];
+              V[ k * n + j ] -= g * d[ k ];
             }
           }
         }
         for ( k = 0; k <= i; k++ ) {
-          V[k * n + (i + 1)] = 0.0;
+          V[ k * n + (i + 1) ] = 0.0;
         }
       }
       for ( j = 0; j < n; j++ ) {
-        d[j] = V[(n - 1) * n + j];
-        V[(n - 1) * n + j] = 0.0;
+        d[ j ] = V[ (n - 1) * n + j ];
+        V[ (n - 1) * n + j ] = 0.0;
       }
-      V[(n - 1) * n + (n - 1)] = 1.0;
-      e[0] = 0.0;
+      V[ (n - 1) * n + (n - 1) ] = 1.0;
+      e[ 0 ] = 0.0;
     },
 
     // Symmetric tridiagonal QL algorithm.
@@ -11633,9 +11765,9 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
       //  Fortran subroutine in EISPACK.
 
       for ( i = 1; i < n; i++ ) {
-        e[i - 1] = e[i];
+        e[ i - 1 ] = e[ i ];
       }
-      e[n - 1] = 0.0;
+      e[ n - 1 ] = 0.0;
 
       var f = 0.0;
       var tst1 = 0.0;
@@ -11644,10 +11776,10 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
 
         // Find small subdiagonal element
 
-        tst1 = Math.max( tst1, Math.abs( d[l] ) + Math.abs( e[l] ) );
+        tst1 = Math.max( tst1, Math.abs( d[ l ] ) + Math.abs( e[ l ] ) );
         var m = l;
         while ( m < n ) {
-          if ( Math.abs( e[m] ) <= eps * tst1 ) {
+          if ( Math.abs( e[ m ] ) <= eps * tst1 ) {
             break;
           }
           m++;
@@ -11663,81 +11795,81 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
 
             // Compute implicit shift
 
-            g = d[l];
-            p = (d[l + 1] - g) / (2.0 * e[l]);
+            g = d[ l ];
+            p = (d[ l + 1 ] - g) / (2.0 * e[ l ]);
             var r = dot.Matrix.hypot( p, 1.0 );
             if ( p < 0 ) {
               r = -r;
             }
-            d[l] = e[l] / (p + r);
-            d[l + 1] = e[l] * (p + r);
-            var dl1 = d[l + 1];
-            var h = g - d[l];
+            d[ l ] = e[ l ] / (p + r);
+            d[ l + 1 ] = e[ l ] * (p + r);
+            var dl1 = d[ l + 1 ];
+            var h = g - d[ l ];
             for ( i = l + 2; i < n; i++ ) {
-              d[i] -= h;
+              d[ i ] -= h;
             }
             f = f + h;
 
             // Implicit QL transformation.
 
-            p = d[m];
+            p = d[ m ];
             var c = 1.0;
             var c2 = c;
             var c3 = c;
-            var el1 = e[l + 1];
+            var el1 = e[ l + 1 ];
             var s = 0.0;
             var s2 = 0.0;
             for ( i = m - 1; i >= l; i-- ) {
               c3 = c2;
               c2 = c;
               s2 = s;
-              g = c * e[i];
+              g = c * e[ i ];
               h = c * p;
-              r = dot.Matrix.hypot( p, e[i] );
-              e[i + 1] = s * r;
-              s = e[i] / r;
+              r = dot.Matrix.hypot( p, e[ i ] );
+              e[ i + 1 ] = s * r;
+              s = e[ i ] / r;
               c = p / r;
-              p = c * d[i] - s * g;
-              d[i + 1] = h + s * (c * g + s * d[i]);
+              p = c * d[ i ] - s * g;
+              d[ i + 1 ] = h + s * (c * g + s * d[ i ]);
 
               // Accumulate transformation.
 
               for ( k = 0; k < n; k++ ) {
-                h = V[k * n + (i + 1)];
-                V[k * n + (i + 1)] = s * V[k * n + i] + c * h;
-                V[k * n + i] = c * V[k * n + i] - s * h;
+                h = V[ k * n + (i + 1) ];
+                V[ k * n + (i + 1) ] = s * V[ k * n + i ] + c * h;
+                V[ k * n + i ] = c * V[ k * n + i ] - s * h;
               }
             }
-            p = -s * s2 * c3 * el1 * e[l] / dl1;
-            e[l] = s * p;
-            d[l] = c * p;
+            p = -s * s2 * c3 * el1 * e[ l ] / dl1;
+            e[ l ] = s * p;
+            d[ l ] = c * p;
 
             // Check for convergence.
 
-          } while ( Math.abs( e[l] ) > eps * tst1 );
+          } while ( Math.abs( e[ l ] ) > eps * tst1 );
         }
-        d[l] = d[l] + f;
-        e[l] = 0.0;
+        d[ l ] = d[ l ] + f;
+        e[ l ] = 0.0;
       }
 
       // Sort eigenvalues and corresponding vectors.
 
       for ( i = 0; i < n - 1; i++ ) {
         k = i;
-        p = d[i];
+        p = d[ i ];
         for ( j = i + 1; j < n; j++ ) {
-          if ( d[j] < p ) {
+          if ( d[ j ] < p ) {
             k = j;
-            p = d[j];
+            p = d[ j ];
           }
         }
         if ( k !== i ) {
-          d[k] = d[i];
-          d[i] = p;
+          d[ k ] = d[ i ];
+          d[ i ] = p;
           for ( j = 0; j < n; j++ ) {
-            p = V[j * this.n + i];
-            V[j * this.n + i] = V[j * n + k];
-            V[j * n + k] = p;
+            p = V[ j * this.n + i ];
+            V[ j * this.n + i ] = V[ j * n + k ];
+            V[ j * n + k ] = p;
           }
         }
       }
@@ -11762,7 +11894,7 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
 
         var scale = 0.0;
         for ( i = m; i <= high; i++ ) {
-          scale = scale + Math.abs( H[i * n + (m - 1)] );
+          scale = scale + Math.abs( H[ i * n + (m - 1) ] );
         }
         if ( scale !== 0.0 ) {
 
@@ -11770,15 +11902,15 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
 
           var h = 0.0;
           for ( i = high; i >= m; i-- ) {
-            ort[i] = H[i * n + (m - 1)] / scale;
-            h += ort[i] * ort[i];
+            ort[ i ] = H[ i * n + (m - 1) ] / scale;
+            h += ort[ i ] * ort[ i ];
           }
           g = Math.sqrt( h );
-          if ( ort[m] > 0 ) {
+          if ( ort[ m ] > 0 ) {
             g = -g;
           }
-          h = h - ort[m] * g;
-          ort[m] = ort[m] - g;
+          h = h - ort[ m ] * g;
+          ort[ m ] = ort[ m ] - g;
 
           // Apply Householder similarity transformation
           // H = (I-u*u'/h)*H*(I-u*u')/h)
@@ -11786,26 +11918,26 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
           for ( j = m; j < n; j++ ) {
             f = 0.0;
             for ( i = high; i >= m; i-- ) {
-              f += ort[i] * H[i * this.n + j];
+              f += ort[ i ] * H[ i * this.n + j ];
             }
             f = f / h;
             for ( i = m; i <= high; i++ ) {
-              H[i * this.n + j] -= f * ort[i];
+              H[ i * this.n + j ] -= f * ort[ i ];
             }
           }
 
           for ( i = 0; i <= high; i++ ) {
             f = 0.0;
             for ( j = high; j >= m; j-- ) {
-              f += ort[j] * H[i * this.n + j];
+              f += ort[ j ] * H[ i * this.n + j ];
             }
             f = f / h;
             for ( j = m; j <= high; j++ ) {
-              H[i * this.n + j] -= f * ort[j];
+              H[ i * this.n + j ] -= f * ort[ j ];
             }
           }
-          ort[m] = scale * ort[m];
-          H[m * n + (m - 1)] = scale * g;
+          ort[ m ] = scale * ort[ m ];
+          H[ m * n + (m - 1) ] = scale * g;
         }
       }
 
@@ -11813,24 +11945,24 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
 
       for ( i = 0; i < n; i++ ) {
         for ( j = 0; j < n; j++ ) {
-          V[i * this.n + j] = (i === j ? 1.0 : 0.0);
+          V[ i * this.n + j ] = (i === j ? 1.0 : 0.0);
         }
       }
 
       for ( m = high - 1; m >= low + 1; m-- ) {
-        if ( H[m * n + (m - 1)] !== 0.0 ) {
+        if ( H[ m * n + (m - 1) ] !== 0.0 ) {
           for ( i = m + 1; i <= high; i++ ) {
-            ort[i] = H[i * n + (m - 1)];
+            ort[ i ] = H[ i * n + (m - 1) ];
           }
           for ( j = m; j <= high; j++ ) {
             g = 0.0;
             for ( i = m; i <= high; i++ ) {
-              g += ort[i] * V[i * this.n + j];
+              g += ort[ i ] * V[ i * this.n + j ];
             }
             // Double division avoids possible underflow
-            g = (g / ort[m]) / H[m * n + (m - 1)];
+            g = (g / ort[ m ]) / H[ m * n + (m - 1) ];
             for ( i = m; i <= high; i++ ) {
-              V[i * this.n + j] += g * ort[i];
+              V[ i * this.n + j ] += g * ort[ i ];
             }
           }
         }
@@ -11880,11 +12012,11 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
       var norm = 0.0;
       for ( i = 0; i < nn; i++ ) {
         if ( i < low || i > high ) {
-          d[i] = H[i * n + i];
-          e[i] = 0.0;
+          d[ i ] = H[ i * n + i ];
+          e[ i ] = 0.0;
         }
         for ( j = Math.max( i - 1, 0 ); j < nn; j++ ) {
-          norm = norm + Math.abs( H[i * this.n + j] );
+          norm = norm + Math.abs( H[ i * this.n + j ] );
         }
       }
 
@@ -11897,11 +12029,11 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
 
         l = n;
         while ( l > low ) {
-          s = Math.abs( H[(l - 1) * n + (l - 1)] ) + Math.abs( H[l * n + l] );
+          s = Math.abs( H[ (l - 1) * n + (l - 1) ] ) + Math.abs( H[ l * n + l ] );
           if ( s === 0.0 ) {
             s = norm;
           }
-          if ( Math.abs( H[l * n + (l - 1)] ) < eps * s ) {
+          if ( Math.abs( H[ l * n + (l - 1) ] ) < eps * s ) {
             break;
           }
           l--;
@@ -11911,9 +12043,9 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
         // One root found
 
         if ( l === n ) {
-          H[n * n + n] = H[n * n + n] + exshift;
-          d[n] = H[n * n + n];
-          e[n] = 0.0;
+          H[ n * n + n ] = H[ n * n + n ] + exshift;
+          d[ n ] = H[ n * n + n ];
+          e[ n ] = 0.0;
           n--;
           iter = 0;
 
@@ -11921,13 +12053,13 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
 
         }
         else if ( l === n - 1 ) {
-          w = H[n * n + n - 1] * H[(n - 1) * n + n];
-          p = (H[(n - 1) * n + (n - 1)] - H[n * n + n]) / 2.0;
+          w = H[ n * n + n - 1 ] * H[ (n - 1) * n + n ];
+          p = (H[ (n - 1) * n + (n - 1) ] - H[ n * n + n ]) / 2.0;
           q = p * p + w;
           z = Math.sqrt( Math.abs( q ) );
-          H[n * n + n] = H[n * n + n] + exshift;
-          H[(n - 1) * n + (n - 1)] = H[(n - 1) * n + (n - 1)] + exshift;
-          x = H[n * n + n];
+          H[ n * n + n ] = H[ n * n + n ] + exshift;
+          H[ (n - 1) * n + (n - 1) ] = H[ (n - 1) * n + (n - 1) ] + exshift;
+          x = H[ n * n + n ];
 
           // Real pair
 
@@ -11938,14 +12070,14 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
             else {
               z = p - z;
             }
-            d[n - 1] = x + z;
-            d[n] = d[n - 1];
+            d[ n - 1 ] = x + z;
+            d[ n ] = d[ n - 1 ];
             if ( z !== 0.0 ) {
-              d[n] = x - w / z;
+              d[ n ] = x - w / z;
             }
-            e[n - 1] = 0.0;
-            e[n] = 0.0;
-            x = H[n * n + n - 1];
+            e[ n - 1 ] = 0.0;
+            e[ n ] = 0.0;
+            x = H[ n * n + n - 1 ];
             s = Math.abs( x ) + Math.abs( z );
             p = x / s;
             q = z / s;
@@ -11956,35 +12088,35 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
             // Row modification
 
             for ( j = n - 1; j < nn; j++ ) {
-              z = H[(n - 1) * n + j];
-              H[(n - 1) * n + j] = q * z + p * H[n * n + j];
-              H[n * n + j] = q * H[n * n + j] - p * z;
+              z = H[ (n - 1) * n + j ];
+              H[ (n - 1) * n + j ] = q * z + p * H[ n * n + j ];
+              H[ n * n + j ] = q * H[ n * n + j ] - p * z;
             }
 
             // Column modification
 
             for ( i = 0; i <= n; i++ ) {
-              z = H[i * n + n - 1];
-              H[i * n + n - 1] = q * z + p * H[i * n + n];
-              H[i * n + n] = q * H[i * n + n] - p * z;
+              z = H[ i * n + n - 1 ];
+              H[ i * n + n - 1 ] = q * z + p * H[ i * n + n ];
+              H[ i * n + n ] = q * H[ i * n + n ] - p * z;
             }
 
             // Accumulate transformations
 
             for ( i = low; i <= high; i++ ) {
-              z = V[i * n + n - 1];
-              V[i * n + n - 1] = q * z + p * V[i * n + n];
-              V[i * n + n] = q * V[i * n + n] - p * z;
+              z = V[ i * n + n - 1 ];
+              V[ i * n + n - 1 ] = q * z + p * V[ i * n + n ];
+              V[ i * n + n ] = q * V[ i * n + n ] - p * z;
             }
 
             // Complex pair
 
           }
           else {
-            d[n - 1] = x + p;
-            d[n] = x + p;
-            e[n - 1] = z;
-            e[n] = -z;
+            d[ n - 1 ] = x + p;
+            d[ n ] = x + p;
+            e[ n - 1 ] = z;
+            e[ n ] = -z;
           }
           n = n - 2;
           iter = 0;
@@ -11996,12 +12128,12 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
 
           // Form shift
 
-          x = H[n * n + n];
+          x = H[ n * n + n ];
           y = 0.0;
           w = 0.0;
           if ( l < n ) {
-            y = H[(n - 1) * n + (n - 1)];
-            w = H[n * n + n - 1] * H[(n - 1) * n + n];
+            y = H[ (n - 1) * n + (n - 1) ];
+            w = H[ n * n + n - 1 ] * H[ (n - 1) * n + n ];
           }
 
           // Wilkinson's original ad hoc shift
@@ -12009,9 +12141,9 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
           if ( iter === 10 ) {
             exshift += x;
             for ( i = low; i <= n; i++ ) {
-              H[i * n + i] -= x;
+              H[ i * n + i ] -= x;
             }
-            s = Math.abs( H[n * n + n - 1] ) + Math.abs( H[(n - 1) * n + n - 2] );
+            s = Math.abs( H[ n * n + n - 1 ] ) + Math.abs( H[ (n - 1) * n + n - 2 ] );
             x = y = 0.75 * s;
             w = -0.4375 * s * s;
           }
@@ -12028,7 +12160,7 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
               }
               s = x - w / ((y - x) / 2.0 + s);
               for ( i = low; i <= n; i++ ) {
-                H[i * n + i] -= s;
+                H[ i * n + i ] -= s;
               }
               exshift += s;
               x = y = w = 0.964;
@@ -12041,12 +12173,12 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
 
           m = n - 2;
           while ( m >= l ) {
-            z = H[m * n + m];
+            z = H[ m * n + m ];
             r = x - z;
             s = y - z;
-            p = (r * s - w) / H[(m + 1) * n + m] + H[m * n + m + 1];
-            q = H[(m + 1) * n + m + 1] - z - r - s;
-            r = H[(m + 2) * n + m + 1];
+            p = (r * s - w) / H[ (m + 1) * n + m ] + H[ m * n + m + 1 ];
+            q = H[ (m + 1) * n + m + 1 ] - z - r - s;
+            r = H[ (m + 2) * n + m + 1 ];
             s = Math.abs( p ) + Math.abs( q ) + Math.abs( r );
             p = p / s;
             q = q / s;
@@ -12054,18 +12186,18 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
             if ( m === l ) {
               break;
             }
-            if ( Math.abs( H[m * n + (m - 1)] ) * (Math.abs( q ) + Math.abs( r )) <
-                 eps * (Math.abs( p ) * (Math.abs( H[(m - 1) * n + m - 1] ) + Math.abs( z ) +
-                                         Math.abs( H[(m + 1) * n + m + 1] ))) ) {
+            if ( Math.abs( H[ m * n + (m - 1) ] ) * (Math.abs( q ) + Math.abs( r )) <
+                 eps * (Math.abs( p ) * (Math.abs( H[ (m - 1) * n + m - 1 ] ) + Math.abs( z ) +
+                                         Math.abs( H[ (m + 1) * n + m + 1 ] ))) ) {
               break;
             }
             m--;
           }
 
           for ( i = m + 2; i <= n; i++ ) {
-            H[i * n + i - 2] = 0.0;
+            H[ i * n + i - 2 ] = 0.0;
             if ( i > m + 2 ) {
-              H[i * n + i - 3] = 0.0;
+              H[ i * n + i - 3 ] = 0.0;
             }
           }
 
@@ -12074,9 +12206,9 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
           for ( k = m; k <= n - 1; k++ ) {
             var notlast = (k !== n - 1);
             if ( k !== m ) {
-              p = H[k * n + k - 1];
-              q = H[(k + 1) * n + k - 1];
-              r = (notlast ? H[(k + 2) * n + k - 1] : 0.0);
+              p = H[ k * n + k - 1 ];
+              q = H[ (k + 1) * n + k - 1 ];
+              r = (notlast ? H[ (k + 2) * n + k - 1 ] : 0.0);
               x = Math.abs( p ) + Math.abs( q ) + Math.abs( r );
               if ( x !== 0.0 ) {
                 p = p / x;
@@ -12093,10 +12225,10 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
             }
             if ( s !== 0 ) {
               if ( k !== m ) {
-                H[k * n + k - 1] = -s * x;
+                H[ k * n + k - 1 ] = -s * x;
               }
               else if ( l !== m ) {
-                H[k * n + k - 1] = -H[k * n + k - 1];
+                H[ k * n + k - 1 ] = -H[ k * n + k - 1 ];
               }
               p = p + s;
               x = p / s;
@@ -12108,37 +12240,37 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
               // Row modification
 
               for ( j = k; j < nn; j++ ) {
-                p = H[k * n + j] + q * H[(k + 1) * n + j];
+                p = H[ k * n + j ] + q * H[ (k + 1) * n + j ];
                 if ( notlast ) {
-                  p = p + r * H[(k + 2) * n + j];
-                  H[(k + 2) * n + j] = H[(k + 2) * n + j] - p * z;
+                  p = p + r * H[ (k + 2) * n + j ];
+                  H[ (k + 2) * n + j ] = H[ (k + 2) * n + j ] - p * z;
                 }
-                H[k * n + j] = H[k * n + j] - p * x;
-                H[(k + 1) * n + j] = H[(k + 1) * n + j] - p * y;
+                H[ k * n + j ] = H[ k * n + j ] - p * x;
+                H[ (k + 1) * n + j ] = H[ (k + 1) * n + j ] - p * y;
               }
 
               // Column modification
 
               for ( i = 0; i <= Math.min( n, k + 3 ); i++ ) {
-                p = x * H[i * n + k] + y * H[i * n + k + 1];
+                p = x * H[ i * n + k ] + y * H[ i * n + k + 1 ];
                 if ( notlast ) {
-                  p = p + z * H[i * n + k + 2];
-                  H[i * n + k + 2] = H[i * n + k + 2] - p * r;
+                  p = p + z * H[ i * n + k + 2 ];
+                  H[ i * n + k + 2 ] = H[ i * n + k + 2 ] - p * r;
                 }
-                H[i * n + k] = H[i * n + k] - p;
-                H[i * n + k + 1] = H[i * n + k + 1] - p * q;
+                H[ i * n + k ] = H[ i * n + k ] - p;
+                H[ i * n + k + 1 ] = H[ i * n + k + 1 ] - p * q;
               }
 
               // Accumulate transformations
 
               for ( i = low; i <= high; i++ ) {
-                p = x * V[i * n + k] + y * V[i * n + k + 1];
+                p = x * V[ i * n + k ] + y * V[ i * n + k + 1 ];
                 if ( notlast ) {
-                  p = p + z * V[i * n + k + 2];
-                  V[i * n + k + 2] = V[i * n + k + 2] - p * r;
+                  p = p + z * V[ i * n + k + 2 ];
+                  V[ i * n + k + 2 ] = V[ i * n + k + 2 ] - p * r;
                 }
-                V[i * n + k] = V[i * n + k] - p;
-                V[i * n + k + 1] = V[i * n + k + 1] - p * q;
+                V[ i * n + k ] = V[ i * n + k ] - p;
+                V[ i * n + k + 1 ] = V[ i * n + k + 1 ] - p * q;
               }
             }  // (s !== 0)
           }  // k loop
@@ -12152,57 +12284,57 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
       }
 
       for ( n = nn - 1; n >= 0; n-- ) {
-        p = d[n];
-        q = e[n];
+        p = d[ n ];
+        q = e[ n ];
 
         // Real vector
 
         if ( q === 0 ) {
           l = n;
-          H[n * n + n] = 1.0;
+          H[ n * n + n ] = 1.0;
           for ( i = n - 1; i >= 0; i-- ) {
-            w = H[i * n + i] - p;
+            w = H[ i * n + i ] - p;
             r = 0.0;
             for ( j = l; j <= n; j++ ) {
-              r = r + H[i * this.n + j] * H[j * n + n];
+              r = r + H[ i * this.n + j ] * H[ j * n + n ];
             }
-            if ( e[i] < 0.0 ) {
+            if ( e[ i ] < 0.0 ) {
               z = w;
               s = r;
             }
             else {
               l = i;
-              if ( e[i] === 0.0 ) {
+              if ( e[ i ] === 0.0 ) {
                 if ( w !== 0.0 ) {
-                  H[i * n + n] = -r / w;
+                  H[ i * n + n ] = -r / w;
                 }
                 else {
-                  H[i * n + n] = -r / (eps * norm);
+                  H[ i * n + n ] = -r / (eps * norm);
                 }
 
                 // Solve real equations
 
               }
               else {
-                x = H[i * n + i + 1];
-                y = H[(i + 1) * n + i];
-                q = (d[i] - p) * (d[i] - p) + e[i] * e[i];
+                x = H[ i * n + i + 1 ];
+                y = H[ (i + 1) * n + i ];
+                q = (d[ i ] - p) * (d[ i ] - p) + e[ i ] * e[ i ];
                 t = (x * s - z * r) / q;
-                H[i * n + n] = t;
+                H[ i * n + n ] = t;
                 if ( Math.abs( x ) > Math.abs( z ) ) {
-                  H[(i + 1) * n + n] = (-r - w * t) / x;
+                  H[ (i + 1) * n + n ] = (-r - w * t) / x;
                 }
                 else {
-                  H[(i + 1) * n + n] = (-s - y * t) / z;
+                  H[ (i + 1) * n + n ] = (-s - y * t) / z;
                 }
               }
 
               // Overflow control
 
-              t = Math.abs( H[i * n + n] );
+              t = Math.abs( H[ i * n + n ] );
               if ( (eps * t) * t > 1 ) {
                 for ( j = i; j <= n; j++ ) {
-                  H[j * n + n] = H[j * n + n] / t;
+                  H[ j * n + n ] = H[ j * n + n ] / t;
                 }
               }
             }
@@ -12216,71 +12348,71 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
 
           // Last vector component imaginary so matrix is triangular
 
-          if ( Math.abs( H[n * n + n - 1] ) > Math.abs( H[(n - 1) * n + n] ) ) {
-            H[(n - 1) * n + (n - 1)] = q / H[n * n + n - 1];
-            H[(n - 1) * n + n] = -(H[n * n + n] - p) / H[n * n + n - 1];
+          if ( Math.abs( H[ n * n + n - 1 ] ) > Math.abs( H[ (n - 1) * n + n ] ) ) {
+            H[ (n - 1) * n + (n - 1) ] = q / H[ n * n + n - 1 ];
+            H[ (n - 1) * n + n ] = -(H[ n * n + n ] - p) / H[ n * n + n - 1 ];
           }
           else {
-            this.cdiv( 0.0, -H[(n - 1) * n + n], H[(n - 1) * n + (n - 1)] - p, q );
-            H[(n - 1) * n + (n - 1)] = this.cdivr;
-            H[(n - 1) * n + n] = this.cdivi;
+            this.cdiv( 0.0, -H[ (n - 1) * n + n ], H[ (n - 1) * n + (n - 1) ] - p, q );
+            H[ (n - 1) * n + (n - 1) ] = this.cdivr;
+            H[ (n - 1) * n + n ] = this.cdivi;
           }
-          H[n * n + n - 1] = 0.0;
-          H[n * n + n] = 1.0;
+          H[ n * n + n - 1 ] = 0.0;
+          H[ n * n + n ] = 1.0;
           for ( i = n - 2; i >= 0; i-- ) {
             var ra, sa, vr, vi;
             ra = 0.0;
             sa = 0.0;
             for ( j = l; j <= n; j++ ) {
-              ra = ra + H[i * this.n + j] * H[j * n + n - 1];
-              sa = sa + H[i * this.n + j] * H[j * n + n];
+              ra = ra + H[ i * this.n + j ] * H[ j * n + n - 1 ];
+              sa = sa + H[ i * this.n + j ] * H[ j * n + n ];
             }
-            w = H[i * n + i] - p;
+            w = H[ i * n + i ] - p;
 
-            if ( e[i] < 0.0 ) {
+            if ( e[ i ] < 0.0 ) {
               z = w;
               r = ra;
               s = sa;
             }
             else {
               l = i;
-              if ( e[i] === 0 ) {
+              if ( e[ i ] === 0 ) {
                 this.cdiv( -ra, -sa, w, q );
-                H[i * n + n - 1] = this.cdivr;
-                H[i * n + n] = this.cdivi;
+                H[ i * n + n - 1 ] = this.cdivr;
+                H[ i * n + n ] = this.cdivi;
               }
               else {
 
                 // Solve complex equations
 
-                x = H[i * n + i + 1];
-                y = H[(i + 1) * n + i];
-                vr = (d[i] - p) * (d[i] - p) + e[i] * e[i] - q * q;
-                vi = (d[i] - p) * 2.0 * q;
+                x = H[ i * n + i + 1 ];
+                y = H[ (i + 1) * n + i ];
+                vr = (d[ i ] - p) * (d[ i ] - p) + e[ i ] * e[ i ] - q * q;
+                vi = (d[ i ] - p) * 2.0 * q;
                 if ( vr === 0.0 && vi === 0.0 ) {
                   vr = eps * norm * (Math.abs( w ) + Math.abs( q ) +
                                      Math.abs( x ) + Math.abs( y ) + Math.abs( z ));
                 }
                 this.cdiv( x * r - z * ra + q * sa, x * s - z * sa - q * ra, vr, vi );
-                H[i * n + n - 1] = this.cdivr;
-                H[i * n + n] = this.cdivi;
+                H[ i * n + n - 1 ] = this.cdivr;
+                H[ i * n + n ] = this.cdivi;
                 if ( Math.abs( x ) > (Math.abs( z ) + Math.abs( q )) ) {
-                  H[(i + 1) * n + n - 1] = (-ra - w * H[i * n + n - 1] + q * H[i * n + n]) / x;
-                  H[(i + 1) * n + n] = (-sa - w * H[i * n + n] - q * H[i * n + n - 1]) / x;
+                  H[ (i + 1) * n + n - 1 ] = (-ra - w * H[ i * n + n - 1 ] + q * H[ i * n + n ]) / x;
+                  H[ (i + 1) * n + n ] = (-sa - w * H[ i * n + n ] - q * H[ i * n + n - 1 ]) / x;
                 }
                 else {
-                  this.cdiv( -r - y * H[i * n + n - 1], -s - y * H[i * n + n], z, q );
-                  H[(i + 1) * n + n - 1] = this.cdivr;
-                  H[(i + 1) * n + n] = this.cdivi;
+                  this.cdiv( -r - y * H[ i * n + n - 1 ], -s - y * H[ i * n + n ], z, q );
+                  H[ (i + 1) * n + n - 1 ] = this.cdivr;
+                  H[ (i + 1) * n + n ] = this.cdivi;
                 }
               }
 
               // Overflow control
-              t = Math.max( Math.abs( H[i * n + n - 1] ), Math.abs( H[i * n + n] ) );
+              t = Math.max( Math.abs( H[ i * n + n - 1 ] ), Math.abs( H[ i * n + n ] ) );
               if ( (eps * t) * t > 1 ) {
                 for ( j = i; j <= n; j++ ) {
-                  H[j * n + n - 1] = H[j * n + n - 1] / t;
-                  H[j * n + n] = H[j * n + n] / t;
+                  H[ j * n + n - 1 ] = H[ j * n + n - 1 ] / t;
+                  H[ j * n + n ] = H[ j * n + n ] / t;
                 }
               }
             }
@@ -12292,7 +12424,7 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
       for ( i = 0; i < nn; i++ ) {
         if ( i < low || i > high ) {
           for ( j = i; j < nn; j++ ) {
-            V[i * this.n + j] = H[i * this.n + j];
+            V[ i * this.n + j ] = H[ i * this.n + j ];
           }
         }
       }
@@ -12302,9 +12434,9 @@ define( 'DOT/EigenvalueDecomposition',['require','DOT/dot'],function( require ) 
         for ( i = low; i <= high; i++ ) {
           z = 0.0;
           for ( k = low; k <= Math.min( j, high ); k++ ) {
-            z = z + V[i * n + k] * H[k * n + j];
+            z = z + V[ i * n + k ] * H[ k * n + j ];
           }
-          V[i * this.n + j] = z;
+          V[ i * this.n + j ] = z;
         }
       }
     }
@@ -12409,7 +12541,7 @@ define( 'DOT/LUDecomposition',['require','DOT/dot'],function( require ) {
     var n = this.n;
     this.piv = new Uint32Array( m );
     for ( i = 0; i < m; i++ ) {
-      this.piv[i] = i;
+      this.piv[ i ] = i;
     }
     this.pivsign = 1;
     var LUcolj = new Float32Array( m );
@@ -12420,7 +12552,7 @@ define( 'DOT/LUDecomposition',['require','DOT/dot'],function( require ) {
 
       // Make a copy of the j-th column to localize references.
       for ( i = 0; i < m; i++ ) {
-        LUcolj[i] = LU[matrix.index( i, j )];
+        LUcolj[ i ] = LU[ matrix.index( i, j ) ];
       }
 
       // Apply previous transformations.
@@ -12431,18 +12563,18 @@ define( 'DOT/LUDecomposition',['require','DOT/dot'],function( require ) {
         var s = 0.0;
         for ( k = 0; k < kmax; k++ ) {
           var ik = matrix.index( i, k );
-          s += LU[ik] * LUcolj[k];
+          s += LU[ ik ] * LUcolj[ k ];
         }
 
-        LUcolj[i] -= s;
-        LU[matrix.index( i, j )] = LUcolj[i];
+        LUcolj[ i ] -= s;
+        LU[ matrix.index( i, j ) ] = LUcolj[ i ];
       }
 
       // Find pivot and exchange if necessary.
 
       var p = j;
       for ( i = j + 1; i < m; i++ ) {
-        if ( Math.abs( LUcolj[i] ) > Math.abs( LUcolj[p] ) ) {
+        if ( Math.abs( LUcolj[ i ] ) > Math.abs( LUcolj[ p ] ) ) {
           p = i;
         }
       }
@@ -12450,21 +12582,21 @@ define( 'DOT/LUDecomposition',['require','DOT/dot'],function( require ) {
         for ( k = 0; k < n; k++ ) {
           var pk = matrix.index( p, k );
           var jk = matrix.index( j, k );
-          var t = LU[pk];
-          LU[pk] = LU[jk];
-          LU[jk] = t;
+          var t = LU[ pk ];
+          LU[ pk ] = LU[ jk ];
+          LU[ jk ] = t;
         }
-        k = this.piv[p];
-        this.piv[p] = this.piv[j];
-        this.piv[j] = k;
+        k = this.piv[ p ];
+        this.piv[ p ] = this.piv[ j ];
+        this.piv[ j ] = k;
         this.pivsign = -this.pivsign;
       }
 
       // Compute multipliers.
 
-      if ( j < m && LU[this.matrix.index( j, j )] !== 0.0 ) {
+      if ( j < m && LU[ this.matrix.index( j, j ) ] !== 0.0 ) {
         for ( i = j + 1; i < m; i++ ) {
-          LU[matrix.index( i, j )] /= LU[matrix.index( j, j )];
+          LU[ matrix.index( i, j ) ] /= LU[ matrix.index( j, j ) ];
         }
       }
     }
@@ -12477,7 +12609,7 @@ define( 'DOT/LUDecomposition',['require','DOT/dot'],function( require ) {
     isNonsingular: function() {
       for ( var j = 0; j < this.n; j++ ) {
         var index = this.matrix.index( j, j );
-        if ( this.LU[index] === 0 ) {
+        if ( this.LU[ index ] === 0 ) {
           return false;
         }
       }
@@ -12489,13 +12621,13 @@ define( 'DOT/LUDecomposition',['require','DOT/dot'],function( require ) {
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           if ( i > j ) {
-            result.entries[result.index( i, j )] = this.LU[this.matrix.index( i, j )];
+            result.entries[ result.index( i, j ) ] = this.LU[ this.matrix.index( i, j ) ];
           }
           else if ( i === j ) {
-            result.entries[result.index( i, j )] = 1.0;
+            result.entries[ result.index( i, j ) ] = 1.0;
           }
           else {
-            result.entries[result.index( i, j )] = 0.0;
+            result.entries[ result.index( i, j ) ] = 0.0;
           }
         }
       }
@@ -12507,10 +12639,10 @@ define( 'DOT/LUDecomposition',['require','DOT/dot'],function( require ) {
       for ( var i = 0; i < this.n; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           if ( i <= j ) {
-            result.entries[result.index( i, j )] = this.LU[this.matrix.index( i, j )];
+            result.entries[ result.index( i, j ) ] = this.LU[ this.matrix.index( i, j ) ];
           }
           else {
-            result.entries[result.index( i, j )] = 0.0;
+            result.entries[ result.index( i, j ) ] = 0.0;
           }
         }
       }
@@ -12520,7 +12652,7 @@ define( 'DOT/LUDecomposition',['require','DOT/dot'],function( require ) {
     getPivot: function() {
       var p = new Uint32Array( this.m );
       for ( var i = 0; i < this.m; i++ ) {
-        p[i] = this.piv[i];
+        p[ i ] = this.piv[ i ];
       }
       return p;
     },
@@ -12528,7 +12660,7 @@ define( 'DOT/LUDecomposition',['require','DOT/dot'],function( require ) {
     getDoublePivot: function() {
       var vals = new Float32Array( this.m );
       for ( var i = 0; i < this.m; i++ ) {
-        vals[i] = this.piv[i];
+        vals[ i ] = this.piv[ i ];
       }
       return vals;
     },
@@ -12539,7 +12671,7 @@ define( 'DOT/LUDecomposition',['require','DOT/dot'],function( require ) {
       }
       var d = this.pivsign;
       for ( var j = 0; j < this.n; j++ ) {
-        d *= this.LU[this.matrix.index( j, j )];
+        d *= this.LU[ this.matrix.index( j, j ) ];
       }
       return d;
     },
@@ -12561,7 +12693,7 @@ define( 'DOT/LUDecomposition',['require','DOT/dot'],function( require ) {
       for ( k = 0; k < this.n; k++ ) {
         for ( i = k + 1; i < this.n; i++ ) {
           for ( j = 0; j < nx; j++ ) {
-            Xmat.entries[Xmat.index( i, j )] -= Xmat.entries[Xmat.index( k, j )] * this.LU[this.matrix.index( i, k )];
+            Xmat.entries[ Xmat.index( i, j ) ] -= Xmat.entries[ Xmat.index( k, j ) ] * this.LU[ this.matrix.index( i, k ) ];
           }
         }
       }
@@ -12569,11 +12701,11 @@ define( 'DOT/LUDecomposition',['require','DOT/dot'],function( require ) {
       // Solve U*X = Y;
       for ( k = this.n - 1; k >= 0; k-- ) {
         for ( j = 0; j < nx; j++ ) {
-          Xmat.entries[Xmat.index( k, j )] /= this.LU[this.matrix.index( k, k )];
+          Xmat.entries[ Xmat.index( k, j ) ] /= this.LU[ this.matrix.index( k, k ) ];
         }
         for ( i = 0; i < k; i++ ) {
           for ( j = 0; j < nx; j++ ) {
-            Xmat.entries[Xmat.index( i, j )] -= Xmat.entries[Xmat.index( k, j )] * this.LU[this.matrix.index( i, k )];
+            Xmat.entries[ Xmat.index( i, j ) ] -= Xmat.entries[ Xmat.index( k, j ) ] * this.LU[ this.matrix.index( i, k ) ];
           }
         }
       }
@@ -12672,40 +12804,40 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
         // Compute the transformation for the k-th column and
         // place the k-th diagonal in s[k].
         // Compute 2-norm of k-th column without under/overflow.
-        s[k] = 0;
+        s[ k ] = 0;
         for ( i = k; i < m; i++ ) {
-          s[k] = hypot( s[k], A[i * n + k] );
+          s[ k ] = hypot( s[ k ], A[ i * n + k ] );
         }
-        if ( s[k] !== 0.0 ) {
-          if ( A[k * n + k] < 0.0 ) {
-            s[k] = -s[k];
+        if ( s[ k ] !== 0.0 ) {
+          if ( A[ k * n + k ] < 0.0 ) {
+            s[ k ] = -s[ k ];
           }
           for ( i = k; i < m; i++ ) {
-            A[i * n + k] /= s[k];
+            A[ i * n + k ] /= s[ k ];
           }
-          A[k * n + k] += 1.0;
+          A[ k * n + k ] += 1.0;
         }
-        s[k] = -s[k];
+        s[ k ] = -s[ k ];
       }
       for ( j = k + 1; j < n; j++ ) {
-        if ( (k < nct) && (s[k] !== 0.0) ) {
+        if ( (k < nct) && (s[ k ] !== 0.0) ) {
 
           // Apply the transformation.
 
           t = 0;
           for ( i = k; i < m; i++ ) {
-            t += A[i * n + k] * A[i * n + j];
+            t += A[ i * n + k ] * A[ i * n + j ];
           }
-          t = -t / A[k * n + k];
+          t = -t / A[ k * n + k ];
           for ( i = k; i < m; i++ ) {
-            A[i * n + j] += t * A[i * n + k];
+            A[ i * n + j ] += t * A[ i * n + k ];
           }
         }
 
         // Place the k-th row of A into e for the
         // subsequent calculation of the row transformation.
 
-        e[j] = A[k * n + j];
+        e[ j ] = A[ k * n + j ];
       }
       if ( wantu && (k < nct) ) {
 
@@ -12713,7 +12845,7 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
         // multiplication.
 
         for ( i = k; i < m; i++ ) {
-          U[i * nu + k] = A[i * n + k];
+          U[ i * nu + k ] = A[ i * n + k ];
         }
       }
       if ( k < nrt ) {
@@ -12721,36 +12853,36 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
         // Compute the k-th row transformation and place the
         // k-th super-diagonal in e[k].
         // Compute 2-norm without under/overflow.
-        e[k] = 0;
+        e[ k ] = 0;
         for ( i = k + 1; i < n; i++ ) {
-          e[k] = hypot( e[k], e[i] );
+          e[ k ] = hypot( e[ k ], e[ i ] );
         }
-        if ( e[k] !== 0.0 ) {
-          if ( e[k + 1] < 0.0 ) {
-            e[k] = -e[k];
+        if ( e[ k ] !== 0.0 ) {
+          if ( e[ k + 1 ] < 0.0 ) {
+            e[ k ] = -e[ k ];
           }
           for ( i = k + 1; i < n; i++ ) {
-            e[i] /= e[k];
+            e[ i ] /= e[ k ];
           }
-          e[k + 1] += 1.0;
+          e[ k + 1 ] += 1.0;
         }
-        e[k] = -e[k];
-        if ( (k + 1 < m) && (e[k] !== 0.0) ) {
+        e[ k ] = -e[ k ];
+        if ( (k + 1 < m) && (e[ k ] !== 0.0) ) {
 
           // Apply the transformation.
 
           for ( i = k + 1; i < m; i++ ) {
-            work[i] = 0.0;
+            work[ i ] = 0.0;
           }
           for ( j = k + 1; j < n; j++ ) {
             for ( i = k + 1; i < m; i++ ) {
-              work[i] += e[j] * A[i * n + j];
+              work[ i ] += e[ j ] * A[ i * n + j ];
             }
           }
           for ( j = k + 1; j < n; j++ ) {
-            t = -e[j] / e[k + 1];
+            t = -e[ j ] / e[ k + 1 ];
             for ( i = k + 1; i < m; i++ ) {
-              A[i * n + j] += t * work[i];
+              A[ i * n + j ] += t * work[ i ];
             }
           }
         }
@@ -12760,7 +12892,7 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
           // back multiplication.
 
           for ( i = k + 1; i < n; i++ ) {
-            V[i * n + k] = e[i];
+            V[ i * n + k ] = e[ i ];
           }
         }
       }
@@ -12770,50 +12902,50 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
 
     var p = min( n, m + 1 );
     if ( nct < n ) {
-      s[nct] = A[nct * n + nct];
+      s[ nct ] = A[ nct * n + nct ];
     }
     if ( m < p ) {
-      s[p - 1] = 0.0;
+      s[ p - 1 ] = 0.0;
     }
     if ( nrt + 1 < p ) {
-      e[nrt] = A[nrt * n + p - 1];
+      e[ nrt ] = A[ nrt * n + p - 1 ];
     }
-    e[p - 1] = 0.0;
+    e[ p - 1 ] = 0.0;
 
     // If required, generate U.
 
     if ( wantu ) {
       for ( j = nct; j < nu; j++ ) {
         for ( i = 0; i < m; i++ ) {
-          U[i * nu + j] = 0.0;
+          U[ i * nu + j ] = 0.0;
         }
-        U[j * nu + j] = 1.0;
+        U[ j * nu + j ] = 1.0;
       }
       for ( k = nct - 1; k >= 0; k-- ) {
-        if ( s[k] !== 0.0 ) {
+        if ( s[ k ] !== 0.0 ) {
           for ( j = k + 1; j < nu; j++ ) {
             t = 0;
             for ( i = k; i < m; i++ ) {
-              t += U[i * nu + k] * U[i * nu + j];
+              t += U[ i * nu + k ] * U[ i * nu + j ];
             }
-            t = -t / U[k * nu + k];
+            t = -t / U[ k * nu + k ];
             for ( i = k; i < m; i++ ) {
-              U[i * nu + j] += t * U[i * nu + k];
+              U[ i * nu + j ] += t * U[ i * nu + k ];
             }
           }
           for ( i = k; i < m; i++ ) {
-            U[i * nu + k] = -U[i * nu + k];
+            U[ i * nu + k ] = -U[ i * nu + k ];
           }
-          U[k * nu + k] = 1.0 + U[k * nu + k];
+          U[ k * nu + k ] = 1.0 + U[ k * nu + k ];
           for ( i = 0; i < k - 1; i++ ) {
-            U[i * nu + k] = 0.0;
+            U[ i * nu + k ] = 0.0;
           }
         }
         else {
           for ( i = 0; i < m; i++ ) {
-            U[i * nu + k] = 0.0;
+            U[ i * nu + k ] = 0.0;
           }
-          U[k * nu + k] = 1.0;
+          U[ k * nu + k ] = 1.0;
         }
       }
     }
@@ -12822,22 +12954,22 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
 
     if ( wantv ) {
       for ( k = n - 1; k >= 0; k-- ) {
-        if ( (k < nrt) && (e[k] !== 0.0) ) {
+        if ( (k < nrt) && (e[ k ] !== 0.0) ) {
           for ( j = k + 1; j < nu; j++ ) {
             t = 0;
             for ( i = k + 1; i < n; i++ ) {
-              t += V[i * n + k] * V[i * n + j];
+              t += V[ i * n + k ] * V[ i * n + j ];
             }
-            t = -t / V[(k + 1) * n + k];
+            t = -t / V[ (k + 1) * n + k ];
             for ( i = k + 1; i < n; i++ ) {
-              V[i * n + j] += t * V[i * n + k];
+              V[ i * n + j ] += t * V[ i * n + k ];
             }
           }
         }
         for ( i = 0; i < n; i++ ) {
-          V[i * n + k] = 0.0;
+          V[ i * n + k ] = 0.0;
         }
-        V[k * n + k] = 1.0;
+        V[ k * n + k ] = 1.0;
       }
     }
 
@@ -12869,9 +13001,9 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
         if ( k === -1 ) {
           break;
         }
-        if ( abs( e[k] ) <=
-             tiny + eps * (abs( s[k] ) + abs( s[k + 1] )) ) {
-          e[k] = 0.0;
+        if ( abs( e[ k ] ) <=
+             tiny + eps * (abs( s[ k ] ) + abs( s[ k + 1 ] )) ) {
+          e[ k ] = 0.0;
           break;
         }
       }
@@ -12884,10 +13016,10 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
           if ( ks === k ) {
             break;
           }
-          t = (ks !== p ? abs( e[ks] ) : 0) +
-              (ks !== k + 1 ? abs( e[ks - 1] ) : 0);
-          if ( abs( s[ks] ) <= tiny + eps * t ) {
-            s[ks] = 0.0;
+          t = (ks !== p ? abs( e[ ks ] ) : 0) +
+              (ks !== k + 1 ? abs( e[ ks - 1 ] ) : 0);
+          if ( abs( s[ ks ] ) <= tiny + eps * t ) {
+            s[ ks ] = 0.0;
             break;
           }
         }
@@ -12912,22 +13044,22 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
 
         case 1:
         {
-          f = e[p - 2];
-          e[p - 2] = 0.0;
+          f = e[ p - 2 ];
+          e[ p - 2 ] = 0.0;
           for ( j = p - 2; j >= k; j-- ) {
-            t = hypot( s[j], f );
-            cs = s[j] / t;
+            t = hypot( s[ j ], f );
+            cs = s[ j ] / t;
             sn = f / t;
-            s[j] = t;
+            s[ j ] = t;
             if ( j !== k ) {
-              f = -sn * e[j - 1];
-              e[j - 1] = cs * e[j - 1];
+              f = -sn * e[ j - 1 ];
+              e[ j - 1 ] = cs * e[ j - 1 ];
             }
             if ( wantv ) {
               for ( i = 0; i < n; i++ ) {
-                t = cs * V[i * n + j] + sn * V[i * n + p - 1];
-                V[i * n + p - 1] = -sn * V[i * n + j] + cs * V[i * n + p - 1];
-                V[i * n + j] = t;
+                t = cs * V[ i * n + j ] + sn * V[ i * n + p - 1 ];
+                V[ i * n + p - 1 ] = -sn * V[ i * n + j ] + cs * V[ i * n + p - 1 ];
+                V[ i * n + j ] = t;
               }
             }
           }
@@ -12938,20 +13070,20 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
 
         case 2:
         {
-          f = e[k - 1];
-          e[k - 1] = 0.0;
+          f = e[ k - 1 ];
+          e[ k - 1 ] = 0.0;
           for ( j = k; j < p; j++ ) {
-            t = hypot( s[j], f );
-            cs = s[j] / t;
+            t = hypot( s[ j ], f );
+            cs = s[ j ] / t;
             sn = f / t;
-            s[j] = t;
-            f = -sn * e[j];
-            e[j] = cs * e[j];
+            s[ j ] = t;
+            f = -sn * e[ j ];
+            e[ j ] = cs * e[ j ];
             if ( wantu ) {
               for ( i = 0; i < m; i++ ) {
-                t = cs * U[i * nu + j] + sn * U[i * nu + k - 1];
-                U[i * nu + k - 1] = -sn * U[i * nu + j] + cs * U[i * nu + k - 1];
-                U[i * nu + j] = t;
+                t = cs * U[ i * nu + j ] + sn * U[ i * nu + k - 1 ];
+                U[ i * nu + k - 1 ] = -sn * U[ i * nu + j ] + cs * U[ i * nu + k - 1 ];
+                U[ i * nu + j ] = t;
               }
             }
           }
@@ -12966,13 +13098,13 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
           // Calculate the shift.
 
           var scale = max( max( max( max(
-              abs( s[p - 1] ), abs( s[p - 2] ) ), abs( e[p - 2] ) ),
-            abs( s[k] ) ), abs( e[k] ) );
-          var sp = s[p - 1] / scale;
-          var spm1 = s[p - 2] / scale;
-          var epm1 = e[p - 2] / scale;
-          var sk = s[k] / scale;
-          var ek = e[k] / scale;
+              abs( s[ p - 1 ] ), abs( s[ p - 2 ] ) ), abs( e[ p - 2 ] ) ),
+            abs( s[ k ] ) ), abs( e[ k ] ) );
+          var sp = s[ p - 1 ] / scale;
+          var spm1 = s[ p - 2 ] / scale;
+          var epm1 = e[ p - 2 ] / scale;
+          var sk = s[ k ] / scale;
+          var ek = e[ k ] / scale;
           var b = ((spm1 + sp) * (spm1 - sp) + epm1 * epm1) / 2.0;
           var c = (sp * epm1) * (sp * epm1);
           var shift = 0.0;
@@ -12993,36 +13125,36 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
             cs = f / t;
             sn = g / t;
             if ( j !== k ) {
-              e[j - 1] = t;
+              e[ j - 1 ] = t;
             }
-            f = cs * s[j] + sn * e[j];
-            e[j] = cs * e[j] - sn * s[j];
-            g = sn * s[j + 1];
-            s[j + 1] = cs * s[j + 1];
+            f = cs * s[ j ] + sn * e[ j ];
+            e[ j ] = cs * e[ j ] - sn * s[ j ];
+            g = sn * s[ j + 1 ];
+            s[ j + 1 ] = cs * s[ j + 1 ];
             if ( wantv ) {
               for ( i = 0; i < n; i++ ) {
-                t = cs * V[i * n + j] + sn * V[i * n + j + 1];
-                V[i * n + j + 1] = -sn * V[i * n + j] + cs * V[i * n + j + 1];
-                V[i * n + j] = t;
+                t = cs * V[ i * n + j ] + sn * V[ i * n + j + 1 ];
+                V[ i * n + j + 1 ] = -sn * V[ i * n + j ] + cs * V[ i * n + j + 1 ];
+                V[ i * n + j ] = t;
               }
             }
             t = hypot( f, g );
             cs = f / t;
             sn = g / t;
-            s[j] = t;
-            f = cs * e[j] + sn * s[j + 1];
-            s[j + 1] = -sn * e[j] + cs * s[j + 1];
-            g = sn * e[j + 1];
-            e[j + 1] = cs * e[j + 1];
+            s[ j ] = t;
+            f = cs * e[ j ] + sn * s[ j + 1 ];
+            s[ j + 1 ] = -sn * e[ j ] + cs * s[ j + 1 ];
+            g = sn * e[ j + 1 ];
+            e[ j + 1 ] = cs * e[ j + 1 ];
             if ( wantu && (j < m - 1) ) {
               for ( i = 0; i < m; i++ ) {
-                t = cs * U[i * nu + j] + sn * U[i * nu + j + 1];
-                U[i * nu + j + 1] = -sn * U[i * nu + j] + cs * U[i * nu + j + 1];
-                U[i * nu + j] = t;
+                t = cs * U[ i * nu + j ] + sn * U[ i * nu + j + 1 ];
+                U[ i * nu + j + 1 ] = -sn * U[ i * nu + j ] + cs * U[ i * nu + j + 1 ];
+                U[ i * nu + j ] = t;
               }
             }
           }
-          e[p - 2] = f;
+          e[ p - 2 ] = f;
           iter = iter + 1;
         }
           break;
@@ -13034,11 +13166,11 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
 
           // Make the singular values positive.
 
-          if ( s[k] <= 0.0 ) {
-            s[k] = (s[k] < 0.0 ? -s[k] : 0.0);
+          if ( s[ k ] <= 0.0 ) {
+            s[ k ] = (s[ k ] < 0.0 ? -s[ k ] : 0.0);
             if ( wantv ) {
               for ( i = 0; i <= pp; i++ ) {
-                V[i * n + k] = -V[i * n + k];
+                V[ i * n + k ] = -V[ i * n + k ];
               }
             }
           }
@@ -13046,24 +13178,24 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
           // Order the singular values.
 
           while ( k < pp ) {
-            if ( s[k] >= s[k + 1] ) {
+            if ( s[ k ] >= s[ k + 1 ] ) {
               break;
             }
-            t = s[k];
-            s[k] = s[k + 1];
-            s[k + 1] = t;
+            t = s[ k ];
+            s[ k ] = s[ k + 1 ];
+            s[ k + 1 ] = t;
             if ( wantv && (k < n - 1) ) {
               for ( i = 0; i < n; i++ ) {
-                t = V[i * n + k + 1];
-                V[i * n + k + 1] = V[i * n + k];
-                V[i * n + k] = t;
+                t = V[ i * n + k + 1 ];
+                V[ i * n + k + 1 ] = V[ i * n + k ];
+                V[ i * n + k ] = t;
               }
             }
             if ( wantu && (k < m - 1) ) {
               for ( i = 0; i < m; i++ ) {
-                t = U[i * nu + k + 1];
-                U[i * nu + k + 1] = U[i * nu + k];
-                U[i * nu + k] = t;
+                t = U[ i * nu + k + 1 ];
+                U[ i * nu + k + 1 ] = U[ i * nu + k ];
+                U[ i * nu + k ] = t;
               }
             }
             k++;
@@ -13096,28 +13228,28 @@ define( 'DOT/SingularValueDecomposition',['require','DOT/dot'],function( require
       var result = new dot.Matrix( this.n, this.n );
       for ( var i = 0; i < this.n; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
-          result.entries[result.index( i, j )] = 0.0;
+          result.entries[ result.index( i, j ) ] = 0.0;
         }
-        result.entries[result.index( i, i )] = this.s[i];
+        result.entries[ result.index( i, i ) ] = this.s[ i ];
       }
       return result;
     },
 
     norm2: function() {
-      return this.s[0];
+      return this.s[ 0 ];
     },
 
     cond: function() {
-      return this.s[0] / this.s[Math.min( this.m, this.n ) - 1];
+      return this.s[ 0 ] / this.s[ Math.min( this.m, this.n ) - 1 ];
     },
 
     rank: function() {
       // changed to 23 from 52 (bits of mantissa), since we are using floats here!
       var eps = Math.pow( 2.0, -23.0 );
-      var tol = Math.max( this.m, this.n ) * this.s[0] * eps;
+      var tol = Math.max( this.m, this.n ) * this.s[ 0 ] * eps;
       var r = 0;
       for ( var i = 0; i < this.s.length; i++ ) {
-        if ( this.s[i] > tol ) {
+        if ( this.s[ i ] > tol ) {
           r++;
         }
       }
@@ -13165,32 +13297,32 @@ define( 'DOT/QRDecomposition',['require','DOT/dot'],function( require ) {
       // Compute 2-norm of k-th column without under/overflow.
       var nrm = 0;
       for ( i = k; i < m; i++ ) {
-        nrm = dot.Matrix.hypot( nrm, QR[this.matrix.index( i, k )] );
+        nrm = dot.Matrix.hypot( nrm, QR[ this.matrix.index( i, k ) ] );
       }
 
       if ( nrm !== 0.0 ) {
         // Form k-th Householder vector.
-        if ( QR[this.matrix.index( k, k )] < 0 ) {
+        if ( QR[ this.matrix.index( k, k ) ] < 0 ) {
           nrm = -nrm;
         }
         for ( i = k; i < m; i++ ) {
-          QR[this.matrix.index( i, k )] /= nrm;
+          QR[ this.matrix.index( i, k ) ] /= nrm;
         }
-        QR[this.matrix.index( k, k )] += 1.0;
+        QR[ this.matrix.index( k, k ) ] += 1.0;
 
         // Apply transformation to remaining columns.
         for ( j = k + 1; j < n; j++ ) {
           var s = 0.0;
           for ( i = k; i < m; i++ ) {
-            s += QR[this.matrix.index( i, k )] * QR[this.matrix.index( i, j )];
+            s += QR[ this.matrix.index( i, k ) ] * QR[ this.matrix.index( i, j ) ];
           }
-          s = -s / QR[this.matrix.index( k, k )];
+          s = -s / QR[ this.matrix.index( k, k ) ];
           for ( i = k; i < m; i++ ) {
-            QR[this.matrix.index( i, j )] += s * QR[this.matrix.index( i, k )];
+            QR[ this.matrix.index( i, j ) ] += s * QR[ this.matrix.index( i, k ) ];
           }
         }
       }
-      this.Rdiag[k] = -nrm;
+      this.Rdiag[ k ] = -nrm;
     }
   };
   var QRDecomposition = dot.QRDecomposition;
@@ -13200,7 +13332,7 @@ define( 'DOT/QRDecomposition',['require','DOT/dot'],function( require ) {
 
     isFullRank: function() {
       for ( var j = 0; j < this.n; j++ ) {
-        if ( this.Rdiag[j] === 0 ) {
+        if ( this.Rdiag[ j ] === 0 ) {
           return false;
         }
       }
@@ -13212,10 +13344,10 @@ define( 'DOT/QRDecomposition',['require','DOT/dot'],function( require ) {
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           if ( i >= j ) {
-            result.entries[result.index( i, j )] = this.QR[this.matrix.index( i, j )];
+            result.entries[ result.index( i, j ) ] = this.QR[ this.matrix.index( i, j ) ];
           }
           else {
-            result.entries[result.index( i, j )] = 0.0;
+            result.entries[ result.index( i, j ) ] = 0.0;
           }
         }
       }
@@ -13227,13 +13359,13 @@ define( 'DOT/QRDecomposition',['require','DOT/dot'],function( require ) {
       for ( var i = 0; i < this.n; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           if ( i < j ) {
-            result.entries[result.index( i, j )] = this.QR[this.matrix.index( i, j )];
+            result.entries[ result.index( i, j ) ] = this.QR[ this.matrix.index( i, j ) ];
           }
           else if ( i === j ) {
-            result.entries[result.index( i, j )] = this.Rdiag[i];
+            result.entries[ result.index( i, j ) ] = this.Rdiag[ i ];
           }
           else {
-            result.entries[result.index( i, j )] = 0.0;
+            result.entries[ result.index( i, j ) ] = 0.0;
           }
         }
       }
@@ -13245,18 +13377,18 @@ define( 'DOT/QRDecomposition',['require','DOT/dot'],function( require ) {
       var result = new dot.Matrix( this.m, this.n );
       for ( k = this.n - 1; k >= 0; k-- ) {
         for ( i = 0; i < this.m; i++ ) {
-          result.entries[result.index( i, k )] = 0.0;
+          result.entries[ result.index( i, k ) ] = 0.0;
         }
-        result.entries[result.index( k, k )] = 1.0;
+        result.entries[ result.index( k, k ) ] = 1.0;
         for ( j = k; j < this.n; j++ ) {
-          if ( this.QR[this.matrix.index( k, k )] !== 0 ) {
+          if ( this.QR[ this.matrix.index( k, k ) ] !== 0 ) {
             var s = 0.0;
             for ( i = k; i < this.m; i++ ) {
-              s += this.QR[this.matrix.index( i, k )] * result.entries[result.index( i, j )];
+              s += this.QR[ this.matrix.index( i, k ) ] * result.entries[ result.index( i, j ) ];
             }
-            s = -s / this.QR[this.matrix.index( k, k )];
+            s = -s / this.QR[ this.matrix.index( k, k ) ];
             for ( i = k; i < this.m; i++ ) {
-              result.entries[result.index( i, j )] += s * this.QR[this.matrix.index( i, k )];
+              result.entries[ result.index( i, j ) ] += s * this.QR[ this.matrix.index( i, k ) ];
             }
           }
         }
@@ -13283,11 +13415,11 @@ define( 'DOT/QRDecomposition',['require','DOT/dot'],function( require ) {
         for ( j = 0; j < nx; j++ ) {
           var s = 0.0;
           for ( i = k; i < this.m; i++ ) {
-            s += this.QR[this.matrix.index( i, k )] * X[matrix.index( i, j )];
+            s += this.QR[ this.matrix.index( i, k ) ] * X[ matrix.index( i, j ) ];
           }
-          s = -s / this.QR[this.matrix.index( k, k )];
+          s = -s / this.QR[ this.matrix.index( k, k ) ];
           for ( i = k; i < this.m; i++ ) {
-            X[matrix.index( i, j )] += s * this.QR[this.matrix.index( i, k )];
+            X[ matrix.index( i, j ) ] += s * this.QR[ this.matrix.index( i, k ) ];
           }
         }
       }
@@ -13295,11 +13427,11 @@ define( 'DOT/QRDecomposition',['require','DOT/dot'],function( require ) {
       // Solve R*X = Y;
       for ( k = this.n - 1; k >= 0; k-- ) {
         for ( j = 0; j < nx; j++ ) {
-          X[matrix.index( k, j )] /= this.Rdiag[k];
+          X[ matrix.index( k, j ) ] /= this.Rdiag[ k ];
         }
         for ( i = 0; i < k; i++ ) {
           for ( j = 0; j < nx; j++ ) {
-            X[matrix.index( i, j )] -= X[matrix.index( k, j )] * this.QR[this.matrix.index( i, k )];
+            X[ matrix.index( i, j ) ] -= X[ matrix.index( k, j ) ] * this.QR[ this.matrix.index( i, k ) ];
           }
         }
       }
@@ -13358,12 +13490,12 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
         assert && assert( filler.length === size );
 
         for ( i = 0; i < size; i++ ) {
-          this.entries[i] = filler[i];
+          this.entries[ i ] = filler[ i ];
         }
       }
       else {
         for ( i = 0; i < size; i++ ) {
-          this.entries[i] = filler;
+          this.entries[ i ] = filler;
         }
       }
     }
@@ -13393,7 +13525,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
     copy: function() {
       var result = new Matrix( this.m, this.n );
       for ( var i = 0; i < this.size; i++ ) {
-        result.entries[i] = this.entries[i];
+        result.entries[ i ] = this.entries[ i ];
       }
       return result;
     },
@@ -13420,18 +13552,18 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
     },
 
     get: function( i, j ) {
-      return this.entries[this.index( i, j )];
+      return this.entries[ this.index( i, j ) ];
     },
 
     set: function( i, j, s ) {
-      this.entries[this.index( i, j )] = s;
+      this.entries[ this.index( i, j ) ] = s;
     },
 
     getMatrix: function( i0, i1, j0, j1 ) {
       var result = new Matrix( i1 - i0 + 1, j1 - j0 + 1 );
       for ( var i = i0; i <= i1; i++ ) {
         for ( var j = j0; j <= j1; j++ ) {
-          result.entries[result.index( i - i0, j - j0 )] = this.entries[this.index( i, j )];
+          result.entries[ result.index( i - i0, j - j0 ) ] = this.entries[ this.index( i, j ) ];
         }
       }
       return result;
@@ -13442,7 +13574,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       var result = new Matrix( r.length, j1 - j0 + 1 );
       for ( var i = 0; i < r.length; i++ ) {
         for ( var j = j0; j <= j1; j++ ) {
-          result.entries[result.index( i, j - j0 )] = this.entries[this.index( r[i], j )];
+          result.entries[ result.index( i, j - j0 ) ] = this.entries[ this.index( r[ i ], j ) ];
         }
       }
       return result;
@@ -13455,7 +13587,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       assert && assert( result.n === this.m );
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
-          result.entries[result.index( j, i )] = this.entries[this.index( i, j )];
+          result.entries[ result.index( j, i ) ] = this.entries[ this.index( i, j ) ];
         }
       }
       return result;
@@ -13503,7 +13635,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       var result = new Matrix( this.m, this.n );
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
-          result.entries[result.index( i, j )] = -this.entries[ this.index( i, j ) ];
+          result.entries[ result.index( i, j ) ] = -this.entries[ this.index( i, j ) ];
         }
       }
       return result;
@@ -13515,7 +13647,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           var index = result.index( i, j );
-          result.entries[index] = this.entries[index] + matrix.entries[index];
+          result.entries[ index ] = this.entries[ index ] + matrix.entries[ index ];
         }
       }
       return result;
@@ -13527,7 +13659,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           var index = result.index( i, j );
-          this.entries[index] = this.entries[index] + matrix.entries[index];
+          this.entries[ index ] = this.entries[ index ] + matrix.entries[ index ];
         }
       }
       return this;
@@ -13539,7 +13671,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           var index = this.index( i, j );
-          result.entries[index] = this.entries[index] - matrix.entries[index];
+          result.entries[ index ] = this.entries[ index ] - matrix.entries[ index ];
         }
       }
       return result;
@@ -13550,7 +13682,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           var index = this.index( i, j );
-          this.entries[index] = this.entries[index] - matrix.entries[index];
+          this.entries[ index ] = this.entries[ index ] - matrix.entries[ index ];
         }
       }
       return this;
@@ -13562,7 +13694,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           var index = result.index( i, j );
-          result.entries[index] = this.entries[index] * matrix.entries[index];
+          result.entries[ index ] = this.entries[ index ] * matrix.entries[ index ];
         }
       }
       return result;
@@ -13573,7 +13705,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           var index = this.index( i, j );
-          this.entries[index] = this.entries[index] * matrix.entries[index];
+          this.entries[ index ] = this.entries[ index ] * matrix.entries[ index ];
         }
       }
       return this;
@@ -13585,7 +13717,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           var index = this.index( i, j );
-          result.entries[index] = this.entries[index] / matrix.entries[index];
+          result.entries[ index ] = this.entries[ index ] / matrix.entries[ index ];
         }
       }
       return result;
@@ -13596,7 +13728,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           var index = this.index( i, j );
-          this.entries[index] = this.entries[index] / matrix.entries[index];
+          this.entries[ index ] = this.entries[ index ] / matrix.entries[ index ];
         }
       }
       return this;
@@ -13608,7 +13740,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           var index = this.index( i, j );
-          result.entries[index] = matrix.entries[index] / this.entries[index];
+          result.entries[ index ] = matrix.entries[ index ] / this.entries[ index ];
         }
       }
       return result;
@@ -13619,7 +13751,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           var index = this.index( i, j );
-          this.entries[index] = matrix.entries[index] / this.entries[index];
+          this.entries[ index ] = matrix.entries[ index ] / this.entries[ index ];
         }
       }
       return this;
@@ -13638,14 +13770,14 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
         var matrixcolj = new Float32Array( this.n );
         for ( j = 0; j < matrix.n; j++ ) {
           for ( k = 0; k < this.n; k++ ) {
-            matrixcolj[k] = matrix.entries[ matrix.index( k, j ) ];
+            matrixcolj[ k ] = matrix.entries[ matrix.index( k, j ) ];
           }
           for ( i = 0; i < this.m; i++ ) {
             s = 0;
             for ( k = 0; k < this.n; k++ ) {
-              s += this.entries[this.index( i, k )] * matrixcolj[k];
+              s += this.entries[ this.index( i, k ) ] * matrixcolj[ k ];
             }
-            result.entries[result.index( i, j )] = s;
+            result.entries[ result.index( i, j ) ] = s;
           }
         }
         return result;
@@ -13655,7 +13787,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
         result = new Matrix( this.m, this.n );
         for ( i = 0; i < this.m; i++ ) {
           for ( j = 0; j < this.n; j++ ) {
-            result.entries[result.index( i, j )] = s * this.entries[this.index( i, j )];
+            result.entries[ result.index( i, j ) ] = s * this.entries[ this.index( i, j ) ];
           }
         }
         return result;
@@ -13666,7 +13798,7 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       for ( var i = 0; i < this.m; i++ ) {
         for ( var j = 0; j < this.n; j++ ) {
           var index = this.index( i, j );
-          this.entries[index] = s * this.entries[index];
+          this.entries[ index ] = s * this.entries[ index ];
         }
       }
       return this;
@@ -13750,10 +13882,10 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
       assert && assert( this.n === n );
 
       for ( var i = 0; i < n; i++ ) {
-        var vector = vectors[i];
-        this.entries[i] = vector.x;
-        this.entries[i + n] = vector.y;
-        this.entries[i + 2 * n] = vector.z;
+        var vector = vectors[ i ];
+        this.entries[ i ] = vector.x;
+        this.entries[ i + n ] = vector.y;
+        this.entries[ i + 2 * n ] = vector.z;
       }
 
       return this;
@@ -13766,22 +13898,22 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
     var result = new Matrix( m, n );
     for ( var i = 0; i < m; i++ ) {
       for ( var j = 0; j < n; j++ ) {
-        result.entries[result.index( i, j )] = (i === j ? 1.0 : 0.0);
+        result.entries[ result.index( i, j ) ] = (i === j ? 1.0 : 0.0);
       }
     }
     return result;
   };
 
   Matrix.rowVector2 = function( vector ) {
-    return new Matrix( 1, 2, [vector.x, vector.y] );
+    return new Matrix( 1, 2, [ vector.x, vector.y ] );
   };
 
   Matrix.rowVector3 = function( vector ) {
-    return new Matrix( 1, 3, [vector.x, vector.y, vector.z] );
+    return new Matrix( 1, 3, [ vector.x, vector.y, vector.z ] );
   };
 
   Matrix.rowVector4 = function( vector ) {
-    return new Matrix( 1, 4, [vector.x, vector.y, vector.z, vector.w] );
+    return new Matrix( 1, 4, [ vector.x, vector.y, vector.z, vector.w ] );
   };
 
   Matrix.rowVector = function( vector ) {
@@ -13800,15 +13932,15 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
   };
 
   Matrix.columnVector2 = function( vector ) {
-    return new Matrix( 2, 1, [vector.x, vector.y] );
+    return new Matrix( 2, 1, [ vector.x, vector.y ] );
   };
 
   Matrix.columnVector3 = function( vector ) {
-    return new Matrix( 3, 1, [vector.x, vector.y, vector.z] );
+    return new Matrix( 3, 1, [ vector.x, vector.y, vector.z ] );
   };
 
   Matrix.columnVector4 = function( vector ) {
-    return new Matrix( 4, 1, [vector.x, vector.y, vector.z, vector.w] );
+    return new Matrix( 4, 1, [ vector.x, vector.y, vector.z, vector.w ] );
   };
 
   Matrix.columnVector = function( vector ) {
@@ -13836,9 +13968,9 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
     var data = new Float32Array( dimension * n );
 
     for ( var i = 0; i < n; i++ ) {
-      var vector = vectors[i];
-      data[i] = vector.x;
-      data[i + n] = vector.y;
+      var vector = vectors[ i ];
+      data[ i ] = vector.x;
+      data[ i + n ] = vector.y;
     }
 
     return new Matrix( dimension, n, data, true );
@@ -13850,10 +13982,10 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
     var data = new Float32Array( dimension * n );
 
     for ( var i = 0; i < n; i++ ) {
-      var vector = vectors[i];
-      data[i] = vector.x;
-      data[i + n] = vector.y;
-      data[i + 2 * n] = vector.z;
+      var vector = vectors[ i ];
+      data[ i ] = vector.x;
+      data[ i + n ] = vector.y;
+      data[ i + 2 * n ] = vector.z;
     }
 
     return new Matrix( dimension, n, data, true );
@@ -13865,11 +13997,11 @@ define( 'DOT/Matrix',['require','DOT/dot','PHET_CORE/isArray','DOT/SingularValue
     var data = new Float32Array( dimension * n );
 
     for ( var i = 0; i < n; i++ ) {
-      var vector = vectors[i];
-      data[i] = vector.x;
-      data[i + n] = vector.y;
-      data[i + 2 * n] = vector.z;
-      data[i + 3 * n] = vector.w;
+      var vector = vectors[ i ];
+      data[ i ] = vector.x;
+      data[ i + n ] = vector.y;
+      data[ i + 2 * n ] = vector.z;
+      data[ i + 3 * n ] = vector.w;
     }
 
     return new Matrix( dimension, n, data, true );
@@ -13923,10 +14055,10 @@ define( 'AXON/Multilink',['require','AXON/axon','PHET_CORE/inherit'],function( r
 
     //When a dependency value changes, update the list of dependencies and call back to the callback
     for ( var i = 0; i < dependencies.length; i++ ) {
-      var dependency = dependencies[i];
+      var dependency = dependencies[ i ];
       (function( dependency, i ) {
         var listener = function( newValue ) {
-          multilink.dependencyValues[i] = newValue;
+          multilink.dependencyValues[ i ] = newValue;
           callback.apply( null, multilink.dependencyValues );
         };
         multilink.dependencyListeners.push( listener );
@@ -13947,9 +14079,12 @@ define( 'AXON/Multilink',['require','AXON/axon','PHET_CORE/inherit'],function( r
        */
       detach: function() {
         for ( var i = 0; i < this.dependencies.length; i++ ) {
-          var dependency = this.dependencies[i];
-          dependency.unlink( this.dependencyListeners[i] );
+          var dependency = this.dependencies[ i ];
+          dependency.unlink( this.dependencyListeners[ i ] );
         }
+        this.dependencies = null;
+        this.dependencyListeners = null;
+        this.dependencyValues = null;
       }
     }
   );
@@ -13978,12 +14113,20 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
    * @param {*} value
    * @constructor
    */
-  axon.Property = function Property( value ) {
+  axon.Property = function Property( value, options ) {
 
     //Store the internal value and the initial value
     this.storeValue( value );        // typically sets this._value
     this.storeInitialValue( value ); // typically sets this._initialValue
     this._observers = [];
+
+    //Model component ID for data studies, regression testing, etc
+    this.id = options ? options.id : null;
+
+    //By default, events can be logged for data analysis studies, but setSendPhetEvents can be set to false for events that should not be recorded (such as the passage of time).
+    this.sendPhetEvents = true;
+    this.lastMessageTime = 0;//Start at the epoch, so the first message will be sent.
+    this.delay = 0; //Seconds between messages (if throttled).  Zero means no throttling
   };
 
   axon.Property.prototype = {
@@ -14035,11 +14178,36 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
     },
 
     _notifyObservers: function( oldValue ) {
+
+      // Note the current value, since it will be sent to possibly multiple listeners.
       var value = this.get();
+
+      // If enabled, send a message to phet events.  Avoid as much work as possible if phet.arch is inactive.
+      var time = null;
+      var sendMessage = null;
+      if ( phet.arch.active ) {
+        time = Date.now();
+
+        //Only send a message if sendPhetEvents is on and the throttling permits it (i.e. it has been long enough since the last message).
+        sendMessage = this.sendPhetEvents && (this.delay === 0 || (time - this.lastMessageTime > this.delay * 1000));
+
+        // Deliver the change event message to phet.arch
+        if ( sendMessage ) {
+          assert && assert( this.id !== null );
+          phet.arch.start( 'model', this.id, 'Property', 'changed', { value: value } );
+        }
+      }
+
       // TODO: JO: avoid slice() by storing observers array correctly
       var observersCopy = this._observers.slice(); // make a copy, in case notification results in removeObserver
       for ( var i = 0; i < observersCopy.length; i++ ) {
-        observersCopy[i]( value, oldValue );
+        observersCopy[ i ]( value, oldValue );
+      }
+
+      // Send the end message to phet.arch
+      if ( sendMessage ) {
+        phet.arch.end();
+        this.lastMessageTime = time;
       }
     },
 
@@ -14051,7 +14219,7 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
     notifyObserversStatic: function() {
       var value = this.get();
       for ( var i = 0; i < this._observers.length; i++ ) {
-        this._observers[i]( value );
+        this._observers[ i ]( value );
       }
     },
 
@@ -14149,7 +14317,7 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
      * @param attributeName
      */
     linkAttribute: function( object, attributeName ) {
-      var handle = function( value ) {object[attributeName] = value;};
+      var handle = function( value ) {object[ attributeName ] = value;};
       this.link( handle );
       return handle;
     },
@@ -14160,7 +14328,7 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
      * @returns {axon.DerivedProperty}
      */
     valueEquals: function( value ) {
-      return new axon.DerivedProperty( [this], function( propertyValue ) { return propertyValue === value; } );
+      return new axon.DerivedProperty( [ this ], function( propertyValue ) { return propertyValue === value; } );
     },
 
     /**
@@ -14169,7 +14337,7 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
      * @returns {DerivedProperty.<boolean>}
      */
     and: function( otherProperty ) {
-      return new axon.DerivedProperty( [this, otherProperty], function( thisValue, otherValue ) { return thisValue && otherValue; } );
+      return new axon.DerivedProperty( [ this, otherProperty ], function( thisValue, otherValue ) { return thisValue && otherValue; } );
     },
 
     /**
@@ -14178,7 +14346,7 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
      * @returns {DerivedProperty.<boolean>}
      */
     or: function( otherProperty ) {
-      return new axon.DerivedProperty( [this, otherProperty], function( thisValue, otherValue ) { return thisValue || otherValue; } );
+      return new axon.DerivedProperty( [ this, otherProperty ], function( thisValue, otherValue ) { return thisValue || otherValue; } );
     },
 
     /**
@@ -14188,7 +14356,37 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
      * @returns {axon.DerivedProperty}
      */
     times: function( scalar ) {
-      return new axon.DerivedProperty( [this], function( thisValue ) { return thisValue * scalar; } );
+      return new axon.DerivedProperty( [ this ], function( thisValue ) { return thisValue * scalar; } );
+    },
+
+    /**
+     * Multiply this property's value by a constant scalar number, and return the derived property.
+     *
+     * @param number
+     * @returns {axon.DerivedProperty}
+     */
+    plus: function( number ) {
+      return new axon.DerivedProperty( [ this ], function( thisValue ) { return thisValue + number; } );
+    },
+
+    /**
+     * Return a derived property that is true if and only if this value is less than the specified number.
+     *
+     * @param number
+     * @returns {axon.DerivedProperty}
+     */
+    lessThanNumber: function( number ) {
+      return new axon.DerivedProperty( [ this ], function( thisValue ) { return thisValue < number; } );
+    },
+
+    /**
+     * Return a derived property that is true if and only if this value is greater than the specified number.
+     *
+     * @param number
+     * @returns {axon.DerivedProperty}
+     */
+    greaterThanNumber: function( number ) {
+      return new axon.DerivedProperty( [ this ], function( thisValue ) { return thisValue > number; } );
     },
 
     /**
@@ -14196,7 +14394,7 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
      * @returns {DerivedProperty}
      */
     derivedNot: function() {
-      return new axon.DerivedProperty( [this], function( thisValue ) { return !thisValue; } );
+      return new axon.DerivedProperty( [ this ], function( thisValue ) { return !thisValue; } );
     },
 
     /**
@@ -14235,13 +14433,13 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
     //Returns a new Property that maps its values using the specified lookup table.
     //If the parent property value does not appear as a key in the lookup table, the returned property value is undefined
     mapValues: function( values ) {
-      return new axon.DerivedProperty( [this], function( thisValue ) { return values[thisValue];} );
+      return new axon.DerivedProperty( [ this ], function( thisValue ) { return values[ thisValue ];} );
     },
 
     //Returns a new Property that maps its values using the specified function
     //See https://github.com/phetsims/axon/issues/25
     map: function( f ) {
-      return new axon.DerivedProperty( [this], function( thisValue ) {return f( thisValue );} );
+      return new axon.DerivedProperty( [ this ], function( thisValue ) {return f( thisValue );} );
     },
 
     /**
@@ -14291,6 +14489,40 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
     return new axon.Multilink( properties, observer, true );
   };
 
+  axon.Property.prototype.setSendPhetEvents = function( sendPhetEvents ) {
+    this.sendPhetEvents = sendPhetEvents;
+    return this;
+  };
+
+  axon.Property.prototype.throttle = function( delay ) {
+    this.delay = delay;
+    return this;
+  };
+
+  axon.Property.initArch = function() {
+    //TODO: Is there a better place for this declaration?
+    window.phet = window.phet || {};
+    window.phet.arch = window.phet.arch || {
+
+      //Flag that indicates the sim is not instrumented for a data-driven study.  Provides short-circuiting for lines like: phet.arch.active && (...)
+      active: false,
+
+      //Just return the callback directly.
+      //'user', options.componentID, 'CheckBox', 'toggled',
+      wrap: function( messageType, componentID, componentType, action, callback, options ) {
+        return callback;
+      },
+
+      trigger: function() {},
+
+      start: function() {},
+
+      end: function() {}
+    };
+  };
+
+  axon.Property.initArch();
+
   return axon.Property;
 } );
 
@@ -14302,14 +14534,14 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/ObservableBounds2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/extend','PHET_CORE/Poolable','AXON/Property','DOT/Bounds2'],function( require ) {
+define( 'DOT/ObservableBounds2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/extend','PHET_CORE/PoolableMixin','AXON/Property','DOT/Bounds2'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
 
   var inherit = require( 'PHET_CORE/inherit' );
   var extend = require( 'PHET_CORE/extend' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
+  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
   var Property = require( 'AXON/Property' );
   require( 'DOT/Bounds2' );
 
@@ -14328,8 +14560,8 @@ define( 'DOT/ObservableBounds2',['require','DOT/dot','PHET_CORE/inherit','PHET_C
     },
 
     /*---------------------------------------------------------------------------*
-    * Overriding the core mutable methods (any mutable operation should call one of these)
-    *----------------------------------------------------------------------------*/
+     * Overriding the core mutable methods (any mutable operation should call one of these)
+     *----------------------------------------------------------------------------*/
     setMinMax: function( minX, minY, maxX, maxY ) {
       if ( this.minX !== minX || this.minY !== minY || this.maxX !== maxX || this.maxY !== maxY ) {
         this._oldValue.minX = this.minX;
@@ -14406,7 +14638,7 @@ define( 'DOT/ObservableBounds2',['require','DOT/dot','PHET_CORE/inherit','PHET_C
 
   // experimental object pooling
   /* jshint -W064 */
-  Poolable( ObservableBounds2, {
+  PoolableMixin( ObservableBounds2, {
     defaultFactory: function() { return new ObservableBounds2(); },
     constructorDuplicateFactory: function( pool ) {
       return function( minX, minY, maxX, maxY ) {
@@ -14431,14 +14663,14 @@ define( 'DOT/ObservableBounds2',['require','DOT/dot','PHET_CORE/inherit','PHET_C
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/ObservableMatrix3',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/extend','PHET_CORE/Poolable','AXON/Property','DOT/Matrix3'],function( require ) {
+define( 'DOT/ObservableMatrix3',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/extend','PHET_CORE/PoolableMixin','AXON/Property','DOT/Matrix3'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
 
   var inherit = require( 'PHET_CORE/inherit' );
   var extend = require( 'PHET_CORE/extend' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
+  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
   var Property = require( 'AXON/Property' );
   require( 'DOT/Matrix3' );
 
@@ -14458,46 +14690,46 @@ define( 'DOT/ObservableMatrix3',['require','DOT/dot','PHET_CORE/inherit','PHET_C
     },
 
     /*---------------------------------------------------------------------------*
-    * Overriding the core mutable methods (any mutable operation should call one of these)
-    *----------------------------------------------------------------------------*/
+     * Overriding the core mutable methods (any mutable operation should call one of these)
+     *----------------------------------------------------------------------------*/
     // every mutable method goes through rowMajor
     rowMajor: function( v00, v01, v02, v10, v11, v12, v20, v21, v22, type ) {
       var skip = this._skipChecks;
       var modified = skip ||
-                     v00 !== this.entries[0] ||
-                     v10 !== this.entries[1] ||
-                     v20 !== this.entries[2] ||
-                     v01 !== this.entries[3] ||
-                     v11 !== this.entries[4] ||
-                     v21 !== this.entries[5] ||
-                     v02 !== this.entries[6] ||
-                     v12 !== this.entries[7] ||
-                     v22 !== this.entries[8] ||
+                     v00 !== this.entries[ 0 ] ||
+                     v10 !== this.entries[ 1 ] ||
+                     v20 !== this.entries[ 2 ] ||
+                     v01 !== this.entries[ 3 ] ||
+                     v11 !== this.entries[ 4 ] ||
+                     v21 !== this.entries[ 5 ] ||
+                     v02 !== this.entries[ 6 ] ||
+                     v12 !== this.entries[ 7 ] ||
+                     v22 !== this.entries[ 8 ] ||
                      type !== this.type;
       if ( modified ) {
 
         if ( !skip && this._oldValue ) {
-          this._oldValue.entries[0] = this.entries[0];
-          this._oldValue.entries[1] = this.entries[1];
-          this._oldValue.entries[2] = this.entries[2];
-          this._oldValue.entries[3] = this.entries[3];
-          this._oldValue.entries[4] = this.entries[4];
-          this._oldValue.entries[5] = this.entries[5];
-          this._oldValue.entries[6] = this.entries[6];
-          this._oldValue.entries[7] = this.entries[7];
-          this._oldValue.entries[8] = this.entries[8];
+          this._oldValue.entries[ 0 ] = this.entries[ 0 ];
+          this._oldValue.entries[ 1 ] = this.entries[ 1 ];
+          this._oldValue.entries[ 2 ] = this.entries[ 2 ];
+          this._oldValue.entries[ 3 ] = this.entries[ 3 ];
+          this._oldValue.entries[ 4 ] = this.entries[ 4 ];
+          this._oldValue.entries[ 5 ] = this.entries[ 5 ];
+          this._oldValue.entries[ 6 ] = this.entries[ 6 ];
+          this._oldValue.entries[ 7 ] = this.entries[ 7 ];
+          this._oldValue.entries[ 8 ] = this.entries[ 8 ];
           this._oldValue.type = this.type;
         }
 
-        this.entries[0] = v00;
-        this.entries[1] = v10;
-        this.entries[2] = v20;
-        this.entries[3] = v01;
-        this.entries[4] = v11;
-        this.entries[5] = v21;
-        this.entries[6] = v02;
-        this.entries[7] = v12;
-        this.entries[8] = v22;
+        this.entries[ 0 ] = v00;
+        this.entries[ 1 ] = v10;
+        this.entries[ 2 ] = v20;
+        this.entries[ 3 ] = v01;
+        this.entries[ 4 ] = v11;
+        this.entries[ 5 ] = v21;
+        this.entries[ 6 ] = v02;
+        this.entries[ 7 ] = v12;
+        this.entries[ 8 ] = v22;
 
         // TODO: consider performance of the affine check here
         this.type = type === undefined ? ( ( v20 === 0 && v21 === 0 && v22 === 1 ) ? dot.Matrix3.Types.AFFINE : dot.Matrix3.Types.OTHER ) : type;
@@ -14550,7 +14782,7 @@ define( 'DOT/ObservableMatrix3',['require','DOT/dot','PHET_CORE/inherit','PHET_C
 
   // experimental object pooling
   /* jshint -W064 */
-  Poolable( ObservableMatrix3, {
+  PoolableMixin( ObservableMatrix3, {
     defaultFactory: function() { return new ObservableMatrix3(); },
     constructorDuplicateFactory: function( pool ) {
       return function( v00, v01, v02, v10, v11, v12, v20, v21, v22, type ) {
@@ -14575,14 +14807,14 @@ define( 'DOT/ObservableMatrix3',['require','DOT/dot','PHET_CORE/inherit','PHET_C
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/ObservableVector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/extend','PHET_CORE/Poolable','AXON/Property','DOT/Vector2'],function( require ) {
+define( 'DOT/ObservableVector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/extend','PHET_CORE/PoolableMixin','AXON/Property','DOT/Vector2'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
 
   var inherit = require( 'PHET_CORE/inherit' );
   var extend = require( 'PHET_CORE/extend' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
+  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
   var Property = require( 'AXON/Property' );
   require( 'DOT/Vector2' );
 
@@ -14601,8 +14833,8 @@ define( 'DOT/ObservableVector2',['require','DOT/dot','PHET_CORE/inherit','PHET_C
     },
 
     /*---------------------------------------------------------------------------*
-    * Overriding the core mutable methods (any mutable operation should call one of these)
-    *----------------------------------------------------------------------------*/
+     * Overriding the core mutable methods (any mutable operation should call one of these)
+     *----------------------------------------------------------------------------*/
     setXY: function( x, y ) {
       if ( this.x !== x || this.y !== y ) {
         this._oldValue.x = this.x;
@@ -14657,7 +14889,7 @@ define( 'DOT/ObservableVector2',['require','DOT/dot','PHET_CORE/inherit','PHET_C
 
   // experimental object pooling
   /* jshint -W064 */
-  Poolable( ObservableVector2, {
+  PoolableMixin( ObservableVector2, {
     defaultFactory: function() { return new ObservableVector2(); },
     constructorDuplicateFactory: function( pool ) {
       return function( x, y ) {
@@ -14700,7 +14932,7 @@ define( 'DOT/Permutation',['require','DOT/dot','PHET_CORE/isArray','DOT/Util'],f
     assert && assert( size >= 0 );
     var indices = new Array( size );
     for ( var i = 0; i < size; i++ ) {
-      indices[i] = i;
+      indices[ i ] = i;
     }
     return new Permutation( indices );
   };
@@ -14727,7 +14959,7 @@ define( 'DOT/Permutation',['require','DOT/dot','PHET_CORE/isArray','DOT/Util'],f
     }
     else {
       for ( var i = 0; i < array.length; i++ ) {
-        var element = array[i];
+        var element = array[ i ];
 
         // remove the element from the array
         var nextArray = array.slice( 0 );
@@ -14762,7 +14994,7 @@ define( 'DOT/Permutation',['require','DOT/dot','PHET_CORE/isArray','DOT/Util'],f
         // permute it as an array
         var result = new Array( arrayOrInt.length );
         for ( var i = 0; i < arrayOrInt.length; i++ ) {
-          result[i] = arrayOrInt[ this.indices[i] ];
+          result[ i ] = arrayOrInt[ this.indices[ i ] ];
         }
         return result;
       }
@@ -14776,7 +15008,7 @@ define( 'DOT/Permutation',['require','DOT/dot','PHET_CORE/isArray','DOT/Util'],f
     inverted: function() {
       var newPermutation = new Array( this.size() );
       for ( var i = 0; i < this.size(); i++ ) {
-        newPermutation[this.indices[i]] = i;
+        newPermutation[ this.indices[ i ] ] = i;
       }
       return new Permutation( newPermutation );
     },
@@ -14789,7 +15021,7 @@ define( 'DOT/Permutation',['require','DOT/dot','PHET_CORE/isArray','DOT/Util'],f
         var newPermutation = oldIndices.slice( 0 );
 
         for ( var i = 0; i < indices.length; i++ ) {
-          newPermutation[indices[i]] = oldIndices[integers[i]];
+          newPermutation[ indices[ i ] ] = oldIndices[ integers[ i ] ];
         }
         result.push( new Permutation( newPermutation ) );
       } );
@@ -14891,12 +15123,12 @@ define( 'DOT/Plane3',['require','DOT/dot','DOT/Vector3'],function( require ) {
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/Quaternion',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector3','DOT/Matrix3','DOT/Util'],function( require ) {
+define( 'DOT/Quaternion',['require','DOT/dot','PHET_CORE/PoolableMixin','DOT/Vector3','DOT/Matrix3','DOT/Util'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
 
-  var Poolable = require( 'PHET_CORE/Poolable' );
+  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
   require( 'DOT/Vector3' );
   require( 'DOT/Matrix3' );
   require( 'DOT/Util' );
@@ -14945,10 +15177,10 @@ define( 'DOT/Quaternion',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector3'
 
       // JME-style
       return new Quaternion(
-          this.x * quat.w - this.z * quat.y + this.y * quat.z + this.w * quat.x,
-          -this.x * quat.z + this.y * quat.w + this.z * quat.x + this.w * quat.y,
-          this.x * quat.y - this.y * quat.x + this.z * quat.w + this.w * quat.z,
-          -this.x * quat.x - this.y * quat.y - this.z * quat.z + this.w * quat.w
+        this.x * quat.w - this.z * quat.y + this.y * quat.z + this.w * quat.x,
+        -this.x * quat.z + this.y * quat.w + this.z * quat.x + this.w * quat.y,
+        this.x * quat.y - this.y * quat.x + this.z * quat.w + this.w * quat.z,
+        -this.x * quat.x - this.y * quat.y - this.z * quat.z + this.w * quat.w
       );
 
       /*
@@ -14970,9 +15202,9 @@ define( 'DOT/Quaternion',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector3'
 
       // TODO: optimization?
       return new dot.Vector3(
-          this.w * this.w * v.x + 2 * this.y * this.w * v.z - 2 * this.z * this.w * v.y + this.x * this.x * v.x + 2 * this.y * this.x * v.y + 2 * this.z * this.x * v.z - this.z * this.z * v.x - this.y * this.y * v.x,
-          2 * this.x * this.y * v.x + this.y * this.y * v.y + 2 * this.z * this.y * v.z + 2 * this.w * this.z * v.x - this.z * this.z * v.y + this.w * this.w * v.y - 2 * this.x * this.w * v.z - this.x * this.x * v.y,
-          2 * this.x * this.z * v.x + 2 * this.y * this.z * v.y + this.z * this.z * v.z - 2 * this.w * this.y * v.x - this.y * this.y * v.z + 2 * this.w * this.x * v.y - this.x * this.x * v.z + this.w * this.w * v.z
+        this.w * this.w * v.x + 2 * this.y * this.w * v.z - 2 * this.z * this.w * v.y + this.x * this.x * v.x + 2 * this.y * this.x * v.y + 2 * this.z * this.x * v.z - this.z * this.z * v.x - this.y * this.y * v.x,
+        2 * this.x * this.y * v.x + this.y * this.y * v.y + 2 * this.z * this.y * v.z + 2 * this.w * this.z * v.x - this.z * this.z * v.y + this.w * this.w * v.y - 2 * this.x * this.w * v.z - this.x * this.x * v.y,
+        2 * this.x * this.z * v.x + 2 * this.y * this.z * v.y + this.z * this.z * v.z - 2 * this.w * this.y * v.x - this.y * this.y * v.z + 2 * this.w * this.x * v.y - this.x * this.x * v.z + this.w * this.w * v.z
       );
     },
 
@@ -15011,15 +15243,15 @@ define( 'DOT/Quaternion',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector3'
       var zw = this.w * this.z * flip;
 
       return dot.Matrix3.dirtyFromPool().columnMajor(
-          1 - ( yy + zz ),
+        1 - ( yy + zz ),
         ( xy + zw ),
         ( xz - yw ),
         ( xy - zw ),
-          1 - ( xx + zz ),
+        1 - ( xx + zz ),
         ( yz + xw ),
         ( xz + yw ),
         ( yz - xw ),
-          1 - ( xx + yy )
+        1 - ( xx + yy )
       );
     }
   };
@@ -15038,10 +15270,10 @@ define( 'DOT/Quaternion',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector3'
     var d = sinRoll * cosPitch;
 
     return new Quaternion(
-        a * sinYaw + b * cosYaw,
-        d * cosYaw + c * sinYaw,
-        c * cosYaw - d * sinYaw,
-        a * cosYaw - b * sinYaw
+      a * sinYaw + b * cosYaw,
+      d * cosYaw + c * sinYaw,
+      c * cosYaw - d * sinYaw,
+      a * cosYaw - b * sinYaw
     );
   };
 
@@ -15064,37 +15296,37 @@ define( 'DOT/Quaternion',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector3'
     if ( trace >= 0 ) {
       sqt = Math.sqrt( trace + 1 );
       return new Quaternion(
-          ( v21 - v12 ) * 0.5 / sqt,
-          ( v02 - v20 ) * 0.5 / sqt,
-          ( v10 - v01 ) * 0.5 / sqt,
-          0.5 * sqt
+        ( v21 - v12 ) * 0.5 / sqt,
+        ( v02 - v20 ) * 0.5 / sqt,
+        ( v10 - v01 ) * 0.5 / sqt,
+        0.5 * sqt
       );
     }
     else if ( ( v00 > v11 ) && ( v00 > v22 ) ) {
       sqt = Math.sqrt( 1 + v00 - v11 - v22 );
       return new Quaternion(
-          sqt * 0.5,
-          ( v10 + v01 ) * 0.5 / sqt,
-          ( v02 + v20 ) * 0.5 / sqt,
-          ( v21 - v12 ) * 0.5 / sqt
+        sqt * 0.5,
+        ( v10 + v01 ) * 0.5 / sqt,
+        ( v02 + v20 ) * 0.5 / sqt,
+        ( v21 - v12 ) * 0.5 / sqt
       );
     }
     else if ( v11 > v22 ) {
       sqt = Math.sqrt( 1 + v11 - v00 - v22 );
       return new Quaternion(
-          ( v10 + v01 ) * 0.5 / sqt,
-          sqt * 0.5,
-          ( v21 + v12 ) * 0.5 / sqt,
-          ( v02 - v20 ) * 0.5 / sqt
+        ( v10 + v01 ) * 0.5 / sqt,
+        sqt * 0.5,
+        ( v21 + v12 ) * 0.5 / sqt,
+        ( v02 - v20 ) * 0.5 / sqt
       );
     }
     else {
       sqt = Math.sqrt( 1 + v22 - v00 - v11 );
       return new Quaternion(
-          ( v02 + v20 ) * 0.5 / sqt,
-          ( v21 + v12 ) * 0.5 / sqt,
-          sqt * 0.5,
-          ( v10 - v01 ) * 0.5 / sqt
+        ( v02 + v20 ) * 0.5 / sqt,
+        ( v21 + v12 ) * 0.5 / sqt,
+        sqt * 0.5,
+        ( v10 - v01 ) * 0.5 / sqt
       );
     }
   };
@@ -15139,16 +15371,16 @@ define( 'DOT/Quaternion',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector3'
     }
 
     return new Quaternion(
-        ratioA * a.x + ratioB * b.x,
-        ratioA * a.y + ratioB * b.y,
-        ratioA * a.z + ratioB * b.z,
-        ratioA * a.w + ratioB * b.w
+      ratioA * a.x + ratioB * b.x,
+      ratioA * a.y + ratioB * b.y,
+      ratioA * a.z + ratioB * b.z,
+      ratioA * a.w + ratioB * b.w
     );
   };
 
   // experimental object pooling
   /* jshint -W064 */
-  Poolable( Quaternion, {
+  PoolableMixin( Quaternion, {
     defaultFactory: function() { return new Quaternion(); },
     constructorDuplicateFactory: function( pool ) {
       return function( x, y, z, w ) {
@@ -15343,8 +15575,8 @@ define( 'DOT/Sphere3',['require','DOT/dot'],function( require ) {
       var centerToRayDistSq = centerToRay.magnitudeSquared();
       var det = 4 * tmp * tmp - 4 * ( centerToRayDistSq - this.radius * this.radius );
       if ( det < epsilon ) {
-          // ray misses sphere entirely
-          return [];
+        // ray misses sphere entirely
+        return [];
       }
 
       var base = raydir.dot( this.center ) - raydir.dot( pos );
@@ -15357,8 +15589,8 @@ define( 'DOT/Sphere3',['require','DOT/dot'],function( require ) {
       var tb = base + sqt;
 
       if ( tb < epsilon ) {
-          // sphere is behind ray, so don't return an intersection
-          return [];
+        // sphere is behind ray, so don't return an intersection
+        return [];
       }
 
       var hitPositionB = ray.pointAtDistance( tb );
@@ -15380,16 +15612,16 @@ define( 'DOT/Sphere3',['require','DOT/dot'],function( require ) {
         fromOutside: true
       };
       if ( ta < epsilon ) {
-          // we are inside the sphere
-          // in => out
+        // we are inside the sphere
+        // in => out
 
-          return [resultB, resultA];
+        return [ resultB, resultA ];
       }
       else {
-          // two possible hits
+        // two possible hits
 
-          // close hit, we have out => in
-          return [resultA, resultB];
+        // close hit, we have out => in
+        return [ resultA, resultB ];
       }
     }
   };
@@ -15703,17 +15935,17 @@ define( 'PHET_CORE/detectPrefix',['require','PHET_CORE/core'],function( require 
 
   // @returns the best String str where obj[str] !== undefined, or returns undefined if that is not available
   core.detectPrefix = function detectPrefix( obj, name ) {
-    if ( obj[name] !== undefined ) { return name; }
+    if ( obj[ name ] !== undefined ) { return name; }
 
     // prepare for camelCase
     name = name.charAt( 0 ).toUpperCase() + name.slice( 1 );
 
     // Chrome planning to not introduce prefixes in the future, hopefully we will be safe
-    if ( obj['moz' + name] !== undefined ) { return 'moz' + name; }
-    if ( obj['Moz' + name] !== undefined ) { return 'Moz' + name; } // some prefixes seem to have all-caps?
-    if ( obj['webkit' + name] !== undefined ) { return 'webkit' + name; }
-    if ( obj['ms' + name] !== undefined ) { return 'ms' + name; }
-    if ( obj['o' + name] !== undefined ) { return 'o' + name; }
+    if ( obj[ 'moz' + name ] !== undefined ) { return 'moz' + name; }
+    if ( obj[ 'Moz' + name ] !== undefined ) { return 'Moz' + name; } // some prefixes seem to have all-caps?
+    if ( obj[ 'webkit' + name ] !== undefined ) { return 'webkit' + name; }
+    if ( obj[ 'ms' + name ] !== undefined ) { return 'ms' + name; }
+    if ( obj[ 'o' + name ] !== undefined ) { return 'o' + name; }
     return undefined;
   };
 
@@ -15737,14 +15969,14 @@ define( 'PHET_CORE/detectPrefixEvent',['require','PHET_CORE/core'],function( req
 
   // @returns the best String str where obj['on'+str] !== undefined, or returns undefined if that is not available
   core.detectPrefixEvent = function detectPrefixEvent( obj, name, isEvent ) {
-    if ( obj['on' + name] !== undefined ) { return name; }
+    if ( obj[ 'on' + name ] !== undefined ) { return name; }
 
     // Chrome planning to not introduce prefixes in the future, hopefully we will be safe
-    if ( obj['on' + 'moz' + name] !== undefined ) { return 'moz' + name; }
-    if ( obj['on' + 'Moz' + name] !== undefined ) { return 'Moz' + name; } // some prefixes seem to have all-caps?
-    if ( obj['on' + 'webkit' + name] !== undefined ) { return 'webkit' + name; }
-    if ( obj['on' + 'ms' + name] !== undefined ) { return 'ms' + name; }
-    if ( obj['on' + 'o' + name] !== undefined ) { return 'o' + name; }
+    if ( obj[ 'on' + 'moz' + name ] !== undefined ) { return 'moz' + name; }
+    if ( obj[ 'on' + 'Moz' + name ] !== undefined ) { return 'Moz' + name; } // some prefixes seem to have all-caps?
+    if ( obj[ 'on' + 'webkit' + name ] !== undefined ) { return 'webkit' + name; }
+    if ( obj[ 'on' + 'ms' + name ] !== undefined ) { return 'ms' + name; }
+    if ( obj[ 'on' + 'o' + name ] !== undefined ) { return 'o' + name; }
     return undefined;
   };
 
@@ -16003,7 +16235,7 @@ define( 'PHET_CORE/loadScript',['require','PHET_CORE/core'],function( require ) 
     // make sure things aren't cached, just in case
     script.src = src + ( cacheBuster ? '?random=' + Math.random().toFixed( 10 ) : '' );
 
-    var other = document.getElementsByTagName( 'script' )[0];
+    var other = document.getElementsByTagName( 'script' )[ 0 ];
     other.parentNode.insertBefore( script, other );
   };
 
@@ -16030,9 +16262,9 @@ define( 'PHET_CORE/pairs',['require','PHET_CORE/core'],function( require ) {
     var length = array.length;
     if ( length > 1 ) {
       for ( var i = 0; i < length - 1; i++ ) {
-        var first = array[i];
+        var first = array[ i ];
         for ( var j = i + 1; j < length; j++ ) {
-          result.push( [ first, array[j] ] );
+          result.push( [ first, array[ j ] ] );
         }
       }
     }
@@ -16065,14 +16297,15 @@ define( 'PHET_CORE/partition',['require','PHET_CORE/core'],function( require ) {
     var unsatisfied = [];
     var length = array.length;
     for ( var i = 0; i < length; i++ ) {
-      if ( predicate( array[i] ) ) {
-        satisfied.push( array[i] );
-      } else {
-        unsatisfied.push( array[i] );
+      if ( predicate( array[ i ] ) ) {
+        satisfied.push( array[ i ] );
+      }
+      else {
+        unsatisfied.push( array[ i ] );
       }
     }
 
-    return [satisfied, unsatisfied];
+    return [ satisfied, unsatisfied ];
   };
   return core.partition;
 } );
@@ -16169,7 +16402,7 @@ define( 'PHET_CORE/profiler',['require','PHET_CORE/core'],function( require ) {
     displayCount: 1000,
     start: function( name ) {
       var time = Date.now();
-      stack.push( {name: name, time: time} );
+      stack.push( { name: name, time: time } );
     },
     addListener: function( listener ) {
       listeners.push( listener );
@@ -16178,11 +16411,11 @@ define( 'PHET_CORE/profiler',['require','PHET_CORE/core'],function( require ) {
       var end = Date.now();
       var top = stack.pop();
       var elapsed = end - top.time;
-      if ( !results[top.name] ) {
-        results[top.name] = [];
+      if ( !results[ top.name ] ) {
+        results[ top.name ] = [];
       }
       //TODO: this may be a memory problem, consider coalescing (averaging or summing) values here
-      results[top.name].push( elapsed );
+      results[ top.name ].push( elapsed );
       count++;
       if ( count % this.displayCount === 0 ) {
         var summary = JSON.stringify( this.toJSON() );
@@ -16191,7 +16424,7 @@ define( 'PHET_CORE/profiler',['require','PHET_CORE/core'],function( require ) {
 
         //Also notify listeners that a new result was obtained
         for ( var i = 0; i < listeners.length; i++ ) {
-          listeners[i]( summary );
+          listeners[ i ]( summary );
         }
         results = {};
       }
@@ -16201,12 +16434,12 @@ define( 'PHET_CORE/profiler',['require','PHET_CORE/core'],function( require ) {
       var sum;
       for ( var property in results ) {
         sum = 0;
-        for ( var i = 0; i < results[property].length; i++ ) {
-          var time = results[property][i];
+        for ( var i = 0; i < results[ property ].length; i++ ) {
+          var time = results[ property ][ i ];
           sum += time;
         }
-        var average = sum / results[property].length;
-        summary[property] = {average: average, count: results[property].length};
+        var average = sum / results[ property ].length;
+        summary[ property ] = { average: average, count: results[ property ].length };
       }
       return summary;
     },
@@ -16262,7 +16495,7 @@ define( 'PHET_CORE/main',[
   'PHET_CORE/partition',
   'PHET_CORE/phetAllocation',
   'PHET_CORE/platform',
-  'PHET_CORE/Poolable',
+  'PHET_CORE/PoolableMixin',
   'PHET_CORE/profiler'
 ], function( core ) {
   
