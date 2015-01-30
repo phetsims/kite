@@ -21,31 +21,24 @@
   window.assertions.enableAssert();
   window.assertions.enableAssertSlow();
 
-  // we need to wait until our config file is loaded before our require statement. apparently this was not guaranteed
-  function check() {
-    if ( window.loadedKiteConfig ) {
-      require( [ 'main', 'DOT/main', 'PHET_CORE/main' ], function( kite, dot, core ) {
-        window.kite = kite;
-        window.dot = dot;
-        window.core = core;
+  require( [ 'config' ], function() {
+    require( [ 'main', 'DOT/main', 'PHET_CORE/main' ], function( kite, dot, core ) {
+      window.kite = kite;
+      window.dot = dot;
+      window.core = core;
 
-        console.log( 'loaded' );
+      console.log( 'loaded' );
 
-        window.initLineTest = function() {
-          // intersection with one ray returns a different result than another. need to add indeterminate intersection handling
-          window.shape = new kite.Shape( 'M -100 -100 L -50 50 L 50 50 L 30 0' );
-          window.ray1 = new dot.Ray2( dot( 50, 267 ), dot( 0, -1 ) );
-          window.ray2 = new dot.Ray2( dot( 50, 267 ), dot( 1, 0 ) );
-          console.log( 'ray1: ' + shape.windingIntersection( ray1 ) );
-          console.log( 'ray2: ' + shape.windingIntersection( ray2 ) );
-        }
-      } );
-    }
-    else {
-      setTimeout( check, 4 );
-    }
-  }
-  setTimeout( check, 4 );
+      window.initLineTest = function() {
+        // intersection with one ray returns a different result than another. need to add indeterminate intersection handling
+        window.shape = new kite.Shape( 'M -100 -100 L -50 50 L 50 50 L 30 0' );
+        window.ray1 = new dot.Ray2( dot( 50, 267 ), dot( 0, -1 ) );
+        window.ray2 = new dot.Ray2( dot( 50, 267 ), dot( 1, 0 ) );
+        console.log( 'ray1: ' + shape.windingIntersection( ray1 ) );
+        console.log( 'ray2: ' + shape.windingIntersection( ray2 ) );
+      }
+    } );
+  } );
 </script>
 </body>
 </html>

@@ -47,24 +47,17 @@
 
 <script>
 
-  // we need to wait until our config file is loaded before our require statement. apparently this was not guaranteed
-  function check() {
-    if ( window.loadedKiteConfig ) {
-      require( [ 'main', 'DOT/main', 'PHET_CORE/main' ], function( kite, dot, core ) {
-        window.kite = kite;
-        window.dot = dot;
-        window.core = core;
+  require( [ 'config' ], function() {
+    require( [ 'main', 'DOT/main', 'PHET_CORE/main' ], function( kite, dot, core ) {
+      window.kite = kite;
+      window.dot = dot;
+      window.core = core;
 
-        runKiteTests( '.' );
-        runDotTests( '../../../dot/tests/qunit' );
-        runPhetCoreTests( '../../../phet-core/tests/qunit' );
-      } );
-    }
-    else {
-      setTimeout( check, 4 );
-    }
-  }
-  setTimeout( check, 4 );
+      runKiteTests( '.' );
+      runDotTests( '../../../dot/tests/qunit' );
+      runPhetCoreTests( '../../../phet-core/tests/qunit' );
+    } );
+  } );
 </script>
 </body>
 </html>
