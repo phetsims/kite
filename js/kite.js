@@ -25,6 +25,11 @@ define( function( require ) {
     }
   };
 
+  // store a reference on the PhET namespace if it exists
+  if ( window.phet ) {
+    window.phet.kite = kite;
+  }
+
   // will be filled in by other modules
   return kite;
 } );
