@@ -71,7 +71,7 @@ module.exports = function( grunt ) {
         '!js/parser/svgPath.js'
       ],
       // reference external JSHint options in jshintOptions.js
-      options: require( '../chipper/grunt/jshintOptions' )
+      options: require( '../chipper/js/grunt/jshintOptions' )
     }
   } );
 
