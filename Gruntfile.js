@@ -1,18 +1,9 @@
-var escodegen = require( 'escodegen' );
-var esprima = require( 'esprima' );
-
-var chipperRewrite = require( '../chipper/ast/chipperRewrite.js' );
-
 /*global module:false*/
 module.exports = function( grunt ) {
   'use strict';
 
   // print this immediately, so it is clear what project grunt is building
   grunt.log.writeln( 'Kite' );
-
-  var onBuildRead = function( name, path, contents ) {
-    return chipperRewrite.chipperRewrite( contents, esprima, escodegen );
-  };
 
   // Project configuration.
   grunt.initConfig( {
@@ -56,8 +47,7 @@ module.exports = function( grunt ) {
               },
               dead_code: true
             }
-          },
-          onBuildRead: onBuildRead
+          }
         }
       }
     },
