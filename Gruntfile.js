@@ -1,18 +1,9 @@
-var escodegen = require( 'escodegen' );
-var esprima = require( 'esprima' );
-
-var chipperRewrite = require( '../chipper/ast/chipperRewrite.js' );
-
 /*global module:false*/
 module.exports = function( grunt ) {
   'use strict';
 
   // print this immediately, so it is clear what project grunt is building
   grunt.log.writeln( 'Kite' );
-
-  var onBuildRead = function( name, path, contents ) {
-    return chipperRewrite.chipperRewrite( contents, esprima, escodegen );
-  };
 
   // Project configuration.
   grunt.initConfig( {
@@ -37,9 +28,9 @@ module.exports = function( grunt ) {
       production: {
         options: {
           almond: true,
-          mainConfigFile: "js/production-config.js",
+          mainConfigFile: "js/config.js",
           out: "build/production/kite.min.js",
-          name: "production-config",
+          name: "config",
           optimize: 'uglify2',
           generateSourceMaps: true,
           preserveLicenseComments: false,
@@ -56,8 +47,7 @@ module.exports = function( grunt ) {
               },
               dead_code: true
             }
-          },
-          onBuildRead: onBuildRead
+          }
         }
       }
     },
@@ -71,7 +61,7 @@ module.exports = function( grunt ) {
         '!js/parser/svgPath.js'
       ],
       // reference external JSHint options in jshintOptions.js
-      options: require( '../chipper/grunt/jshintOptions' )
+      options: require( '../chipper/js/grunt/jshintOptions' )
     }
   } );
 

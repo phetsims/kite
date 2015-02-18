@@ -16,11 +16,19 @@ define( function( require ) {
   // object allocation tracking
   window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
 
+  // workaround for Axon, since it needs window.arch to be defined
+  window.arch = window.arch || null;
+
   var kite = {
     svgNumber: function( n ) {
       return n.toFixed( 20 );
     }
   };
+
+  // store a reference on the PhET namespace if it exists
+  if ( window.phet ) {
+    window.phet.kite = kite;
+  }
 
   // will be filled in by other modules
   return kite;

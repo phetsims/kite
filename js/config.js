@@ -1,7 +1,5 @@
 // Copyright 2002-2014, University of Colorado Boulder
 
-window.loadedKiteConfig = true;
-
 require.config( {
   deps: [ 'main', 'DOT/main', 'PHET_CORE/main' ],
 
@@ -17,5 +15,6 @@ require.config( {
     underscore: { exports: '_' }
   },
 
-  urlArgs: new Date().getTime() // add cache buster query string to make browser refresh actually reload everything
+  // optional cache buster to make browser refresh load all included scripts, can be disabled with ?cacheBuster=false
+  urlArgs: Date.now()
 } );
