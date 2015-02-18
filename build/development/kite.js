@@ -60,415 +60,431 @@
 /*global setTimeout: false */
 
 var requirejs, require, define;
-(function (undef) {
-    var main, req, makeMap, handlers,
-        defined = {},
-        waiting = {},
-        config = {},
-        defining = {},
-        hasOwn = Object.prototype.hasOwnProperty,
-        aps = [].slice,
-        jsSuffixRegExp = /\.js$/;
+(function( undef ) {
+  var main, req, makeMap, handlers,
+    defined = {},
+    waiting = {},
+    config = {},
+    defining = {},
+    hasOwn = Object.prototype.hasOwnProperty,
+    aps = [].slice,
+    jsSuffixRegExp = /\.js$/;
 
-    function hasProp(obj, prop) {
-        return hasOwn.call(obj, prop);
-    }
+  function hasProp( obj, prop ) {
+    return hasOwn.call( obj, prop );
+  }
 
-    /**
-     * Given a relative module name, like ./something, normalize it to
-     * a real name that can be mapped to a path.
-     * @param {String} name the relative name
-     * @param {String} baseName a real name that the name arg is relative
-     * to.
-     * @returns {String} normalized name
-     */
-    function normalize(name, baseName) {
-        var nameParts, nameSegment, mapValue, foundMap, lastIndex,
-            foundI, foundStarMap, starI, i, j, part,
-            baseParts = baseName && baseName.split("/"),
-            map = config.map,
-            starMap = (map && map['*']) || {};
+  /**
+   * Given a relative module name, like ./something, normalize it to
+   * a real name that can be mapped to a path.
+   * @param {String} name the relative name
+   * @param {String} baseName a real name that the name arg is relative
+   * to.
+   * @returns {String} normalized name
+   */
+  function normalize( name, baseName ) {
+    var nameParts, nameSegment, mapValue, foundMap, lastIndex,
+      foundI, foundStarMap, starI, i, j, part,
+      baseParts = baseName && baseName.split( "/" ),
+      map = config.map,
+      starMap = (map && map[ '*' ]) || {};
 
-        //Adjust any relative paths.
-        if (name && name.charAt(0) === ".") {
-            //If have a base name, try to normalize against it,
-            //otherwise, assume it is a top-level require that will
-            //be relative to baseUrl in the end.
-            if (baseName) {
-                //Convert baseName to array, and lop off the last part,
-                //so that . matches that "directory" and not name of the baseName's
-                //module. For instance, baseName of "one/two/three", maps to
-                //"one/two/three.js", but we want the directory, "one/two" for
-                //this normalization.
-                baseParts = baseParts.slice(0, baseParts.length - 1);
-                name = name.split('/');
-                lastIndex = name.length - 1;
+    //Adjust any relative paths.
+    if ( name && name.charAt( 0 ) === "." ) {
+      //If have a base name, try to normalize against it,
+      //otherwise, assume it is a top-level require that will
+      //be relative to baseUrl in the end.
+      if ( baseName ) {
+        //Convert baseName to array, and lop off the last part,
+        //so that . matches that "directory" and not name of the baseName's
+        //module. For instance, baseName of "one/two/three", maps to
+        //"one/two/three.js", but we want the directory, "one/two" for
+        //this normalization.
+        baseParts = baseParts.slice( 0, baseParts.length - 1 );
+        name = name.split( '/' );
+        lastIndex = name.length - 1;
 
-                // Node .js allowance:
-                if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
-                    name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
-                }
+        // Node .js allowance:
+        if ( config.nodeIdCompat && jsSuffixRegExp.test( name[ lastIndex ] ) ) {
+          name[ lastIndex ] = name[ lastIndex ].replace( jsSuffixRegExp, '' );
+        }
 
-                name = baseParts.concat(name);
+        name = baseParts.concat( name );
 
-                //start trimDots
-                for (i = 0; i < name.length; i += 1) {
-                    part = name[i];
-                    if (part === ".") {
-                        name.splice(i, 1);
-                        i -= 1;
-                    } else if (part === "..") {
-                        if (i === 1 && (name[2] === '..' || name[0] === '..')) {
-                            //End of the line. Keep at least one non-dot
-                            //path segment at the front so it can be mapped
-                            //correctly to disk. Otherwise, there is likely
-                            //no path mapping for a path starting with '..'.
-                            //This can still fail, but catches the most reasonable
-                            //uses of ..
-                            break;
-                        } else if (i > 0) {
-                            name.splice(i - 1, 2);
-                            i -= 2;
-                        }
-                    }
-                }
-                //end trimDots
-
-                name = name.join("/");
-            } else if (name.indexOf('./') === 0) {
-                // No baseName, so this is ID is resolved relative
-                // to baseUrl, pull off the leading dot.
-                name = name.substring(2);
+        //start trimDots
+        for ( i = 0; i < name.length; i += 1 ) {
+          part = name[ i ];
+          if ( part === "." ) {
+            name.splice( i, 1 );
+            i -= 1;
+          }
+          else if ( part === ".." ) {
+            if ( i === 1 && (name[ 2 ] === '..' || name[ 0 ] === '..') ) {
+              //End of the line. Keep at least one non-dot
+              //path segment at the front so it can be mapped
+              //correctly to disk. Otherwise, there is likely
+              //no path mapping for a path starting with '..'.
+              //This can still fail, but catches the most reasonable
+              //uses of ..
+              break;
             }
-        }
-
-        //Apply map config if available.
-        if ((baseParts || starMap) && map) {
-            nameParts = name.split('/');
-
-            for (i = nameParts.length; i > 0; i -= 1) {
-                nameSegment = nameParts.slice(0, i).join("/");
-
-                if (baseParts) {
-                    //Find the longest baseName segment match in the config.
-                    //So, do joins on the biggest to smallest lengths of baseParts.
-                    for (j = baseParts.length; j > 0; j -= 1) {
-                        mapValue = map[baseParts.slice(0, j).join('/')];
-
-                        //baseName segment has  config, find if it has one for
-                        //this name.
-                        if (mapValue) {
-                            mapValue = mapValue[nameSegment];
-                            if (mapValue) {
-                                //Match, update name to the new value.
-                                foundMap = mapValue;
-                                foundI = i;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (foundMap) {
-                    break;
-                }
-
-                //Check for a star map match, but just hold on to it,
-                //if there is a shorter segment match later in a matching
-                //config, then favor over this star map.
-                if (!foundStarMap && starMap && starMap[nameSegment]) {
-                    foundStarMap = starMap[nameSegment];
-                    starI = i;
-                }
+            else if ( i > 0 ) {
+              name.splice( i - 1, 2 );
+              i -= 2;
             }
+          }
+        }
+        //end trimDots
 
-            if (!foundMap && foundStarMap) {
-                foundMap = foundStarMap;
-                foundI = starI;
+        name = name.join( "/" );
+      }
+      else if ( name.indexOf( './' ) === 0 ) {
+        // No baseName, so this is ID is resolved relative
+        // to baseUrl, pull off the leading dot.
+        name = name.substring( 2 );
+      }
+    }
+
+    //Apply map config if available.
+    if ( (baseParts || starMap) && map ) {
+      nameParts = name.split( '/' );
+
+      for ( i = nameParts.length; i > 0; i -= 1 ) {
+        nameSegment = nameParts.slice( 0, i ).join( "/" );
+
+        if ( baseParts ) {
+          //Find the longest baseName segment match in the config.
+          //So, do joins on the biggest to smallest lengths of baseParts.
+          for ( j = baseParts.length; j > 0; j -= 1 ) {
+            mapValue = map[ baseParts.slice( 0, j ).join( '/' ) ];
+
+            //baseName segment has  config, find if it has one for
+            //this name.
+            if ( mapValue ) {
+              mapValue = mapValue[ nameSegment ];
+              if ( mapValue ) {
+                //Match, update name to the new value.
+                foundMap = mapValue;
+                foundI = i;
+                break;
+              }
             }
-
-            if (foundMap) {
-                nameParts.splice(0, foundI, foundMap);
-                name = nameParts.join('/');
-            }
+          }
         }
 
-        return name;
-    }
-
-    function makeRequire(relName, forceSync) {
-        return function () {
-            //A version of a require function that passes a moduleName
-            //value for items that may need to
-            //look up paths relative to the moduleName
-            return req.apply(undef, aps.call(arguments, 0).concat([relName, forceSync]));
-        };
-    }
-
-    function makeNormalize(relName) {
-        return function (name) {
-            return normalize(name, relName);
-        };
-    }
-
-    function makeLoad(depName) {
-        return function (value) {
-            defined[depName] = value;
-        };
-    }
-
-    function callDep(name) {
-        if (hasProp(waiting, name)) {
-            var args = waiting[name];
-            delete waiting[name];
-            defining[name] = true;
-            main.apply(undef, args);
+        if ( foundMap ) {
+          break;
         }
 
-        if (!hasProp(defined, name) && !hasProp(defining, name)) {
-            throw new Error('No ' + name);
+        //Check for a star map match, but just hold on to it,
+        //if there is a shorter segment match later in a matching
+        //config, then favor over this star map.
+        if ( !foundStarMap && starMap && starMap[ nameSegment ] ) {
+          foundStarMap = starMap[ nameSegment ];
+          starI = i;
         }
-        return defined[name];
+      }
+
+      if ( !foundMap && foundStarMap ) {
+        foundMap = foundStarMap;
+        foundI = starI;
+      }
+
+      if ( foundMap ) {
+        nameParts.splice( 0, foundI, foundMap );
+        name = nameParts.join( '/' );
+      }
     }
 
-    //Turns a plugin!resource to [plugin, resource]
-    //with the plugin being undefined if the name
-    //did not have a plugin prefix.
-    function splitPrefix(name) {
-        var prefix,
-            index = name ? name.indexOf('!') : -1;
-        if (index > -1) {
-            prefix = name.substring(0, index);
-            name = name.substring(index + 1, name.length);
-        }
-        return [prefix, name];
-    }
+    return name;
+  }
 
-    /**
-     * Makes a name map, normalizing the name, and using a plugin
-     * for normalization if necessary. Grabs a ref to plugin
-     * too, as an optimization.
-     */
-    makeMap = function (name, relName) {
-        var plugin,
-            parts = splitPrefix(name),
-            prefix = parts[0];
-
-        name = parts[1];
-
-        if (prefix) {
-            prefix = normalize(prefix, relName);
-            plugin = callDep(prefix);
-        }
-
-        //Normalize according
-        if (prefix) {
-            if (plugin && plugin.normalize) {
-                name = plugin.normalize(name, makeNormalize(relName));
-            } else {
-                name = normalize(name, relName);
-            }
-        } else {
-            name = normalize(name, relName);
-            parts = splitPrefix(name);
-            prefix = parts[0];
-            name = parts[1];
-            if (prefix) {
-                plugin = callDep(prefix);
-            }
-        }
-
-        //Using ridiculous property names for space reasons
-        return {
-            f: prefix ? prefix + '!' + name : name, //fullName
-            n: name,
-            pr: prefix,
-            p: plugin
-        };
+  function makeRequire( relName, forceSync ) {
+    return function() {
+      //A version of a require function that passes a moduleName
+      //value for items that may need to
+      //look up paths relative to the moduleName
+      return req.apply( undef, aps.call( arguments, 0 ).concat( [ relName, forceSync ] ) );
     };
+  }
 
-    function makeConfig(name) {
-        return function () {
-            return (config && config.config && config.config[name]) || {};
-        };
+  function makeNormalize( relName ) {
+    return function( name ) {
+      return normalize( name, relName );
+    };
+  }
+
+  function makeLoad( depName ) {
+    return function( value ) {
+      defined[ depName ] = value;
+    };
+  }
+
+  function callDep( name ) {
+    if ( hasProp( waiting, name ) ) {
+      var args = waiting[ name ];
+      delete waiting[ name ];
+      defining[ name ] = true;
+      main.apply( undef, args );
     }
 
-    handlers = {
-        require: function (name) {
-            return makeRequire(name);
-        },
-        exports: function (name) {
-            var e = defined[name];
-            if (typeof e !== 'undefined') {
-                return e;
-            } else {
-                return (defined[name] = {});
-            }
-        },
-        module: function (name) {
-            return {
-                id: name,
-                uri: '',
-                exports: defined[name],
-                config: makeConfig(name)
-            };
-        }
+    if ( !hasProp( defined, name ) && !hasProp( defining, name ) ) {
+      throw new Error( 'No ' + name );
+    }
+    return defined[ name ];
+  }
+
+  //Turns a plugin!resource to [plugin, resource]
+  //with the plugin being undefined if the name
+  //did not have a plugin prefix.
+  function splitPrefix( name ) {
+    var prefix,
+      index = name ? name.indexOf( '!' ) : -1;
+    if ( index > -1 ) {
+      prefix = name.substring( 0, index );
+      name = name.substring( index + 1, name.length );
+    }
+    return [ prefix, name ];
+  }
+
+  /**
+   * Makes a name map, normalizing the name, and using a plugin
+   * for normalization if necessary. Grabs a ref to plugin
+   * too, as an optimization.
+   */
+  makeMap = function( name, relName ) {
+    var plugin,
+      parts = splitPrefix( name ),
+      prefix = parts[ 0 ];
+
+    name = parts[ 1 ];
+
+    if ( prefix ) {
+      prefix = normalize( prefix, relName );
+      plugin = callDep( prefix );
+    }
+
+    //Normalize according
+    if ( prefix ) {
+      if ( plugin && plugin.normalize ) {
+        name = plugin.normalize( name, makeNormalize( relName ) );
+      }
+      else {
+        name = normalize( name, relName );
+      }
+    }
+    else {
+      name = normalize( name, relName );
+      parts = splitPrefix( name );
+      prefix = parts[ 0 ];
+      name = parts[ 1 ];
+      if ( prefix ) {
+        plugin = callDep( prefix );
+      }
+    }
+
+    //Using ridiculous property names for space reasons
+    return {
+      f: prefix ? prefix + '!' + name : name, //fullName
+      n: name,
+      pr: prefix,
+      p: plugin
     };
+  };
 
-    main = function (name, deps, callback, relName) {
-        var cjsModule, depName, ret, map, i,
-            args = [],
-            callbackType = typeof callback,
-            usingExports;
-
-        //Use name if no relName
-        relName = relName || name;
-
-        //Call the callback to define the module, if necessary.
-        if (callbackType === 'undefined' || callbackType === 'function') {
-            //Pull out the defined dependencies and pass the ordered
-            //values to the callback.
-            //Default to [require, exports, module] if no deps
-            deps = !deps.length && callback.length ? ['require', 'exports', 'module'] : deps;
-            for (i = 0; i < deps.length; i += 1) {
-                map = makeMap(deps[i], relName);
-                depName = map.f;
-
-                //Fast path CommonJS standard dependencies.
-                if (depName === "require") {
-                    args[i] = handlers.require(name);
-                } else if (depName === "exports") {
-                    //CommonJS module spec 1.1
-                    args[i] = handlers.exports(name);
-                    usingExports = true;
-                } else if (depName === "module") {
-                    //CommonJS module spec 1.1
-                    cjsModule = args[i] = handlers.module(name);
-                } else if (hasProp(defined, depName) ||
-                           hasProp(waiting, depName) ||
-                           hasProp(defining, depName)) {
-                    args[i] = callDep(depName);
-                } else if (map.p) {
-                    map.p.load(map.n, makeRequire(relName, true), makeLoad(depName), {});
-                    args[i] = defined[depName];
-                } else {
-                    throw new Error(name + ' missing ' + depName);
-                }
-            }
-
-            ret = callback ? callback.apply(defined[name], args) : undefined;
-
-            if (name) {
-                //If setting exports via "module" is in play,
-                //favor that over return value and exports. After that,
-                //favor a non-undefined return value over exports use.
-                if (cjsModule && cjsModule.exports !== undef &&
-                        cjsModule.exports !== defined[name]) {
-                    defined[name] = cjsModule.exports;
-                } else if (ret !== undef || !usingExports) {
-                    //Use the return value from the function.
-                    defined[name] = ret;
-                }
-            }
-        } else if (name) {
-            //May just be an object definition for the module. Only
-            //worry about defining if have a module name.
-            defined[name] = callback;
-        }
+  function makeConfig( name ) {
+    return function() {
+      return (config && config.config && config.config[ name ]) || {};
     };
+  }
 
-    requirejs = require = req = function (deps, callback, relName, forceSync, alt) {
-        if (typeof deps === "string") {
-            if (handlers[deps]) {
-                //callback in this case is really relName
-                return handlers[deps](callback);
-            }
-            //Just return the module wanted. In this scenario, the
-            //deps arg is the module name, and second arg (if passed)
-            //is just the relName.
-            //Normalize module name, if it contains . or ..
-            return callDep(makeMap(deps, callback).f);
-        } else if (!deps.splice) {
-            //deps is a config object, not an array.
-            config = deps;
-            if (config.deps) {
-                req(config.deps, config.callback);
-            }
-            if (!callback) {
-                return;
-            }
+  handlers = {
+    require: function( name ) {
+      return makeRequire( name );
+    },
+    exports: function( name ) {
+      var e = defined[ name ];
+      if ( typeof e !== 'undefined' ) {
+        return e;
+      }
+      else {
+        return (defined[ name ] = {});
+      }
+    },
+    module: function( name ) {
+      return {
+        id: name,
+        uri: '',
+        exports: defined[ name ],
+        config: makeConfig( name )
+      };
+    }
+  };
 
-            if (callback.splice) {
-                //callback is an array, which means it is a dependency list.
-                //Adjust args if there are dependencies
-                deps = callback;
-                callback = relName;
-                relName = null;
-            } else {
-                deps = undef;
-            }
+  main = function( name, deps, callback, relName ) {
+    var cjsModule, depName, ret, map, i,
+      args = [],
+      callbackType = typeof callback,
+      usingExports;
+
+    //Use name if no relName
+    relName = relName || name;
+
+    //Call the callback to define the module, if necessary.
+    if ( callbackType === 'undefined' || callbackType === 'function' ) {
+      //Pull out the defined dependencies and pass the ordered
+      //values to the callback.
+      //Default to [require, exports, module] if no deps
+      deps = !deps.length && callback.length ? [ 'require', 'exports', 'module' ] : deps;
+      for ( i = 0; i < deps.length; i += 1 ) {
+        map = makeMap( deps[ i ], relName );
+        depName = map.f;
+
+        //Fast path CommonJS standard dependencies.
+        if ( depName === "require" ) {
+          args[ i ] = handlers.require( name );
         }
-
-        //Support require(['a'])
-        callback = callback || function () {};
-
-        //If relName is a function, it is an errback handler,
-        //so remove it.
-        if (typeof relName === 'function') {
-            relName = forceSync;
-            forceSync = alt;
+        else if ( depName === "exports" ) {
+          //CommonJS module spec 1.1
+          args[ i ] = handlers.exports( name );
+          usingExports = true;
         }
-
-        //Simulate async callback;
-        if (forceSync) {
-            main(undef, deps, callback, relName);
-        } else {
-            //Using a non-zero value because of concern for what old browsers
-            //do, and latest browsers "upgrade" to 4 if lower value is used:
-            //http://www.whatwg.org/specs/web-apps/current-work/multipage/timers.html#dom-windowtimers-settimeout:
-            //If want a value immediately, use require('id') instead -- something
-            //that works in almond on the global level, but not guaranteed and
-            //unlikely to work in other AMD implementations.
-            setTimeout(function () {
-                main(undef, deps, callback, relName);
-            }, 4);
+        else if ( depName === "module" ) {
+          //CommonJS module spec 1.1
+          cjsModule = args[ i ] = handlers.module( name );
         }
-
-        return req;
-    };
-
-    /**
-     * Just drops the config on the floor, but returns req in case
-     * the config return value is used.
-     */
-    req.config = function (cfg) {
-        return req(cfg);
-    };
-
-    /**
-     * Expose module registry for debugging and tooling
-     */
-    requirejs._defined = defined;
-
-    define = function (name, deps, callback) {
-
-        //This module may not have dependencies
-        if (!deps.splice) {
-            //deps is not an array, so probably means
-            //an object literal or factory function for
-            //the value. Adjust args.
-            callback = deps;
-            deps = [];
+        else if ( hasProp( defined, depName ) ||
+                  hasProp( waiting, depName ) ||
+                  hasProp( defining, depName ) ) {
+          args[ i ] = callDep( depName );
         }
-
-        if (!hasProp(defined, name) && !hasProp(waiting, name)) {
-            waiting[name] = [name, deps, callback];
+        else if ( map.p ) {
+          map.p.load( map.n, makeRequire( relName, true ), makeLoad( depName ), {} );
+          args[ i ] = defined[ depName ];
         }
-    };
+        else {
+          throw new Error( name + ' missing ' + depName );
+        }
+      }
 
-    define.amd = {
-        jQuery: true
-    };
+      ret = callback ? callback.apply( defined[ name ], args ) : undefined;
+
+      if ( name ) {
+        //If setting exports via "module" is in play,
+        //favor that over return value and exports. After that,
+        //favor a non-undefined return value over exports use.
+        if ( cjsModule && cjsModule.exports !== undef &&
+             cjsModule.exports !== defined[ name ] ) {
+          defined[ name ] = cjsModule.exports;
+        }
+        else if ( ret !== undef || !usingExports ) {
+          //Use the return value from the function.
+          defined[ name ] = ret;
+        }
+      }
+    }
+    else if ( name ) {
+      //May just be an object definition for the module. Only
+      //worry about defining if have a module name.
+      defined[ name ] = callback;
+    }
+  };
+
+  requirejs = require = req = function( deps, callback, relName, forceSync, alt ) {
+    if ( typeof deps === "string" ) {
+      if ( handlers[ deps ] ) {
+        //callback in this case is really relName
+        return handlers[ deps ]( callback );
+      }
+      //Just return the module wanted. In this scenario, the
+      //deps arg is the module name, and second arg (if passed)
+      //is just the relName.
+      //Normalize module name, if it contains . or ..
+      return callDep( makeMap( deps, callback ).f );
+    }
+    else if ( !deps.splice ) {
+      //deps is a config object, not an array.
+      config = deps;
+      if ( config.deps ) {
+        req( config.deps, config.callback );
+      }
+      if ( !callback ) {
+        return;
+      }
+
+      if ( callback.splice ) {
+        //callback is an array, which means it is a dependency list.
+        //Adjust args if there are dependencies
+        deps = callback;
+        callback = relName;
+        relName = null;
+      }
+      else {
+        deps = undef;
+      }
+    }
+
+    //Support require(['a'])
+    callback = callback || function() {};
+
+    //If relName is a function, it is an errback handler,
+    //so remove it.
+    if ( typeof relName === 'function' ) {
+      relName = forceSync;
+      forceSync = alt;
+    }
+
+    //Simulate async callback;
+    if ( forceSync ) {
+      main( undef, deps, callback, relName );
+    }
+    else {
+      //Using a non-zero value because of concern for what old browsers
+      //do, and latest browsers "upgrade" to 4 if lower value is used:
+      //http://www.whatwg.org/specs/web-apps/current-work/multipage/timers.html#dom-windowtimers-settimeout:
+      //If want a value immediately, use require('id') instead -- something
+      //that works in almond on the global level, but not guaranteed and
+      //unlikely to work in other AMD implementations.
+      setTimeout( function() {
+        main( undef, deps, callback, relName );
+      }, 4 );
+    }
+
+    return req;
+  };
+
+  /**
+   * Just drops the config on the floor, but returns req in case
+   * the config return value is used.
+   */
+  req.config = function( cfg ) {
+    return req( cfg );
+  };
+
+  /**
+   * Expose module registry for debugging and tooling
+   */
+  requirejs._defined = defined;
+
+  define = function( name, deps, callback ) {
+
+    //This module may not have dependencies
+    if ( !deps.splice ) {
+      //deps is not an array, so probably means
+      //an object literal or factory function for
+      //the value. Adjust args.
+      callback = deps;
+      deps = [];
+    }
+
+    if ( !hasProp( defined, name ) && !hasProp( waiting, name ) ) {
+      waiting[ name ] = [ name, deps, callback ];
+    }
+  };
+
+  define.amd = {
+    jQuery: true
+  };
 }());
 
 define("almond", function(){});
@@ -553,11 +569,19 @@ define( 'KITE/kite',['require','PHET_CORE/phetAllocation'],function( require ) {
   // object allocation tracking
   window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
 
+  // workaround for Axon, since it needs window.arch to be defined
+  window.arch = window.arch || null;
+
   var kite = {
     svgNumber: function( n ) {
       return n.toFixed( 20 );
     }
   };
+
+  // store a reference on the PhET namespace if it exists
+  if ( window.phet ) {
+    window.phet.kite = kite;
+  }
 
   // will be filled in by other modules
   return kite;
@@ -570,6 +594,9 @@ define( 'DOT/dot',['require','PHET_CORE/phetAllocation'],function( require ) {
 
   // object allocation tracking
   window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
+
+  // workaround for Axon, since it needs window.arch to be defined
+  window.arch = window.arch || null;
 
   var dot = function dot() {
     switch( arguments.length ) {
@@ -586,6 +613,11 @@ define( 'DOT/dot',['require','PHET_CORE/phetAllocation'],function( require ) {
 
   // TODO: performance: check browser speed to compare how fast this is. We may need to add a 32 option for GL ES.
   dot.FastArray = window.Float64Array ? window.Float64Array : window.Array;
+
+  // store a reference on the PhET namespace if it exists
+  if ( window.phet ) {
+    window.phet.dot = dot;
+  }
 
   // will be filled in by other modules
   return dot;
@@ -688,7 +720,7 @@ define( 'PHET_CORE/inherit',['require','PHET_CORE/core','PHET_CORE/extend'],func
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'PHET_CORE/PoolableMixin',['require','PHET_CORE/core','PHET_CORE/extend'],function( require ) {
+define( 'PHET_CORE/Poolable',['require','PHET_CORE/core','PHET_CORE/extend'],function( require ) {
   
 
   var core = require( 'PHET_CORE/core' );
@@ -697,72 +729,74 @@ define( 'PHET_CORE/PoolableMixin',['require','PHET_CORE/core','PHET_CORE/extend'
   /*
    * For option details, please see documentation inside this constructor body for now
    */
-  core.PoolableMixin = function PoolableMixin( type, options ) {
-    var proto = type.prototype;
+  core.Poolable = {
+    mixin: function ( type, options ) {
+      var proto = type.prototype;
 
-    // defaults
-    options = extend( {
-      maxPoolSize: 50, // since we don't want to blow too much memory
-      initialSize: 0
-    }, options );
+      // defaults
+      options = extend( {
+        maxPoolSize: 50, // since we don't want to blow too much memory
+        initialSize: 0
+      }, options );
 
-    var pool = type.pool = [];
+      var pool = type.pool = [];
 
-    /*
-     * For example: defaultFactory: function() { return new Vector2(); }
-     */
-    if ( options.defaultFactory ) {
-      type.dirtyFromPool = function() {
-        if ( pool.length ) {
-          // return an instance in an arbitrary (dirty) state
-          return pool.pop();
-        }
-        else {
-          // else return a new default instance
-          return options.defaultFactory();
-        }
-      };
+      /*
+       * For example: defaultFactory: function() { return new Vector2(); }
+       */
+      if ( options.defaultFactory ) {
+        type.dirtyFromPool = function() {
+          if ( pool.length ) {
+            // return an instance in an arbitrary (dirty) state
+            return pool.pop();
+          }
+          else {
+            // else return a new default instance
+            return options.defaultFactory();
+          }
+        };
 
-      // fills the object pool up to n instances
-      type.fillPool = function( n ) {
-        // fill up the object pool to the initial size
-        while ( pool.length < n ) {
-          pool.push( options.defaultFactory() );
-        }
-      };
+        // fills the object pool up to n instances
+        type.fillPool = function( n ) {
+          // fill up the object pool to the initial size
+          while ( pool.length < n ) {
+            pool.push( options.defaultFactory() );
+          }
+        };
 
-      // fill the pool initially to the initial size
-      type.fillPool( options.initialSize );
-    }
-
-    /*
-     * For example: constructorDuplicateFactory:
-     *                function( pool ) {
-     *                  return function( x, y ) {
-     *                    if ( pool.length ) {
-     *                      return pool.pop().set( x, y );
-     *                    } else {
-     *                      return new Vector2( x, y );
-     *                    }
-     *                  }
-     *                }
-     * It allows arbitrary creation (from the constructor / etc) or mutation (from the pooled instance).
-     */
-    if ( options.constructorDuplicateFactory ) {
-      type.createFromPool = options.constructorDuplicateFactory( pool );
-    }
-
-    /*
-     * Frees the object to the pool (instance.freeToPool())
-     */
-    proto.freeToPool = function() {
-      if ( pool.length < options.maxPoolSize ) {
-        pool.push( this );
+        // fill the pool initially to the initial size
+        type.fillPool( options.initialSize );
       }
-    };
+
+      /*
+       * For example: constructorDuplicateFactory:
+       *                function( pool ) {
+       *                  return function( x, y ) {
+       *                    if ( pool.length ) {
+       *                      return pool.pop().set( x, y );
+       *                    } else {
+       *                      return new Vector2( x, y );
+       *                    }
+       *                  }
+       *                }
+       * It allows arbitrary creation (from the constructor / etc) or mutation (from the pooled instance).
+       */
+      if ( options.constructorDuplicateFactory ) {
+        type.createFromPool = options.constructorDuplicateFactory( pool );
+      }
+
+      /*
+       * Frees the object to the pool (instance.freeToPool())
+       */
+      proto.freeToPool = function() {
+        if ( pool.length < options.maxPoolSize ) {
+          pool.push( this );
+        }
+      };
+    }
   };
 
-  return core.PoolableMixin;
+  return core.Poolable;
 } );
 // Copyright 2002-2014, University of Colorado Boulder
 
@@ -1138,13 +1172,13 @@ define( 'DOT/Util',['require','DOT/dot'],function( require ) {
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/Vector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/PoolableMixin','DOT/Util'],function( require ) {
+define( 'DOT/Vector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/Poolable','DOT/Util'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
 
   var inherit = require( 'PHET_CORE/inherit' );
-  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
+  var Poolable = require( 'PHET_CORE/Poolable' );
   require( 'DOT/Util' );
   // require( 'DOT/Vector3' ); // commented out since Require.js complains about the circular dependency
 
@@ -1437,9 +1471,7 @@ define( 'DOT/Vector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/Poolab
 
   };
 
-  // experimental object pooling
-  /* jshint -W064 */
-  PoolableMixin( Vector2, {
+  Poolable.mixin( Vector2, {
     defaultFactory: function() { return new Vector2(); },
     constructorDuplicateFactory: function( pool ) {
       return function( x, y ) {
@@ -1498,11 +1530,11 @@ define( 'DOT/Vector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/Poolab
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/Bounds2',['require','DOT/dot','PHET_CORE/PoolableMixin','DOT/Vector2'],function( require ) {
+define( 'DOT/Bounds2',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
-  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
+  var Poolable = require( 'PHET_CORE/Poolable' );
 
   require( 'DOT/Vector2' );
 
@@ -1996,9 +2028,7 @@ define( 'DOT/Bounds2',['require','DOT/dot','PHET_CORE/PoolableMixin','DOT/Vector
     }
   };
 
-  // experimental object pooling
-  /* jshint -W064 */
-  PoolableMixin( Bounds2, {
+  Poolable.mixin( Bounds2, {
     defaultFactory: function() { return Bounds2.NOTHING.copy(); },
     constructorDuplicateFactory: function( pool ) {
       return function( minX, minY, maxX, maxY ) {
@@ -7358,11 +7388,11 @@ define( 'DOT/Matrix4',['require','DOT/dot','DOT/Vector3','DOT/Vector4'],function
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/PoolableMixin','DOT/Vector2','DOT/Vector3','DOT/Matrix4'],function( require ) {
+define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector2','DOT/Vector3','DOT/Matrix4'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
-  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
+  var Poolable = require( 'PHET_CORE/Poolable' );
 
   var FastArray = dot.FastArray;
 
@@ -7523,8 +7553,7 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/PoolableMixin','DOT/Vector
 
     // angle in radians for the 2d rotation from this matrix, between pi, -pi
     getRotation: function() {
-      var transformedVector = this.timesVector2( dot.Vector2.X_UNIT ).minus( this.timesVector2( dot.Vector2.ZERO ) );
-      return Math.atan2( transformedVector.y, transformedVector.x );
+      return Math.atan2( this.m10(), this.m00() );
     },
     get rotation() { return this.getRotation(); },
 
@@ -8228,8 +8257,7 @@ define( 'DOT/Matrix3',['require','DOT/dot','PHET_CORE/PoolableMixin','DOT/Vector
     }
   };
 
-  /* jshint -W064 */
-  PoolableMixin( Matrix3, {
+  Poolable.mixin( Matrix3, {
 
     //The default factory creates an identity matrix
     defaultFactory: function() { return new Matrix3(); },
@@ -14017,78 +14045,18 @@ define( 'AXON/axon',['require'],function( require ) {
 
   var axon = {};
 
+  // workaround for Axon, since it needs window.arch to be defined
+  window.arch = window.arch || null;
+
+  // store a reference on the PhET namespace if it exists
+  if ( window.phet ) {
+    window.phet.axon = axon;
+  }
+
   // will be filled in by other modules
   return axon;
 } );
 
-//  Copyright 2002-2014, University of Colorado Boulder
-
-/**
- * A Multilink is an instance that can be used to link to multiple properties.  It is very similar to a DerivedProperty, but has no value and does not conform to the Property API,
- * because it is intended for use with callbacks that do not compute a value.  Multilink should not be created through calling its constructor directly,
- * but through the Property.multilink and Property.lazyMultilink functions.
- *
- * @author Sam Reid
- */
-define( 'AXON/Multilink',['require','AXON/axon','PHET_CORE/inherit'],function( require ) {
-  
-
-  var axon = require( 'AXON/axon' );
-  var inherit = require( 'PHET_CORE/inherit' );
-
-  /**
-   * @param {Property[]} dependencies
-   * @param {function} callback function that expects args in the same order as dependencies
-   * @param {boolean} lazy Optional parameter that can be set to true if this should be a lazy multilink (no immediate callback)
-   * @constructor
-   */
-  axon.Multilink = function Multilink( dependencies, callback, lazy ) {
-    this.dependencies = dependencies;
-
-    //Keep track of each dependency and only update the changed value, for speed
-    this.dependencyValues = dependencies.map( function( property ) {return property.get();} );
-
-    var multilink = this;
-
-    //Keep track of listeners so they can be detached
-    this.dependencyListeners = [];
-
-    //When a dependency value changes, update the list of dependencies and call back to the callback
-    for ( var i = 0; i < dependencies.length; i++ ) {
-      var dependency = dependencies[ i ];
-      (function( dependency, i ) {
-        var listener = function( newValue ) {
-          multilink.dependencyValues[ i ] = newValue;
-          callback.apply( null, multilink.dependencyValues );
-        };
-        multilink.dependencyListeners.push( listener );
-        dependency.lazyLink( listener );
-      })( dependency, i );
-    }
-
-    //Send initial call back but only if we are non-lazy
-    if ( !lazy ) {
-      callback.apply( null, this.dependencyValues );
-    }
-  };
-
-  return inherit( Object, axon.Multilink, {
-
-      /**
-       * Detaches this derived property from its dependencies.
-       */
-      detach: function() {
-        for ( var i = 0; i < this.dependencies.length; i++ ) {
-          var dependency = this.dependencies[ i ];
-          dependency.unlink( this.dependencyListeners[ i ] );
-        }
-        this.dependencies = null;
-        this.dependencyListeners = null;
-        this.dependencyValues = null;
-      }
-    }
-  );
-} );
 // Copyright 2002-2013, University of Colorado Boulder
 
 /**
@@ -14103,14 +14071,18 @@ define( 'AXON/Multilink',['require','AXON/axon','PHET_CORE/inherit'],function( r
  * @author Sam Reid
  * @author Chris Malley (PixelZoom, Inc.)
  */
-define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( require ) {
+define( 'AXON/Property',['require','AXON/axon','PHET_CORE/inherit'],function( require ) {
   
 
+  // modules
   var axon = require( 'AXON/axon' );
-  require( 'AXON/Multilink' );
+  var inherit = require( 'PHET_CORE/inherit' );
+  // Also requires Multilink and DerivedProperty but cannot reference them here or it will create a
+  // Circular dependency.  So they are loaded through axon.Multilink and axon.DerivedProperty
 
   /**
-   * @param {*} value
+   * @param {*} value - the initial value of the property
+   * @param {object} [options] - optional values for the property, see below
    * @constructor
    */
   axon.Property = function Property( value, options ) {
@@ -14121,409 +14093,379 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
     this._observers = [];
 
     //Model component ID for data studies, regression testing, etc
-    this.id = options ? options.id : null;
+    this.propertyID = options ? options.propertyID : null;
 
     //By default, events can be logged for data analysis studies, but setSendPhetEvents can be set to false for events that should not be recorded (such as the passage of time).
     this.sendPhetEvents = true;
-    this.lastMessageTime = 0;//Start at the epoch, so the first message will be sent.
     this.delay = 0; //Seconds between messages (if throttled).  Zero means no throttling
   };
 
-  axon.Property.prototype = {
+  return inherit( Object, axon.Property, {
 
-    /**
-     * Gets the value.  You can also use the es5 getter (property.value) but this means is provided for inner loops or internal code that must be fast.
-     * @return {*}
-     */
-    get: function() {
-      return this._value;
-    },
-
-    /**
-     * Sets the value and notifies registered observers.  You can also use the es5 getter (property.value) but this means is provided for inner loops or internal code that must be fast.
-     * If the value hasn't changed, this is a no-op.
-     *
-     * @param {*} value
-     */
-    set: function( value ) {
-      if ( !this.equalsValue( value ) ) {
-        this._setAndNotifyObservers( value );
-      }
-      return this;
-    },
-
-    // whether this property will not "change" when the passed-in value is set
-    equalsValue: function( value ) {
-      return value === this._value;
-    },
-
-    // store the current (new) value
-    storeValue: function( value ) {
-      this._value = value;
-    },
-
-    // store the initial value
-    storeInitialValue: function( value ) {
-      this._initialValue = value;
-    },
-
-    get initialValue() {
-      return this._initialValue;
-    },
-
-    _setAndNotifyObservers: function( value ) {
-      var oldValue = this.get();
-      this.storeValue( value );
-      this._notifyObservers( oldValue );
-    },
-
-    _notifyObservers: function( oldValue ) {
-
-      // Note the current value, since it will be sent to possibly multiple listeners.
-      var value = this.get();
-
-      // If enabled, send a message to phet events.  Avoid as much work as possible if phet.arch is inactive.
-      var time = null;
-      var sendMessage = null;
-      if ( phet.arch.active ) {
-        time = Date.now();
-
-        //Only send a message if sendPhetEvents is on and the throttling permits it (i.e. it has been long enough since the last message).
-        sendMessage = this.sendPhetEvents && (this.delay === 0 || (time - this.lastMessageTime > this.delay * 1000));
-
-        // Deliver the change event message to phet.arch
-        if ( sendMessage ) {
-          assert && assert( this.id !== null );
-          phet.arch.start( 'model', this.id, 'Property', 'changed', { value: value } );
-        }
-      }
-
-      // TODO: JO: avoid slice() by storing observers array correctly
-      var observersCopy = this._observers.slice(); // make a copy, in case notification results in removeObserver
-      for ( var i = 0; i < observersCopy.length; i++ ) {
-        observersCopy[ i ]( value, oldValue );
-      }
-
-      // Send the end message to phet.arch
-      if ( sendMessage ) {
-        phet.arch.end();
-        this.lastMessageTime = time;
-      }
-    },
-
-    //Use this method when mutating a value (not replacing with a new instance) and you want to send notifications about the change.
-    //This is different from the normal axon strategy, but may be necessary to prevent memory allocations.
-    //This method is unsafe for removing observers because it assumes the observer list not modified, to save another allocation
-    //Only provides the new reference as a callback (no oldvalue)
-    //See https://github.com/phetsims/axon/issues/6
-    notifyObserversStatic: function() {
-      var value = this.get();
-      for ( var i = 0; i < this._observers.length; i++ ) {
-        this._observers[ i ]( value );
-      }
-    },
-
-    /**
-     * Resets the value to the initial value.
-     */
-    reset: function() {
-      this.set( this._initialValue );
-    },
-
-    /**
-     * This function returns a bound function that sets the specified value.  For use in creating closures e.g. with gui classes.
-     * For instance, to have a button that sets a property to true, instead of using
-     * button.click(function(){property.set(true);});
-     * you could use
-     * button.click(property._set(true));
-     * @param value the value to use when the setter is called.
-     * @return a function that can be used to set the specified value.
-     */
-    _set: function( value ) {
-      return this.set.bind( this, value );
-    },
-
-    get value() { return this.get(); },
-
-    set value( newValue ) { this.set( newValue ); },
-
-    /**
-     * Adds an observer and notifies it immediately.
-     * If observer is already registered, this is a no-op.
-     * The initial notification provides the current value for newValue and null for oldValue.
-     *
-     * @param {function} observer a function of the form observer(newValue,oldValue)
-     */
-    link: function( observer ) {
-      if ( this._observers.indexOf( observer ) === -1 ) {
-        this._observers.push( observer );
-        observer( this.get(), null ); // null should be used when an object is expected but unavailable
-      }
-    },
-
-    /**
-     * Removes an observer.
-     * If observer is not registered, this is a no-op.
-     *
-     * @param {function} observer
-     */
-    unlink: function( observer ) {
-      var index = this._observers.indexOf( observer );
-      if ( index !== -1 ) {
-        this._observers.splice( index, 1 );
-      }
-    },
-
-    /**
-     * Add an observer to the Property, without calling it back right away.  This is used when you need to register a listener without an immediate callback.
-     * @param {function} observer  a function with a single argument, which is the value of the property at the time the function is called.
-     */
-    lazyLink: function( observer ) {
-      if ( this._observers.indexOf( observer ) === -1 ) {
-        this._observers.push( observer );
-      }
-    },
-
-    //Provide toString for console debugging, see http://stackoverflow.com/questions/2485632/valueof-vs-tostring-in-javascript
-    toString: function() {return 'Property{' + this.get() + '}'; },
-    valueOf: function() {return this.toString();},
-
-    /**
-     * Add a listener so that it will only fire once (and not on registration)
-     *
-     * I can see two ways to implement this:
-     * (a) add a field to the observer so after notifications it can be checked and possibly removed. Disadvantage: will make everything slower even if not using 'once'
-     * (b) wrap the observer in a new function which will call the observer and then remove itself.  Disadvantage: cannot remove an observer added using 'once'
-     * To avoid possible performance problems, use a wrapper function, and return it as a handle in case the 'once' listener must be removed before it is called once
-     *
-     * @param observer the listener which should be called back only for one property change (and not on registration)
-     * @returns {function} the wrapper handle in case the wrapped function needs to be removed with 'unlink' before it is called once
-     */
-    once: function( observer ) {
-      var property = this;
-      var wrapper = function( newValue, oldValue ) {
-        property.unlink( wrapper );
-        observer( newValue, oldValue );
-      };
-      this.lazyLink( wrapper );
-      return wrapper;
-    },
-
-    /**
-     * Links an object's named attribute to this property.  Returns a handle so it can be removed using Property.unlink();
-     * Example: modelVisibleProperty.linkAttribute(view,'visible');
-     *
-     * @param object
-     * @param attributeName
-     */
-    linkAttribute: function( object, attributeName ) {
-      var handle = function( value ) {object[ attributeName ] = value;};
-      this.link( handle );
-      return handle;
-    },
-
-    /**
-     * Returns a new DerivedProperty which is true/false based on whether the value matches (based on ===) the passed in argument.
-     * @param value
-     * @returns {axon.DerivedProperty}
-     */
-    valueEquals: function( value ) {
-      return new axon.DerivedProperty( [ this ], function( propertyValue ) { return propertyValue === value; } );
-    },
-
-    /**
-     * Returns a new boolean DerivedProperty which is true/false based on && operator.
-     * @param otherProperty
-     * @returns {DerivedProperty.<boolean>}
-     */
-    and: function( otherProperty ) {
-      return new axon.DerivedProperty( [ this, otherProperty ], function( thisValue, otherValue ) { return thisValue && otherValue; } );
-    },
-
-    /**
-     * Returns a new boolean DerivedProperty which is true/false based on || operator.
-     * @param otherProperty
-     * @returns {DerivedProperty.<boolean>}
-     */
-    or: function( otherProperty ) {
-      return new axon.DerivedProperty( [ this, otherProperty ], function( thisValue, otherValue ) { return thisValue || otherValue; } );
-    },
-
-    /**
-     * Multiply this property's value by a constant scalar number, and return the derived property.
-     *
-     * @param scalar
-     * @returns {axon.DerivedProperty}
-     */
-    times: function( scalar ) {
-      return new axon.DerivedProperty( [ this ], function( thisValue ) { return thisValue * scalar; } );
-    },
-
-    /**
-     * Multiply this property's value by a constant scalar number, and return the derived property.
-     *
-     * @param number
-     * @returns {axon.DerivedProperty}
-     */
-    plus: function( number ) {
-      return new axon.DerivedProperty( [ this ], function( thisValue ) { return thisValue + number; } );
-    },
-
-    /**
-     * Return a derived property that is true if and only if this value is less than the specified number.
-     *
-     * @param number
-     * @returns {axon.DerivedProperty}
-     */
-    lessThanNumber: function( number ) {
-      return new axon.DerivedProperty( [ this ], function( thisValue ) { return thisValue < number; } );
-    },
-
-    /**
-     * Return a derived property that is true if and only if this value is greater than the specified number.
-     *
-     * @param number
-     * @returns {axon.DerivedProperty}
-     */
-    greaterThanNumber: function( number ) {
-      return new axon.DerivedProperty( [ this ], function( thisValue ) { return thisValue > number; } );
-    },
-
-    /**
-     * Not property, which does not propagate changes to dependents.
-     * @returns {DerivedProperty}
-     */
-    derivedNot: function() {
-      return new axon.DerivedProperty( [ this ], function( thisValue ) { return !thisValue; } );
-    },
-
-    /**
-     * Two way communication for not, so you can set the value and have it come back to the parent
-     * Note that noting about the following code is specific to booleans, although this should probably be used mostly for booleans.
-     * To unlink both listeners attached unlink a property created with not(), use detach()
-     */
-    not: function() {
-      var parentProperty = this;
-      var childProperty = new axon.Property( !this.value );
-
-      var setParentToChild = function( value ) {childProperty.set( !value );};
-      parentProperty.link( setParentToChild );
-
-      var setChildToParent = function( value ) {parentProperty.set( !value );};
-      childProperty.link( setChildToParent );
-
-      childProperty.detach = function() {
-        parentProperty.unlink( setParentToChild );
-        childProperty.unlink( setChildToParent );
-      };
-      return childProperty;
-    },
-
-    /**
-     * Convenience function for debugging a property values.  It prints the new value on registration and when changed.
-     * @param name debug name to be printed on the console
-     * @returns {function} the handle to the linked listener in case it needs to be removed later
-     */
-    debug: function( name ) {
-      var listener = function( value ) { console.log( name, value ); };
-      this.link( listener );
-      return listener;
-    },
-
-    //Returns a new Property that maps its values using the specified lookup table.
-    //If the parent property value does not appear as a key in the lookup table, the returned property value is undefined
-    mapValues: function( values ) {
-      return new axon.DerivedProperty( [ this ], function( thisValue ) { return values[ thisValue ];} );
-    },
-
-    //Returns a new Property that maps its values using the specified function
-    //See https://github.com/phetsims/axon/issues/25
-    map: function( f ) {
-      return new axon.DerivedProperty( [ this ], function( thisValue ) {return f( thisValue );} );
-    },
-
-    /**
-     * Returns a function that can be used to toggle the property (using !)
-     * @returns {function}
-     */
-    get toggleFunction() {
-      return this.toggle.bind( this );
-    },
-
-    /**
-     * Modifies the value of this Property with the ! operator.  Works for booleans and non-booleans.
-     */
-    toggle: function() {
-      this.value = !this.value;
-    },
-
-    /**
-     * Adds a listener that is fired when the property takes the specified value.  If the property has the value already, the listener is called back
-     * immediately.  A reference to the listener is returned so that it can be removed.
-     *
-     * @param value the value to match
-     * @param the listener that is called when this Property
-     */
-    onValue: function( value, listener ) {
-      var observer = function( v ) {
-        if ( v === value ) {
-          listener();
-        }
-      };
-      this.link( observer );
-      return observer;
-    }
-  };
-
-  /**
-   * Registers an observer with multiple properties, then notifies the observer immediately.
-   * @param {Property[]} properties
-   * @param {function} observer no params, returns nothing
-   * @static
-   */
-  axon.Property.multilink = function( properties, observer ) {
-    return new axon.Multilink( properties, observer, false );
-  };
-
-  axon.Property.lazyMultilink = function( properties, observer ) {
-    return new axon.Multilink( properties, observer, true );
-  };
-
-  axon.Property.prototype.setSendPhetEvents = function( sendPhetEvents ) {
-    this.sendPhetEvents = sendPhetEvents;
-    return this;
-  };
-
-  axon.Property.prototype.throttle = function( delay ) {
-    this.delay = delay;
-    return this;
-  };
-
-  axon.Property.initArch = function() {
-    //TODO: Is there a better place for this declaration?
-    window.phet = window.phet || {};
-    window.phet.arch = window.phet.arch || {
-
-      //Flag that indicates the sim is not instrumented for a data-driven study.  Provides short-circuiting for lines like: phet.arch.active && (...)
-      active: false,
-
-      //Just return the callback directly.
-      //'user', options.componentID, 'CheckBox', 'toggled',
-      wrap: function( messageType, componentID, componentType, action, callback, options ) {
-        return callback;
+      /**
+       * Gets the value.  You can also use the es5 getter (property.value) but this means is provided for inner loops or internal code that must be fast.
+       * @return {*}
+       */
+      get: function() {
+        return this._value;
       },
 
-      trigger: function() {},
+      /**
+       * Sets the value and notifies registered observers.  You can also use the es5 getter (property.value) but this means is provided for inner loops or internal code that must be fast.
+       * If the value hasn't changed, this is a no-op.
+       *
+       * @param {*} value
+       */
+      set: function( value ) {
+        if ( !this.equalsValue( value ) ) {
+          this._setAndNotifyObservers( value );
+        }
+        return this;
+      },
 
-      start: function() {},
+      // whether this property will not "change" when the passed-in value is set
+      equalsValue: function( value ) {
+        return value === this._value;
+      },
 
-      end: function() {}
-    };
-  };
+      // store the current (new) value
+      storeValue: function( value ) {
+        this._value = value;
+      },
 
-  axon.Property.initArch();
+      // store the initial value
+      storeInitialValue: function( value ) {
+        this._initialValue = value;
+      },
 
-  return axon.Property;
+      get initialValue() {
+        return this._initialValue;
+      },
+
+      _setAndNotifyObservers: function( value ) {
+        var oldValue = this.get();
+        this.storeValue( value );
+        this._notifyObservers( oldValue );
+      },
+
+      _notifyObservers: function( oldValue ) {
+
+        // Note the current value, since it will be sent to possibly multiple observers.
+        var value = this.get();
+
+        // If enabled, send a message to phet events.  Avoid as much work as possible if phet.arch is inactive.
+        var archID = arch && this.sendPhetEvents && arch.start( 'model', this.propertyID, 'Property', 'changed', { value: value } );
+
+        // TODO: JO: avoid slice() by storing observers array correctly
+        var observersCopy = this._observers.slice(); // make a copy, in case notification results in removeObserver
+        for ( var i = 0; i < observersCopy.length; i++ ) {
+          observersCopy[ i ]( value, oldValue );
+        }
+
+        // Send the end message to phet.arch
+        archID && this.sendPhetEvents && arch.end( archID );
+      },
+
+      //Use this method when mutating a value (not replacing with a new instance) and you want to send notifications about the change.
+      //This is different from the normal axon strategy, but may be necessary to prevent memory allocations.
+      //This method is unsafe for removing observers because it assumes the observer list not modified, to save another allocation
+      //Only provides the new reference as a callback (no oldvalue)
+      //See https://github.com/phetsims/axon/issues/6
+      notifyObserversStatic: function() {
+        var value = this.get();
+        for ( var i = 0; i < this._observers.length; i++ ) {
+          this._observers[ i ]( value );
+        }
+      },
+
+      /**
+       * Resets the value to the initial value.
+       */
+      reset: function() {
+        this.set( this._initialValue );
+      },
+
+      /**
+       * This function returns a bound function that sets the specified value.  For use in creating closures e.g. with gui classes.
+       * For instance, to have a button that sets a property to true, instead of using
+       * button.click(function(){property.set(true);});
+       * you could use
+       * button.click(property._set(true));
+       * @param value the value to use when the setter is called.
+       * @return a function that can be used to set the specified value.
+       */
+      _set: function( value ) {
+        return this.set.bind( this, value );
+      },
+
+      get value() { return this.get(); },
+
+      set value( newValue ) { this.set( newValue ); },
+
+      /**
+       * Adds an observer and notifies it immediately.
+       * If observer is already registered, this is a no-op.
+       * The initial notification provides the current value for newValue and null for oldValue.
+       *
+       * @param {function} observer a function of the form observer(newValue,oldValue)
+       */
+      link: function( observer ) {
+        if ( this._observers.indexOf( observer ) === -1 ) {
+          this._observers.push( observer );
+          observer( this.get(), null ); // null should be used when an object is expected but unavailable
+        }
+      },
+
+      /**
+       * Add an observer to the Property, without calling it back right away.  This is used when you need to register a observer without an immediate callback.
+       * @param {function} observer  a function with a single argument, which is the value of the property at the time the function is called.
+       */
+      lazyLink: function( observer ) {
+        if ( this._observers.indexOf( observer ) === -1 ) {
+          this._observers.push( observer );
+        }
+      },
+
+      /**
+       * Removes an observer.
+       * If observer is not registered, this is a no-op.
+       *
+       * @param {function} observer
+       */
+      unlink: function( observer ) {
+        var index = this._observers.indexOf( observer );
+        if ( index !== -1 ) {
+          this._observers.splice( index, 1 );
+        }
+      },
+
+      /**
+       * Links an object's named attribute to this property.  Returns a handle so it can be removed using Property.unlink();
+       * Example: modelVisibleProperty.linkAttribute(view,'visible');
+       *
+       * @param object
+       * @param attributeName
+       */
+      linkAttribute: function( object, attributeName ) {
+        var handle = function( value ) {object[ attributeName ] = value;};
+        this.link( handle );
+        return handle;
+      },
+
+      /**
+       * Unlink an observer added with linkAttribute.  Note: the args of linkAttribute do not match the args of
+       * unlinkAttribute: here, you must pass the observer handle returned by linkAttribute rather than object and attributeName
+       * @param observer
+       */
+      unlinkAttribute: function( observer ) {
+        this.unlink( observer );
+      },
+
+      //Provide toString for console debugging, see http://stackoverflow.com/questions/2485632/valueof-vs-tostring-in-javascript
+      toString: function() {return 'Property{' + this.get() + '}'; },
+      valueOf: function() {return this.toString();},
+
+      /**
+       * Add an observer so that it will only fire once (and not on registration)
+       *
+       * I can see two ways to implement this:
+       * (a) add a field to the observer so after notifications it can be checked and possibly removed. Disadvantage: will make everything slower even if not using 'once'
+       * (b) wrap the observer in a new function which will call the observer and then remove itself.  Disadvantage: cannot remove an observer added using 'once'
+       * To avoid possible performance problems, use a wrapper function, and return it as a handle in case the 'once' observer must be removed before it is called once
+       *
+       * @param observer the observer which should be called back only for one property change (and not on registration)
+       * @returns {function} the wrapper handle in case the wrapped function needs to be removed with 'unlink' before it is called once
+       */
+      once: function( observer ) {
+        var property = this;
+        var wrapper = function( newValue, oldValue ) {
+          property.unlink( wrapper );
+          observer( newValue, oldValue );
+        };
+        this.lazyLink( wrapper );
+        return wrapper;
+      },
+
+      /**
+       * Returns a new axon.DerivedProperty which is true/false based on whether the value matches (based on ===) the passed in argument.
+       * @param value
+       * @returns {DerivedProperty}
+       */
+      valueEquals: function( value ) {
+        return new axon.DerivedProperty( [ this ], function( propertyValue ) { return propertyValue === value; } );
+      },
+
+      /**
+       * Returns a new boolean DerivedProperty which is true/false based on && operator.
+       * @param otherProperty
+       * @returns {DerivedProperty.<boolean>}
+       */
+      and: function( otherProperty ) {
+        return new axon.DerivedProperty( [ this, otherProperty ], function( thisValue, otherValue ) { return thisValue && otherValue; } );
+      },
+
+      /**
+       * Multiply this property's value by a constant scalar number, and return the derived property.
+       *
+       * @param scalar
+       * @returns {DerivedProperty}
+       */
+      times: function( scalar ) {
+        return new axon.DerivedProperty( [ this ], function( thisValue ) { return thisValue * scalar; } );
+      },
+
+      /**
+       * Multiply this property's value by a constant scalar number, and return the derived property.
+       *
+       * @param number
+       * @returns {DerivedProperty}
+       */
+      plus: function( number ) {
+        return new axon.DerivedProperty( [ this ], function( thisValue ) { return thisValue + number; } );
+      },
+
+      /**
+       * Return a derived property that is true if and only if this value is less than the specified number.
+       *
+       * @param number
+       * @returns {DerivedProperty}
+       */
+      lessThanNumber: function( number ) {
+        return new axon.DerivedProperty( [ this ], function( thisValue ) { return thisValue < number; } );
+      },
+
+      /**
+       * Return a derived property that is true if and only if this value is greater than the specified number.
+       *
+       * @param number
+       * @returns {DerivedProperty}
+       */
+      greaterThanNumber: function( number ) {
+        return new axon.DerivedProperty( [ this ], function( thisValue ) { return thisValue > number; } );
+      },
+
+      /**
+       * Not property, which does not propagate changes to dependents.
+       * @returns {DerivedProperty}
+       */
+      derivedNot: function() {
+        return new axon.DerivedProperty( [ this ], function( thisValue ) { return !thisValue; } );
+      },
+
+      /**
+       * Two way communication for not, so you can set the value and have it come back to the parent
+       * Note that noting about the following code is specific to booleans, although this should probably be used mostly for booleans.
+       * To unlink both observers attached unlink a property created with not(), use detach()
+       */
+      not: function() {
+        var parentProperty = this;
+        var childProperty = new axon.Property( !this.value );
+
+        var setParentToChild = function( value ) {childProperty.set( !value );};
+        parentProperty.link( setParentToChild );
+
+        var setChildToParent = function( value ) {parentProperty.set( !value );};
+        childProperty.link( setChildToParent );
+
+        childProperty.detach = function() {
+          parentProperty.unlink( setParentToChild );
+          childProperty.unlink( setChildToParent );
+        };
+        return childProperty;
+      },
+
+      /**
+       * Convenience function for debugging a property values.  It prints the new value on registration and when changed.
+       * @param name debug name to be printed on the console
+       * @returns {function} the handle to the linked observer in case it needs to be removed later
+       */
+      debug: function( name ) {
+        var observer = function( value ) { console.log( name, value ); };
+        this.link( observer );
+        return observer;
+      },
+
+      //Returns a new Property that maps its values using the specified lookup table.
+      //If the parent property value does not appear as a key in the lookup table, the returned property value is undefined
+      mapValues: function( values ) {
+        return new axon.DerivedProperty( [ this ], function( thisValue ) { return values[ thisValue ];} );
+      },
+
+      //Returns a new Property that maps its values using the specified function
+      //See https://github.com/phetsims/axon/issues/25
+      map: function( f ) {
+        return new axon.DerivedProperty( [ this ], function( thisValue ) {return f( thisValue );} );
+      },
+
+      /**
+       * Returns a function that can be used to toggle the property (using !)
+       * @returns {function}
+       */
+      get toggleFunction() {
+        return this.toggle.bind( this );
+      },
+
+      /**
+       * Modifies the value of this Property with the ! operator.  Works for booleans and non-booleans.
+       */
+      toggle: function() {
+        this.value = !this.value;
+      },
+
+      /**
+       * Adds an observer that is fired when the property takes the specified value.  If the property has the value already,
+       * the observer is called back immediately.  A reference to the observer is returned so that it can be removed.
+       *
+       * @param value the value to match
+       * @param observer the observer that is called when this Property
+       */
+      onValue: function( value, observer ) {
+        var onValueObserver = function( v ) {
+          if ( v === value ) {
+            observer();
+          }
+        };
+        this.link( onValueObserver );
+        return onValueObserver;
+      },
+
+      setSendPhetEvents: function( sendPhetEvents ) {
+        this.sendPhetEvents = sendPhetEvents;
+        return this;
+      },
+
+      throttle: function( delay ) {
+        this.delay = delay;
+        return this;
+      }
+    },
+
+    //statics
+    {
+
+      /**
+       * Registers an observer with multiple properties, then notifies the observer immediately.
+       * @param {Property[]} properties
+       * @param {function} observer no params, returns nothing
+       * @static
+       */
+      multilink: function( properties, observer ) {
+        return new axon.Multilink( properties, observer, false );
+      },
+
+      lazyMultilink: function( properties, observer ) {
+        return new axon.Multilink( properties, observer, true );
+      },
+
+      /**
+       * Removes the multilinked observer from this Property.
+       * Same as calling detach() on the handle (which happens to be a DerivedProperty instance)
+       * @param derivedProperty
+       */
+      unmultilink: function( derivedProperty ) {
+        derivedProperty.detach();
+      }
+    } );
 } );
 
 // Copyright 2002-2014, University of Colorado Boulder
@@ -14534,14 +14476,14 @@ define( 'AXON/Property',['require','AXON/axon','AXON/Multilink'],function( requi
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/ObservableBounds2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/extend','PHET_CORE/PoolableMixin','AXON/Property','DOT/Bounds2'],function( require ) {
+define( 'DOT/ObservableBounds2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/extend','PHET_CORE/Poolable','AXON/Property','DOT/Bounds2'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
 
   var inherit = require( 'PHET_CORE/inherit' );
   var extend = require( 'PHET_CORE/extend' );
-  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
+  var Poolable = require( 'PHET_CORE/Poolable' );
   var Property = require( 'AXON/Property' );
   require( 'DOT/Bounds2' );
 
@@ -14636,9 +14578,7 @@ define( 'DOT/ObservableBounds2',['require','DOT/dot','PHET_CORE/inherit','PHET_C
     }
   } ) );
 
-  // experimental object pooling
-  /* jshint -W064 */
-  PoolableMixin( ObservableBounds2, {
+  Poolable.mixin( ObservableBounds2, {
     defaultFactory: function() { return new ObservableBounds2(); },
     constructorDuplicateFactory: function( pool ) {
       return function( minX, minY, maxX, maxY ) {
@@ -14663,14 +14603,14 @@ define( 'DOT/ObservableBounds2',['require','DOT/dot','PHET_CORE/inherit','PHET_C
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/ObservableMatrix3',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/extend','PHET_CORE/PoolableMixin','AXON/Property','DOT/Matrix3'],function( require ) {
+define( 'DOT/ObservableMatrix3',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/extend','PHET_CORE/Poolable','AXON/Property','DOT/Matrix3'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
 
   var inherit = require( 'PHET_CORE/inherit' );
   var extend = require( 'PHET_CORE/extend' );
-  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
+  var Poolable = require( 'PHET_CORE/Poolable' );
   var Property = require( 'AXON/Property' );
   require( 'DOT/Matrix3' );
 
@@ -14780,9 +14720,7 @@ define( 'DOT/ObservableMatrix3',['require','DOT/dot','PHET_CORE/inherit','PHET_C
     toString: dot.Matrix3.prototype.toString
   } ) );
 
-  // experimental object pooling
-  /* jshint -W064 */
-  PoolableMixin( ObservableMatrix3, {
+  Poolable.mixin( ObservableMatrix3, {
     defaultFactory: function() { return new ObservableMatrix3(); },
     constructorDuplicateFactory: function( pool ) {
       return function( v00, v01, v02, v10, v11, v12, v20, v21, v22, type ) {
@@ -14807,14 +14745,14 @@ define( 'DOT/ObservableMatrix3',['require','DOT/dot','PHET_CORE/inherit','PHET_C
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/ObservableVector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/extend','PHET_CORE/PoolableMixin','AXON/Property','DOT/Vector2'],function( require ) {
+define( 'DOT/ObservableVector2',['require','DOT/dot','PHET_CORE/inherit','PHET_CORE/extend','PHET_CORE/Poolable','AXON/Property','DOT/Vector2'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
 
   var inherit = require( 'PHET_CORE/inherit' );
   var extend = require( 'PHET_CORE/extend' );
-  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
+  var Poolable = require( 'PHET_CORE/Poolable' );
   var Property = require( 'AXON/Property' );
   require( 'DOT/Vector2' );
 
@@ -14887,9 +14825,7 @@ define( 'DOT/ObservableVector2',['require','DOT/dot','PHET_CORE/inherit','PHET_C
     }
   } ) );
 
-  // experimental object pooling
-  /* jshint -W064 */
-  PoolableMixin( ObservableVector2, {
+  Poolable.mixin( ObservableVector2, {
     defaultFactory: function() { return new ObservableVector2(); },
     constructorDuplicateFactory: function( pool ) {
       return function( x, y ) {
@@ -15123,12 +15059,12 @@ define( 'DOT/Plane3',['require','DOT/dot','DOT/Vector3'],function( require ) {
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( 'DOT/Quaternion',['require','DOT/dot','PHET_CORE/PoolableMixin','DOT/Vector3','DOT/Matrix3','DOT/Util'],function( require ) {
+define( 'DOT/Quaternion',['require','DOT/dot','PHET_CORE/Poolable','DOT/Vector3','DOT/Matrix3','DOT/Util'],function( require ) {
   
 
   var dot = require( 'DOT/dot' );
 
-  var PoolableMixin = require( 'PHET_CORE/PoolableMixin' );
+  var Poolable = require( 'PHET_CORE/Poolable' );
   require( 'DOT/Vector3' );
   require( 'DOT/Matrix3' );
   require( 'DOT/Util' );
@@ -15378,9 +15314,7 @@ define( 'DOT/Quaternion',['require','DOT/dot','PHET_CORE/PoolableMixin','DOT/Vec
     );
   };
 
-  // experimental object pooling
-  /* jshint -W064 */
-  PoolableMixin( Quaternion, {
+  Poolable.mixin( Quaternion, {
     defaultFactory: function() { return new Quaternion(); },
     constructorDuplicateFactory: function( pool ) {
       return function( x, y, z, w ) {
@@ -16495,7 +16429,7 @@ define( 'PHET_CORE/main',[
   'PHET_CORE/partition',
   'PHET_CORE/phetAllocation',
   'PHET_CORE/platform',
-  'PHET_CORE/PoolableMixin',
+  'PHET_CORE/Poolable',
   'PHET_CORE/profiler'
 ], function( core ) {
   
@@ -16503,8 +16437,6 @@ define( 'PHET_CORE/main',[
 } );
 
 // Copyright 2002-2014, University of Colorado Boulder
-
-window.loadedKiteConfig = true;
 
 require.config( {
   deps: [ 'main', 'DOT/main', 'PHET_CORE/main' ],
@@ -16521,7 +16453,8 @@ require.config( {
     underscore: { exports: '_' }
   },
 
-  urlArgs: new Date().getTime() // add cache buster query string to make browser refresh actually reload everything
+  // optional cache buster to make browser refresh load all included scripts, can be disabled with ?cacheBuster=false
+  urlArgs: Date.now()
 } );
 
 define("config", function(){});
