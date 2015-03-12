@@ -2,7 +2,6 @@
   "name": "kite",
   "version": "0.0.0",
   "license": "MIT",
-  "phetLibs": "kite axon assert chipper dot phet-core sherpa",
   "repository": {
     "type": "git",
     "url": "https://github.com/phetsims/kite.git"
