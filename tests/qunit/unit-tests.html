@@ -48,10 +48,10 @@
 <script>
 
   require( [ 'config' ], function() {
-    require( [ 'main', 'DOT/main', 'PHET_CORE/main' ], function( kite, dot, core ) {
+    require( [ 'main', 'DOT/main', 'PHET_CORE/main' ], function( kite, dot, phetCore ) {
       window.kite = kite;
       window.dot = dot;
-      window.core = core;
+      window.phetCore = phetCore;
 
       runKiteTests( '.' );
       runDotTests( '../../../dot/tests/qunit' );
