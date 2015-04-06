@@ -384,10 +384,6 @@ define( function( require ) {
       return result.sort();
     },
 
-    intersectsBounds: function( bounds ) {
-      throw new Error( 'Segment.Cubic.intersectsBounds unimplemented' ); // TODO: implement
-    },
-
     // returns the resultant winding number of this ray intersecting this segment.
     intersection: function( ray ) {
       var self = this;

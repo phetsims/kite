@@ -51,7 +51,7 @@
     ok( shape.bounds.isFinite() || shape.bounds.isEmpty() ); // relies on the boundary case from dot
   } );
 
-  test( 'bucket hit region', function() {
+  test( 'Bucket hit region', function() {
     var shape = new kite.Shape().moveTo( -60, 0 )
       .lineTo( -48, 42 )
       .cubicCurveTo( -36, 51, 36, 51, 48, 42 )
@@ -62,5 +62,18 @@
     var ray = new dot.Ray2( point, dot( 1, 0 ) );
 
     equal( 0, shape.windingIntersection( ray ), 'The winding intersection should be zero' );
+  } );
+
+  test( 'intersectsBounds', function() {
+    ok( !kite.Shape.circle( 0, 0, 2 ).intersectsBounds( new dot.Bounds2( -1, -1, 1, 1 ) ),
+      'Circle surrounds the bounds but should not intersect' );
+    ok( kite.Shape.circle( 0, 0, 1.3 ).intersectsBounds( new dot.Bounds2( -1, -1, 1, 1 ) ),
+      'Circle intersects the bounds' );
+    ok( kite.Shape.circle( 0, 0, 0.9 ).intersectsBounds( new dot.Bounds2( -1, -1, 1, 1 ) ),
+      'Circle contained within the bounds' );
+    ok( ( new kite.Shape() ).moveTo( -2, 0 ).lineTo( 2, 0 ).intersectsBounds( new dot.Bounds2( -1, -1, 1, 1 ) ),
+      'Line goes through bounds directly' );
+    ok( !( new kite.Shape() ).moveTo( -2, 2 ).lineTo( 2, 2 ).intersectsBounds( new dot.Bounds2( -1, -1, 1, 1 ) ),
+      'Line goes above bounds' );
   } );
 })();

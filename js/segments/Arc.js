@@ -311,10 +311,6 @@ define( function( require ) {
       ];
     },
 
-    intersectsBounds: function( bounds ) {
-      throw new Error( 'Segment.intersectsBounds unimplemented!' );
-    },
-
     intersection: function( ray ) {
       var result = []; // hits in order
 

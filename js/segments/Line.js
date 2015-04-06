@@ -118,10 +118,6 @@ define( function( require ) {
       ];
     },
 
-    intersectsBounds: function( bounds ) {
-      throw new Error( 'Segment.Line.intersectsBounds unimplemented' ); // TODO: implement
-    },
-
     intersection: function( ray ) {
       // We solve for the parametric line-line intersection, and then ensure the parameters are within both
       // the line segment and forwards from the ray.

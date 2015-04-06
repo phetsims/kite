@@ -31,7 +31,6 @@ define( function( require ) {
    * getSVGPathFragment()     - returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls this needs to put the M calls first
    * strokeLeft( lineWidth )  - returns an array of segments that will draw an offset curve on the logical left side
    * strokeRight( lineWidth ) - returns an array of segments that will draw an offset curve on the logical right side
-   * intersectsBounds         - whether this segment intersects the specified bounding box (not just the segment's bounding box, but the actual segment)
    * windingIntersection      - returns the winding number for intersection with a ray
    * getInteriorExtremaTs     - returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
    *

@@ -542,27 +542,44 @@ define( function( require ) {
       return wind;
     },
 
+    /**
+     * Whether the path of the Shape intersects (or is contained in) the provided bounding box.
+     * Computed by checking intersections with all four edges of the bounding box, or whether the Shape is totally
+     * contained within the bounding box.
+     *
+     * @param {Bounds2} bounds
+     */
     intersectsBounds: function( bounds ) {
-      var numSubpaths = this.subpaths.length;
-      for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[ i ];
+      // If the bounding box completely surrounds our shape, it intersects the bounds
+      if ( this.bounds.intersection( bounds ).equals( this.bounds ) ) {
+        return true;
+      }
 
-        if ( subpath.isDrawable() ) {
-          var numSegments = subpath.segments.length;
-          for ( var k = 0; k < numSegments; k++ ) {
-            if ( subpath.segments[ k ].intersectsBounds( bounds ) ) {
-              return true;
-            }
-          }
+      // rays for hit testing along the bounding box edges
+      var minHorizontalRay = new Ray2( new Vector2( bounds.minX, bounds.minY ), new Vector2( 1, 0 ) );
+      var minVerticalRay = new Ray2( new Vector2( bounds.minX, bounds.minY ), new Vector2( 0, 1 ) );
+      var maxHorizontalRay = new Ray2( new Vector2( bounds.maxX, bounds.maxY ), new Vector2( -1, 0 ) );
+      var maxVerticalRay = new Ray2( new Vector2( bounds.maxX, bounds.maxY ), new Vector2( 0, -1 ) );
 
-          // handle the implicit closing line segment
-          if ( subpath.hasClosingSegment() ) {
-            if ( subpath.getClosingSegment().intersectsBounds( bounds ) ) {
-              return true;
-            }
-          }
+      var hitPoint, i;
+      // TODO: could optimize to intersect differently so we bail sooner
+      var horizontalRayIntersections = this.intersection( minHorizontalRay ).concat( this.intersection( maxHorizontalRay ) );
+      for ( i = 0; i < horizontalRayIntersections.length; i++ ) {
+        hitPoint = horizontalRayIntersections[i].point;
+        if ( hitPoint.x >= bounds.minX && hitPoint.x <= bounds.maxX ) {
+          return true;
         }
       }
+
+      var verticalRayIntersections = this.intersection( minVerticalRay ).concat( this.intersection( maxVerticalRay ) );
+      for ( i = 0; i < verticalRayIntersections.length; i++ ) {
+        hitPoint = verticalRayIntersections[i].point;
+        if ( hitPoint.y >= bounds.minY && hitPoint.y <= bounds.maxY ) {
+          return true;
+        }
+      }
+
+      // not contained, and no intersections with the sides of the bounding box
       return false;
     },
 

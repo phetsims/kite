@@ -426,10 +426,6 @@ define( function( require ) {
       ];
     },
 
-    intersectsBounds: function( bounds ) {
-      throw new Error( 'Segment.EllipticalArc.intersectsBounds unimplemented' );
-    },
-
     intersection: function( ray ) {
       // be lazy. transform it into the space of a non-elliptical arc.
       var unitTransform = this.getUnitTransform();
