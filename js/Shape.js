@@ -92,7 +92,7 @@ define( function( require ) {
     // Adds a new subpath if there have already been draw calls made. Will prevent any line or connection from the last
     // draw call to future draw calls.
     subpath: function() {
-      if ( !this.hasSubpaths() ) {
+      if ( this.hasSubpaths() ) {
         this.addSubpath( new kite.Subpath() );
       }
 
