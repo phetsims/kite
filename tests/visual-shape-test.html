@@ -79,6 +79,7 @@
     <button id="errect">errect</button>
     <button id="bucket">bucket</button>
     <button id="polarrow">polarrow</button>
+    <button id="spline">spline</button>
     <input id="svgPath" type="text"></input>
 
     <div class="label">Cap</div>
@@ -515,6 +516,14 @@
             .close();
 
         shape = shape.polarToCartesian();
+      } );
+      updateListener( 'spline', function() {
+        shape = new kite.Shape().cardinalSpline( [
+          dot( -100, -100 ),
+          dot( 100, -100 ),
+          dot( -100, 100 ),
+          dot( 100, 100 )
+        ] );
       } );
       updateListener( 'svgPath', function() {
         var s;

@@ -43,6 +43,15 @@ define( function( require ) {
 
   function v( x, y ) { return new Vector2( x, y ); } // TODO: use this version in general, it makes more sense and is easier to type
 
+  // The tension parameter controls how smoothly the curve turns through its control points. For a Catmull-Rom
+  // curve, the tension is zero. The tension should be in the range from -1 to 1.
+  function weightedSplineVector( beforeVector, currentVector, afterVector, tension ) {
+    return afterVector.copy()
+                      .subtract( beforeVector )
+                      .multiplyScalar( ( 1 - tension ) / 6 )
+                      .add( currentVector );
+  }
+
   // a normalized vector for non-zero winding checks
   // var weirdDir = p( Math.PI, 22 / 7 );
 
@@ -367,6 +376,87 @@ define( function( require ) {
         }
       }
       return this.close();
+    },
+
+    /**
+     * This is a convenience function that allows to generate Cardinal splines
+     * from a position array. Cardinal spline differs from Bezier curves in that all
+     * defined points on a Cardinal spline are on the path itself.
+     *
+     * It include a tension parameter to allow the client to specify how tightly
+     * the path interpolates between points. One can think of the tension as the tension in
+     * a rubber band around pegs. however unlike a rubber band the tension can be negative.
+     * the tension ranges from -1 to 1.
+     *
+     * NOTE: May have issues with smoothness right now, TODO: ensure correctness!
+     *
+     * @param {Array.<Vector2>} positions
+     * @param {Object} [options] - see documentation below
+     * @returns {Shape}
+     */
+    cardinalSpline: function( positions, options ) {
+      options = _.extend( {
+        // the tension parameter controls how smoothly the curve turns through its
+        // control points. For a Catmull-Rom curve the tension is zero.
+        // the tension should range from -1 to 1
+        tension: 0,
+
+        // is the resulting shape forming a close path
+        isClosedLineSegments: false,
+      }, options );
+
+      // if the line is open, there is one less segment than point vectors
+      var segmentNumber = ( options.isClosedLineSegments ) ? positions.length : positions.length - 1;
+
+      for ( var i = 0; i < segmentNumber; i++ ) {
+        var cardinalPoints; // {Array.<Vector2>} cardinal points Array
+        if ( i === 0 && !options.isClosedLineSegments ) {
+          cardinalPoints = [
+            positions[ 0 ],
+            positions[ 0 ],
+            positions[ 1 ],
+            positions[ 2 ] ];
+        }
+        else if ( (i === segmentNumber - 1) && !options.isClosedLineSegments ) {
+          cardinalPoints = [
+            positions[ i - 1 ],
+            positions[ i ],
+            positions[ i + 1 ],
+            positions[ i + 1 ] ];
+        }
+        else {
+          cardinalPoints = [
+            positions[ ( i - 1 + segmentNumber ) % segmentNumber ],
+            positions[ i % segmentNumber ],
+            positions[ ( i + 1 ) % segmentNumber ],
+            positions[ ( i + 2 ) % segmentNumber ] ];
+        }
+
+        // Cardinal Spline to Cubic Bezier conversion matrix
+        //    0                 1             0            0
+        //  (-1+tension)/6      1      (1-tension)/6       0
+        //    0            (1-tension)/6      1       (-1+tension)/6
+        //    0                 0             1           0
+
+        // {Array.<Vector2>} bezier points Array
+        var bezierPoints = [
+          cardinalPoints[ 1 ],
+          weightedSplineVector( cardinalPoints[ 0 ], cardinalPoints[ 1 ], cardinalPoints[ 2 ], options.tension ),
+          weightedSplineVector( cardinalPoints[ 3 ], cardinalPoints[ 2 ], cardinalPoints[ 1 ], options.tension ),
+          cardinalPoints[ 2 ]
+        ];
+
+        // special operations on the first point
+        if ( i === 0 ) {
+          this.ensure( bezierPoints[ 0 ] );
+          this.getLastSubpath().addPoint( bezierPoints[ 0 ] );
+        }
+
+        // this.moveToPoint( bezierPoints[ 0 ] );
+        this.cubicCurveToPoint( bezierPoints[ 1 ], bezierPoints[ 2 ], bezierPoints[ 3 ] );
+      }
+
+      return this;
     },
 
     copy: function() {
