@@ -44,12 +44,12 @@ define( function( require ) {
   function v( x, y ) { return new Vector2( x, y ); } // TODO: use this version in general, it makes more sense and is easier to type
 
   // The tension parameter controls how smoothly the curve turns through its control points. For a Catmull-Rom
-  // curve, the tension is zero. The tension should be in the range from -1 to 1.
+  // curve, the tension is zero. The tension should range from -1 to 1.
   function weightedSplineVector( beforeVector, currentVector, afterVector, tension ) {
     return afterVector.copy()
-                      .subtract( beforeVector )
-                      .multiplyScalar( ( 1 - tension ) / 6 )
-                      .add( currentVector );
+      .subtract( beforeVector )
+      .multiplyScalar( ( 1 - tension ) / 6 )
+      .add( currentVector );
   }
 
   // a normalized vector for non-zero winding checks
@@ -383,7 +383,7 @@ define( function( require ) {
      * from a position array. Cardinal spline differs from Bezier curves in that all
      * defined points on a Cardinal spline are on the path itself.
      *
-     * It include a tension parameter to allow the client to specify how tightly
+     * It includes a tension parameter to allow the client to specify how tightly
      * the path interpolates between points. One can think of the tension as the tension in
      * a rubber band around pegs. however unlike a rubber band the tension can be negative.
      * the tension ranges from -1 to 1.
@@ -402,11 +402,12 @@ define( function( require ) {
         tension: 0,
 
         // is the resulting shape forming a close path
-        isClosedLineSegments: false,
+        isClosedLineSegments: false
       }, options );
 
-      // if the line is open, there is one less segment than point vectors
-      var segmentNumber = ( options.isClosedLineSegments ) ? positions.length : positions.length - 1;
+      var pointNumber = positions.length;
+      // if the line is open, there is one less segments than point vectors
+      var segmentNumber = ( options.isClosedLineSegments ) ? pointNumber : pointNumber - 1;
 
       for ( var i = 0; i < segmentNumber; i++ ) {
         var cardinalPoints; // {Array.<Vector2>} cardinal points Array
@@ -426,10 +427,10 @@ define( function( require ) {
         }
         else {
           cardinalPoints = [
-            positions[ ( i - 1 + segmentNumber ) % segmentNumber ],
-            positions[ i % segmentNumber ],
-            positions[ ( i + 1 ) % segmentNumber ],
-            positions[ ( i + 2 ) % segmentNumber ] ];
+            positions[ ( i - 1 + pointNumber ) % pointNumber ],
+            positions[ i % pointNumber ],
+            positions[ ( i + 1 ) % pointNumber ],
+            positions[ ( i + 2 ) % pointNumber ] ];
         }
 
         // Cardinal Spline to Cubic Bezier conversion matrix
@@ -665,7 +666,7 @@ define( function( require ) {
       // TODO: could optimize to intersect differently so we bail sooner
       var horizontalRayIntersections = this.intersection( minHorizontalRay ).concat( this.intersection( maxHorizontalRay ) );
       for ( i = 0; i < horizontalRayIntersections.length; i++ ) {
-        hitPoint = horizontalRayIntersections[i].point;
+        hitPoint = horizontalRayIntersections[ i ].point;
         if ( hitPoint.x >= bounds.minX && hitPoint.x <= bounds.maxX ) {
           return true;
         }
@@ -673,7 +674,7 @@ define( function( require ) {
 
       var verticalRayIntersections = this.intersection( minVerticalRay ).concat( this.intersection( maxVerticalRay ) );
       for ( i = 0; i < verticalRayIntersections.length; i++ ) {
-        hitPoint = verticalRayIntersections[i].point;
+        hitPoint = verticalRayIntersections[ i ].point;
         if ( hitPoint.y >= bounds.minY && hitPoint.y <= bounds.maxY ) {
           return true;
         }
