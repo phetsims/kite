@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="viewport"
+        content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes">
 
   <title>Visual Shape Test</title>
@@ -493,7 +494,7 @@
             .cubicCurveTo( -36, 51, 36, 51, 48, 42 )
             .lineTo( 60, 0 )
             .ellipticalArc( 0, 0, 60, 7.5, 0, 0, -Math.PI, false )
-            .close()
+            .close();
         var point = dot( -131.07772925764198, -274.65043668122274 );
         var ray = new dot.Ray2( point, dot( 1, 0 ) );
         debugger;
@@ -523,7 +524,7 @@
           dot( 100, -100 ),
           dot( -100, 100 ),
           dot( 100, 100 )
-        ] );
+        ], { isClosedLineSegments: true } );
       } );
       updateListener( 'svgPath', function() {
         var s;
