@@ -386,7 +386,7 @@ define( function( require ) {
      * It includes a tension parameter to allow the client to specify how tightly
      * the path interpolates between points. One can think of the tension as the tension in
      * a rubber band around pegs. however unlike a rubber band the tension can be negative.
-     * the tension ranges from -1 to 1.
+     * the tension ranges from -1 to 0.9999999.
      *
      * NOTE: May have issues with smoothness right now, TODO: ensure correctness!
      *
@@ -398,12 +398,14 @@ define( function( require ) {
       options = _.extend( {
         // the tension parameter controls how smoothly the curve turns through its
         // control points. For a Catmull-Rom curve the tension is zero.
-        // the tension should range from -1 to 1
+        // the tension should range from  [-1,1) , i.e. 1 is not included in the range but -1 is
         tension: 0,
 
-        // is the resulting shape forming a close path
+        // is the resulting shape forming a close path?
         isClosedLineSegments: false
       }, options );
+
+      assert && assert( options.tension < 1 && options.tension >= -1, ' the tension goes from [-1,1) ' );
 
       var pointNumber = positions.length;
       // if the line is open, there is one less segments than point vectors
@@ -453,7 +455,6 @@ define( function( require ) {
           this.getLastSubpath().addPoint( bezierPoints[ 0 ] );
         }
 
-        // this.moveToPoint( bezierPoints[ 0 ] );
         this.cubicCurveToPoint( bezierPoints[ 1 ], bezierPoints[ 2 ], bezierPoints[ 3 ] );
       }
 
