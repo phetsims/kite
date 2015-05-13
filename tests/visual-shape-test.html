@@ -520,11 +520,21 @@
       } );
       updateListener( 'spline', function() {
         shape = new kite.Shape().cardinalSpline( [
-          dot( -100, -100 ),
-          dot( 100, -100 ),
-          dot( -100, 100 ),
-          dot( 100, 100 )
-        ], { isClosedLineSegments: true } );
+          dot( -100, 0 ),
+          dot( 100, 0 ),
+          dot( -100, 200 ),
+          dot( 100, 200 )
+        ], { isClosedLineSegments: true, tension: -1 } ).close().cardinalSpline( [
+          dot( 200, 0 ),
+          dot( 400, 0 ),
+          dot( 200, 200 ),
+          dot( 400, 200 )
+        ], { isClosedLineSegments: true, tension: 0 } ).close().cardinalSpline( [
+          dot( 500, 0 ),
+          dot( 700, 0 ),
+          dot( 500, 200 ),
+          dot( 700, 200 )
+        ], { isClosedLineSegments: true, tension: 1 } ).close();
       } );
       updateListener( 'svgPath', function() {
         var s;

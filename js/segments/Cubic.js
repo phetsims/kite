@@ -244,6 +244,8 @@ define( function( require ) {
     },
 
     getNondegenerateSegments: function() {
+      var self = this;
+
       var start = this._start;
       var control1 = this._control1;
       var control2 = this._control2;
@@ -266,7 +268,23 @@ define( function( require ) {
         return reduced.getNondegenerateSegments();
       }
       else if ( arePointsCollinear( start, control1, end ) && arePointsCollinear( start, control2, end ) ) {
-        throw new Error( 'TODO, use extrema T funcs' );
+        var extremaPoints = this.getXExtremaT().concat( this.getYExtremaT() ).sort().map( function( t ) {
+          return self.positionAt( t );
+        } );
+
+        var segments = [];
+        var lastPoint = start;
+        if ( extremaPoints.length ) {
+          segments.push( new Segment.Line( start, extremaPoints[ 0 ] ) );
+          lastPoint = extremaPoints[ 0 ];
+        }
+        for ( var i = 1; i < extremaPoints.length; i++ ) {
+          segments.push( new Segment.Line( extremaPoints[ i - 1 ], extremaPoints[ i ] ) );
+          lastPoint = extremaPoints[ i ];
+        }
+        segments.push( new Segment.Line( lastPoint, end ) );
+
+        return _.flatten( segments.map( function( segment ) { return segment.getNondegenerateSegments(); } ), true );
       }
       else {
         return [ this ];
@@ -499,6 +517,10 @@ define( function( require ) {
 
   // finds what t values the cubic extrema are at (if any). This is just the 1-dimensional case, used for multiple purposes
   Segment.Cubic.extremaT = function( v0, v1, v2, v3 ) {
+    if ( v0 === v1 && v0 === v2 && v0 === v3 ) {
+      return [];
+    }
+
     // coefficients of derivative
     var a = -3 * v0 + 9 * v1 - 9 * v2 + 3 * v3;
     var b = 6 * v0 - 12 * v1 + 6 * v2;
