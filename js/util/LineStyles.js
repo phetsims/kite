@@ -57,10 +57,13 @@ define( function( require ) {
     /*
      * Creates an array of Segments that make up a line join, to the left side.
      *
-     * Joins two segments together on the logical "left" side, at 'center' (where they meet), and normalized tangent
+     * Joins two segments together on the logical "left" side, at 'center' (where they meet), and un-normalized tangent
      * vectors in the direction of the stroking. To join on the "right" side, switch the tangent order and negate them.
      */
     leftJoin: function( center, fromTangent, toTangent ) {
+      fromTangent = fromTangent.normalized();
+      toTangent = toTangent.normalized();
+
       // where our join path starts and ends
       var fromPoint = center.plus( fromTangent.perpendicular().negated().times( this.lineWidth / 2 ) );
       var toPoint = center.plus( toTangent.perpendicular().negated().times( this.lineWidth / 2 ) );
@@ -114,6 +117,8 @@ define( function( require ) {
      * Creates an array of Segments that make up a line cap from the endpoint 'center' in the direction of the tangent
      */
     cap: function( center, tangent ) {
+      tangent = tangent.normalized();
+
       var fromPoint = center.plus( tangent.perpendicular().times( -this.lineWidth / 2 ) );
       var toPoint = center.plus( tangent.perpendicular().times( this.lineWidth / 2 ) );
 
