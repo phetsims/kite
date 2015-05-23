@@ -13,6 +13,7 @@ define( function( require ) {
   'use strict';
 
   var Bounds2 = require( 'DOT/Bounds2' );
+  var inherit = require( 'PHET_CORE/inherit' );
 
   var kite = require( 'KITE/kite' );
 
@@ -38,7 +39,8 @@ define( function( require ) {
     } );
   };
   var Subpath = kite.Subpath;
-  Subpath.prototype = {
+
+  inherit( Object, Subpath, {
     copy: function() {
       return new Subpath( this.segments.slice( 0 ), this.points.slice( 0 ), this.closed );
     },
@@ -320,7 +322,7 @@ define( function( require ) {
 
       return subpaths;
     }
-  };
+  } );
 
   return kite.Subpath;
 } );

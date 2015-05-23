@@ -28,6 +28,7 @@ define( function( require ) {
   var Bounds2 = require( 'DOT/Bounds2' );
   var Ray2 = require( 'DOT/Ray2' );
 
+  var inherit = require( 'PHET_CORE/inherit' );
   var Subpath = require( 'KITE/util/Subpath' );
 
   var svgPath = require( 'KITE/parser/svgPath' );
@@ -80,8 +81,7 @@ define( function( require ) {
   };
   var Shape = kite.Shape;
 
-  Shape.prototype = {
-    constructor: Shape,
+  inherit( Object, Shape, {
 
     // for tracking the last quadratic/cubic control point for smooth* functions
     // see https://github.com/phetsims/kite/issues/38
@@ -795,7 +795,7 @@ define( function( require ) {
       var lastPoint = this.getLastPoint();
       return lastPoint ? lastPoint : Vector2.ZERO;
     }
-  };
+  } );
 
   /*---------------------------------------------------------------------------*
    * Shape shortcuts

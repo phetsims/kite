@@ -11,6 +11,7 @@ define( function( require ) {
 
   var kite = require( 'KITE/kite' );
 
+  var inherit = require( 'PHET_CORE/inherit' );
   var DotUtil = require( 'DOT/Util' );
   var Bounds2 = require( 'DOT/Bounds2' );
 
@@ -42,9 +43,7 @@ define( function( require ) {
 
   var identityFunction = function identityFunction( x ) { return x; };
 
-  Segment.prototype = {
-    constructor: Segment,
-
+  inherit( Object, Segment, {
     // TODO: override everywhere so this isn't necessary (it's not particularly efficient!)
     getBoundsWithTransform: function( matrix ) {
       var transformedSegment = this.transformed( matrix );
@@ -124,7 +123,7 @@ define( function( require ) {
       }
       return segments;
     }
-  };
+  } );
 
   // list of { segment: ..., t: ..., closestPoint: ..., distanceSquared: ... } (since there can be duplicates), threshold is used for subdivision,
   // where it will exit if all of the segments are shorter than the threshold

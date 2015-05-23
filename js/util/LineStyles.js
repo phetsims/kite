@@ -11,6 +11,7 @@ define( function( require ) {
 
   var kite = require( 'KITE/kite' );
   var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
+  var inherit = require( 'PHET_CORE/inherit' );
 
   kite.LineStyles = function( args ) {
     if ( args === undefined ) {
@@ -26,8 +27,8 @@ define( function( require ) {
     assert && assert( Array.isArray( this.lineDash ) );
   };
   var LineStyles = kite.LineStyles;
-  LineStyles.prototype = {
-    constructor: LineStyles,
+
+  inherit( Object, LineStyles, {
 
     equals: function( other ) {
       var typical = this.lineWidth === other.lineWidth &&
@@ -142,7 +143,7 @@ define( function( require ) {
           ];
       }
     }
-  };
+  } );
 
   return kite.LineStyles;
 } );
