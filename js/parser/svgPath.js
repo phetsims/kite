@@ -1,5 +1,5 @@
 // NOTE: Generated from svgPath.pegjs using PEG.js, with added kite namespace and require.js compatibility.
-// See svgPath.pegjs for more documentation
+// See svgPath.pegjs for more documentation, or run "grunt generate-svgPath-parser" to regenerate.
 
 define( function( require ) {
   var kite = require( 'KITE/kite' );
