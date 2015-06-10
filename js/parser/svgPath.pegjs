@@ -1,3 +1,11 @@
+/*
+ * Grammar syntax for parsing SVG path strings using PEG.js. After being processed (grunt generate-svgPath-parser),
+ * it will generate svgPath.js in the same directory, which will be able to parse SVG paths into a Shape. This is done
+ * by using the embedded JS snippets here to mutate a Shape according to the commands that need to be run.
+ *
+ * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ */
+
 {
   function createMoveTo( args, isRelative ) {
     var result = [ {

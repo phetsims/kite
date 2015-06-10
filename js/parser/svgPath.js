@@ -1,7 +1,7 @@
-// generated from svgPath.pegjs, with added kite namespace and require.js compatibility
+// NOTE: Generated from svgPath.pegjs using PEG.js, with added kite namespace and require.js compatibility.
+// See svgPath.pegjs for more documentation
 
 define( function( require ) {
-
   var kite = require( 'KITE/kite' );
 
   /*
@@ -33,7 +33,7 @@ define( function( require ) {
            + '"';
   }
 
-  kite.svgPath = {
+  var result = {
     /*
      * Parses the input with a generated parser. If the parsing is successfull,
      * returns a value explicitly or implicitly specified by the grammar from
@@ -2668,12 +2668,10 @@ define( function( require ) {
 
 
       function createMoveTo( args, isRelative ) {
-        var result = [
-          {
-            cmd: isRelative ? 'moveToRelative' : 'moveTo',
-            args: [ args[ 0 ].x, args[ 0 ].y ]
-          }
-        ];
+        var result = [ {
+          cmd: isRelative ? 'moveToRelative' : 'moveTo',
+          args: [ args[ 0 ].x, args[ 0 ].y ]
+        } ];
 
         // any other coordinate pairs are implicit lineTos
         if ( args.length > 1 ) {
@@ -2734,7 +2732,6 @@ define( function( require ) {
     /* Returns the parser source code. */
     toSource: function() { return this._source; }
   };
-  var result = kite.svgPath;
 
   /* Thrown when a parser encounters a syntax error. */
 
@@ -2771,5 +2768,6 @@ define( function( require ) {
 
   result.SyntaxError.prototype = Error.prototype;
 
-  return result;
+  kite.svgPath = result;
+  return kite.svgPath;
 } );
