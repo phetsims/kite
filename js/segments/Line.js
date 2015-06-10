@@ -152,7 +152,7 @@ define( function( require ) {
       var s = ( diff.x * ( start.y - ray.pos.y ) - diff.y * ( start.x - ray.pos.x ) ) / denom;
 
       // bail if it is behind our ray
-      if ( s < 0.000001 ) {
+      if ( s < 0.00000001 ) {
         return result;
       }
 
