@@ -25,56 +25,54 @@ define( function( require ) {
   var Segment = require( 'KITE/segments/Segment' );
   require( 'KITE/segments/Quadratic' );
 
-  Segment.Cubic = function Cubic( start, control1, control2, end ) {
+  /**
+   * @param {Vector2} start - Start point of the cubic bezier
+   * @param {Vector2} control1 - First control point
+   * @param {Vector2} control2 - Second control point
+   * @param {Vector2} end - End point of the cubic bezier
+   * @constructor
+   */
+  kite.Cubic = Segment.Cubic = function Cubic( start, control1, control2, end ) {
+    Segment.call( this );
+
     this._start = start;
     this._control1 = control1;
     this._control2 = control2;
     this._end = end;
 
-    // TODO: performance test removal of these undefined declarations
-    this._startTangent = undefined;
-    this._endTangent = undefined;
-    this._r = undefined;
-    this._s = undefined;
-
-    this._tCusp = undefined;
-    this._tDeterminant = undefined;
-    this._tInflection1 = undefined;
-    this._tInflection2 = undefined;
-    this._startQuadratic = undefined;
-    this._endQuadratic = undefined;
-
-    this._xExtremaT = undefined;
-    this._yExtremaT = undefined;
-
-    this._bounds = undefined;
+    this.invalidate();
   };
   inherit( Segment, Segment.Cubic, {
 
     degree: 3,
 
-    getStart: function() {
-      return this._start;
-    },
-    get start() { return this._start; },
+    // @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
+    invalidate: function() {
+      // Lazily-computed derived information
+      this._startTangent = null; // {Vector2 | null}
+      this._endTangent = null; // {Vector2 | null}
+      this._r = null; // {number | null}
+      this._s = null; // {number | null}
 
-    getControl1: function() {
-      return this._control1;
-    },
-    get control1() { return this._control1; },
+      // Cusp-specific information
+      this._tCusp = null; // {number | null} - T value for a potential cusp
+      this._tDeterminant = null; // {number | null}
+      this._tInflection1 = null; // {number | null} - NaN if not applicable
+      this._tInflection2 = null; // {number | null} - NaN if not applicable
+      this._startQuadratic = null; // {Segment.Quadratic | null}
+      this._endQuadratic = null; // {Segment.Quadratic | null}
 
-    getControl2: function() {
-      return this._control2;
-    },
-    get control2() { return this._control2; },
+      // T-values where X and Y (respectively) reach an extrema (not necessarily including 0 and 1)
+      this._xExtremaT = null; // {Array.<number> | null}
+      this._yExtremaT = null; // {Array.<number> | null}
 
-    getEnd: function() {
-      return this._end;
+      this._bounds = null; // {Bounds2 | null}
+
+      this.trigger0( 'invalidated' );
     },
-    get end() { return this._end; },
 
     getStartTangent: function() {
-      if ( this._startTangent === undefined ) {
+      if ( this._startTangent === null ) {
         this._startTangent = this.tangentAt( 0 ).normalized();
       }
       return this._startTangent;
@@ -82,7 +80,7 @@ define( function( require ) {
     get startTangent() { return this.getStartTangent(); },
 
     getEndTangent: function() {
-      if ( this._endTangent === undefined ) {
+      if ( this._endTangent === null ) {
         this._endTangent = this.tangentAt( 1 ).normalized();
       }
       return this._endTangent;
@@ -91,7 +89,7 @@ define( function( require ) {
 
     getR: function() {
       // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
-      if ( this._r === undefined ) {
+      if ( this._r === null ) {
         this._r = this._control1.minus( this._start ).normalized();
       }
       return this._r;
@@ -100,7 +98,7 @@ define( function( require ) {
 
     getS: function() {
       // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
-      if ( this._s === undefined ) {
+      if ( this._s === null ) {
         this._s = this.getR().perpendicular();
       }
       return this._s;
@@ -108,61 +106,61 @@ define( function( require ) {
     get s() { return this.getS(); },
 
     getTCusp: function() {
-      if ( this._tCusp === undefined ) {
+      if ( this._tCusp === null ) {
         this.computeCuspInfo();
       }
-      assert && assert( this._tCusp !== undefined );
+      assert && assert( this._tCusp !== null );
       return this._tCusp;
     },
     get tCusp() { return this.getTCusp(); },
 
     getTDeterminant: function() {
-      if ( this._tDeterminant === undefined ) {
+      if ( this._tDeterminant === null ) {
         this.computeCuspInfo();
       }
-      assert && assert( this._tDeterminant !== undefined );
+      assert && assert( this._tDeterminant !== null );
       return this._tDeterminant;
     },
     get tDeterminant() { return this.getTDeterminant(); },
 
     getTInflection1: function() {
-      if ( this._tInflection1 === undefined ) {
+      if ( this._tInflection1 === null ) {
         this.computeCuspInfo();
       }
-      assert && assert( this._tInflection1 !== undefined );
+      assert && assert( this._tInflection1 !== null );
       return this._tInflection1;
     },
     get tInflection1() { return this.getTInflection1(); },
 
     getTInflection2: function() {
-      if ( this._tInflection2 === undefined ) {
+      if ( this._tInflection2 === null ) {
         this.computeCuspInfo();
       }
-      assert && assert( this._tInflection2 !== undefined );
+      assert && assert( this._tInflection2 !== null );
       return this._tInflection2;
     },
     get tInflection2() { return this.getTInflection2(); },
 
     getStartQuadratic: function() {
-      if ( this._startQuadratic === undefined ) {
+      if ( this._startQuadratic === null ) {
         this.computeCuspSegments();
       }
-      assert && assert( this._startQuadratic !== undefined );
+      assert && assert( this._startQuadratic !== null );
       return this._startQuadratic;
     },
     get startQuadratic() { return this.getStartQuadratic(); },
 
     getEndQuadratic: function() {
-      if ( this._endQuadratic === undefined ) {
+      if ( this._endQuadratic === null ) {
         this.computeCuspSegments();
       }
-      assert && assert( this._endQuadratic !== undefined );
+      assert && assert( this._endQuadratic !== null );
       return this._endQuadratic;
     },
     get endQuadratic() { return this.getEndQuadratic(); },
 
     getXExtremaT: function() {
-      if ( this._xExtremaT === undefined ) {
+      if ( this._xExtremaT === null ) {
         this._xExtremaT = Segment.Cubic.extremaT( this._start.x, this._control1.x, this._control2.x, this._end.x );
       }
       return this._xExtremaT;
@@ -170,7 +168,7 @@ define( function( require ) {
     get xExtremaT() { return this.getXExtremaT(); },
 
     getYExtremaT: function() {
-      if ( this._yExtremaT === undefined ) {
+      if ( this._yExtremaT === null ) {
         this._yExtremaT = Segment.Cubic.extremaT( this._start.y, this._control1.y, this._control2.y, this._end.y );
       }
       return this._yExtremaT;
@@ -178,7 +176,7 @@ define( function( require ) {
     get yExtremaT() { return this.getYExtremaT(); },
 
     getBounds: function() {
-      if ( this._bounds === undefined ) {
+      if ( this._bounds === null ) {
         this._bounds = Bounds2.NOTHING;
         this._bounds = this._bounds.withPoint( this._start );
         this._bounds = this._bounds.withPoint( this._end );
@@ -223,8 +221,8 @@ define( function( require ) {
         this._tInflection2 = this._tCusp + sqrtDet;
       }
       else {
-        this._tInflection1 = null;
-        this._tInflection2 = null;
+        this._tInflection1 = NaN;
+        this._tInflection2 = NaN;
       }
     },
 
@@ -234,8 +232,8 @@ define( function( require ) {
         // if there is a cusp, we'll split at the cusp into two quadratic bezier curves.
         // see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.94.8088&rep=rep1&type=pdf (Singularities of rational Bezier curves - J Monterde, 2001)
         var subdividedAtCusp = this.subdivided( this.getTCusp );
-        this._startQuadratic = new Segment.Quadratic( subdividedAtCusp[ 0 ].start, subdividedAtCusp[ 0 ].control1, subdividedAtCusp[ 0 ].end, false );
-        this._endQuadratic = new Segment.Quadratic( subdividedAtCusp[ 1 ].start, subdividedAtCusp[ 1 ].control2, subdividedAtCusp[ 1 ].end, false );
+        this._startQuadratic = new kite.Quadratic( subdividedAtCusp[ 0 ].start, subdividedAtCusp[ 0 ].control1, subdividedAtCusp[ 0 ].end, false );
+        this._endQuadratic = new kite.Quadratic( subdividedAtCusp[ 1 ].start, subdividedAtCusp[ 1 ].control2, subdividedAtCusp[ 1 ].end, false );
       }
       else {
         this._startQuadratic = null;
@@ -275,14 +273,14 @@ define( function( require ) {
         var segments = [];
         var lastPoint = start;
         if ( extremaPoints.length ) {
-          segments.push( new Segment.Line( start, extremaPoints[ 0 ] ) );
+          segments.push( new kite.Line( start, extremaPoints[ 0 ] ) );
           lastPoint = extremaPoints[ 0 ];
         }
         for ( var i = 1; i < extremaPoints.length; i++ ) {
-          segments.push( new Segment.Line( extremaPoints[ i - 1 ], extremaPoints[ i ] ) );
+          segments.push( new kite.Line( extremaPoints[ i - 1 ], extremaPoints[ i ] ) );
           lastPoint = extremaPoints[ i ];
         }
-        segments.push( new Segment.Line( lastPoint, end ) );
+        segments.push( new kite.Line( lastPoint, end ) );
 
         return _.flatten( segments.map( function( segment ) { return segment.getNondegenerateSegments(); } ), true );
       }
@@ -344,8 +342,8 @@ define( function( require ) {
       var rightMid = middle.blend( right, t );
       var mid = leftMid.blend( rightMid, t );
       return [
-        new Segment.Cubic( this._start, left, leftMid, mid ),
-        new Segment.Cubic( mid, rightMid, right, this._end )
+        new kite.Cubic( this._start, left, leftMid, mid ),
+        new kite.Cubic( mid, rightMid, right, this._end )
       ];
     },
 
@@ -366,7 +364,7 @@ define( function( require ) {
 
         points.push( this.positionAt( t ).plus( this.tangentAt( t ).perpendicular().normalized().times( r ) ) );
         if ( i > 0 ) {
-          result.push( new Segment.Line( points[ i - 1 ], points[ i ] ) );
+          result.push( new kite.Line( points[ i - 1 ], points[ i ] ) );
         }
       }
 
@@ -459,7 +457,7 @@ define( function( require ) {
     },
 
     transformed: function( matrix ) {
-      return new Segment.Cubic( matrix.timesVector2( this._start ), matrix.timesVector2( this._control1 ), matrix.timesVector2( this._control2 ), matrix.timesVector2( this._end ) );
+      return new kite.Cubic( matrix.timesVector2( this._start ), matrix.timesVector2( this._control1 ), matrix.timesVector2( this._control2 ), matrix.timesVector2( this._end ) );
     },
 
     // returns a degree-reduced quadratic Bezier if possible, otherwise it returns null
@@ -470,7 +468,7 @@ define( function( require ) {
       var controlA = this._control1.timesScalar( 3 ).minus( this._start ).dividedScalar( 2 );
       var controlB = this._control2.timesScalar( 3 ).minus( this._end ).dividedScalar( 2 );
       if ( controlA.minus( controlB ).magnitude() <= epsilon ) {
-        return new Segment.Quadratic(
+        return new kite.Quadratic(
           this._start,
           controlA.average( controlB ), // average the control points for stability. they should be almost identical
           this._end
@@ -514,6 +512,11 @@ define( function( require ) {
     //   return result;
     // }
   } );
+
+  Segment.addInvalidatingGetterSetter( Segment.Cubic, 'start' );
+  Segment.addInvalidatingGetterSetter( Segment.Cubic, 'control1' );
+  Segment.addInvalidatingGetterSetter( Segment.Cubic, 'control2' );
+  Segment.addInvalidatingGetterSetter( Segment.Cubic, 'end' );
 
   // finds what t values the cubic extrema are at (if any). This is just the 1-dimensional case, used for multiple purposes
   Segment.Cubic.extremaT = function( v0, v1, v2, v3 ) {

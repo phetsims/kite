@@ -21,8 +21,9 @@
   window.assertions.enableAssertSlow();
 
   require( [ 'config' ], function() {
-    require( [ 'main', 'DOT/main', 'PHET_CORE/main' ], function( kite, dot, phetCore ) {
+    require( [ 'main', 'AXON/main', 'DOT/main', 'PHET_CORE/main' ], function( kite, axon, dot, phetCore ) {
       window.kite = kite;
+      window.axon = axon;
       window.dot = dot;
       window.phetCore = phetCore;
 

@@ -14,15 +14,19 @@ define( function( require ) {
 
   var Bounds2 = require( 'DOT/Bounds2' );
   var inherit = require( 'PHET_CORE/inherit' );
+  var Events = require( 'AXON/Events' );
 
   var kite = require( 'KITE/kite' );
 
-  require( 'KITE/segments/Line' );
-  require( 'KITE/segments/Arc' );
+  var Line = require( 'KITE/segments/Line' );
+  var Arc = require( 'KITE/segments/Arc' );
+  var LineStyles = require( 'KITE/util/LineStyles' );
 
   // all arguments optional (they are for the copy() method)
   kite.Subpath = function Subpath( segments, points, closed ) {
-    this.segments = segments || [];
+    Events.call( this );
+
+    this.segments = [];
 
     // recombine points if necessary, based off of start points of segments + the end point of the last segment
     this.points = points || ( ( segments && segments.length ) ? _.map( segments, function( segment ) { return segment.start; } ).concat( segments[ segments.length - 1 ].end ) : [] );
@@ -33,19 +37,38 @@ define( function( require ) {
     this._strokedSubpathsComputed = false;
     this._strokedStyles = null;
 
-    var bounds = this.bounds = Bounds2.NOTHING.copy();
-    _.each( this.segments, function( segment ) {
-      bounds.includeBounds( segment.bounds );
-    } );
+    this._bounds = null; // {Bounds2 | null} - If non-null, the bounds of the subpath
+
+    this._invalidateListener = this.invalidate.bind( this );
+
+    // Add all segments directly (hooks up invalidation listeners properly)
+    if ( segments ) {
+      for ( var i = 0; i < segments.length; i++ ) {
+        this.addSegmentDirectly( segments[i] );
+      }
+    }
   };
   var Subpath = kite.Subpath;
 
-  inherit( Object, Subpath, {
+  inherit( Events, Subpath, {
+    getBounds: function() {
+      if ( this._bounds === null ) {
+        var bounds = Bounds2.NOTHING.copy();
+        _.each( this.segments, function( segment ) {
+          bounds.includeBounds( segment.getBounds() );
+        } );
+        this._bounds = bounds;
+      }
+      return this._bounds;
+    },
+    get bounds() { return this.getBounds(); },
+
     copy: function() {
       return new Subpath( this.segments.slice( 0 ), this.points.slice( 0 ), this.closed );
     },
 
     invalidate: function() {
+      this._bounds = null;
       this._strokedSubpathsComputed = false;
     },
 
@@ -55,6 +78,7 @@ define( function( require ) {
       return this; // allow chaining
     },
 
+    // @private - REALLY! Make sure we invalidate() after this is called
     addSegmentDirectly: function( segment ) {
       assert && assert( segment.start.isFinite(), 'Segment start is infinite' );
       assert && assert( segment.end.isFinite(), 'Segment end is infinite' );
@@ -62,9 +86,10 @@ define( function( require ) {
       assert && assert( segment.endTangent.isFinite(), 'Segment endTangent is infinite' );
       assert && assert( segment.bounds.isEmpty() || segment.bounds.isFinite(), 'Segment bounds is infinite and non-empty' );
       this.segments.push( segment );
-      this.invalidate();
 
-      this.bounds.includeBounds( segment.getBounds() );
+      // Hook up an invalidation listener, so if this segment is invalidated, it will invalidate our subpath!
+      // NOTE: if we add removal of segments, we'll need to remove these listeners, or we'll leak!
+      segment.onStatic( 'invalidated', this._invalidateListener );
 
       return this; // allow chaining
     },
@@ -74,6 +99,7 @@ define( function( require ) {
       _.each( segment.getNondegenerateSegments(), function( segment ) {
         subpath.addSegmentDirectly( segment );
       } );
+      this.invalidate(); // need to invalidate after addSegmentDirectly
 
       return this; // allow chaining
     },
@@ -84,6 +110,7 @@ define( function( require ) {
       if ( this.hasClosingSegment() ) {
         var closingSegment = this.getClosingSegment();
         this.addSegmentDirectly( closingSegment );
+        this.invalidate(); // need to invalidate after addSegmentDirectly
         this.addPoint( this.getFirstPoint() );
         this.closed = true;
       }
@@ -128,7 +155,7 @@ define( function( require ) {
 
     getClosingSegment: function() {
       assert && assert( this.hasClosingSegment(), 'Implicit closing segment unnecessary on a fully closed path' );
-      return new kite.Segment.Line( this.getLastPoint(), this.getFirstPoint() );
+      return new Line( this.getLastPoint(), this.getFirstPoint() );
     },
 
     writeToContext: function( context ) {
@@ -223,7 +250,7 @@ define( function( require ) {
           var startAngle = fromTangent.perpendicular().negated().times( distance ).angle();
           var endAngle = toTangent.perpendicular().negated().times( distance ).angle();
           var anticlockwise = fromTangent.perpendicular().dot( toTangent ) > 0;
-          segments.push( new kite.Segment.Arc( center, Math.abs( distance ), startAngle, endAngle, anticlockwise ) );
+          segments.push( new Arc( center, Math.abs( distance ), startAngle, endAngle, anticlockwise ) );
         }
         segments = segments.concat( offsets[ i ] );
       }
@@ -239,7 +266,7 @@ define( function( require ) {
       }
 
       if ( lineStyles === undefined ) {
-        lineStyles = new kite.LineStyles();
+        lineStyles = new LineStyles();
       }
 
       // return a cached version if possible
@@ -266,7 +293,7 @@ define( function( require ) {
       // we don't need to insert an implicit closing segment if the start and end points are the same
       var alreadyClosed = lastSegment.end.equals( firstSegment.start );
       // if there is an implicit closing segment
-      var closingSegment = alreadyClosed ? null : new kite.Segment.Line( this.segments[ this.segments.length - 1 ].end, this.segments[ 0 ].start );
+      var closingSegment = alreadyClosed ? null : new Line( this.segments[ this.segments.length - 1 ].end, this.segments[ 0 ].start );
 
       // stroke the logical "left" side of our path
       for ( i = 0; i < this.segments.length; i++ ) {
@@ -318,7 +345,7 @@ define( function( require ) {
 
       this._strokedSubpaths = subpaths;
       this._strokedSubpathsComputed = true;
-      this._strokedStyles = new kite.LineStyles( lineStyles ); // shallow copy, since we consider linestyles to be mutable
+      this._strokedStyles = new LineStyles( lineStyles ); // shallow copy, since we consider linestyles to be mutable
 
       return subpaths;
     }

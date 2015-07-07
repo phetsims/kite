@@ -32,6 +32,7 @@
 
   <!-- Loads the code needed to run unit tests for each particular library/codebase -->
   <script src="unit-tests.js"></script>
+  <script src="../../../axon/tests/qunit/unit-tests.js"></script>
   <script src="../../../dot/tests/qunit/unit-tests.js"></script>
   <script src="../../../phet-core/tests/qunit/unit-tests.js"></script>
 
@@ -47,12 +48,14 @@
 <script>
 
   require( [ 'config' ], function() {
-    require( [ 'main', 'DOT/main', 'PHET_CORE/main' ], function( kite, dot, phetCore ) {
+    require( [ 'main', 'AXON/main', 'DOT/main', 'PHET_CORE/main' ], function( kite, axon, dot, phetCore ) {
       window.kite = kite;
+      window.axon = axon;
       window.dot = dot;
       window.phetCore = phetCore;
 
       runKiteTests( '.' );
+      runAxonTests( '../../../axon/tests/qunit' );
       runDotTests( '../../../dot/tests/qunit' );
       runPhetCoreTests( '../../../phet-core/tests/qunit' );
 

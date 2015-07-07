@@ -13,6 +13,9 @@ define( function( require ) {
   var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
   var inherit = require( 'PHET_CORE/inherit' );
 
+  var Arc = require( 'KITE/segments/Arc' );
+  var Line = require( 'KITE/segments/Line' );
+
   kite.LineStyles = function( args ) {
     if ( args === undefined ) {
       args = {};
@@ -69,7 +72,7 @@ define( function( require ) {
       var fromPoint = center.plus( fromTangent.perpendicular().negated().times( this.lineWidth / 2 ) );
       var toPoint = center.plus( toTangent.perpendicular().negated().times( this.lineWidth / 2 ) );
 
-      var bevel = ( fromPoint.equals( toPoint ) ? [] : [ new kite.Segment.Line( fromPoint, toPoint ) ] );
+      var bevel = ( fromPoint.equals( toPoint ) ? [] : [ new Line( fromPoint, toPoint ) ] );
 
       // only insert a join on the non-acute-angle side
       if ( fromTangent.perpendicular().dot( toTangent ) > 0 ) {
@@ -77,15 +80,15 @@ define( function( require ) {
           case 'round':
             var fromAngle = fromTangent.angle() + Math.PI / 2;
             var toAngle = toTangent.angle() + Math.PI / 2;
-            return [ new kite.Segment.Arc( center, this.lineWidth / 2, fromAngle, toAngle, true ) ];
+            return [ new Arc( center, this.lineWidth / 2, fromAngle, toAngle, true ) ];
           case 'miter':
             var theta = fromTangent.angleBetween( toTangent.negated() );
             if ( 1 / Math.sin( theta / 2 ) <= this.miterLimit && theta < Math.PI - 0.00001 ) {
               // draw the miter
               var miterPoint = lineLineIntersection( fromPoint, fromPoint.plus( fromTangent ), toPoint, toPoint.plus( toTangent ) );
               return [
-                new kite.Segment.Line( fromPoint, miterPoint ),
-                new kite.Segment.Line( miterPoint, toPoint )
+                new Line( fromPoint, miterPoint ),
+                new Line( miterPoint, toPoint )
               ];
             }
             else {
@@ -125,10 +128,10 @@ define( function( require ) {
 
       switch( this.lineCap ) {
         case 'butt':
-          return [ new kite.Segment.Line( fromPoint, toPoint ) ];
+          return [ new Line( fromPoint, toPoint ) ];
         case 'round':
           var tangentAngle = tangent.angle();
-          return [ new kite.Segment.Arc( center, this.lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true ) ];
+          return [ new Arc( center, this.lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true ) ];
         case 'square':
           var toLeft = tangent.perpendicular().negated().times( this.lineWidth / 2 );
           var toRight = tangent.perpendicular().times( this.lineWidth / 2 );
@@ -137,9 +140,9 @@ define( function( require ) {
           var left = center.plus( toLeft ).plus( toFront );
           var right = center.plus( toRight ).plus( toFront );
           return [
-            new kite.Segment.Line( fromPoint, left ),
-            new kite.Segment.Line( left, right ),
-            new kite.Segment.Line( right, toPoint )
+            new Line( fromPoint, left ),
+            new Line( left, right ),
+            new Line( right, toPoint )
           ];
       }
     }

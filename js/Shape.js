@@ -23,21 +23,19 @@ define( function( require ) {
 
   var kite = require( 'KITE/kite' );
 
-  // TODO: clean up imports
+  var inherit = require( 'PHET_CORE/inherit' );
+
   var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Ray2 = require( 'DOT/Ray2' );
 
-  var inherit = require( 'PHET_CORE/inherit' );
   var Subpath = require( 'KITE/util/Subpath' );
-
   var svgPath = require( 'KITE/parser/svgPath' );
-  require( 'KITE/util/LineStyles' );
-  require( 'KITE/segments/Arc' );
-  require( 'KITE/segments/Cubic' );
-  require( 'KITE/segments/EllipticalArc' );
-  require( 'KITE/segments/Line' );
-  require( 'KITE/segments/Quadratic' );
+  var Arc = require( 'KITE/segments/Arc' );
+  var Cubic = require( 'KITE/segments/Cubic' );
+  var EllipticalArc = require( 'KITE/segments/EllipticalArc' );
+  var Line = require( 'KITE/segments/Line' );
+  var Quadratic = require( 'KITE/segments/Quadratic' );
 
   // for brevity
   function p( x, y ) { return new Vector2( x, y ); }
@@ -58,24 +56,37 @@ define( function( require ) {
 
   // all arguments optional, they are for the copy() method. if used, ensure that 'bounds' is consistent with 'subpaths'
   kite.Shape = function Shape( subpaths, bounds ) {
-    // lower-level piecewise mathematical description using segments, also individually immutable
-    this.subpaths = ( typeof subpaths === 'object' ) ? subpaths : [];
-    assert && assert( this.subpaths.length === 0 || this.subpaths[ 0 ].constructor.name !== 'Array' );
+    var self = this;
 
-    // computed bounds for all pieces added so far
-    this.bounds = ( bounds || Bounds2.NOTHING ).copy();
+    // @public Lower-level piecewise mathematical description using segments, also individually immutable
+    this.subpaths = [];
 
-    var that = this;
+    // If non-null, computed bounds for all pieces added so far. Lazily computed with getBounds/bounds ES5 getter
+    this._bounds = bounds ? bounds.copy() : null; // {Bounds2 | null}
+
+    this.resetControlPoints();
+
+    this._invalidateListener = this.invalidate.bind( this );
+
+    // Add in subpaths from the constructor (if applicable)
+    if ( typeof subpaths === 'object' ) {
+      // assume it's an array
+      for ( var i = 0; i < subpaths.length; i++ ) {
+        this.addSubpath( subpaths[ i ] );
+      }
+    }
+
     if ( subpaths && typeof subpaths !== 'object' ) {
       assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' );
       // parse the SVG path
       _.each( svgPath.parse( subpaths ), function( item ) {
         assert && assert( Shape.prototype[ item.cmd ] !== undefined, 'method ' + item.cmd + ' from parsed SVG does not exist' );
-        that[ item.cmd ].apply( that, item.args );
+        self[ item.cmd ].apply( self, item.args );
       } );
     }
 
-    this.resetControlPoints();
+    // defines _bounds if not already defined (among other things)
+    this.invalidate();
 
     phetAllocation && phetAllocation( 'Shape' );
   };
@@ -102,7 +113,7 @@ define( function( require ) {
     // draw call to future draw calls.
     subpath: function() {
       if ( this.hasSubpaths() ) {
-        this.addSubpath( new kite.Subpath() );
+        this.addSubpath( new Subpath() );
       }
 
       return this; // for chaining
@@ -112,7 +123,7 @@ define( function( require ) {
     moveToRelative: function( x, y ) { return this.moveToPointRelative( v( x, y ) ); },
     moveToPointRelative: function( point ) { return this.moveToPoint( this.getRelativePoint().plus( point ) ); },
     moveToPoint: function( point ) {
-      this.addSubpath( new kite.Subpath().addPoint( point ) );
+      this.addSubpath( new Subpath().addPoint( point ) );
       this.resetControlPoints();
 
       return this;
@@ -126,10 +137,9 @@ define( function( require ) {
       if ( this.hasSubpaths() ) {
         var start = this.getLastSubpath().getLastPoint();
         var end = point;
-        var line = new kite.Segment.Line( start, end );
+        var line = new Line( start, end );
         this.getLastSubpath().addPoint( end );
         this.addSegmentAndBounds( line );
-        assert && assert( !isNaN( this.bounds.getX() ) );
       }
       else {
         this.ensure( point );
@@ -160,7 +170,7 @@ define( function( require ) {
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
       this.ensure( controlPoint );
       var start = this.getLastSubpath().getLastPoint();
-      var quadratic = new kite.Segment.Quadratic( start, controlPoint, point );
+      var quadratic = new Quadratic( start, controlPoint, point );
       this.getLastSubpath().addPoint( point );
       var nondegenerateSegments = quadratic.getNondegenerateSegments();
       _.each( nondegenerateSegments, function( segment ) {
@@ -185,7 +195,7 @@ define( function( require ) {
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
       this.ensure( control1 );
       var start = this.getLastSubpath().getLastPoint();
-      var cubic = new kite.Segment.Cubic( start, control1, control2, point );
+      var cubic = new Cubic( start, control1, control2, point );
 
       var nondegenerateSegments = cubic.getNondegenerateSegments();
       _.each( nondegenerateSegments, function( segment ) {
@@ -202,7 +212,7 @@ define( function( require ) {
     arcPoint: function( center, radius, startAngle, endAngle, anticlockwise ) {
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
 
-      var arc = new kite.Segment.Arc( center, radius, startAngle, endAngle, anticlockwise );
+      var arc = new Arc( center, radius, startAngle, endAngle, anticlockwise );
 
       // we are assuming that the normal conditions were already met (or exceptioned out) so that these actually work with canvas
       var startPoint = arc.getStart();
@@ -210,11 +220,11 @@ define( function( require ) {
 
       // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
       if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
-        this.addSegmentAndBounds( new kite.Segment.Line( this.getLastSubpath().getLastPoint(), startPoint ) );
+        this.addSegmentAndBounds( new Line( this.getLastSubpath().getLastPoint(), startPoint ) );
       }
 
       if ( !this.hasSubpaths() ) {
-        this.addSubpath( new kite.Subpath() );
+        this.addSubpath( new Subpath() );
       }
 
       // technically the Canvas spec says to add the start point, so we do this even though it is probably completely unnecessary (there is no conditional)
@@ -231,7 +241,7 @@ define( function( require ) {
     ellipticalArcPoint: function( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
 
-      var ellipticalArc = new kite.Segment.EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
+      var ellipticalArc = new EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
 
       // we are assuming that the normal conditions were already met (or exceptioned out) so that these actually work with canvas
       var startPoint = ellipticalArc.start;
@@ -239,11 +249,11 @@ define( function( require ) {
 
       // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
       if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
-        this.addSegmentAndBounds( new kite.Segment.Line( this.getLastSubpath().getLastPoint(), startPoint ) );
+        this.addSegmentAndBounds( new Line( this.getLastSubpath().getLastPoint(), startPoint ) );
       }
 
       if ( !this.hasSubpaths() ) {
-        this.addSubpath( new kite.Subpath() );
+        this.addSubpath( new Subpath() );
       }
 
       // technically the Canvas spec says to add the start point, so we do this even though it is probably completely unnecessary (there is no conditional)
@@ -259,7 +269,7 @@ define( function( require ) {
     close: function() {
       if ( this.hasSubpaths() ) {
         var previousPath = this.getLastSubpath();
-        var nextPath = new kite.Subpath();
+        var nextPath = new Subpath();
 
         previousPath.close();
         this.addSubpath( nextPath );
@@ -321,17 +331,17 @@ define( function( require ) {
     },
 
     rect: function( x, y, width, height ) {
-      var subpath = new kite.Subpath();
+      var subpath = new Subpath();
       this.addSubpath( subpath );
       subpath.addPoint( v( x, y ) );
       subpath.addPoint( v( x + width, y ) );
       subpath.addPoint( v( x + width, y + height ) );
       subpath.addPoint( v( x, y + height ) );
-      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[ 0 ], subpath.points[ 1 ] ) );
-      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[ 1 ], subpath.points[ 2 ] ) );
-      this.addSegmentAndBounds( new kite.Segment.Line( subpath.points[ 2 ], subpath.points[ 3 ] ) );
+      this.addSegmentAndBounds( new Line( subpath.points[ 0 ], subpath.points[ 1 ] ) );
+      this.addSegmentAndBounds( new Line( subpath.points[ 1 ], subpath.points[ 2 ] ) );
+      this.addSegmentAndBounds( new Line( subpath.points[ 2 ], subpath.points[ 3 ] ) );
       subpath.close();
-      this.addSubpath( new kite.Subpath() );
+      this.addSubpath( new Subpath() );
       this.getLastSubpath().addPoint( v( x, y ) );
       assert && assert( !isNaN( this.bounds.getX() ) );
       this.resetControlPoints();
@@ -571,27 +581,6 @@ define( function( require ) {
       }
     },
 
-    getBoundsWithTransform: function( matrix, lineStyles ) {
-      // if we don't need to handle rotation/shear, don't use the extra effort!
-      if ( matrix.isAxisAligned() ) {
-        return this.computeBounds( lineStyles );
-      }
-
-      var bounds = Bounds2.NOTHING.copy();
-
-      var numSubpaths = this.subpaths.length;
-      for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[ i ];
-        bounds.includeBounds( subpath.getBoundsWithTransform( matrix ) );
-      }
-
-      if ( lineStyles ) {
-        bounds.includeBounds( this.getStrokedShape( lineStyles ).getBoundsWithTransform( matrix ) );
-      }
-
-      return bounds;
-    },
-
     containsPoint: function( point ) {
       // we pick a ray, and determine the winding number over that ray. if the number of segments crossing it CCW == number of segments crossing it CW, then the point is contained in the shape
       var ray = new Ray2( point, Vector2.X_UNIT );
@@ -718,6 +707,39 @@ define( function( require ) {
       return new Shape( subpaths, bounds );
     },
 
+    getBounds: function() {
+      if ( this._bounds === null ) {
+        var bounds = Bounds2.NOTHING.copy();
+        _.each( this.subpaths, function( subpath ) {
+          bounds.includeBounds( subpath.getBounds() );
+        } );
+        this._bounds = bounds;
+      }
+      return this._bounds;
+    },
+    get bounds() { return this.getBounds(); },
+
+    getBoundsWithTransform: function( matrix, lineStyles ) {
+      // if we don't need to handle rotation/shear, don't use the extra effort!
+      if ( matrix.isAxisAligned() ) {
+        return this.computeBounds( lineStyles );
+      }
+
+      var bounds = Bounds2.NOTHING.copy();
+
+      var numSubpaths = this.subpaths.length;
+      for ( var i = 0; i < numSubpaths; i++ ) {
+        var subpath = this.subpaths[ i ];
+        bounds.includeBounds( subpath.getBoundsWithTransform( matrix ) );
+      }
+
+      if ( lineStyles ) {
+        bounds.includeBounds( this.getStrokedShape( lineStyles ).getBoundsWithTransform( matrix ) );
+      }
+
+      return bounds;
+    },
+
     toString: function() {
       // TODO: consider a more verbose but safer way?
       return 'new kite.Shape( \'' + this.getSVGPath() + '\' )';
@@ -727,9 +749,13 @@ define( function( require ) {
      * Internal subpath computations
      *----------------------------------------------------------------------------*/
 
+    invalidate: function() {
+      this._bounds = null;
+    },
+
     addSegmentAndBounds: function( segment ) {
       this.getLastSubpath().addSegment( segment );
-      this.bounds = this.bounds.includeBounds( this.getLastSubpath().bounds );
+      this.invalidate();
     },
 
     ensure: function( point ) {
@@ -741,6 +767,11 @@ define( function( require ) {
 
     addSubpath: function( subpath ) {
       this.subpaths.push( subpath );
+
+      // listen to when the subpath is invalidated (will cause bounds recomputation here)
+      subpath.onStatic( 'invalidated', this._invalidateListener );
+
+      this.invalidate();
 
       return this; // allow chaining
     },

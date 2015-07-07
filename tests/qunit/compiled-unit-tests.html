@@ -28,6 +28,7 @@
 
   <!-- Loads the code needed to run unit tests for each particular library/codebase -->
   <script src="unit-tests.js"></script>
+  <script src="../../../axon/tests/qunit/unit-tests.js"></script>
   <script src="../../../dot/tests/qunit/unit-tests.js"></script>
   <script src="../../../phet-core/tests/qunit/unit-tests.js"></script>
 
@@ -43,13 +44,14 @@
 <!-- this needs to be run after the qunit-fixture is in the DOM, but before the document is loaded because QUnit scans the fixture then -->
 <script>
   runKiteTests( '.' );
+  runAxonTests( '../../../axon/tests/qunit' );
   runDotTests( '../../../dot/tests/qunit' );
   runPhetCoreTests( '../../../phet-core/tests/qunit' );
 
-  var $checkbox = $( '#qunit-filter-pass' );
-  if ( !$checkbox[0].checked ) {
-    $checkbox.click();
-  }
+  // var $checkbox = $( '#qunit-filter-pass' );
+  // if ( !$checkbox[0].checked ) {
+    // $checkbox.click();
+  // }
 </script>
 </body>
 </html>

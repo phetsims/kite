@@ -20,39 +20,34 @@ define( function( require ) {
   var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
 
-  Segment.Quadratic = function Quadratic( start, control, end ) {
+  kite.Quadratic = Segment.Quadratic = function Quadratic( start, control, end ) {
+    Segment.call( this );
+
     this._start = start;
     this._control = control;
     this._end = end;
 
-    // TODO: performance test removal of these undefined declarations
-    this._startTangent = undefined;
-    this._endTangent = undefined;
-    this._tCriticalX = undefined; // replaced with null if not in range
-    this._tCriticalY = undefined; // replaced with null if not in range
-    this._bounds = undefined;
+    this.invalidate();
   };
   inherit( Segment, Segment.Quadratic, {
 
     degree: 2,
 
-    getStart: function() {
-      return this._start;
-    },
-    get start() { return this._start; },
+    // @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
+    invalidate: function() {
+      // Lazily-computed derived information
+      this._startTangent = null; // {Vector2 | null}
+      this._endTangent = null; // {Vector2 | null}
+      this._tCriticalX = null; // {number | null} T where x-derivative is 0 (replaced with NaN if not in range)
+      this._tCriticalY = null; // {number | null} T where y-derivative is 0 (replaced with NaN if not in range)
 
-    getControl: function() {
-      return this._control;
-    },
-    get control() { return this._control; },
+      this._bounds = null; // {Bounds2 | null}
 
-    getEnd: function() {
-      return this._end;
+      this.trigger0( 'invalidated' );
     },
-    get end() { return this._end; },
 
     getStartTangent: function() {
-      if ( this._startTangent === undefined ) {
+      if ( this._startTangent === null ) {
         var controlIsStart = this._start.equals( this._control );
         // TODO: allocation reduction
         this._startTangent = controlIsStart ?
@@ -64,7 +59,7 @@ define( function( require ) {
     get startTangent() { return this.getStartTangent(); },
 
     getEndTangent: function() {
-      if ( this._endTangent === undefined ) {
+      if ( this._endTangent === null ) {
         var controlIsEnd = this._end.equals( this._control );
         // TODO: allocation reduction
         this._endTangent = controlIsEnd ?
@@ -77,7 +72,7 @@ define( function( require ) {
 
     getTCriticalX: function() {
       // compute x where the derivative is 0 (used for bounds and other things)
-      if ( this._tCriticalX === undefined ) {
+      if ( this._tCriticalX === null ) {
         this._tCriticalX = Segment.Quadratic.extremaT( this._start.x, this._control.x, this._end.x );
       }
       return this._tCriticalX;
@@ -86,7 +81,7 @@ define( function( require ) {
 
     getTCriticalY: function() {
       // compute y where the derivative is 0 (used for bounds and other things)
-      if ( this._tCriticalY === undefined ) {
+      if ( this._tCriticalY === null ) {
         this._tCriticalY = Segment.Quadratic.extremaT( this._start.y, this._control.y, this._end.y );
       }
       return this._tCriticalY;
@@ -110,8 +105,8 @@ define( function( require ) {
         // this is a special collinear case, we basically line out to the farthest point and back
         var halfPoint = this.positionAt( 0.5 );
         return [
-          new Segment.Line( start, halfPoint ),
-          new Segment.Line( halfPoint, end )
+          new kite.Line( start, halfPoint ),
+          new kite.Line( halfPoint, end )
         ];
       }
       else if ( arePointsCollinear( start, control, end ) ) {
@@ -119,24 +114,24 @@ define( function( require ) {
         // also, start !== end (handled earlier)
         if ( startIsControl || endIsControl ) {
           // just a line segment!
-          return [ new Segment.Line( start, end ) ]; // no extra nondegenerate check since start !== end
+          return [ new kite.Line( start, end ) ]; // no extra nondegenerate check since start !== end
         }
         // now control point must be unique. we check to see if our rendered path will be outside of the start->end line segment
         var delta = end.minus( start );
         var p1d = control.minus( start ).dot( delta.normalized ) / delta.magnitude();
         var t = Segment.Quadratic.extremaT( 0, p1d, 1 );
-        if ( t !== null && t > 0 && t < 1 ) {
+        if ( !isNaN( t ) && t > 0 && t < 1 ) {
           // we have a local max inside the range, indicating that our extrema point is outside of start->end
           // we'll line to and from it
           var pt = this.positionAt( t );
           return _.flatten( [
-            new Segment.Line( start, pt ).getNondegenerateSegments(),
-            new Segment.Line( pt, end ).getNondegenerateSegments()
+            new kite.Line( start, pt ).getNondegenerateSegments(),
+            new kite.Line( pt, end ).getNondegenerateSegments()
           ] );
         }
         else {
           // just provide a line segment, our rendered path doesn't go outside of this
-          return [ new Segment.Line( start, end ) ]; // no extra nondegenerate check since start !== end
+          return [ new kite.Line( start, end ) ]; // no extra nondegenerate check since start !== end
         }
       }
       else {
@@ -146,17 +141,17 @@ define( function( require ) {
 
     getBounds: function() {
       // calculate our temporary guaranteed lower bounds based on the end points
-      if ( this._bounds === undefined ) {
+      if ( this._bounds === null ) {
         this._bounds = new Bounds2( Math.min( this._start.x, this._end.x ), Math.min( this._start.y, this._end.y ), Math.max( this._start.x, this._end.x ), Math.max( this._start.y, this._end.y ) );
 
         // compute x and y where the derivative is 0, so we can include this in the bounds
         var tCriticalX = this.getTCriticalX();
         var tCriticalY = this.getTCriticalY();
 
-        if ( tCriticalX !== null && tCriticalX > 0 && tCriticalX < 1 ) {
+        if ( !isNaN( tCriticalX ) && tCriticalX > 0 && tCriticalX < 1 ) {
           this._bounds = this._bounds.withPoint( this.positionAt( tCriticalX ) );
         }
-        if ( tCriticalY !== null && tCriticalY > 0 && tCriticalY < 1 ) {
+        if ( !isNaN( tCriticalY ) && tCriticalY > 0 && tCriticalY < 1 ) {
           this._bounds = this._bounds.withPoint( this.positionAt( tCriticalY ) );
         }
       }
@@ -228,15 +223,15 @@ define( function( require ) {
       var rightMid = this._control.blend( this._end, t );
       var mid = leftMid.blend( rightMid, t );
       return [
-        new Segment.Quadratic( this._start, leftMid, mid ),
-        new Segment.Quadratic( mid, rightMid, this._end )
+        new kite.Quadratic( this._start, leftMid, mid ),
+        new kite.Quadratic( mid, rightMid, this._end )
       ];
     },
 
     // elevation of this quadratic Bezier curve to a cubic Bezier curve
     degreeElevated: function() {
       // TODO: allocation reduction
-      return new Segment.Cubic(
+      return new kite.Cubic(
         this._start,
         this._start.plus( this._control.timesScalar( 2 ) ).dividedScalar( 3 ),
         this._end.plus( this._control.timesScalar( 2 ) ).dividedScalar( 3 ),
@@ -245,11 +240,11 @@ define( function( require ) {
     },
 
     reversed: function() {
-      return new Segment.Quadratic( this._end, this._control, this._start );
+      return new kite.Quadratic( this._end, this._control, this._start );
     },
 
     approximateOffset: function( r ) {
-      return new Segment.Quadratic(
+      return new kite.Quadratic(
         this._start.plus( ( this._start.equals( this._control ) ? this._end.minus( this._start ) : this._control.minus( this._start ) ).perpendicular().normalized().times( r ) ),
         this._control.plus( this._end.minus( this._start ).perpendicular().normalized().times( r ) ),
         this._end.plus( ( this._end.equals( this._control ) ? this._end.minus( this._start ) : this._end.minus( this._control ) ).perpendicular().normalized().times( r ) )
@@ -273,10 +268,14 @@ define( function( require ) {
       // TODO: we assume here we are reduce, so that a criticalX doesn't equal a criticalY?
       var result = [];
       var epsilon = 0.0000000001; // TODO: general kite epsilon?
-      if ( this.tCriticalX !== undefined && this.tCriticalX > epsilon && this.tCriticalX < 1 - epsilon ) {
+
+      var criticalX = this.getTCriticalX();
+      var criticalY = this.getTCriticalY();
+
+      if ( !isNaN( criticalX ) && criticalX > epsilon && criticalX < 1 - epsilon ) {
         result.push( this.tCriticalX );
       }
-      if ( this.tCriticalY !== undefined && this.tCriticalY > epsilon && this.tCriticalY < 1 - epsilon ) {
+      if ( !isNaN( criticalY ) && criticalY > epsilon && criticalY < 1 - epsilon ) {
         result.push( this.tCriticalY );
       }
       return result.sort();
@@ -337,7 +336,7 @@ define( function( require ) {
     },
 
     transformed: function( matrix ) {
-      return new Segment.Quadratic( matrix.timesVector2( this._start ), matrix.timesVector2( this._control ), matrix.timesVector2( this._end ) );
+      return new kite.Quadratic( matrix.timesVector2( this._start ), matrix.timesVector2( this._control ), matrix.timesVector2( this._end ) );
     },
 
     // given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
@@ -353,9 +352,13 @@ define( function( require ) {
       var gamma = p.timesScalar( b * b ).plus( q.timesScalar( b ) ).plus( r );
 
       // back to the form start,control,end
-      return new Segment.Quadratic( gamma, beta.timesScalar( 0.5 ).plus( gamma ), alpha.plus( beta ).plus( gamma ) );
+      return new kite.Quadratic( gamma, beta.timesScalar( 0.5 ).plus( gamma ), alpha.plus( beta ).plus( gamma ) );
     }
   } );
+
+  Segment.addInvalidatingGetterSetter( Segment.Quadratic, 'start' );
+  Segment.addInvalidatingGetterSetter( Segment.Quadratic, 'control' );
+  Segment.addInvalidatingGetterSetter( Segment.Quadratic, 'end' );
 
   // one-dimensional solution to extrema
   Segment.Quadratic.extremaT = function( start, control, end ) {
@@ -365,7 +368,7 @@ define( function( require ) {
       return -2 * ( control - start ) / divisorX;
     }
     else {
-      return null;
+      return NaN;
     }
   };
 

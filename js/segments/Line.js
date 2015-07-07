@@ -19,28 +19,27 @@ define( function( require ) {
 
   var scratchVector2 = new Vector2();
 
-  Segment.Line = function Line( start, end ) {
+  kite.Line = Segment.Line = function Line( start, end ) {
+    Segment.call( this );
+
     this._start = start;
     this._end = end;
 
-    // TODO: performance test removal of these undefined declarations
-    this._tangent = undefined;
-    this._bounds = undefined;
+    this.invalidate();
   };
   inherit( Segment, Segment.Line, {
 
-    getStart: function() {
-      return this._start;
-    },
-    get start() { return this._start; },
+    // @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
+    invalidate: function() {
+      // Lazily-computed derived information
+      this._tangent = null; // {Vector2 | null}
+      this._bounds = null; // {Bounds2 | null}
 
-    getEnd: function() {
-      return this._end;
+      this.trigger0( 'invalidated' );
     },
-    get end() { return this._end; },
 
     getStartTangent: function() {
-      if ( this._tangent === undefined ) {
+      if ( this._tangent === null ) {
         // TODO: allocation reduction
         this._tangent = this._end.minus( this._start ).normalized();
       }
@@ -55,7 +54,7 @@ define( function( require ) {
 
     getBounds: function() {
       // TODO: allocation reduction
-      if ( this._bounds === undefined ) {
+      if ( this._bounds === null ) {
         this._bounds = Bounds2.NOTHING.copy().addPoint( this._start ).addPoint( this._end );
       }
       return this._bounds;
@@ -99,12 +98,12 @@ define( function( require ) {
 
     strokeLeft: function( lineWidth ) {
       var offset = this.getEndTangent().perpendicular().negated().times( lineWidth / 2 );
-      return [ new Segment.Line( this._start.plus( offset ), this._end.plus( offset ) ) ];
+      return [ new kite.Line( this._start.plus( offset ), this._end.plus( offset ) ) ];
     },
 
     strokeRight: function( lineWidth ) {
       var offset = this.getStartTangent().perpendicular().times( lineWidth / 2 );
-      return [ new Segment.Line( this._end.plus( offset ), this._start.plus( offset ) ) ];
+      return [ new kite.Line( this._end.plus( offset ), this._start.plus( offset ) ) ];
     },
 
     // lines are already monotone
@@ -113,8 +112,8 @@ define( function( require ) {
     subdivided: function( t ) {
       var pt = this.positionAt( t );
       return [
-        new Segment.Line( this._start, pt ),
-        new Segment.Line( pt, this._end )
+        new kite.Line( this._start, pt ),
+        new kite.Line( pt, this._end )
       ];
     },
 
@@ -185,7 +184,7 @@ define( function( require ) {
     },
 
     transformed: function( matrix ) {
-      return new Segment.Line( matrix.timesVector2( this._start ), matrix.timesVector2( this._end ) );
+      return new kite.Line( matrix.timesVector2( this._start ), matrix.timesVector2( this._end ) );
     },
 
     explicitClosestToPoint: function( point ) {
@@ -205,23 +204,26 @@ define( function( require ) {
 
     // given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
     reparameterized: function( a, b ) {
-      return new Segment.Line( this.positionAt( b ), this.positionAt( a + b ) );
+      return new kite.Line( this.positionAt( b ), this.positionAt( a + b ) );
     },
 
     polarToCartesian: function( options ) {
       if ( this._start.x === this._end.x ) {
         // angle is the same, we are still a line segment!
-        return [ new Segment.Line( Vector2.createPolar( this._start.y, this._start.x ), Vector2.createPolar( this._end.y, this._end.x ) ) ];
+        return [ new kite.Line( Vector2.createPolar( this._start.y, this._start.x ), Vector2.createPolar( this._end.y, this._end.x ) ) ];
       }
       else if ( this._start.y === this._end.y ) {
         // we have a constant radius, so we are a circular arc
-        return [ new Segment.Arc( Vector2.ZERO, this._start.y, this._start.x, this._end.x, this._start.x > this._end.x ) ];
+        return [ new kite.Arc( Vector2.ZERO, this._start.y, this._start.x, this._end.x, this._start.x > this._end.x ) ];
       }
       else {
         return this.toPiecewiseLinearSegments( options );
       }
     }
   } );
+
+  Segment.addInvalidatingGetterSetter( Segment.Line, 'start' );
+  Segment.addInvalidatingGetterSetter( Segment.Line, 'end' );
 
   return Segment.Line;
 } );

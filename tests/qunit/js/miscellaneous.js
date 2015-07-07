@@ -8,7 +8,7 @@
   function p( x, y ) { return new dot.Vector2( x, y ); }
 
   test( 'Line segment winding', function() {
-    var line = new kite.Segment.Line( p( 0, 0 ), p( 2, 2 ) );
+    var line = new kite.Line( p( 0, 0 ), p( 2, 2 ) );
 
     equal( line.windingIntersection( new dot.Ray2( p( 0, 1 ), p( 1, 0 ) ) ), 1 );
     equal( line.windingIntersection( new dot.Ray2( p( 0, 5 ), p( 1, 0 ) ) ), 0 );
@@ -76,4 +76,7 @@
     ok( !( new kite.Shape() ).moveTo( -2, 2 ).lineTo( 2, 2 ).intersectsBounds( new dot.Bounds2( -1, -1, 1, 1 ) ),
       'Line goes above bounds' );
   } );
+
+  // test( 'Arc mutation', function() {
+  // } );
 })();

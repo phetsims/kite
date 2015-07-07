@@ -1,7 +1,7 @@
 // Copyright 2002-2014, University of Colorado Boulder
 
 require.config( {
-  deps: [ 'main', 'DOT/main', 'PHET_CORE/main' ],
+  deps: [ 'main', 'AXON/main', 'DOT/main', 'PHET_CORE/main' ],
 
   paths: {
     KITE: '.',

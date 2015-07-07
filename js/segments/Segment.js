@@ -12,6 +12,7 @@ define( function( require ) {
   var kite = require( 'KITE/kite' );
 
   var inherit = require( 'PHET_CORE/inherit' );
+  var Events = require( 'AXON/Events' );
   var DotUtil = require( 'DOT/Util' );
   var Bounds2 = require( 'DOT/Bounds2' );
 
@@ -38,12 +39,14 @@ define( function( require ) {
    * writeToContext( context ) - draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
    * transformed( matrix )     - returns a new segment that represents this segment after transformation by the matrix
    */
-  kite.Segment = function Segment() {}; // no common construction for now
+  kite.Segment = function Segment() {
+    Events.call( this );
+  };
   var Segment = kite.Segment;
 
   var identityFunction = function identityFunction( x ) { return x; };
 
-  inherit( Object, Segment, {
+  inherit( Events, Segment, {
     // TODO: override everywhere so this isn't necessary (it's not particularly efficient!)
     getBoundsWithTransform: function( matrix ) {
       var transformedSegment = this.transformed( matrix );
@@ -114,7 +117,7 @@ define( function( require ) {
       }
 
       if ( finished ) {
-        segments.push( new Segment.Line( start, end ) );
+        segments.push( new kite.Line( start, end ) );
       }
       else {
         var subdividedSegments = this.subdivided( 0.5 );
@@ -124,6 +127,43 @@ define( function( require ) {
       return segments;
     }
   } );
+
+  /**
+   * Adds getter/setter function pairs and ES5 pairs, e.g. addInvalidatingGetterSetter( Arc, 'radius' ) would add:
+   * - segment.getRadius()
+   * - segment.setRadius( value )
+   * - segment.radius // getter and setter
+   *
+   * It assumes the following is the internal name: '_' + name
+   *
+   * @param {Function} type - Should be the constructor of the type. We will modify its prototype
+   * @param {string} name - Name of the
+   */
+  Segment.addInvalidatingGetterSetter = function( type, name ) {
+    var internalName = '_' + name;
+    var capitalizedName = name.charAt( 0 ).toUpperCase() + name.slice( 1 );
+    var getterName = 'get' + capitalizedName;
+    var setterName = 'set' + capitalizedName;
+
+    // e.g. getRadius()
+    type.prototype[ getterName ] = function() {
+      return this[ internalName ];
+    };
+
+    // e.g. setRadius( value )
+    type.prototype[ setterName ] = function( value ) {
+      if ( this[ internalName ] !== value ) {
+        this[ internalName ] = value;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    };
+
+    Object.defineProperty( type.prototype, name, {
+      set: type.prototype[ setterName ],
+      get: type.prototype[ getterName ]
+    } );
+  };
 
   // list of { segment: ..., t: ..., closestPoint: ..., distanceSquared: ... } (since there can be duplicates), threshold is used for subdivision,
   // where it will exit if all of the segments are shorter than the threshold
