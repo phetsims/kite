@@ -53,33 +53,33 @@ define( function( require ) {
       this._bounds = null; // {Bounds2 | null}
 
       // remapping of negative radii
-      if ( this.radiusX < 0 ) {
+      if ( this._radiusX < 0 ) {
         // support this case since we might actually need to handle it inside of strokes?
-        this.radiusX = -this.radiusX;
-        this.startAngle = Math.PI - this.startAngle;
-        this.endAngle = Math.PI - this.endAngle;
-        this.anticlockwise = !this.anticlockwise;
+        this._radiusX = -this._radiusX;
+        this._startAngle = Math.PI - this._startAngle;
+        this._endAngle = Math.PI - this._endAngle;
+        this._anticlockwise = !this._anticlockwise;
       }
-      if ( this.radiusY < 0 ) {
+      if ( this._radiusY < 0 ) {
         // support this case since we might actually need to handle it inside of strokes?
-        this.radiusY = -this.radiusY;
-        this.startAngle = -this.startAngle;
-        this.endAngle = -this.endAngle;
-        this.anticlockwise = !this.anticlockwise;
+        this._radiusY = -this._radiusY;
+        this._startAngle = -this._startAngle;
+        this._endAngle = -this._endAngle;
+        this._anticlockwise = !this._anticlockwise;
       }
-      if ( this.radiusX < this.radiusY ) {
+      if ( this._radiusX < this._radiusY ) {
         // swap radiusX and radiusY internally for consistent Canvas / SVG output
-        this.rotation += Math.PI / 2;
-        this.startAngle -= Math.PI / 2;
-        this.endAngle -= Math.PI / 2;
+        this._rotation += Math.PI / 2;
+        this._startAngle -= Math.PI / 2;
+        this._endAngle -= Math.PI / 2;
 
         // swap radiusX and radiusY
-        var tmpR = this.radiusX;
-        this.radiusX = this.radiusY;
-        this.radiusY = tmpR;
+        var tmpR = this._radiusX;
+        this._radiusX = this._radiusY;
+        this._radiusY = tmpR;
       }
 
-      if ( this.radiusX < this.radiusY ) {
+      if ( this._radiusX < this._radiusY ) {
         // TODO: check this
         throw new Error( 'Not verified to work if radiusX < radiusY' );
       }

@@ -53,11 +53,11 @@ define( function( require ) {
       this._bounds = null; // {Bounds2 | null}
 
       // Remap negative radius to a positive radius
-      if ( this.radius < 0 ) {
+      if ( this._radius < 0 ) {
         // support this case since we might actually need to handle it inside of strokes?
-        this.radius = -this.radius;
-        this.startAngle += Math.PI;
-        this.endAngle += Math.PI;
+        this._radius = -this._radius;
+        this._startAngle += Math.PI;
+        this._endAngle += Math.PI;
       }
 
       // Constraints that should always be satisfied
