@@ -26,6 +26,8 @@ define( function( require ) {
   kite.Subpath = function Subpath( segments, points, closed ) {
     Events.call( this );
 
+    var self = this;
+
     this.segments = [];
 
     // recombine points if necessary, based off of start points of segments + the end point of the last segment
@@ -44,7 +46,9 @@ define( function( require ) {
     // Add all segments directly (hooks up invalidation listeners properly)
     if ( segments ) {
       for ( var i = 0; i < segments.length; i++ ) {
-        this.addSegmentDirectly( segments[i] );
+        _.each( segments[i].getNondegenerateSegments(), function( segment ) {
+          self.addSegmentDirectly( segment );
+        } );
       }
     }
   };
