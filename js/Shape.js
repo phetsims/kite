@@ -24,6 +24,7 @@ define( function( require ) {
   var kite = require( 'KITE/kite' );
 
   var inherit = require( 'PHET_CORE/inherit' );
+  var Events = require( 'AXON/Events' );
 
   var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
@@ -58,6 +59,8 @@ define( function( require ) {
   kite.Shape = function Shape( subpaths, bounds ) {
     var self = this;
 
+    Events.call( this );
+
     // @public Lower-level piecewise mathematical description using segments, also individually immutable
     this.subpaths = [];
 
@@ -67,6 +70,7 @@ define( function( require ) {
     this.resetControlPoints();
 
     this._invalidateListener = this.invalidate.bind( this );
+    this._invalidatingPoints = false; // So we can invalidate all of the points without firing invalidation tons of times
 
     // Add in subpaths from the constructor (if applicable)
     if ( typeof subpaths === 'object' ) {
@@ -92,7 +96,7 @@ define( function( require ) {
   };
   var Shape = kite.Shape;
 
-  inherit( Object, Shape, {
+  inherit( Events, Shape, {
 
     // for tracking the last quadratic/cubic control point for smooth* functions
     // see https://github.com/phetsims/kite/issues/38
@@ -740,6 +744,18 @@ define( function( require ) {
       return bounds;
     },
 
+    invalidatePoints: function() {
+      this._invalidatingPoints = true;
+
+      var numSubpaths = this.subpaths.length;
+      for ( var i = 0; i < numSubpaths; i++ ) {
+        this.subpaths[i].invalidatePoints();
+      }
+
+      this._invalidatingPoints = false;
+      this.invalidate();
+    },
+
     toString: function() {
       // TODO: consider a more verbose but safer way?
       return 'new kite.Shape( \'' + this.getSVGPath() + '\' )';
@@ -749,15 +765,22 @@ define( function( require ) {
      * Internal subpath computations
      *----------------------------------------------------------------------------*/
 
+    // @private
     invalidate: function() {
-      this._bounds = null;
+      if ( !this._invalidatingPoints ) {
+        this._bounds = null;
+
+        this.trigger0( 'invalidated' );
+      }
     },
 
+    // @private
     addSegmentAndBounds: function( segment ) {
       this.getLastSubpath().addSegment( segment );
       this.invalidate();
     },
 
+    // @private
     ensure: function( point ) {
       if ( !this.hasSubpaths() ) {
         this.addSubpath( new Subpath() );
@@ -765,6 +788,7 @@ define( function( require ) {
       }
     },
 
+    // @private
     addSubpath: function( subpath ) {
       this.subpaths.push( subpath );
 
@@ -776,19 +800,22 @@ define( function( require ) {
       return this; // allow chaining
     },
 
+    // @private
     hasSubpaths: function() {
       return this.subpaths.length > 0;
     },
 
+    // @private
     getLastSubpath: function() {
       return _.last( this.subpaths );
     },
 
-    // gets the last point in the last subpath, or null if it doesn't exist
+    // @private - gets the last point in the last subpath, or null if it doesn't exist
     getLastPoint: function() {
       return this.hasSubpaths() ? this.getLastSubpath().getLastPoint() : null;
     },
 
+    // @private
     getLastSegment: function() {
       if ( !this.hasSubpaths() ) { return null; }
 
@@ -798,7 +825,7 @@ define( function( require ) {
       return subpath.getLastSegment();
     },
 
-    // returns the point to be used for smooth quadratic segments
+    // @private - returns the point to be used for smooth quadratic segments
     getSmoothQuadraticControlPoint: function() {
       var lastPoint = this.getLastPoint();
 
@@ -810,7 +837,7 @@ define( function( require ) {
       }
     },
 
-    // returns the point to be used for smooth cubic segments
+    // @private - returns the point to be used for smooth cubic segments
     getSmoothCubicControlPoint: function() {
       var lastPoint = this.getLastPoint();
 
@@ -822,6 +849,7 @@ define( function( require ) {
       }
     },
 
+    // @private
     getRelativePoint: function() {
       var lastPoint = this.getLastPoint();
       return lastPoint ? lastPoint : Vector2.ZERO;

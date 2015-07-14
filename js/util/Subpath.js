@@ -42,6 +42,7 @@ define( function( require ) {
     this._bounds = null; // {Bounds2 | null} - If non-null, the bounds of the subpath
 
     this._invalidateListener = this.invalidate.bind( this );
+    this._invalidatingPoints = false; // So we can invalidate all of the points without firing invalidation tons of times
 
     // Add all segments directly (hooks up invalidation listeners properly)
     if ( segments ) {
@@ -71,9 +72,24 @@ define( function( require ) {
       return new Subpath( this.segments.slice( 0 ), this.points.slice( 0 ), this.closed );
     },
 
+    invalidatePoints: function() {
+      this._invalidatingPoints = true;
+
+      var numSegments = this.segments.length;
+      for ( var i = 0; i < numSegments; i++ ) {
+        this.segments[i].invalidate();
+      }
+
+      this._invalidatingPoints = false;
+      this.invalidate();
+    },
+
     invalidate: function() {
-      this._bounds = null;
-      this._strokedSubpathsComputed = false;
+      if ( !this._invalidatingPoints ) {
+        this._bounds = null;
+        this._strokedSubpathsComputed = false;
+        this.trigger0( 'invalidated' );
+      }
     },
 
     addPoint: function( point ) {
