@@ -744,6 +744,11 @@ define( function( require ) {
       return bounds;
     },
 
+    /**
+     * Should be called after mutating the x/y of Vector2 points that were passed in to various Shape calls, so that
+     * derived information computed (bounds, etc.) will be correct, and any clients (e.g. Scenery Paths) will be
+     * notified of the updates.
+     */
     invalidatePoints: function() {
       this._invalidatingPoints = true;
 
