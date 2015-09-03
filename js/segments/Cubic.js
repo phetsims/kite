@@ -25,6 +25,10 @@ define( function( require ) {
   var Segment = require( 'KITE/segments/Segment' );
   require( 'KITE/segments/Quadratic' );
 
+  var scratchVector1 = new Vector2();
+  var scratchVector2 = new Vector2();
+  var scratchVector3 = new Vector2();
+
   /**
    * @param {Vector2} start - Start point of the cubic bezier
    * @param {Vector2} control1 - First control point
@@ -305,7 +309,11 @@ define( function( require ) {
     // derivative: -3 p0 (1 - t)^2 + 3 p1 (1 - t)^2 - 6 p1 (1 - t) t + 6 p2 (1 - t) t - 3 p2 t^2 + 3 p3 t^2
     tangentAt: function( t ) {
       var mt = 1 - t;
-      return this._start.times( -3 * mt * mt ).plus( this._control1.times( 3 * mt * mt - 6 * mt * t ) ).plus( this._control2.times( 6 * mt * t - 3 * t * t ) ).plus( this._end.times( 3 * t * t ) );
+      var result = new Vector2();
+      return result.set( this._start ).multiplyScalar( -3 * mt * mt )
+                   .add( scratchVector1.set( this._control1 ).multiplyScalar( 3 * mt * mt - 6 * mt * t ) )
+                   .add( scratchVector1.set( this._control2 ).multiplyScalar( 6 * mt * t - 3 * t * t ) )
+                   .add( scratchVector1.set( this._end ).multiplyScalar( 3 * t * t ) );
     },
 
     curvatureAt: function( t ) {
@@ -463,11 +471,10 @@ define( function( require ) {
     // returns a degree-reduced quadratic Bezier if possible, otherwise it returns null
     degreeReduced: function( epsilon ) {
       epsilon = epsilon || 0; // if not provided, use an exact version
-      // TODO: allocation reduction
-      // TODO: performance: don't divide both by 2 here, combine it later!!
-      var controlA = this._control1.timesScalar( 3 ).minus( this._start ).dividedScalar( 2 );
-      var controlB = this._control2.timesScalar( 3 ).minus( this._end ).dividedScalar( 2 );
-      if ( controlA.minus( controlB ).magnitude() <= epsilon ) {
+      var controlA = scratchVector1.set( this._control1 ).multiplyScalar( 3 ).subtract( this._start ).divideScalar( 2 );
+      var controlB = scratchVector2.set( this._control2 ).multiplyScalar( 3 ).subtract( this._end ).divideScalar( 2 );
+      var difference = scratchVector3.set( controlA ).subtract( controlB );
+      if ( difference.magnitude() <= epsilon ) {
         return new kite.Quadratic(
           this._start,
           controlA.average( controlB ), // average the control points for stability. they should be almost identical
