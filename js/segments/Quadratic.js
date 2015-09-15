@@ -287,7 +287,7 @@ define( function( require ) {
       var result = [];
 
       // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
-      var inverseMatrix = Matrix3.rotation2( -ray.dir.angle() ).timesMatrix( Matrix3.translation( -ray.pos.x, -ray.pos.y ) );
+      var inverseMatrix = Matrix3.rotation2( -ray.direction.angle() ).timesMatrix( Matrix3.translation( -ray.position.x, -ray.position.y ) );
 
       var p0 = inverseMatrix.timesVector2( this._start );
       var p1 = inverseMatrix.timesVector2( this._control );
@@ -305,15 +305,15 @@ define( function( require ) {
           var hitPoint = self.positionAt( t );
           var unitTangent = self.tangentAt( t ).normalized();
           var perp = unitTangent.perpendicular();
-          var toHit = hitPoint.minus( ray.pos );
+          var toHit = hitPoint.minus( ray.position );
 
           // make sure it's not behind the ray
-          if ( toHit.dot( ray.dir ) > 0 ) {
+          if ( toHit.dot( ray.direction ) > 0 ) {
             result.push( {
               distance: toHit.magnitude(),
               point: hitPoint,
-              normal: perp.dot( ray.dir ) > 0 ? perp.negated() : perp,
-              wind: ray.dir.perpendicular().dot( unitTangent ) < 0 ? 1 : -1
+              normal: perp.dot( ray.direction ) > 0 ? perp.negated() : perp,
+              wind: ray.direction.perpendicular().dot( unitTangent ) < 0 ? 1 : -1
             } );
           }
         }

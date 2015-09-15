@@ -412,7 +412,7 @@ define( function( require ) {
       return _.map( hits, function( hit ) {
         var transformedPoint = unitTransform.transformPosition2( hit.point );
         return {
-          distance: ray.pos.distance( transformedPoint ),
+          distance: ray.position.distance( transformedPoint ),
           point: transformedPoint,
           normal: unitTransform.inverseNormal2( hit.normal ),
           wind: hit.wind

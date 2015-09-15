@@ -414,7 +414,7 @@ define( function( require ) {
       var result = [];
 
       // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
-      var inverseMatrix = Matrix3.rotation2( -ray.dir.angle() ).timesMatrix( Matrix3.translation( -ray.pos.x, -ray.pos.y ) );
+      var inverseMatrix = Matrix3.rotation2( -ray.direction.angle() ).timesMatrix( Matrix3.translation( -ray.position.x, -ray.position.y ) );
 
       var p0 = inverseMatrix.timesVector2( this._start );
       var p1 = inverseMatrix.timesVector2( this._control1 );
@@ -434,15 +434,15 @@ define( function( require ) {
           var hitPoint = self.positionAt( t );
           var unitTangent = self.tangentAt( t ).normalized();
           var perp = unitTangent.perpendicular();
-          var toHit = hitPoint.minus( ray.pos );
+          var toHit = hitPoint.minus( ray.position );
 
           // make sure it's not behind the ray
-          if ( toHit.dot( ray.dir ) > 0 ) {
+          if ( toHit.dot( ray.direction ) > 0 ) {
             result.push( {
               distance: toHit.magnitude(),
               point: hitPoint,
-              normal: perp.dot( ray.dir ) > 0 ? perp.negated() : perp,
-              wind: ray.dir.perpendicular().dot( unitTangent ) < 0 ? 1 : -1
+              normal: perp.dot( ray.direction ) > 0 ? perp.negated() : perp,
+              wind: ray.direction.perpendicular().dot( unitTangent ) < 0 ? 1 : -1
             } );
           }
         }
@@ -490,8 +490,8 @@ define( function( require ) {
     // returns the resultant winding number of this ray intersecting this segment.
     // windingIntersection: function( ray ) {
     //   // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
-    //   var inverseMatrix = Matrix3.rotation2( -ray.dir.angle() );
-    //   assert && assert( inverseMatrix.timesVector2( ray.dir ).x > 0.99 ); // verify that we transform the unit vector to the x-unit
+    //   var inverseMatrix = Matrix3.rotation2( -ray.direction.angle() );
+    //   assert && assert( inverseMatrix.timesVector2( ray.direction ).x > 0.99 ); // verify that we transform the unit vector to the x-unit
 
     //   var y0 = inverseMatrix.timesVector2( this._start ).y;
     //   var y1 = inverseMatrix.timesVector2( this._control1 ).y;
@@ -512,7 +512,7 @@ define( function( require ) {
     //   // for each hit
     //   _.each( ts, function( t ) {
     //     if ( t >= 0 && t <= 1 ) {
-    //       result += ray.dir.perpendicular().dot( this.tangentAt( t ) ) < 0 ? 1 : -1;
+    //       result += ray.direction.perpendicular().dot( this.tangentAt( t ) ) < 0 ? 1 : -1;
     //     }
     //   } );
 

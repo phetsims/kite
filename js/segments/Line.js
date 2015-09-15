@@ -132,7 +132,7 @@ define( function( require ) {
         return result;
       }
 
-      var denom = ray.dir.y * diff.x - ray.dir.x * diff.y;
+      var denom = ray.direction.y * diff.x - ray.direction.x * diff.y;
 
       // If denominator is 0, the lines are parallel or coincident
       if ( denom === 0 ) {
@@ -140,15 +140,15 @@ define( function( require ) {
       }
 
       // linear parameter where start (0) to end (1)
-      var t = ( ray.dir.x * ( start.y - ray.pos.y ) - ray.dir.y * ( start.x - ray.pos.x ) ) / denom;
+      var t = ( ray.direction.x * ( start.y - ray.position.y ) - ray.direction.y * ( start.x - ray.position.x ) ) / denom;
 
       // check that the intersection point is between the line segment's endpoints
       if ( t < 0 || t >= 1 ) {
         return result;
       }
 
-      // linear parameter where ray.pos (0) to ray.pos+ray.dir (1)
-      var s = ( diff.x * ( start.y - ray.pos.y ) - diff.y * ( start.x - ray.pos.x ) ) / denom;
+      // linear parameter where ray.position (0) to ray.position+ray.direction (1)
+      var s = ( diff.x * ( start.y - ray.position.y ) - diff.y * ( start.x - ray.position.x ) ) / denom;
 
       // bail if it is behind our ray
       if ( s < 0.00000001 ) {
@@ -160,8 +160,8 @@ define( function( require ) {
       result.push( {
         distance: s,
         point: start.plus( diff.times( t ) ),
-        normal: perp.dot( ray.dir ) > 0 ? perp.negated() : perp,
-        wind: ray.dir.perpendicular().dot( diff ) < 0 ? 1 : -1,
+        normal: perp.dot( ray.direction ) > 0 ? perp.negated() : perp,
+        wind: ray.direction.perpendicular().dot( diff ) < 0 ? 1 : -1,
         segment: this
       } );
       return result;

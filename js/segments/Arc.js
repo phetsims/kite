@@ -318,17 +318,17 @@ define( function( require ) {
       var epsilon = 0;
 
       // Run a general circle-intersection routine, then we can test the angles later.
-      // Solves for the two solutions t such that ray.pos + ray.dir * t is on the circle.
+      // Solves for the two solutions t such that ray.position + ray.direction * t is on the circle.
       // Then we check whether the angle at each possible hit point is in our arc.
-      var centerToRay = ray.pos.minus( this._center );
-      var tmp = ray.dir.dot( centerToRay );
+      var centerToRay = ray.position.minus( this._center );
+      var tmp = ray.direction.dot( centerToRay );
       var centerToRayDistSq = centerToRay.magnitudeSquared();
       var discriminant = 4 * tmp * tmp - 4 * ( centerToRayDistSq - this._radius * this._radius );
       if ( discriminant < epsilon ) {
         // ray misses circle entirely
         return result;
       }
-      var base = ray.dir.dot( this._center ) - ray.dir.dot( ray.pos );
+      var base = ray.direction.dot( this._center ) - ray.direction.dot( ray.position );
       var sqt = Math.sqrt( discriminant ) / 2;
       var ta = base - sqt;
       var tb = base + sqt;
