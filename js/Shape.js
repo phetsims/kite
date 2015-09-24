@@ -876,6 +876,96 @@ define( function( require ) {
   };
   Shape.roundRectangle = Shape.roundRect;
 
+  /**
+   * Creates a rounded rectangle, where each corner can have a different radius. The radii default to 0, and may be set
+   * using topLeftCornerRadius, topRightCornerRadius, bottomLeftCornerRadius and bottomRightCornerRadius in the options.
+   * @public
+
+   * E.g.:
+   *
+   * var cornerRadius = 20;
+   * var rect = Shape.roundedRectangleWithRadii( 0, 0, 200, 100, {
+   *   topLeftCornerRadius: cornerRadius,
+   *   topRightCornerRadius: cornerRadius
+   * } );
+   *
+   * @param {number} x - Left edge location
+   * @param {number} y - Top edge location
+   * @param {number} width - Width of rectangle
+   * @param {number} height - Height of rectangle
+   * @param {Object] [options] - Options object with potential radii for each corner.
+   */
+  Shape.roundedRectangleWithRadii = function( x, y, width, height, options ) {
+    // defaults to 0 (not using _.extends, since we reference each multiple times)
+    var topLeftCornerRadius = options && options.topLeftCornerRadius || 0;
+    var topRightCornerRadius = options && options.topRightCornerRadius || 0;
+    var bottomLeftCornerRadius = options && options.bottomLeftCornerRadius || 0;
+    var bottomRightCornerRadius = options && options.bottomRightCornerRadius || 0;
+
+    // type and constraint assertions
+    assert && assert( typeof x === 'number' && isFinite( x ), 'Non-finite x' );
+    assert && assert( typeof y === 'number' && isFinite( y ), 'Non-finite y' );
+    assert && assert( typeof width === 'number' && width >= 0 && isFinite( width ), 'Negative or non-finite width' );
+    assert && assert( typeof height === 'number' && height >= 0 && isFinite( height ), 'Negative or non-finite height' );
+    assert && assert( typeof topLeftCornerRadius === 'number' && topLeftCornerRadius >= 0 && isFinite( topLeftCornerRadius ),
+      'Invalid topLeftCornerRadius' );
+    assert && assert( typeof topRightCornerRadius === 'number' && topRightCornerRadius >= 0 && isFinite( topRightCornerRadius ),
+      'Invalid topRightCornerRadius' );
+    assert && assert( typeof bottomLeftCornerRadius === 'number' && bottomLeftCornerRadius >= 0 && isFinite( bottomLeftCornerRadius ),
+      'Invalid bottomLeftCornerRadius' );
+    assert && assert( typeof bottomRightCornerRadius === 'number' && bottomRightCornerRadius >= 0 && isFinite( bottomRightCornerRadius ),
+      'Invalid bottomRightCornerRadius' );
+
+    // verify there is no overlap between corners
+    assert && assert( topLeftCornerRadius + topRightCornerRadius <= width, 'Corner overlap on top edge' );
+    assert && assert( bottomLeftCornerRadius + bottomRightCornerRadius <= width, 'Corner overlap on bottom edge' );
+    assert && assert( topLeftCornerRadius + bottomLeftCornerRadius <= height, 'Corner overlap on left edge' );
+    assert && assert( topRightCornerRadius + bottomRightCornerRadius <= height, 'Corner overlap on right edge' );
+
+    var shape = new kite.Shape();
+    var right = x + width;
+    var bottom = y + height;
+
+    // To draw the rounded rectangle, we use the implicit "line from last segment to next segment" and the close() for
+    // all of the straight line edges between arcs, or lineTo the corner.
+
+    if ( bottomRightCornerRadius > 0 ) {
+      shape.arc( right - bottomRightCornerRadius, bottom - bottomRightCornerRadius, bottomRightCornerRadius,
+                 0, Math.PI / 2, false );
+    }
+    else {
+      shape.moveTo( right, bottom );
+    }
+
+    if ( bottomLeftCornerRadius > 0 ) {
+      shape.arc( x + bottomLeftCornerRadius, bottom - bottomLeftCornerRadius, bottomLeftCornerRadius,
+                 Math.PI / 2, Math.PI, false );
+    }
+    else {
+      shape.lineTo( x, bottom );
+    }
+
+    if ( topLeftCornerRadius > 0 ) {
+      shape.arc( x + topLeftCornerRadius, y + topLeftCornerRadius, topLeftCornerRadius,
+                 Math.PI, 3 * Math.PI / 2, false );
+    }
+    else {
+      shape.lineTo( x, y );
+    }
+
+    if ( topRightCornerRadius > 0 ) {
+      shape.arc( right - topRightCornerRadius, y + topRightCornerRadius, topRightCornerRadius,
+                 3 * Math.PI / 2, 2 * Math.PI, false );
+    }
+    else {
+      shape.lineTo( right, y );
+    }
+
+    shape.close();
+
+    return shape;
+  };
+
   Shape.polygon = function( vertices ) {
     return new Shape().polygon( vertices );
   };
