@@ -878,49 +878,49 @@ define( function( require ) {
 
   /**
    * Creates a rounded rectangle, where each corner can have a different radius. The radii default to 0, and may be set
-   * using topLeftCornerRadius, topRightCornerRadius, bottomLeftCornerRadius and bottomRightCornerRadius in the options.
+   * using topLeft, topRight, bottomLeft and bottomRight in the options.
    * @public
 
    * E.g.:
    *
    * var cornerRadius = 20;
    * var rect = Shape.roundedRectangleWithRadii( 0, 0, 200, 100, {
-   *   topLeftCornerRadius: cornerRadius,
-   *   topRightCornerRadius: cornerRadius
+   *   topLeft: cornerRadius,
+   *   topRight: cornerRadius
    * } );
    *
    * @param {number} x - Left edge location
    * @param {number} y - Top edge location
    * @param {number} width - Width of rectangle
    * @param {number} height - Height of rectangle
-   * @param {Object] [options] - Options object with potential radii for each corner.
+   * @param {Object] [cornerRadii] - Optional object with potential radii for each corner.
    */
-  Shape.roundedRectangleWithRadii = function( x, y, width, height, options ) {
+  Shape.roundedRectangleWithRadii = function( x, y, width, height, cornerRadii ) {
     // defaults to 0 (not using _.extends, since we reference each multiple times)
-    var topLeftCornerRadius = options && options.topLeftCornerRadius || 0;
-    var topRightCornerRadius = options && options.topRightCornerRadius || 0;
-    var bottomLeftCornerRadius = options && options.bottomLeftCornerRadius || 0;
-    var bottomRightCornerRadius = options && options.bottomRightCornerRadius || 0;
+    var topLeftRadius = cornerRadii && cornerRadii.topLeft || 0;
+    var topRightRadius = cornerRadii && cornerRadii.topRight || 0;
+    var bottomLeftRadius = cornerRadii && cornerRadii.bottomLeft || 0;
+    var bottomRightRadius = cornerRadii && cornerRadii.bottomRight || 0;
 
     // type and constraint assertions
     assert && assert( typeof x === 'number' && isFinite( x ), 'Non-finite x' );
     assert && assert( typeof y === 'number' && isFinite( y ), 'Non-finite y' );
     assert && assert( typeof width === 'number' && width >= 0 && isFinite( width ), 'Negative or non-finite width' );
     assert && assert( typeof height === 'number' && height >= 0 && isFinite( height ), 'Negative or non-finite height' );
-    assert && assert( typeof topLeftCornerRadius === 'number' && topLeftCornerRadius >= 0 && isFinite( topLeftCornerRadius ),
-      'Invalid topLeftCornerRadius' );
-    assert && assert( typeof topRightCornerRadius === 'number' && topRightCornerRadius >= 0 && isFinite( topRightCornerRadius ),
-      'Invalid topRightCornerRadius' );
-    assert && assert( typeof bottomLeftCornerRadius === 'number' && bottomLeftCornerRadius >= 0 && isFinite( bottomLeftCornerRadius ),
-      'Invalid bottomLeftCornerRadius' );
-    assert && assert( typeof bottomRightCornerRadius === 'number' && bottomRightCornerRadius >= 0 && isFinite( bottomRightCornerRadius ),
-      'Invalid bottomRightCornerRadius' );
+    assert && assert( typeof topLeftRadius === 'number' && topLeftRadius >= 0 && isFinite( topLeftRadius ),
+      'Invalid topLeft' );
+    assert && assert( typeof topRightRadius === 'number' && topRightRadius >= 0 && isFinite( topRightRadius ),
+      'Invalid topRight' );
+    assert && assert( typeof bottomLeftRadius === 'number' && bottomLeftRadius >= 0 && isFinite( bottomLeftRadius ),
+      'Invalid bottomLeft' );
+    assert && assert( typeof bottomRightRadius === 'number' && bottomRightRadius >= 0 && isFinite( bottomRightRadius ),
+      'Invalid bottomRight' );
 
     // verify there is no overlap between corners
-    assert && assert( topLeftCornerRadius + topRightCornerRadius <= width, 'Corner overlap on top edge' );
-    assert && assert( bottomLeftCornerRadius + bottomRightCornerRadius <= width, 'Corner overlap on bottom edge' );
-    assert && assert( topLeftCornerRadius + bottomLeftCornerRadius <= height, 'Corner overlap on left edge' );
-    assert && assert( topRightCornerRadius + bottomRightCornerRadius <= height, 'Corner overlap on right edge' );
+    assert && assert( topLeftRadius + topRightRadius <= width, 'Corner overlap on top edge' );
+    assert && assert( bottomLeftRadius + bottomRightRadius <= width, 'Corner overlap on bottom edge' );
+    assert && assert( topLeftRadius + bottomLeftRadius <= height, 'Corner overlap on left edge' );
+    assert && assert( topRightRadius + bottomRightRadius <= height, 'Corner overlap on right edge' );
 
     var shape = new kite.Shape();
     var right = x + width;
@@ -929,32 +929,32 @@ define( function( require ) {
     // To draw the rounded rectangle, we use the implicit "line from last segment to next segment" and the close() for
     // all of the straight line edges between arcs, or lineTo the corner.
 
-    if ( bottomRightCornerRadius > 0 ) {
-      shape.arc( right - bottomRightCornerRadius, bottom - bottomRightCornerRadius, bottomRightCornerRadius,
+    if ( bottomRightRadius > 0 ) {
+      shape.arc( right - bottomRightRadius, bottom - bottomRightRadius, bottomRightRadius,
                  0, Math.PI / 2, false );
     }
     else {
       shape.moveTo( right, bottom );
     }
 
-    if ( bottomLeftCornerRadius > 0 ) {
-      shape.arc( x + bottomLeftCornerRadius, bottom - bottomLeftCornerRadius, bottomLeftCornerRadius,
+    if ( bottomLeftRadius > 0 ) {
+      shape.arc( x + bottomLeftRadius, bottom - bottomLeftRadius, bottomLeftRadius,
                  Math.PI / 2, Math.PI, false );
     }
     else {
       shape.lineTo( x, bottom );
     }
 
-    if ( topLeftCornerRadius > 0 ) {
-      shape.arc( x + topLeftCornerRadius, y + topLeftCornerRadius, topLeftCornerRadius,
+    if ( topLeftRadius > 0 ) {
+      shape.arc( x + topLeftRadius, y + topLeftRadius, topLeftRadius,
                  Math.PI, 3 * Math.PI / 2, false );
     }
     else {
       shape.lineTo( x, y );
     }
 
-    if ( topRightCornerRadius > 0 ) {
-      shape.arc( right - topRightCornerRadius, y + topRightCornerRadius, topRightCornerRadius,
+    if ( topRightRadius > 0 ) {
+      shape.arc( right - topRightRadius, y + topRightRadius, topRightRadius,
                  3 * Math.PI / 2, 2 * Math.PI, false );
     }
     else {
