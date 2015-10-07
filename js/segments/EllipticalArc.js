@@ -15,7 +15,7 @@ define( function( require ) {
   var Matrix3 = require( 'DOT/Matrix3' );
   var Transform3 = require( 'DOT/Transform3' );
   var toDegrees = require( 'DOT/Util' ).toDegrees;
-  var DotUtil = require( 'DOT/Util' );
+  var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
 
   var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );

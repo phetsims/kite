@@ -13,7 +13,7 @@ define( function( require ) {
 
   var inherit = require( 'PHET_CORE/inherit' );
   var Events = require( 'AXON/Events' );
-  var DotUtil = require( 'DOT/Util' );
+  var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
   var Bounds2 = require( 'DOT/Bounds2' );
 
   /*

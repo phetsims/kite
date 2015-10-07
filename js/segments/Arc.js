@@ -12,7 +12,7 @@ define( function( require ) {
   var inherit = require( 'PHET_CORE/inherit' );
   var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
-  var DotUtil = require( 'DOT/Util' );
+  var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
 
   var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
