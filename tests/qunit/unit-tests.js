@@ -12,5 +12,4 @@ function runKiteTests( pathToTestBase ) {
   }
 
   loadTestFile( 'js/miscellaneous.js' );
-  loadTestFile( 'js/linting.js' );
 }

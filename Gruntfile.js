@@ -1,3 +1,5 @@
+// Copyright 2002-2015, University of Colorado Boulder
+
 /*global module:false*/
 module.exports = function( grunt ) {
   'use strict';
@@ -5,8 +7,11 @@ module.exports = function( grunt ) {
   // print this immediately, so it is clear what project grunt is building
   grunt.log.writeln( 'Kite' );
 
-  var PEG = require( 'pegjs' );
+  var pegjs = require( 'pegjs' );
   var fs = require( 'fs' );
+
+  // --disable-es-cache disables the cache, useful for developing rules
+  var cache = !grunt.option( 'disable-eslint-cache' );
 
   // Project configuration.
   grunt.initConfig( {
@@ -17,13 +22,13 @@ module.exports = function( grunt ) {
       development: {
         options: {
           almond: true,
-          mainConfigFile: "js/config.js",
-          out: "build/development/kite.js",
-          name: "config",
+          mainConfigFile: 'js/config.js',
+          out: 'build/development/kite.js',
+          name: 'config',
           optimize: 'none',
           wrap: {
-            startFile: [ "js/wrap-start.frag", "../assert/js/assert.js" ],
-            endFile: [ "js/wrap-end.frag" ]
+            startFile: [ 'js/wrap-start.frag', '../assert/js/assert.js' ],
+            endFile: [ 'js/wrap-end.frag' ]
           }
         }
       },
@@ -31,15 +36,15 @@ module.exports = function( grunt ) {
       production: {
         options: {
           almond: true,
-          mainConfigFile: "js/config.js",
-          out: "build/production/kite.min.js",
-          name: "config",
+          mainConfigFile: 'js/config.js',
+          out: 'build/production/kite.min.js',
+          name: 'config',
           optimize: 'uglify2',
           generateSourceMaps: true,
           preserveLicenseComments: false,
           wrap: {
-            startFile: [ "js/wrap-start.frag", "../assert/js/assert.js" ],
-            endFile: [ "js/wrap-end.frag" ]
+            startFile: [ 'js/wrap-start.frag', '../assert/js/assert.js' ],
+            endFile: [ 'js/wrap-end.frag' ]
           },
           uglify2: {
             compress: {
@@ -55,39 +60,52 @@ module.exports = function( grunt ) {
       }
     },
 
-    jshint: {
-      all: [
-        'Gruntfile.js', 'js/**/*.js', '../dot/js/**/*.js', '../phet-core/js/**/*.js', '../assert/js/**/*.js', '!js/parser/svgPath.js'
-      ],
-      kite: [
+    eslint: {
+      options: {
+
+        // Rules are specified in the .eslintrc file
+        configFile: '../chipper/eslint/.eslintrc',
+
+        // Caching only checks changed files or when the list of rules is changed.  Changing the implementation of a
+        // custom rule does not invalidate the cache.  Caches are declared in .eslintcache files in the directory where
+        // grunt was run from.
+        cache: cache,
+
+        // Our custom rules live here
+        rulePaths: [ '../chipper/eslint/rules' ]
+      },
+
+      files: [
+        'Gruntfile.js',
+        '../phet-core/js/**/*.js',
+        '../axon/js/**/*.js',
+        '../dot/js/**/*.js',
+        '../assert/js/**/*.js',
         'js/**/*.js',
         '!js/parser/svgPath.js'
-      ],
-      // reference external JSHint options in jshintOptions.js
-      options: require( '../chipper/js/grunt/jshintOptions' )
+      ]
     }
   } );
 
   // Default task.
-  grunt.registerTask( 'default', [ 'jshint:all', 'development', 'production' ] );
+  grunt.registerTask( 'default', [ 'lint', 'development', 'production' ] );
 
-  // linter on kite subset only ('grunt lint')
-  grunt.registerTask( 'lint', [ 'jshint:kite' ] );
+  grunt.registerTask( 'lint', [ 'eslint:files' ] );
 
   grunt.registerTask( 'production', [ 'requirejs:production' ] );
   grunt.registerTask( 'development', [ 'requirejs:development' ] );
   grunt.loadNpmTasks( 'grunt-requirejs' );
-  grunt.loadNpmTasks( 'grunt-contrib-jshint' );
+  grunt.loadNpmTasks( 'grunt-eslint' );
 
   grunt.registerTask( 'generate-svgPath-parser',
     'Uses js/parser/svgPath.pegjs to generate js/parser/svgPath.js',
     function() {
       var pegInput = fs.readFileSync( 'js/parser/svgPath.pegjs', 'utf8' );
-      var source = PEG.buildParser( pegInput ).toSource();
+      var source = pegjs.buildParser( pegInput ).toSource();
 
       // replace fixed strings at the start/end with our prefix/suffix, so that it will work nicely with require.js
       var prefix = '// NOTE: Generated from svgPath.pegjs using PEG.js, with added kite namespace and require.js compatibility.\n' +
-                   '// See svgPath.pegjs for more documentation, or run "grunt generate-svgPath-parser" to regenerate.\n' +
+                   '// See svgPath.pegjs for more documentation, or run \'grunt generate-svgPath-parser\' to regenerate.\n' +
                    '\n' +
                    'define( function( require ) {\n' +
                    '  var kite = require( \'KITE/kite\' );\n';
