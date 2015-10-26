@@ -655,7 +655,8 @@ define( function( require ) {
       var maxHorizontalRay = new Ray2( new Vector2( bounds.maxX, bounds.maxY ), new Vector2( -1, 0 ) );
       var maxVerticalRay = new Ray2( new Vector2( bounds.maxX, bounds.maxY ), new Vector2( 0, -1 ) );
 
-      var hitPoint, i;
+      var hitPoint;
+      var i;
       // TODO: could optimize to intersect differently so we bail sooner
       var horizontalRayIntersections = this.intersection( minHorizontalRay ).concat( this.intersection( maxHorizontalRay ) );
       for ( i = 0; i < horizontalRayIntersections.length; i++ ) {
