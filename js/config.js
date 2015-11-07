@@ -1,4 +1,4 @@
-// Copyright 2002-2014, University of Colorado Boulder
+// Copyright 2013-2015, University of Colorado Boulder
 
 require.config( {
   deps: [ 'main', 'AXON/main', 'DOT/main', 'PHET_CORE/main' ],
