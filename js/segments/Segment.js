@@ -39,10 +39,10 @@ define( function( require ) {
    * writeToContext( context ) - draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
    * transformed( matrix )     - returns a new segment that represents this segment after transformation by the matrix
    */
-  kite.Segment = function Segment() {
+  function Segment() {
     Events.call( this );
-  };
-  var Segment = kite.Segment;
+  }
+  kite.register( 'Segment', Segment );
 
   var identityFunction = function identityFunction( x ) { return x; };
 

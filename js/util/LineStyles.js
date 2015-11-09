@@ -16,7 +16,7 @@ define( function( require ) {
   var Arc = require( 'KITE/segments/Arc' );
   var Line = require( 'KITE/segments/Line' );
 
-  kite.LineStyles = function( args ) {
+  function LineStyles( args ) {
     if ( args === undefined ) {
       args = {};
     }
@@ -28,8 +28,8 @@ define( function( require ) {
     this.miterLimit = args.miterLimit !== undefined ? args.miterLimit : 10; // see https://svgwg.org/svg2-draft/painting.html for miterLimit computations
 
     assert && assert( Array.isArray( this.lineDash ) );
-  };
-  var LineStyles = kite.LineStyles;
+  }
+  kite.register( 'LineStyles', LineStyles );
 
   inherit( Object, LineStyles, {
 

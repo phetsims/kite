@@ -340,10 +340,10 @@
 
             if ( segmentControlNet ) {
               var pts = [];
-              if ( segment instanceof kite.Segment.Quadratic ) {
+              if ( segment instanceof kite.Quadratic ) {
                 pts = [ segment.start, segment.control, segment.end ];
               }
-              else if ( segment instanceof kite.Segment.Cubic ) {
+              else if ( segment instanceof kite.Cubic ) {
                 pts = [ segment.start, segment.control1, segment.control2, segment.end ];
               }
               if ( pts.length ) {

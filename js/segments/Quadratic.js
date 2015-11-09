@@ -20,7 +20,7 @@ define( function( require ) {
   var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
 
-  kite.Quadratic = Segment.Quadratic = function Quadratic( start, control, end ) {
+  function Quadratic( start, control, end ) {
     Segment.call( this );
 
     this._start = start;
@@ -28,8 +28,10 @@ define( function( require ) {
     this._end = end;
 
     this.invalidate();
-  };
-  inherit( Segment, Segment.Quadratic, {
+  }
+  kite.register( 'Quadratic', Quadratic );
+
+  inherit( Segment, Quadratic, {
 
     degree: 2,
 
@@ -73,7 +75,7 @@ define( function( require ) {
     getTCriticalX: function() {
       // compute x where the derivative is 0 (used for bounds and other things)
       if ( this._tCriticalX === null ) {
-        this._tCriticalX = Segment.Quadratic.extremaT( this._start.x, this._control.x, this._end.x );
+        this._tCriticalX = Quadratic.extremaT( this._start.x, this._control.x, this._end.x );
       }
       return this._tCriticalX;
     },
@@ -82,7 +84,7 @@ define( function( require ) {
     getTCriticalY: function() {
       // compute y where the derivative is 0 (used for bounds and other things)
       if ( this._tCriticalY === null ) {
-        this._tCriticalY = Segment.Quadratic.extremaT( this._start.y, this._control.y, this._end.y );
+        this._tCriticalY = Quadratic.extremaT( this._start.y, this._control.y, this._end.y );
       }
       return this._tCriticalY;
     },
@@ -119,7 +121,7 @@ define( function( require ) {
         // now control point must be unique. we check to see if our rendered path will be outside of the start->end line segment
         var delta = end.minus( start );
         var p1d = control.minus( start ).dot( delta.normalized ) / delta.magnitude();
-        var t = Segment.Quadratic.extremaT( 0, p1d, 1 );
+        var t = Quadratic.extremaT( 0, p1d, 1 );
         if ( !isNaN( t ) && t > 0 && t < 1 ) {
           // we have a local max inside the range, indicating that our extrema point is outside of start->end
           // we'll line to and from it
@@ -356,12 +358,12 @@ define( function( require ) {
     }
   } );
 
-  Segment.addInvalidatingGetterSetter( Segment.Quadratic, 'start' );
-  Segment.addInvalidatingGetterSetter( Segment.Quadratic, 'control' );
-  Segment.addInvalidatingGetterSetter( Segment.Quadratic, 'end' );
+  Segment.addInvalidatingGetterSetter( Quadratic, 'start' );
+  Segment.addInvalidatingGetterSetter( Quadratic, 'control' );
+  Segment.addInvalidatingGetterSetter( Quadratic, 'end' );
 
   // one-dimensional solution to extrema
-  Segment.Quadratic.extremaT = function( start, control, end ) {
+  Quadratic.extremaT = function( start, control, end ) {
     // compute t where the derivative is 0 (used for bounds and other things)
     var divisorX = 2 * ( end - 2 * control + start );
     if ( divisorX !== 0 ) {
@@ -372,5 +374,5 @@ define( function( require ) {
     }
   };
 
-  return Segment.Quadratic;
+  return Quadratic;
 } );

@@ -109,7 +109,7 @@ module.exports = function( grunt ) {
                    '\n' +
                    'define( function( require ) {\n' +
                    '  var kite = require( \'KITE/kite\' );\n';
-      var suffix = '  kite.svgPath = result;\n' +
+      var suffix = '  kite.register( \'svgPath\', result );\n' +
                    '  return kite.svgPath;\n' +
                    '} );\n';
       var toStripFromStart = '(function(){';

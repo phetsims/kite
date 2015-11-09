@@ -19,15 +19,17 @@ define( function( require ) {
 
   var scratchVector2 = new Vector2();
 
-  kite.Line = Segment.Line = function Line( start, end ) {
+  function Line( start, end ) {
     Segment.call( this );
 
     this._start = start;
     this._end = end;
 
     this.invalidate();
-  };
-  inherit( Segment, Segment.Line, {
+  }
+  kite.register( 'Line', Line );
+
+  inherit( Segment, Line, {
 
     // @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
     invalidate: function() {
@@ -222,8 +224,8 @@ define( function( require ) {
     }
   } );
 
-  Segment.addInvalidatingGetterSetter( Segment.Line, 'start' );
-  Segment.addInvalidatingGetterSetter( Segment.Line, 'end' );
+  Segment.addInvalidatingGetterSetter( Line, 'start' );
+  Segment.addInvalidatingGetterSetter( Line, 'end' );
 
-  return Segment.Line;
+  return Line;
 } );

@@ -56,7 +56,7 @@ define( function( require ) {
   // var weirdDir = p( Math.PI, 22 / 7 );
 
   // all arguments optional, they are for the copy() method. if used, ensure that 'bounds' is consistent with 'subpaths'
-  kite.Shape = function Shape( subpaths, bounds ) {
+  function Shape( subpaths, bounds ) {
     var self = this;
 
     Events.call( this );
@@ -93,8 +93,8 @@ define( function( require ) {
     this.invalidate();
 
     phetAllocation && phetAllocation( 'Shape' );
-  };
-  var Shape = kite.Shape;
+  }
+  kite.register( 'Shape', Shape );
 
   inherit( Events, Shape, {
 

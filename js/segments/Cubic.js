@@ -36,7 +36,7 @@ define( function( require ) {
    * @param {Vector2} end - End point of the cubic bezier
    * @constructor
    */
-  kite.Cubic = Segment.Cubic = function Cubic( start, control1, control2, end ) {
+  function Cubic( start, control1, control2, end ) {
     Segment.call( this );
 
     this._start = start;
@@ -45,8 +45,10 @@ define( function( require ) {
     this._end = end;
 
     this.invalidate();
-  };
-  inherit( Segment, Segment.Cubic, {
+  }
+  kite.register( 'Cubic', Cubic );
+
+  inherit( Segment, Cubic, {
 
     degree: 3,
 
@@ -63,8 +65,8 @@ define( function( require ) {
       this._tDeterminant = null; // {number | null}
       this._tInflection1 = null; // {number | null} - NaN if not applicable
       this._tInflection2 = null; // {number | null} - NaN if not applicable
-      this._startQuadratic = null; // {Segment.Quadratic | null}
-      this._endQuadratic = null; // {Segment.Quadratic | null}
+      this._startQuadratic = null; // {Quadratic | null}
+      this._endQuadratic = null; // {Quadratic | null}
 
       // T-values where X and Y (respectively) reach an extrema (not necessarily including 0 and 1)
       this._xExtremaT = null; // {Array.<number> | null}
@@ -165,7 +167,7 @@ define( function( require ) {
 
     getXExtremaT: function() {
       if ( this._xExtremaT === null ) {
-        this._xExtremaT = Segment.Cubic.extremaT( this._start.x, this._control1.x, this._control2.x, this._end.x );
+        this._xExtremaT = Cubic.extremaT( this._start.x, this._control1.x, this._control2.x, this._end.x );
       }
       return this._xExtremaT;
     },
@@ -173,7 +175,7 @@ define( function( require ) {
 
     getYExtremaT: function() {
       if ( this._yExtremaT === null ) {
-        this._yExtremaT = Segment.Cubic.extremaT( this._start.y, this._control1.y, this._control2.y, this._end.y );
+        this._yExtremaT = Cubic.extremaT( this._start.y, this._control1.y, this._control2.y, this._end.y );
       }
       return this._yExtremaT;
     },
@@ -520,13 +522,13 @@ define( function( require ) {
     // }
   } );
 
-  Segment.addInvalidatingGetterSetter( Segment.Cubic, 'start' );
-  Segment.addInvalidatingGetterSetter( Segment.Cubic, 'control1' );
-  Segment.addInvalidatingGetterSetter( Segment.Cubic, 'control2' );
-  Segment.addInvalidatingGetterSetter( Segment.Cubic, 'end' );
+  Segment.addInvalidatingGetterSetter( Cubic, 'start' );
+  Segment.addInvalidatingGetterSetter( Cubic, 'control1' );
+  Segment.addInvalidatingGetterSetter( Cubic, 'control2' );
+  Segment.addInvalidatingGetterSetter( Cubic, 'end' );
 
   // finds what t values the cubic extrema are at (if any). This is just the 1-dimensional case, used for multiple purposes
-  Segment.Cubic.extremaT = function( v0, v1, v2, v3 ) {
+  Cubic.extremaT = function( v0, v1, v2, v3 ) {
     if ( v0 === v1 && v0 === v2 && v0 === v3 ) {
       return [];
     }
@@ -539,5 +541,5 @@ define( function( require ) {
     return solveQuadraticRootsReal( a, b, c );
   };
 
-  return Segment.Cubic;
+  return Cubic;
 } );

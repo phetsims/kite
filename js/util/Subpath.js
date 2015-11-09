@@ -23,7 +23,7 @@ define( function( require ) {
   var LineStyles = require( 'KITE/util/LineStyles' );
 
   // all arguments optional (they are for the copy() method)
-  kite.Subpath = function Subpath( segments, points, closed ) {
+  function Subpath( segments, points, closed ) {
     Events.call( this );
 
     var self = this;
@@ -52,8 +52,8 @@ define( function( require ) {
         } );
       }
     }
-  };
-  var Subpath = kite.Subpath;
+  }
+  kite.register( 'Subpath', Subpath );
 
   inherit( Events, Subpath, {
     getBounds: function() {

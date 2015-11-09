@@ -2768,6 +2768,6 @@ define( function( require ) {
 
   result.SyntaxError.prototype = Error.prototype;
 
-  kite.svgPath = result;
+  kite.register( 'svgPath', result );
   return kite.svgPath;
 } );

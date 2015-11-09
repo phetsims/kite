@@ -23,7 +23,7 @@ define( function( require ) {
   // TODO: notes at http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
   // Canvas notes were at http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
   // context.ellipse was removed from the Canvas spec
-  kite.EllipticalArc = Segment.EllipticalArc = function EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
+  function EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
     Segment.call( this );
 
     this._center = center;
@@ -35,8 +35,10 @@ define( function( require ) {
     this._anticlockwise = anticlockwise;
 
     this.invalidate();
-  };
-  inherit( Segment, Segment.EllipticalArc, {
+  }
+  kite.register( 'EllipticalArc', EllipticalArc );
+
+  inherit( Segment, EllipticalArc, {
 
     // @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
     invalidate: function() {
@@ -49,7 +51,7 @@ define( function( require ) {
       this._actualEndAngle = null; // {number | null} - End angle in relation to our start angle (can get remapped)
       this._isFullPerimeter = null; // {boolean | null} - Whether it's a full ellipse (and not just an arc)
       this._angleDifference = null; // {number | null}
-      this._unitArcSegment = null; // {Segment.Arc | null} - Corresponding circular arc for our unit transform.
+      this._unitArcSegment = null; // {Arc | null} - Corresponding circular arc for our unit transform.
       this._bounds = null; // {Bounds2 | null}
 
       // remapping of negative radii
@@ -84,7 +86,7 @@ define( function( require ) {
         throw new Error( 'Not verified to work if radiusX < radiusY' );
       }
 
-      // constraints shared with Segment.Arc
+      // constraints shared with Arc
       assert && assert( !( ( !this.anticlockwise && this.endAngle - this.startAngle <= -Math.PI * 2 ) ||
                            ( this.anticlockwise && this.startAngle - this.endAngle <= -Math.PI * 2 ) ),
         'Not handling elliptical arcs with start/end angles that show differences in-between browser handling' );
@@ -95,7 +97,7 @@ define( function( require ) {
 
     getUnitTransform: function() {
       if ( this._unitTransform === null ) {
-        this._unitTransform = Segment.EllipticalArc.computeUnitTransform( this._center, this._radiusX, this._radiusY, this._rotation );
+        this._unitTransform = EllipticalArc.computeUnitTransform( this._center, this._radiusX, this._radiusY, this._rotation );
       }
       return this._unitTransform;
     },
@@ -296,7 +298,7 @@ define( function( require ) {
       return this._anticlockwise ? normal.perpendicular() : normal.perpendicular().negated();
     },
 
-    // TODO: refactor? exact same as Segment.Arc
+    // TODO: refactor? exact same as Arc
     containsAngle: function( angle ) {
       // transform the angle into the appropriate coordinate form
       // TODO: check anticlockwise version!
@@ -463,21 +465,21 @@ define( function( require ) {
     }
   } );
 
-  Segment.addInvalidatingGetterSetter( Segment.EllipticalArc, 'center' );
-  Segment.addInvalidatingGetterSetter( Segment.EllipticalArc, 'radiusX' );
-  Segment.addInvalidatingGetterSetter( Segment.EllipticalArc, 'radiusY' );
-  Segment.addInvalidatingGetterSetter( Segment.EllipticalArc, 'rotation' );
-  Segment.addInvalidatingGetterSetter( Segment.EllipticalArc, 'startAngle' );
-  Segment.addInvalidatingGetterSetter( Segment.EllipticalArc, 'endAngle' );
-  Segment.addInvalidatingGetterSetter( Segment.EllipticalArc, 'anticlockwise' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'center' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'radiusX' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'radiusY' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'rotation' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'startAngle' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'endAngle' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'anticlockwise' );
 
   // adapted from http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
   // transforms the unit circle onto our ellipse
-  Segment.EllipticalArc.computeUnitTransform = function( center, radiusX, radiusY, rotation ) {
+  EllipticalArc.computeUnitTransform = function( center, radiusX, radiusY, rotation ) {
     return new Transform3( Matrix3.translation( center.x, center.y ) // TODO: convert to Matrix3.translation( this._center) when available
       .timesMatrix( Matrix3.rotation2( rotation ) )
       .timesMatrix( Matrix3.scaling( radiusX, radiusY ) ) );
   };
 
-  return Segment.EllipticalArc;
+  return EllipticalArc;
 } );

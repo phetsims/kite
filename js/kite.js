@@ -13,23 +13,20 @@
 define( function( require ) {
   'use strict';
 
+  var Namespace = require( 'PHET_CORE/Namespace' );
+
   // object allocation tracking
   window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
 
-  var kite = {
-    // Since SVG doesn't support parsing scientific notation (e.g. 7e5), we need to output fixed decimal-point strings.
-    // Since this needs to be done quickly, and we don't particularly care about slight rounding differences (it's
-    // being used for display purposes only, and is never shown to the user), we use the built-in JS toFixed instead of
-    // Dot's version of toFixed. See https://github.com/phetsims/kite/issues/50
-    svgNumber: function( n ) {
-      return n.toFixed( 20 );
-    }
-  };
+  var kite = new Namespace( 'kite' );
 
-  // store a reference on the PhET namespace if it exists
-  if ( window.phet ) {
-    window.phet.kite = kite;
-  }
+  // Since SVG doesn't support parsing scientific notation (e.g. 7e5), we need to output fixed decimal-point strings.
+  // Since this needs to be done quickly, and we don't particularly care about slight rounding differences (it's
+  // being used for display purposes only, and is never shown to the user), we use the built-in JS toFixed instead of
+  // Dot's version of toFixed. See https://github.com/phetsims/kite/issues/50
+  kite.register( 'svgNumber', function( n ) {
+    return n.toFixed( 20 );
+  } );
 
   // will be filled in by other modules
   return kite;

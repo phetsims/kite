@@ -28,7 +28,7 @@ define( function( require ) {
    * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
    * @constructor
    */
-  kite.Arc = Segment.Arc = function Arc( center, radius, startAngle, endAngle, anticlockwise ) {
+  function Arc( center, radius, startAngle, endAngle, anticlockwise ) {
     Segment.call( this );
 
     this._center = center;
@@ -38,8 +38,10 @@ define( function( require ) {
     this._anticlockwise = anticlockwise;
 
     this.invalidate();
-  };
-  inherit( Segment, Segment.Arc, {
+  }
+  kite.register( 'Arc', Arc );
+
+  inherit( Segment, Arc, {
     // @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
     invalidate: function() {
       // Lazily-computed derived information
@@ -233,7 +235,7 @@ define( function( require ) {
       return this._anticlockwise ? normal.perpendicular() : normal.perpendicular().negated();
     },
 
-    // TODO: refactor? shared with Segment.EllipticalArc (use this improved version)
+    // TODO: refactor? shared with EllipticalArc (use this improved version)
     containsAngle: function( angle ) {
       // transform the angle into the appropriate coordinate form
       // TODO: check anticlockwise version!
@@ -418,11 +420,11 @@ define( function( require ) {
     }
   } );
 
-  Segment.addInvalidatingGetterSetter( Segment.Arc, 'center' );
-  Segment.addInvalidatingGetterSetter( Segment.Arc, 'radius' );
-  Segment.addInvalidatingGetterSetter( Segment.Arc, 'startAngle' );
-  Segment.addInvalidatingGetterSetter( Segment.Arc, 'endAngle' );
-  Segment.addInvalidatingGetterSetter( Segment.Arc, 'anticlockwise' );
+  Segment.addInvalidatingGetterSetter( Arc, 'center' );
+  Segment.addInvalidatingGetterSetter( Arc, 'radius' );
+  Segment.addInvalidatingGetterSetter( Arc, 'startAngle' );
+  Segment.addInvalidatingGetterSetter( Arc, 'endAngle' );
+  Segment.addInvalidatingGetterSetter( Arc, 'anticlockwise' );
 
-  return Segment.Arc;
+  return Arc;
 } );
