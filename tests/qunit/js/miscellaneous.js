@@ -58,8 +58,8 @@
       .lineTo( 60, 0 )
       .ellipticalArc( 0, 0, 60, 7.5, 0, 0, -Math.PI, false )
       .close();
-    var point = dot( -131.07772925764198, -274.65043668122274 );
-    var ray = new dot.Ray2( point, dot( 1, 0 ) );
+    var point = dot.v2( -131.07772925764198, -274.65043668122274 );
+    var ray = new dot.Ray2( point, dot.v2( 1, 0 ) );
 
     equal( 0, shape.windingIntersection( ray ), 'The winding intersection should be zero' );
   } );

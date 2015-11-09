@@ -494,8 +494,8 @@
             .lineTo( 60, 0 )
             .ellipticalArc( 0, 0, 60, 7.5, 0, 0, -Math.PI, false )
             .close();
-        var point = dot( -131.07772925764198, -274.65043668122274 );
-        var ray = new dot.Ray2( point, dot( 1, 0 ) );
+        var point = dot.v2( -131.07772925764198, -274.65043668122274 );
+        var ray = new dot.Ray2( point, dot.v2( 1, 0 ) );
         debugger;
         console.log( shape.intersection( ray ) );
       } );
@@ -519,20 +519,20 @@
       } );
       updateListener( 'spline', function() {
         shape = new kite.Shape().cardinalSpline( [
-          dot( -100, 0 ),
-          dot( 100, 0 ),
-          dot( -100, 200 ),
-          dot( 100, 200 )
+          dot.v2( -100, 0 ),
+          dot.v2( 100, 0 ),
+          dot.v2( -100, 200 ),
+          dot.v2( 100, 200 )
         ], { isClosedLineSegments: true, tension: -1 } ).close().cardinalSpline( [
-          dot( 200, 0 ),
-          dot( 400, 0 ),
-          dot( 200, 200 ),
-          dot( 400, 200 )
+          dot.v2( 200, 0 ),
+          dot.v2( 400, 0 ),
+          dot.v2( 200, 200 ),
+          dot.v2( 400, 200 )
         ], { isClosedLineSegments: true, tension: 0 } ).close().cardinalSpline( [
-          dot( 500, 0 ),
-          dot( 700, 0 ),
-          dot( 500, 200 ),
-          dot( 700, 200 )
+          dot.v2( 500, 0 ),
+          dot.v2( 700, 0 ),
+          dot.v2( 500, 200 ),
+          dot.v2( 700, 200 )
         ], { isClosedLineSegments: true, tension: 1 } ).close();
       } );
       updateListener( 'svgPath', function() {

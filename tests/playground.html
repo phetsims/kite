@@ -32,8 +32,8 @@
       window.initLineTest = function() {
         // intersection with one ray returns a different result than another. need to add indeterminate intersection handling
         window.shape = new kite.Shape( 'M -100 -100 L -50 50 L 50 50 L 30 0' );
-        window.ray1 = new dot.Ray2( dot( 50, 267 ), dot( 0, -1 ) );
-        window.ray2 = new dot.Ray2( dot( 50, 267 ), dot( 1, 0 ) );
+        window.ray1 = new dot.Ray2( dot.v2( 50, 267 ), dot.v2( 0, -1 ) );
+        window.ray2 = new dot.Ray2( dot.v2( 50, 267 ), dot.v2( 1, 0 ) );
         console.log( 'ray1: ' + shape.windingIntersection( ray1 ) );
         console.log( 'ray2: ' + shape.windingIntersection( ray2 ) );
       }
