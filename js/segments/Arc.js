@@ -39,6 +39,7 @@ define( function( require ) {
 
     this.invalidate();
   }
+
   kite.register( 'Arc', Arc );
 
   inherit( Segment, Arc, {

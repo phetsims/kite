@@ -42,6 +42,7 @@ define( function( require ) {
   function Segment() {
     Events.call( this );
   }
+
   kite.register( 'Segment', Segment );
 
   var identityFunction = function identityFunction( x ) { return x; };

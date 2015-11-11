@@ -36,6 +36,7 @@ define( function( require ) {
 
     this.invalidate();
   }
+
   kite.register( 'EllipticalArc', EllipticalArc );
 
   inherit( Segment, EllipticalArc, {

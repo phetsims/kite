@@ -27,6 +27,7 @@ define( function( require ) {
 
     this.invalidate();
   }
+
   kite.register( 'Line', Line );
 
   inherit( Segment, Line, {

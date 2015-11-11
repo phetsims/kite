@@ -94,6 +94,7 @@ define( function( require ) {
 
     phetAllocation && phetAllocation( 'Shape' );
   }
+
   kite.register( 'Shape', Shape );
 
   inherit( Events, Shape, {
@@ -755,7 +756,7 @@ define( function( require ) {
 
       var numSubpaths = this.subpaths.length;
       for ( var i = 0; i < numSubpaths; i++ ) {
-        this.subpaths[i].invalidatePoints();
+        this.subpaths[ i ].invalidatePoints();
       }
 
       this._invalidatingPoints = false;
@@ -932,7 +933,7 @@ define( function( require ) {
 
     if ( bottomRightRadius > 0 ) {
       shape.arc( right - bottomRightRadius, bottom - bottomRightRadius, bottomRightRadius,
-                 0, Math.PI / 2, false );
+        0, Math.PI / 2, false );
     }
     else {
       shape.moveTo( right, bottom );
@@ -940,7 +941,7 @@ define( function( require ) {
 
     if ( bottomLeftRadius > 0 ) {
       shape.arc( x + bottomLeftRadius, bottom - bottomLeftRadius, bottomLeftRadius,
-                 Math.PI / 2, Math.PI, false );
+        Math.PI / 2, Math.PI, false );
     }
     else {
       shape.lineTo( x, bottom );
@@ -948,7 +949,7 @@ define( function( require ) {
 
     if ( topLeftRadius > 0 ) {
       shape.arc( x + topLeftRadius, y + topLeftRadius, topLeftRadius,
-                 Math.PI, 3 * Math.PI / 2, false );
+        Math.PI, 3 * Math.PI / 2, false );
     }
     else {
       shape.lineTo( x, y );
@@ -956,7 +957,7 @@ define( function( require ) {
 
     if ( topRightRadius > 0 ) {
       shape.arc( right - topRightRadius, y + topRightRadius, topRightRadius,
-                 3 * Math.PI / 2, 2 * Math.PI, false );
+        3 * Math.PI / 2, 2 * Math.PI, false );
     }
     else {
       shape.lineTo( right, y );

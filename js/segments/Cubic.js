@@ -46,6 +46,7 @@ define( function( require ) {
 
     this.invalidate();
   }
+
   kite.register( 'Cubic', Cubic );
 
   inherit( Segment, Cubic, {
@@ -313,9 +314,9 @@ define( function( require ) {
       var mt = 1 - t;
       var result = new Vector2();
       return result.set( this._start ).multiplyScalar( -3 * mt * mt )
-                   .add( scratchVector1.set( this._control1 ).multiplyScalar( 3 * mt * mt - 6 * mt * t ) )
-                   .add( scratchVector1.set( this._control2 ).multiplyScalar( 6 * mt * t - 3 * t * t ) )
-                   .add( scratchVector1.set( this._end ).multiplyScalar( 3 * t * t ) );
+        .add( scratchVector1.set( this._control1 ).multiplyScalar( 3 * mt * mt - 6 * mt * t ) )
+        .add( scratchVector1.set( this._control2 ).multiplyScalar( 6 * mt * t - 3 * t * t ) )
+        .add( scratchVector1.set( this._end ).multiplyScalar( 3 * t * t ) );
     },
 
     curvatureAt: function( t ) {

@@ -47,12 +47,13 @@ define( function( require ) {
     // Add all segments directly (hooks up invalidation listeners properly)
     if ( segments ) {
       for ( var i = 0; i < segments.length; i++ ) {
-        _.each( segments[i].getNondegenerateSegments(), function( segment ) {
+        _.each( segments[ i ].getNondegenerateSegments(), function( segment ) {
           self.addSegmentDirectly( segment );
         } );
       }
     }
   }
+
   kite.register( 'Subpath', Subpath );
 
   inherit( Events, Subpath, {
@@ -77,7 +78,7 @@ define( function( require ) {
 
       var numSegments = this.segments.length;
       for ( var i = 0; i < numSegments; i++ ) {
-        this.segments[i].invalidate();
+        this.segments[ i ].invalidate();
       }
 
       this._invalidatingPoints = false;

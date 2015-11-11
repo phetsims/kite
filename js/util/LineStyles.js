@@ -29,6 +29,7 @@ define( function( require ) {
 
     assert && assert( Array.isArray( this.lineDash ) );
   }
+
   kite.register( 'LineStyles', LineStyles );
 
   inherit( Object, LineStyles, {

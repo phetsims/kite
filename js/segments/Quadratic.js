@@ -29,6 +29,7 @@ define( function( require ) {
 
     this.invalidate();
   }
+
   kite.register( 'Quadratic', Quadratic );
 
   inherit( Segment, Quadratic, {
