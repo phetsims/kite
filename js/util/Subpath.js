@@ -358,8 +358,8 @@ define( function( require ) {
       else {
         subpaths = [
           new Subpath( leftSegments.concat( lineStyles.cap( lastSegment.end, lastSegment.endTangent ) )
-              .concat( rightSegments )
-              .concat( lineStyles.cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
+            .concat( rightSegments )
+            .concat( lineStyles.cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
             null, true )
         ];
       }
