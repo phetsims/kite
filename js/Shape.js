@@ -932,32 +932,28 @@ define( function( require ) {
     // all of the straight line edges between arcs, or lineTo the corner.
 
     if ( bottomRightRadius > 0 ) {
-      shape.arc( right - bottomRightRadius, bottom - bottomRightRadius, bottomRightRadius,
-        0, Math.PI / 2, false );
+      shape.arc( right - bottomRightRadius, bottom - bottomRightRadius, bottomRightRadius, 0, Math.PI / 2, false );
     }
     else {
       shape.moveTo( right, bottom );
     }
 
     if ( bottomLeftRadius > 0 ) {
-      shape.arc( x + bottomLeftRadius, bottom - bottomLeftRadius, bottomLeftRadius,
-        Math.PI / 2, Math.PI, false );
+      shape.arc( x + bottomLeftRadius, bottom - bottomLeftRadius, bottomLeftRadius, Math.PI / 2, Math.PI, false );
     }
     else {
       shape.lineTo( x, bottom );
     }
 
     if ( topLeftRadius > 0 ) {
-      shape.arc( x + topLeftRadius, y + topLeftRadius, topLeftRadius,
-        Math.PI, 3 * Math.PI / 2, false );
+      shape.arc( x + topLeftRadius, y + topLeftRadius, topLeftRadius, Math.PI, 3 * Math.PI / 2, false );
     }
     else {
       shape.lineTo( x, y );
     }
 
     if ( topRightRadius > 0 ) {
-      shape.arc( right - topRightRadius, y + topRightRadius, topRightRadius,
-        3 * Math.PI / 2, 2 * Math.PI, false );
+      shape.arc( right - topRightRadius, y + topRightRadius, topRightRadius, 3 * Math.PI / 2, 2 * Math.PI, false );
     }
     else {
       shape.lineTo( right, y );
