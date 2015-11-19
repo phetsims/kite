@@ -48,6 +48,23 @@ define( function( require ) {
   var identityFunction = function identityFunction( x ) { return x; };
 
   inherit( Events, Segment, {
+    /**
+     * Will return true if the start/end tangents are purely vertical or horizontal. If all of the segments of a shape
+     * have this property, then the only line joins will be a multiple of pi/2 (90 degrees), and so all of the types of
+     * line joins will have the same bounds. This means that the stroked bounds will just be a pure dilation of the
+     * regular bounds, by lineWidth / 2.
+     * @public
+     *
+     * @returns {boolean}
+     */
+    areStrokedBoundsDilated: function() {
+      var epsilon = 0.0000001;
+
+      // If the derivative at the start/end are pointing in a cardinal direction (north/south/east/west), then the
+      // endpoints won't trigger non-dilated bounds, and the interior of the curve will not contribute.
+      return Math.abs( this.startTangent.x * this.startTangent.y ) < epsilon && Math.abs( this.endTangent.x * this.endTangent.y ) < epsilon;
+    },
+
     // TODO: override everywhere so this isn't necessary (it's not particularly efficient!)
     getBoundsWithTransform: function( matrix ) {
       var transformedSegment = this.transformed( matrix );

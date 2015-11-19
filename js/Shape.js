@@ -575,17 +575,6 @@ define( function( require ) {
       return this.nonlinearTransformed( options );
     },
 
-    // returns the bounds. if lineStyles exists, include the stroke in the bounds
-    // TODO: consider renaming to getBounds()? (yes, definitely rename)
-    computeBounds: function( lineStyles ) {
-      if ( lineStyles ) {
-        return this.bounds.union( this.getStrokedShape( lineStyles ).bounds );
-      }
-      else {
-        return this.bounds;
-      }
-    },
-
     containsPoint: function( point ) {
       // we pick a ray, and determine the winding number over that ray. if the number of segments crossing it CCW == number of segments crossing it CW, then the point is contained in the shape
       var ray = new Ray2( point, Vector2.X_UNIT );
@@ -725,10 +714,40 @@ define( function( require ) {
     },
     get bounds() { return this.getBounds(); },
 
+    getStrokedBounds: function( lineStyles ) {
+      // Check if all of our segments end vertically or horizontally AND our drawable subpaths are all closed. If so,
+      // we can apply a bounds dilation.
+      var areStrokedBoundsDilated = true;
+      for ( var i = 0; i < this.subpaths.length; i++ ) {
+        var subpath = this.subpaths[ i ];
+
+        // If a subpath with any segments is NOT closed, line-caps will apply. We can't make the simplification in this
+        // case.
+        if ( subpath.isDrawable() && !subpath.isClosed() ) {
+          areStrokedBoundsDilated = false;
+          break;
+        }
+        for ( var j = 0; j < subpath.segments.length; j++ ) {
+          var segment = subpath.segments[ j ];
+          if ( !segment.areStrokedBoundsDilated() ) {
+            areStrokedBoundsDilated = false;
+            break;
+          }
+        }
+      }
+
+      if ( areStrokedBoundsDilated ) {
+        return this.bounds.dilated( lineStyles.lineWidth / 2 );
+      }
+      else {
+        return this.bounds.union( this.getStrokedShape( lineStyles ).bounds );
+      }
+    },
+
     getBoundsWithTransform: function( matrix, lineStyles ) {
       // if we don't need to handle rotation/shear, don't use the extra effort!
       if ( matrix.isAxisAligned() ) {
-        return this.computeBounds( lineStyles );
+        return this.getStrokedBounds( lineStyles );
       }
 
       var bounds = Bounds2.NOTHING.copy();
