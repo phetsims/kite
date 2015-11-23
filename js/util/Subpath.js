@@ -116,10 +116,11 @@ define( function( require ) {
     },
 
     addSegment: function( segment ) {
-      var subpath = this;
-      _.each( segment.getNondegenerateSegments(), function( segment ) {
-        subpath.addSegmentDirectly( segment );
-      } );
+      var nondegenerateSegments = segment.getNondegenerateSegments();
+      var numNondegenerateSegments = nondegenerateSegments.length;
+      for ( var i = 0; i < numNondegenerateSegments; i++ ) {
+        this.addSegmentDirectly( segment );
+      }
       this.invalidate(); // need to invalidate after addSegmentDirectly
 
       return this; // allow chaining
