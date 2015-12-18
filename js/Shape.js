@@ -490,25 +490,26 @@ define( function( require ) {
 
     // returns something like "M150 0 L75 200 L225 200 Z" for a triangle
     getSVGPath: function() {
-      var subpathStrings = [];
+      var string = '';
       var len = this.subpaths.length;
       for ( var i = 0; i < len; i++ ) {
         var subpath = this.subpaths[ i ];
         if ( subpath.isDrawable() ) {
           // since the commands after this are relative to the previous 'point', we need to specify a move to the initial point
-          var startPoint = subpath.getFirstSegment().start;
+          var startPoint = subpath.segments[ 0 ].start;
           assert && assert( startPoint.equalsEpsilon( subpath.getFirstPoint(), 0.00001 ) ); // sanity check
-          var string = 'M ' + kite.svgNumber( startPoint.x ) + ' ' + kite.svgNumber( startPoint.y ) + ' ';
+          string += 'M ' + kite.svgNumber( startPoint.x ) + ' ' + kite.svgNumber( startPoint.y ) + ' ';
 
-          string += _.map( subpath.segments, function( segment ) { return segment.getSVGPathFragment(); } ).join( ' ' );
+          for ( var k = 0; k < subpath.segments.length; k++ ) {
+            string += subpath.segments[ k ].getSVGPathFragment() + ' ';
+          }
 
           if ( subpath.isClosed() ) {
-            string += ' Z';
+            string += 'Z ';
           }
-          subpathStrings.push( string );
         }
       }
-      return subpathStrings.join( ' ' );
+      return string;
     },
 
     // return a new Shape that is transformed by the associated matrix
