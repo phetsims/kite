@@ -1,4 +1,4 @@
-// Copyright 2002-2014, University of Colorado Boulder
+// Copyright 2013-2015, University of Colorado Boulder
 
 /**
  * The main 'kite' namespace object for the exported (non-Require.js) API. Used internally
@@ -13,22 +13,20 @@
 define( function( require ) {
   'use strict';
 
+  var Namespace = require( 'PHET_CORE/Namespace' );
+
   // object allocation tracking
   window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
 
-  // workaround for Axon, since it needs window.arch to be defined
-  window.arch = window.arch || null;
+  var kite = new Namespace( 'kite' );
 
-  var kite = {
-    svgNumber: function( n ) {
-      return n.toFixed( 20 );
-    }
-  };
-
-  // store a reference on the PhET namespace if it exists
-  if ( window.phet ) {
-    window.phet.kite = kite;
-  }
+  // Since SVG doesn't support parsing scientific notation (e.g. 7e5), we need to output fixed decimal-point strings.
+  // Since this needs to be done quickly, and we don't particularly care about slight rounding differences (it's
+  // being used for display purposes only, and is never shown to the user), we use the built-in JS toFixed instead of
+  // Dot's version of toFixed. See https://github.com/phetsims/kite/issues/50
+  kite.register( 'svgNumber', function( n ) {
+    return n.toFixed( 20 );
+  } );
 
   // will be filled in by other modules
   return kite;

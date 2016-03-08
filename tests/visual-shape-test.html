@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8"/>
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="viewport"
+        content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes">
 
   <title>Visual Shape Test</title>
 
   <script src="../../assert/js/assert.js"></script>
-  <script src="../../sherpa/lodash-2.4.1.min.js"></script>
-  <script src="../../sherpa/has.js"></script>
+  <script src="../../sherpa/lib/lodash-2.4.1.min.js"></script>
 
-  <script data-main="../js/config.js" src="../../sherpa/require-2.1.11.js"></script>
+  <script data-main="../js/config.js" src="../../sherpa/lib/require-2.1.11.js"></script>
 
   <style>
     html, body {
@@ -79,6 +79,7 @@
     <button id="errect">errect</button>
     <button id="bucket">bucket</button>
     <button id="polarrow">polarrow</button>
+    <button id="spline">spline</button>
     <input id="svgPath" type="text"></input>
 
     <div class="label">Cap</div>
@@ -339,10 +340,10 @@
 
             if ( segmentControlNet ) {
               var pts = [];
-              if ( segment instanceof kite.Segment.Quadratic ) {
+              if ( segment instanceof kite.Quadratic ) {
                 pts = [ segment.start, segment.control, segment.end ];
               }
-              else if ( segment instanceof kite.Segment.Cubic ) {
+              else if ( segment instanceof kite.Cubic ) {
                 pts = [ segment.start, segment.control1, segment.control2, segment.end ];
               }
               if ( pts.length ) {
@@ -492,9 +493,9 @@
             .cubicCurveTo( -36, 51, 36, 51, 48, 42 )
             .lineTo( 60, 0 )
             .ellipticalArc( 0, 0, 60, 7.5, 0, 0, -Math.PI, false )
-            .close()
-        var point = dot( -131.07772925764198, -274.65043668122274 );
-        var ray = new dot.Ray2( point, dot( 1, 0 ) );
+            .close();
+        var point = dot.v2( -131.07772925764198, -274.65043668122274 );
+        var ray = new dot.Ray2( point, dot.v2( 1, 0 ) );
         debugger;
         console.log( shape.intersection( ray ) );
       } );
@@ -515,6 +516,24 @@
             .close();
 
         shape = shape.polarToCartesian();
+      } );
+      updateListener( 'spline', function() {
+        shape = new kite.Shape().cardinalSpline( [
+          dot.v2( -100, 0 ),
+          dot.v2( 100, 0 ),
+          dot.v2( -100, 200 ),
+          dot.v2( 100, 200 )
+        ], { isClosedLineSegments: true, tension: -1 } ).close().cardinalSpline( [
+          dot.v2( 200, 0 ),
+          dot.v2( 400, 0 ),
+          dot.v2( 200, 200 ),
+          dot.v2( 400, 200 )
+        ], { isClosedLineSegments: true, tension: 0 } ).close().cardinalSpline( [
+          dot.v2( 500, 0 ),
+          dot.v2( 700, 0 ),
+          dot.v2( 500, 200 ),
+          dot.v2( 700, 200 )
+        ], { isClosedLineSegments: true, tension: 1 } ).close();
       } );
       updateListener( 'svgPath', function() {
         var s;

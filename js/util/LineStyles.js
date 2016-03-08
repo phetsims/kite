@@ -1,4 +1,4 @@
-// Copyright 2002-2014, University of Colorado Boulder
+// Copyright 2013-2015, University of Colorado Boulder
 
 /**
  * Styles needed to determine a stroked line shape.
@@ -11,8 +11,12 @@ define( function( require ) {
 
   var kite = require( 'KITE/kite' );
   var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
+  var inherit = require( 'PHET_CORE/inherit' );
 
-  kite.LineStyles = function( args ) {
+  var Arc = require( 'KITE/segments/Arc' );
+  var Line = require( 'KITE/segments/Line' );
+
+  function LineStyles( args ) {
     if ( args === undefined ) {
       args = {};
     }
@@ -24,10 +28,11 @@ define( function( require ) {
     this.miterLimit = args.miterLimit !== undefined ? args.miterLimit : 10; // see https://svgwg.org/svg2-draft/painting.html for miterLimit computations
 
     assert && assert( Array.isArray( this.lineDash ) );
-  };
-  var LineStyles = kite.LineStyles;
-  LineStyles.prototype = {
-    constructor: LineStyles,
+  }
+
+  kite.register( 'LineStyles', LineStyles );
+
+  inherit( Object, LineStyles, {
 
     equals: function( other ) {
       var typical = this.lineWidth === other.lineWidth &&
@@ -57,15 +62,18 @@ define( function( require ) {
     /*
      * Creates an array of Segments that make up a line join, to the left side.
      *
-     * Joins two segments together on the logical "left" side, at 'center' (where they meet), and normalized tangent
+     * Joins two segments together on the logical "left" side, at 'center' (where they meet), and un-normalized tangent
      * vectors in the direction of the stroking. To join on the "right" side, switch the tangent order and negate them.
      */
     leftJoin: function( center, fromTangent, toTangent ) {
+      fromTangent = fromTangent.normalized();
+      toTangent = toTangent.normalized();
+
       // where our join path starts and ends
       var fromPoint = center.plus( fromTangent.perpendicular().negated().times( this.lineWidth / 2 ) );
       var toPoint = center.plus( toTangent.perpendicular().negated().times( this.lineWidth / 2 ) );
 
-      var bevel = ( fromPoint.equals( toPoint ) ? [] : [ new kite.Segment.Line( fromPoint, toPoint ) ] );
+      var bevel = ( fromPoint.equals( toPoint ) ? [] : [ new Line( fromPoint, toPoint ) ] );
 
       // only insert a join on the non-acute-angle side
       if ( fromTangent.perpendicular().dot( toTangent ) > 0 ) {
@@ -73,15 +81,15 @@ define( function( require ) {
           case 'round':
             var fromAngle = fromTangent.angle() + Math.PI / 2;
             var toAngle = toTangent.angle() + Math.PI / 2;
-            return [ new kite.Segment.Arc( center, this.lineWidth / 2, fromAngle, toAngle, true ) ];
+            return [ new Arc( center, this.lineWidth / 2, fromAngle, toAngle, true ) ];
           case 'miter':
             var theta = fromTangent.angleBetween( toTangent.negated() );
             if ( 1 / Math.sin( theta / 2 ) <= this.miterLimit && theta < Math.PI - 0.00001 ) {
               // draw the miter
               var miterPoint = lineLineIntersection( fromPoint, fromPoint.plus( fromTangent ), toPoint, toPoint.plus( toTangent ) );
               return [
-                new kite.Segment.Line( fromPoint, miterPoint ),
-                new kite.Segment.Line( miterPoint, toPoint )
+                new Line( fromPoint, miterPoint ),
+                new Line( miterPoint, toPoint )
               ];
             }
             else {
@@ -114,15 +122,17 @@ define( function( require ) {
      * Creates an array of Segments that make up a line cap from the endpoint 'center' in the direction of the tangent
      */
     cap: function( center, tangent ) {
+      tangent = tangent.normalized();
+
       var fromPoint = center.plus( tangent.perpendicular().times( -this.lineWidth / 2 ) );
       var toPoint = center.plus( tangent.perpendicular().times( this.lineWidth / 2 ) );
 
       switch( this.lineCap ) {
         case 'butt':
-          return [ new kite.Segment.Line( fromPoint, toPoint ) ];
+          return [ new Line( fromPoint, toPoint ) ];
         case 'round':
           var tangentAngle = tangent.angle();
-          return [ new kite.Segment.Arc( center, this.lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true ) ];
+          return [ new Arc( center, this.lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true ) ];
         case 'square':
           var toLeft = tangent.perpendicular().negated().times( this.lineWidth / 2 );
           var toRight = tangent.perpendicular().times( this.lineWidth / 2 );
@@ -131,13 +141,13 @@ define( function( require ) {
           var left = center.plus( toLeft ).plus( toFront );
           var right = center.plus( toRight ).plus( toFront );
           return [
-            new kite.Segment.Line( fromPoint, left ),
-            new kite.Segment.Line( left, right ),
-            new kite.Segment.Line( right, toPoint )
+            new Line( fromPoint, left ),
+            new Line( left, right ),
+            new Line( right, toPoint )
           ];
       }
     }
-  };
+  } );
 
   return kite.LineStyles;
 } );

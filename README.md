@@ -1,16 +1,13 @@
-2D Shape Handling for PhET Simulations
-======================================
+kite
+====
 
-See the website with documentation and examples at http://phetsims.github.io/kite/
+A library for creating, manipulating and displaying 2D shapes in JavaScript.
 
 By PhET Interactive Simulations
 http://phet.colorado.edu/
 
-NOTE: This repository has dependency on other dependencies. Those repositories
-much be checked out as siblings to this repository in your directory structure.
+### Documentation
+See the website with documentation and examples at http://phetsims.github.io/kite/
 
-Third-Party Dependencies
-=============
-
-This repository uses third-party libraries.
-Those libraries and their licenses are available in: https://github.com/phetsims/sherpa.
+### License
+See the [license](LICENSE)

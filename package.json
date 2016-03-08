@@ -2,7 +2,6 @@
   "name": "kite",
   "version": "0.0.0",
   "license": "MIT",
-  "phetLibs": "sherpa chipper axon assert phet-core dot kite",
   "repository": {
     "type": "git",
     "url": "https://github.com/phetsims/kite.git"
@@ -10,8 +9,9 @@
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-requirejs": "~0.4.0",
-    "grunt-contrib-jshint": "~0.6.4",
+    "grunt-eslint": "~17.2.0",
     "uglify-js": "~2.4.0",
-    "requirejs": "~2.1.8"
+    "requirejs": "~2.1.8",
+    "pegjs": "0.7.0"
   }
 }

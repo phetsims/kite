@@ -1,4 +1,4 @@
-// Copyright 2002-2014, University of Colorado Boulder
+// Copyright 2013-2015, University of Colorado Boulder
 
 /**
  * A segment represents a specific curve with a start and end.
@@ -11,7 +11,9 @@ define( function( require ) {
 
   var kite = require( 'KITE/kite' );
 
-  var DotUtil = require( 'DOT/Util' );
+  var inherit = require( 'PHET_CORE/inherit' );
+  var Events = require( 'AXON/Events' );
+  var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
   var Bounds2 = require( 'DOT/Bounds2' );
 
   /*
@@ -31,20 +33,37 @@ define( function( require ) {
    * getSVGPathFragment()     - returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls this needs to put the M calls first
    * strokeLeft( lineWidth )  - returns an array of segments that will draw an offset curve on the logical left side
    * strokeRight( lineWidth ) - returns an array of segments that will draw an offset curve on the logical right side
-   * intersectsBounds         - whether this segment intersects the specified bounding box (not just the segment's bounding box, but the actual segment)
    * windingIntersection      - returns the winding number for intersection with a ray
    * getInteriorExtremaTs     - returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
    *
    * writeToContext( context ) - draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
    * transformed( matrix )     - returns a new segment that represents this segment after transformation by the matrix
    */
-  kite.Segment = function Segment() {}; // no common construction for now
-  var Segment = kite.Segment;
+  function Segment() {
+    Events.call( this );
+  }
+
+  kite.register( 'Segment', Segment );
 
   var identityFunction = function identityFunction( x ) { return x; };
 
-  Segment.prototype = {
-    constructor: Segment,
+  inherit( Events, Segment, {
+    /**
+     * Will return true if the start/end tangents are purely vertical or horizontal. If all of the segments of a shape
+     * have this property, then the only line joins will be a multiple of pi/2 (90 degrees), and so all of the types of
+     * line joins will have the same bounds. This means that the stroked bounds will just be a pure dilation of the
+     * regular bounds, by lineWidth / 2.
+     * @public
+     *
+     * @returns {boolean}
+     */
+    areStrokedBoundsDilated: function() {
+      var epsilon = 0.0000001;
+
+      // If the derivative at the start/end are pointing in a cardinal direction (north/south/east/west), then the
+      // endpoints won't trigger non-dilated bounds, and the interior of the curve will not contribute.
+      return Math.abs( this.startTangent.x * this.startTangent.y ) < epsilon && Math.abs( this.endTangent.x * this.endTangent.y ) < epsilon;
+    },
 
     // TODO: override everywhere so this isn't necessary (it's not particularly efficient!)
     getBoundsWithTransform: function( matrix ) {
@@ -116,7 +135,7 @@ define( function( require ) {
       }
 
       if ( finished ) {
-        segments.push( new Segment.Line( start, end ) );
+        segments.push( new kite.Line( start, end ) );
       }
       else {
         var subdividedSegments = this.subdivided( 0.5 );
@@ -125,6 +144,43 @@ define( function( require ) {
       }
       return segments;
     }
+  } );
+
+  /**
+   * Adds getter/setter function pairs and ES5 pairs, e.g. addInvalidatingGetterSetter( Arc, 'radius' ) would add:
+   * - segment.getRadius()
+   * - segment.setRadius( value )
+   * - segment.radius // getter and setter
+   *
+   * It assumes the following is the internal name: '_' + name
+   *
+   * @param {Function} type - Should be the constructor of the type. We will modify its prototype
+   * @param {string} name - Name of the
+   */
+  Segment.addInvalidatingGetterSetter = function( type, name ) {
+    var internalName = '_' + name;
+    var capitalizedName = name.charAt( 0 ).toUpperCase() + name.slice( 1 );
+    var getterName = 'get' + capitalizedName;
+    var setterName = 'set' + capitalizedName;
+
+    // e.g. getRadius()
+    type.prototype[ getterName ] = function() {
+      return this[ internalName ];
+    };
+
+    // e.g. setRadius( value )
+    type.prototype[ setterName ] = function( value ) {
+      if ( this[ internalName ] !== value ) {
+        this[ internalName ] = value;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    };
+
+    Object.defineProperty( type.prototype, name, {
+      set: type.prototype[ setterName ],
+      get: type.prototype[ getterName ]
+    } );
   };
 
   // list of { segment: ..., t: ..., closestPoint: ..., distanceSquared: ... } (since there can be duplicates), threshold is used for subdivision,

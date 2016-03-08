@@ -1,4 +1,4 @@
-// Copyright 2002-2014, University of Colorado Boulder
+// Copyright 2013-2015, University of Colorado Boulder
 
 /**
  * Elliptical arc segment
@@ -15,41 +15,16 @@ define( function( require ) {
   var Matrix3 = require( 'DOT/Matrix3' );
   var Transform3 = require( 'DOT/Transform3' );
   var toDegrees = require( 'DOT/Util' ).toDegrees;
-  var DotUtil = require( 'DOT/Util' );
+  var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
 
   var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
-  require( 'KITE/util/Subpath' );
 
   // TODO: notes at http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
   // Canvas notes were at http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
   // context.ellipse was removed from the Canvas spec
-  Segment.EllipticalArc = function EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
-    if ( radiusX < 0 ) {
-      // support this case since we might actually need to handle it inside of strokes?
-      radiusX = -radiusX;
-      startAngle = Math.PI - startAngle;
-      endAngle = Math.PI - endAngle;
-      anticlockwise = !anticlockwise;
-    }
-    if ( radiusY < 0 ) {
-      // support this case since we might actually need to handle it inside of strokes?
-      radiusY = -radiusY;
-      startAngle = -startAngle;
-      endAngle = -endAngle;
-      anticlockwise = !anticlockwise;
-    }
-    if ( radiusX < radiusY ) {
-      // swap radiusX and radiusY internally for consistent Canvas / SVG output
-      rotation += Math.PI / 2;
-      startAngle -= Math.PI / 2;
-      endAngle -= Math.PI / 2;
-
-      // swap radiusX and radiusY
-      var tmpR = radiusX;
-      radiusX = radiusY;
-      radiusY = tmpR;
-    }
+  function EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
+    Segment.call( this );
 
     this._center = center;
     this._radiusX = radiusX;
@@ -59,73 +34,78 @@ define( function( require ) {
     this._endAngle = endAngle;
     this._anticlockwise = anticlockwise;
 
-    // TODO: performance test removal of these undefined declarations
-    this._unitTransform = undefined;
-    this._start = undefined;
-    this._end = undefined;
-    this._startTangent = undefined;
-    this._endTangent = undefined;
-    this._actualEndAngle = undefined;
-    this._isFullPerimeter = undefined;
-    this._angleDifference = undefined;
-    this._unitArcSegment = undefined;
+    this.invalidate();
+  }
 
-    if ( radiusX < radiusY ) {
-      // TODO: check this
-      throw new Error( 'Not verified to work if radiusX < radiusY' );
-    }
+  kite.register( 'EllipticalArc', EllipticalArc );
 
-    // constraints shared with Segment.Arc
-    assert && assert( !( ( !anticlockwise && endAngle - startAngle <= -Math.PI * 2 ) || ( anticlockwise && startAngle - endAngle <= -Math.PI * 2 ) ), 'Not handling elliptical arcs with start/end angles that show differences in-between browser handling' );
-    assert && assert( !( ( !anticlockwise && endAngle - startAngle > Math.PI * 2 ) || ( anticlockwise && startAngle - endAngle > Math.PI * 2 ) ), 'Not handling elliptical arcs with start/end angles that show differences in-between browser handling' );
-  };
-  inherit( Segment, Segment.EllipticalArc, {
+  inherit( Segment, EllipticalArc, {
 
-    getCenter: function() {
-      return this._center;
+    // @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
+    invalidate: function() {
+      // Lazily-computed derived information
+      this._unitTransform = null; // {Transform3 | null} - Mapping between our ellipse and a unit circle
+      this._start = null; // {Vector2 | null}
+      this._end = null; // {Vector2 | null}
+      this._startTangent = null; // {Vector2 | null}
+      this._endTangent = null; // {Vector2 | null}
+      this._actualEndAngle = null; // {number | null} - End angle in relation to our start angle (can get remapped)
+      this._isFullPerimeter = null; // {boolean | null} - Whether it's a full ellipse (and not just an arc)
+      this._angleDifference = null; // {number | null}
+      this._unitArcSegment = null; // {Arc | null} - Corresponding circular arc for our unit transform.
+      this._bounds = null; // {Bounds2 | null}
+
+      // remapping of negative radii
+      if ( this._radiusX < 0 ) {
+        // support this case since we might actually need to handle it inside of strokes?
+        this._radiusX = -this._radiusX;
+        this._startAngle = Math.PI - this._startAngle;
+        this._endAngle = Math.PI - this._endAngle;
+        this._anticlockwise = !this._anticlockwise;
+      }
+      if ( this._radiusY < 0 ) {
+        // support this case since we might actually need to handle it inside of strokes?
+        this._radiusY = -this._radiusY;
+        this._startAngle = -this._startAngle;
+        this._endAngle = -this._endAngle;
+        this._anticlockwise = !this._anticlockwise;
+      }
+      if ( this._radiusX < this._radiusY ) {
+        // swap radiusX and radiusY internally for consistent Canvas / SVG output
+        this._rotation += Math.PI / 2;
+        this._startAngle -= Math.PI / 2;
+        this._endAngle -= Math.PI / 2;
+
+        // swap radiusX and radiusY
+        var tmpR = this._radiusX;
+        this._radiusX = this._radiusY;
+        this._radiusY = tmpR;
+      }
+
+      if ( this._radiusX < this._radiusY ) {
+        // TODO: check this
+        throw new Error( 'Not verified to work if radiusX < radiusY' );
+      }
+
+      // constraints shared with Arc
+      assert && assert( !( ( !this.anticlockwise && this.endAngle - this.startAngle <= -Math.PI * 2 ) ||
+                           ( this.anticlockwise && this.startAngle - this.endAngle <= -Math.PI * 2 ) ),
+        'Not handling elliptical arcs with start/end angles that show differences in-between browser handling' );
+      assert && assert( !( ( !this.anticlockwise && this.endAngle - this.startAngle > Math.PI * 2 ) ||
+                           ( this.anticlockwise && this.startAngle - this.endAngle > Math.PI * 2 ) ),
+        'Not handling elliptical arcs with start/end angles that show differences in-between browser handling' );
     },
-    get center() { return this.getCenter(); },
-
-    getRadiusX: function() {
-      return this._radiusX;
-    },
-    get radiusX() { return this.getRadiusX(); },
-
-    getRadiusY: function() {
-      return this._radiusY;
-    },
-    get radiusY() { return this.getRadiusY(); },
-
-    getRotation: function() {
-      return this._rotation;
-    },
-    get rotation() { return this.getRotation(); },
-
-    getStartAngle: function() {
-      return this._startAngle;
-    },
-    get startAngle() { return this.getStartAngle(); },
-
-    getEndAngle: function() {
-      return this._endAngle;
-    },
-    get endAngle() { return this.getEndAngle(); },
-
-    getAnticlockwise: function() {
-      return this._anticlockwise;
-    },
-    get anticlockwise() { return this.getAnticlockwise(); },
 
     getUnitTransform: function() {
-      if ( this._unitTransform === undefined ) {
-        this._unitTransform = Segment.EllipticalArc.computeUnitTransform( this._center, this._radiusX, this._radiusY, this._rotation );
+      if ( this._unitTransform === null ) {
+        this._unitTransform = EllipticalArc.computeUnitTransform( this._center, this._radiusX, this._radiusY, this._rotation );
       }
       return this._unitTransform;
     },
     get unitTransform() { return this.getUnitTransform(); },
 
     getStart: function() {
-      if ( this._start === undefined ) {
+      if ( this._start === null ) {
         this._start = this.positionAtAngle( this._startAngle );
       }
       return this._start;
@@ -133,7 +113,7 @@ define( function( require ) {
     get start() { return this.getStart(); },
 
     getEnd: function() {
-      if ( this._end === undefined ) {
+      if ( this._end === null ) {
         this._end = this.positionAtAngle( this._endAngle );
       }
       return this._end;
@@ -141,7 +121,7 @@ define( function( require ) {
     get end() { return this.getEnd(); },
 
     getStartTangent: function() {
-      if ( this._startTangent === undefined ) {
+      if ( this._startTangent === null ) {
         this._startTangent = this.tangentAtAngle( this._startAngle );
       }
       return this._startTangent;
@@ -149,7 +129,7 @@ define( function( require ) {
     get startTangent() { return this.getStartTangent(); },
 
     getEndTangent: function() {
-      if ( this._endTangent === undefined ) {
+      if ( this._endTangent === null ) {
         this._endTangent = this.tangentAtAngle( this._endAngle );
       }
       return this._endTangent;
@@ -157,7 +137,7 @@ define( function( require ) {
     get endTangent() { return this.getEndTangent(); },
 
     getActualEndAngle: function() {
-      if ( this._actualEndAngle === undefined ) {
+      if ( this._actualEndAngle === null ) {
         // compute an actual end angle so that we can smoothly go from this._startAngle to this._actualEndAngle
         if ( this._anticlockwise ) {
           // angle is 'decreasing'
@@ -193,7 +173,7 @@ define( function( require ) {
     get actualEndAngle() { return this.getActualEndAngle(); },
 
     getIsFullPerimeter: function() {
-      if ( this._isFullPerimeter === undefined ) {
+      if ( this._isFullPerimeter === null ) {
         this._isFullPerimeter = ( !this._anticlockwise && this._endAngle - this._startAngle >= Math.PI * 2 ) || ( this._anticlockwise && this._startAngle - this._endAngle >= Math.PI * 2 );
       }
       return this._isFullPerimeter;
@@ -201,7 +181,7 @@ define( function( require ) {
     get isFullPerimeter() { return this.getIsFullPerimeter(); },
 
     getAngleDifference: function() {
-      if ( this._angleDifference === undefined ) {
+      if ( this._angleDifference === null ) {
         // compute an angle difference that represents how "much" of the circle our arc covers
         this._angleDifference = this._anticlockwise ? this._startAngle - this._endAngle : this._endAngle - this._startAngle;
         if ( this._angleDifference < 0 ) {
@@ -215,15 +195,15 @@ define( function( require ) {
 
     // a unit arg segment that we can map to our ellipse. useful for hit testing and such.
     getUnitArcSegment: function() {
-      if ( this._unitArcSegment === undefined ) {
-        this._unitArcSegment = new Segment.Arc( Vector2.ZERO, 1, this._startAngle, this._endAngle, this._anticlockwise );
+      if ( this._unitArcSegment === null ) {
+        this._unitArcSegment = new kite.Arc( Vector2.ZERO, 1, this._startAngle, this._endAngle, this._anticlockwise );
       }
       return this._unitArcSegment;
     },
 
     // temporary shims
     getBounds: function() {
-      if ( this._bounds === undefined ) {
+      if ( this._bounds === null ) {
         this._bounds = Bounds2.NOTHING.withPoint( this.getStart() )
           .withPoint( this.getEnd() );
 
@@ -262,7 +242,7 @@ define( function( require ) {
         if ( Math.abs( this._endAngle - this._startAngle ) === Math.PI * 2 ) {
           endAngle = this._anticlockwise ? startAngle - Math.PI * 2 : startAngle + Math.PI * 2;
         }
-        return [ new Segment.Arc( this._center, this._radiusX, startAngle, endAngle, this._anticlockwise ) ];
+        return [ new kite.Arc( this._center, this._radiusX, startAngle, endAngle, this._anticlockwise ) ];
       }
       else {
         return [ this ];
@@ -319,7 +299,7 @@ define( function( require ) {
       return this._anticlockwise ? normal.perpendicular() : normal.perpendicular().negated();
     },
 
-    // TODO: refactor? exact same as Segment.Arc
+    // TODO: refactor? exact same as Arc
     containsAngle: function( angle ) {
       // transform the angle into the appropriate coordinate form
       // TODO: check anticlockwise version!
@@ -351,7 +331,7 @@ define( function( require ) {
 
         points.push( this.positionAtAngle( angle ).plus( this.tangentAtAngle( angle ).perpendicular().normalized().times( r ) ) );
         if ( i > 0 ) {
-          result.push( new Segment.Line( points[ i - 1 ], points[ i ] ) );
+          result.push( new kite.Line( points[ i - 1 ], points[ i ] ) );
         }
       }
 
@@ -421,13 +401,9 @@ define( function( require ) {
       var angleT = this.angleAt( t );
       var angle1 = this.angleAt( 1 );
       return [
-        new Segment.EllipticalArc( this._center, this._radiusX, this._radiusY, this._rotation, angle0, angleT, this._anticlockwise ),
-        new Segment.EllipticalArc( this._center, this._radiusX, this._radiusY, this._rotation, angleT, angle1, this._anticlockwise )
+        new kite.EllipticalArc( this._center, this._radiusX, this._radiusY, this._rotation, angle0, angleT, this._anticlockwise ),
+        new kite.EllipticalArc( this._center, this._radiusX, this._radiusY, this._rotation, angleT, angle1, this._anticlockwise )
       ];
-    },
-
-    intersectsBounds: function( bounds ) {
-      throw new Error( 'Segment.EllipticalArc.intersectsBounds unimplemented' );
     },
 
     intersection: function( ray ) {
@@ -439,7 +415,7 @@ define( function( require ) {
       return _.map( hits, function( hit ) {
         var transformedPoint = unitTransform.transformPosition2( hit.point );
         return {
-          distance: ray.pos.distance( transformedPoint ),
+          distance: ray.position.distance( transformedPoint ),
           point: transformedPoint,
           normal: unitTransform.inverseNormal2( hit.normal ),
           wind: hit.wind
@@ -486,17 +462,25 @@ define( function( require ) {
         endAngle = anticlockwise ? startAngle - Math.PI * 2 : startAngle + Math.PI * 2;
       }
 
-      return new Segment.EllipticalArc( matrix.timesVector2( this._center ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
+      return new kite.EllipticalArc( matrix.timesVector2( this._center ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
     }
   } );
 
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'center' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'radiusX' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'radiusY' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'rotation' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'startAngle' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'endAngle' );
+  Segment.addInvalidatingGetterSetter( EllipticalArc, 'anticlockwise' );
+
   // adapted from http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
   // transforms the unit circle onto our ellipse
-  Segment.EllipticalArc.computeUnitTransform = function( center, radiusX, radiusY, rotation ) {
+  EllipticalArc.computeUnitTransform = function( center, radiusX, radiusY, rotation ) {
     return new Transform3( Matrix3.translation( center.x, center.y ) // TODO: convert to Matrix3.translation( this._center) when available
       .timesMatrix( Matrix3.rotation2( rotation ) )
       .timesMatrix( Matrix3.scaling( radiusX, radiusY ) ) );
   };
 
-  return Segment.EllipticalArc;
+  return EllipticalArc;
 } );

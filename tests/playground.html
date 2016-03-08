@@ -10,10 +10,9 @@
   <title>Kite Playground</title>
 
   <script src="../../assert/js/assert.js"></script>
-  <script src="../../sherpa/lodash-2.4.1.min.js"></script>
-  <script src="../../sherpa/has.js"></script>
+  <script src="../../sherpa/lib/lodash-2.4.1.min.js"></script>
 
-  <script data-main="../js/config.js" src="../../sherpa/require-2.1.11.js"></script>
+  <script data-main="../js/config.js" src="../../sherpa/lib/require-2.1.11.js"></script>
 
 </head>
 <body>
@@ -22,18 +21,19 @@
   window.assertions.enableAssertSlow();
 
   require( [ 'config' ], function() {
-    require( [ 'main', 'DOT/main', 'PHET_CORE/main' ], function( kite, dot, core ) {
+    require( [ 'main', 'AXON/main', 'DOT/main', 'PHET_CORE/main' ], function( kite, axon, dot, phetCore ) {
       window.kite = kite;
+      window.axon = axon;
       window.dot = dot;
-      window.core = core;
+      window.phetCore = phetCore;
 
       console.log( 'loaded' );
 
       window.initLineTest = function() {
         // intersection with one ray returns a different result than another. need to add indeterminate intersection handling
         window.shape = new kite.Shape( 'M -100 -100 L -50 50 L 50 50 L 30 0' );
-        window.ray1 = new dot.Ray2( dot( 50, 267 ), dot( 0, -1 ) );
-        window.ray2 = new dot.Ray2( dot( 50, 267 ), dot( 1, 0 ) );
+        window.ray1 = new dot.Ray2( dot.v2( 50, 267 ), dot.v2( 0, -1 ) );
+        window.ray2 = new dot.Ray2( dot.v2( 50, 267 ), dot.v2( 1, 0 ) );
         console.log( 'ray1: ' + shape.windingIntersection( ray1 ) );
         console.log( 'ray2: ' + shape.windingIntersection( ray2 ) );
       }

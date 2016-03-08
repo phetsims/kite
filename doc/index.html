@@ -10,21 +10,21 @@
 
   <title>Documentation - Kite</title>
 
-  <link rel="stylesheet" href="../../sherpa/bootstrap-2.2.2.css">
-  <link rel="stylesheet" href="../../sherpa/bootstrap-responsive-2.2.2.css">
-  <link rel="stylesheet" href="../../sherpa/syntaxhighlighter-3.0.83/shCore.css">
-  <link rel="stylesheet" href="../../sherpa/syntaxhighlighter-3.0.83/shThemeDefault.css">
+  <link rel="stylesheet" href="../../sherpa/lib/bootstrap-2.2.2.css">
+  <link rel="stylesheet" href="../../sherpa/lib/bootstrap-responsive-2.2.2.css">
+  <link rel="stylesheet" href="../../sherpa/lib/syntaxhighlighter-3.0.83/shCore.css">
+  <link rel="stylesheet" href="../../sherpa/lib/syntaxhighlighter-3.0.83/shThemeDefault.css">
 
   <!-- jQuery and LoDash are dependencies -->
-  <script src="../../sherpa/jquery-2.1.0.min.js"></script>
-  <script src="../../sherpa/lodash-2.4.1.min.js"></script>
+  <script src="../../sherpa/lib/jquery-2.1.0.min.js"></script>
+  <script src="../../sherpa/lib/lodash-2.4.1.min.js"></script>
 
   <!-- For the styling -->
-  <script src="../../sherpa/bootstrap-2.2.2.js"></script>
+  <script src="../../sherpa/lib/bootstrap-2.2.2.js"></script>
 
-  <script src="../../sherpa/syntaxhighlighter-3.0.83/shCore.js"></script>
-  <script src="../../sherpa/syntaxhighlighter-3.0.83/shBrushJScript.js"></script>
-  <script src="../../sherpa/syntaxhighlighter-3.0.83/shBrushXml.js"></script>
+  <script src="../../sherpa/lib/syntaxhighlighter-3.0.83/shCore.js"></script>
+  <script src="../../sherpa/lib/syntaxhighlighter-3.0.83/shBrushJScript.js"></script>
+  <script src="../../sherpa/lib/syntaxhighlighter-3.0.83/shBrushXml.js"></script>
 
   <!-- MathJax config -->
   <script type="text/x-mathjax-config">
@@ -163,7 +163,6 @@
     <a class="sublink" href="#shape-writeToContext">writeToContext</a><br>
     <a class="sublink" href="#shape-getSVGPath">getSVGPath</a><br>
     <a class="sublink" href="#shape-transformed">transformed</a><br>
-    <a class="sublink" href="#shape-computeBounds">computeBounds</a><br>
     <a class="sublink" href="#shape-containsPoint">containsPoint</a><br>
     <a class="sublink" href="#shape-intersection">intersection</a><br>
     <a class="sublink" href="#shape-windingIntersection">windingIntersection</a><br>
@@ -190,6 +189,7 @@ git clone https://github.com/phetsims/chipper.git
 git clone https://github.com/phetsims/assert.git
 git clone https://github.com/phetsims/phet-core.git
 git clone https://github.com/phetsims/dot.git
+git clone https://github.com/phetsims/axon.git
 git clone https://github.com/phetsims/kite.git</pre>
 
     <p>
@@ -221,6 +221,7 @@ grunt</pre>
       </li>
       <li><a href="https://github.com/phetsims/phet-core">phet-core</a> for other utility functions.</li>
       <li><a href="../../dot">Dot</a> for math.</li>
+      <li><a href="https://github.com/phetsims/axon">Axon</a> for observer patterns.</li>
     </ul>
 
     <h2 id="api">Kite API</h2>
@@ -261,10 +262,9 @@ grunt</pre>
         var shape =
           /*START*/
             new kite.Shape().moveTo( 10, 22 )
-                .lineTo( 54, 22 )
-                .moveTo( 10, 42 )
-                .lineTo( 54, 42 )
-                .moveTo( 20, 52 )
+                            .lineTo( 54, 22 )
+                            .moveTo( 10, 42 )
+                            .lineTo( 54, 42 )
         /*END*/
         shape.writeToContext( context );
       } );
@@ -289,9 +289,9 @@ grunt</pre>
         var shape =
           /*START*/
             new kite.Shape().moveTo( 20, 32 )
-                .lineTo( 32, 12 )
-                .lineTo( 44, 32 )
-                .lineTo( 32, 52 )
+                            .lineTo( 32, 12 )
+                            .lineTo( 44, 32 )
+                            .lineTo( 32, 52 )
         /*END*/
         shape.writeToContext( context );
       } );
@@ -318,8 +318,8 @@ grunt</pre>
         var shape =
           /*START*/
             new kite.Shape().moveTo( 10, 10 )
-                .quadraticCurveTo( 54, 10, 54, 54 )
-                .quadraticCurveTo( 10, 54, 32, 32 )
+                            .quadraticCurveTo( 54, 10, 54, 54 )
+                            .quadraticCurveTo( 10, 54, 32, 32 )
         /*END*/
         shape.writeToContext( context );
       } );
@@ -379,7 +379,6 @@ grunt</pre>
     <a class="sublink" href="#shape-writeToContext">writeToContext</a><br>
     <a class="sublink" href="#shape-getSVGPath">getSVGPath</a><br>
     <a class="sublink" href="#shape-transformed">transformed</a><br>
-    <a class="sublink" href="#shape-computeBounds">computeBounds</a><br>
     <a class="sublink" href="#shape-containsPoint">containsPoint</a><br>
     <a class="sublink" href="#shape-intersection">intersection</a><br>
     <a class="sublink" href="#shape-windingIntersection">windingIntersection</a><br>

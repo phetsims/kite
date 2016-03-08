@@ -1,4 +1,4 @@
-// Copyright 2002-2014, University of Colorado Boulder
+// Copyright 2013-2015, University of Colorado Boulder
 
 /**
  * Arc segment
@@ -12,18 +12,24 @@ define( function( require ) {
   var inherit = require( 'PHET_CORE/inherit' );
   var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
-  var DotUtil = require( 'DOT/Util' );
+  var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
 
   var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
 
-  Segment.Arc = function Arc( center, radius, startAngle, endAngle, anticlockwise ) {
-    if ( radius < 0 ) {
-      // support this case since we might actually need to handle it inside of strokes?
-      radius = -radius;
-      startAngle += Math.PI;
-      endAngle += Math.PI;
-    }
+  /**
+   * Creates a circular arc (or circle if the startAngle/endAngle difference is ~2pi).
+   * See http://www.w3.org/TR/2dcontext/#dom-context-2d-arc for detailed information on the parameters.
+   *
+   * @param {Vector2} center - Center of the arc (every point on the arc is equally far from the center)
+   * @param {number} radius - How far from the center the arc will be
+   * @param {number} startAngle - Angle (radians) of the start of the arc
+   * @param {number} endAngle - Angle (radians) of the end of the arc
+   * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
+   * @constructor
+   */
+  function Arc( center, radius, startAngle, endAngle, anticlockwise ) {
+    Segment.call( this );
 
     this._center = center;
     this._radius = radius;
@@ -31,48 +37,45 @@ define( function( require ) {
     this._endAngle = endAngle;
     this._anticlockwise = anticlockwise;
 
-    // TODO: performance test removal of these undefined declarations
-    this._start = undefined;
-    this._end = undefined;
-    this._startTangent = undefined;
-    this._endTangent = undefined;
-    this._actualEndAngle = undefined;
-    this._isFullPerimeter = undefined;
-    this._angleDifference = undefined;
+    this.invalidate();
+  }
 
-    // constraints
-    assert && assert( !( ( !anticlockwise && endAngle - startAngle <= -Math.PI * 2 ) || ( anticlockwise && startAngle - endAngle <= -Math.PI * 2 ) ), 'Not handling arcs with start/end angles that show differences in-between browser handling' );
-    assert && assert( !( ( !anticlockwise && endAngle - startAngle > Math.PI * 2 ) || ( anticlockwise && startAngle - endAngle > Math.PI * 2 ) ), 'Not handling arcs with start/end angles that show differences in-between browser handling' );
-  };
-  inherit( Segment, Segment.Arc, {
+  kite.register( 'Arc', Arc );
 
-    getCenter: function() {
-      return this._center;
+  inherit( Segment, Arc, {
+    // @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
+    invalidate: function() {
+      // Lazily-computed derived information
+      this._start = null; // {Vector2 | null}
+      this._end = null; // {Vector2 | null}
+      this._startTangent = null; // {Vector2 | null}
+      this._endTangent = null; // {Vector2 | null}
+      this._actualEndAngle = null; // {number | null} - End angle in relation to our start angle (can get remapped)
+      this._isFullPerimeter = null; // {boolean | null} - Whether it's a full circle (and not just an arc)
+      this._angleDifference = null; // {number | null}
+      this._bounds = null; // {Bounds2 | null}
+
+      // Remap negative radius to a positive radius
+      if ( this._radius < 0 ) {
+        // support this case since we might actually need to handle it inside of strokes?
+        this._radius = -this._radius;
+        this._startAngle += Math.PI;
+        this._endAngle += Math.PI;
+      }
+
+      // Constraints that should always be satisfied
+      assert && assert( !( ( !this.anticlockwise && this.endAngle - this.startAngle <= -Math.PI * 2 ) ||
+                           ( this.anticlockwise && this.startAngle - this.endAngle <= -Math.PI * 2 ) ),
+        'Not handling arcs with start/end angles that show differences in-between browser handling' );
+      assert && assert( !( ( !this.anticlockwise && this.endAngle - this.startAngle > Math.PI * 2 ) ||
+                           ( this.anticlockwise && this.startAngle - this.endAngle > Math.PI * 2 ) ),
+        'Not handling arcs with start/end angles that show differences in-between browser handling' );
+
+      this.trigger0( 'invalidated' );
     },
-    get center() { return this.getCenter(); },
-
-    getRadius: function() {
-      return this._radius;
-    },
-    get radius() { return this.getRadius(); },
-
-    getStartAngle: function() {
-      return this._startAngle;
-    },
-    get startAngle() { return this.getStartAngle(); },
-
-    getEndAngle: function() {
-      return this._endAngle;
-    },
-    get endAngle() { return this.getEndAngle(); },
-
-    getAnticlockwise: function() {
-      return this._anticlockwise;
-    },
-    get anticlockwise() { return this.getAnticlockwise(); },
 
     getStart: function() {
-      if ( this._start === undefined ) {
+      if ( this._start === null ) {
         this._start = this.positionAtAngle( this._startAngle );
       }
       return this._start;
@@ -80,7 +83,7 @@ define( function( require ) {
     get start() { return this.getStart(); },
 
     getEnd: function() {
-      if ( this._end === undefined ) {
+      if ( this._end === null ) {
         this._end = this.positionAtAngle( this._endAngle );
       }
       return this._end;
@@ -88,7 +91,7 @@ define( function( require ) {
     get end() { return this.getEnd(); },
 
     getStartTangent: function() {
-      if ( this._startTangent === undefined ) {
+      if ( this._startTangent === null ) {
         this._startTangent = this.tangentAtAngle( this._startAngle );
       }
       return this._startTangent;
@@ -96,7 +99,7 @@ define( function( require ) {
     get startTangent() { return this.getStartTangent(); },
 
     getEndTangent: function() {
-      if ( this._endTangent === undefined ) {
+      if ( this._endTangent === null ) {
         this._endTangent = this.tangentAtAngle( this._endAngle );
       }
       return this._endTangent;
@@ -104,7 +107,7 @@ define( function( require ) {
     get endTangent() { return this.getEndTangent(); },
 
     getActualEndAngle: function() {
-      if ( this._actualEndAngle === undefined ) {
+      if ( this._actualEndAngle === null ) {
         // compute an actual end angle so that we can smoothly go from this._startAngle to this._actualEndAngle
         if ( this._anticlockwise ) {
           // angle is 'decreasing'
@@ -140,7 +143,7 @@ define( function( require ) {
     get actualEndAngle() { return this.getActualEndAngle(); },
 
     getIsFullPerimeter: function() {
-      if ( this._isFullPerimeter === undefined ) {
+      if ( this._isFullPerimeter === null ) {
         this._isFullPerimeter = ( !this._anticlockwise && this._endAngle - this._startAngle >= Math.PI * 2 ) || ( this._anticlockwise && this._startAngle - this._endAngle >= Math.PI * 2 );
       }
       return this._isFullPerimeter;
@@ -148,7 +151,7 @@ define( function( require ) {
     get isFullPerimeter() { return this.getIsFullPerimeter(); },
 
     getAngleDifference: function() {
-      if ( this._angleDifference === undefined ) {
+      if ( this._angleDifference === null ) {
         // compute an angle difference that represents how "much" of the circle our arc covers
         this._angleDifference = this._anticlockwise ? this._startAngle - this._endAngle : this._endAngle - this._startAngle;
         if ( this._angleDifference < 0 ) {
@@ -161,7 +164,7 @@ define( function( require ) {
     get angleDifference() { return this.getAngleDifference(); },
 
     getBounds: function() {
-      if ( this._bounds === undefined ) {
+      if ( this._bounds === null ) {
         // acceleration for intersection
         this._bounds = Bounds2.NOTHING.copy().withPoint( this.getStart() )
           .withPoint( this.getEnd() );
@@ -233,7 +236,7 @@ define( function( require ) {
       return this._anticlockwise ? normal.perpendicular() : normal.perpendicular().negated();
     },
 
-    // TODO: refactor? shared with Segment.EllipticalArc (use this improved version)
+    // TODO: refactor? shared with EllipticalArc (use this improved version)
     containsAngle: function( angle ) {
       // transform the angle into the appropriate coordinate form
       // TODO: check anticlockwise version!
@@ -277,11 +280,11 @@ define( function( require ) {
     },
 
     strokeLeft: function( lineWidth ) {
-      return [ new Segment.Arc( this._center, this._radius + ( this._anticlockwise ? 1 : -1 ) * lineWidth / 2, this._startAngle, this._endAngle, this._anticlockwise ) ];
+      return [ new kite.Arc( this._center, this._radius + ( this._anticlockwise ? 1 : -1 ) * lineWidth / 2, this._startAngle, this._endAngle, this._anticlockwise ) ];
     },
 
     strokeRight: function( lineWidth ) {
-      return [ new Segment.Arc( this._center, this._radius + ( this._anticlockwise ? -1 : 1 ) * lineWidth / 2, this._endAngle, this._startAngle, !this._anticlockwise ) ];
+      return [ new kite.Arc( this._center, this._radius + ( this._anticlockwise ? -1 : 1 ) * lineWidth / 2, this._endAngle, this._startAngle, !this._anticlockwise ) ];
     },
 
     // not including 0 and 1
@@ -306,13 +309,9 @@ define( function( require ) {
       var angleT = this.angleAt( t );
       var angle1 = this.angleAt( 1 );
       return [
-        new Segment.Arc( this._center, this._radius, angle0, angleT, this._anticlockwise ),
-        new Segment.Arc( this._center, this._radius, angleT, angle1, this._anticlockwise )
+        new kite.Arc( this._center, this._radius, angle0, angleT, this._anticlockwise ),
+        new kite.Arc( this._center, this._radius, angleT, angle1, this._anticlockwise )
       ];
-    },
-
-    intersectsBounds: function( bounds ) {
-      throw new Error( 'Segment.intersectsBounds unimplemented!' );
     },
 
     intersection: function( ray ) {
@@ -322,17 +321,17 @@ define( function( require ) {
       var epsilon = 0;
 
       // Run a general circle-intersection routine, then we can test the angles later.
-      // Solves for the two solutions t such that ray.pos + ray.dir * t is on the circle.
+      // Solves for the two solutions t such that ray.position + ray.direction * t is on the circle.
       // Then we check whether the angle at each possible hit point is in our arc.
-      var centerToRay = ray.pos.minus( this._center );
-      var tmp = ray.dir.dot( centerToRay );
+      var centerToRay = ray.position.minus( this._center );
+      var tmp = ray.direction.dot( centerToRay );
       var centerToRayDistSq = centerToRay.magnitudeSquared();
       var discriminant = 4 * tmp * tmp - 4 * ( centerToRayDistSq - this._radius * this._radius );
       if ( discriminant < epsilon ) {
         // ray misses circle entirely
         return result;
       }
-      var base = ray.dir.dot( this._center ) - ray.dir.dot( ray.pos );
+      var base = ray.direction.dot( this._center ) - ray.direction.dot( ray.position );
       var sqt = Math.sqrt( discriminant ) / 2;
       var ta = base - sqt;
       var tb = base + sqt;
@@ -413,14 +412,20 @@ define( function( require ) {
       if ( scaleVector.x !== scaleVector.y ) {
         var radiusX = scaleVector.x * this._radius;
         var radiusY = scaleVector.y * this._radius;
-        return new Segment.EllipticalArc( matrix.timesVector2( this._center ), radiusX, radiusY, 0, startAngle, endAngle, anticlockwise );
+        return new kite.EllipticalArc( matrix.timesVector2( this._center ), radiusX, radiusY, 0, startAngle, endAngle, anticlockwise );
       }
       else {
         var radius = scaleVector.x * this._radius;
-        return new Segment.Arc( matrix.timesVector2( this._center ), radius, startAngle, endAngle, anticlockwise );
+        return new kite.Arc( matrix.timesVector2( this._center ), radius, startAngle, endAngle, anticlockwise );
       }
     }
   } );
 
-  return Segment.Arc;
+  Segment.addInvalidatingGetterSetter( Arc, 'center' );
+  Segment.addInvalidatingGetterSetter( Arc, 'radius' );
+  Segment.addInvalidatingGetterSetter( Arc, 'startAngle' );
+  Segment.addInvalidatingGetterSetter( Arc, 'endAngle' );
+  Segment.addInvalidatingGetterSetter( Arc, 'anticlockwise' );
+
+  return Arc;
 } );
