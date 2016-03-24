@@ -915,7 +915,7 @@ define( function( require ) {
    * @param {number} y - Top edge location
    * @param {number} width - Width of rectangle
    * @param {number} height - Height of rectangle
-   * @param {Object] [cornerRadii] - Optional object with potential radii for each corner.
+   * @param {Object} [cornerRadii] - Optional object with potential radii for each corner.
    */
   Shape.roundedRectangleWithRadii = function( x, y, width, height, cornerRadii ) {
     // defaults to 0 (not using _.extends, since we reference each multiple times)
