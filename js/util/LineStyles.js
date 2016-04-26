@@ -10,11 +10,14 @@ define( function( require ) {
   'use strict';
 
   var kite = require( 'KITE/kite' );
-  var lineLineIntersection = require( 'DOT/Util' ).lineLineIntersection;
+  var Util = require( 'DOT/Util' );
   var inherit = require( 'PHET_CORE/inherit' );
 
   var Arc = require( 'KITE/segments/Arc' );
   var Line = require( 'KITE/segments/Line' );
+
+  // constants
+  var lineLineIntersection = Util.lineLineIntersection;
 
   function LineStyles( args ) {
     if ( args === undefined ) {

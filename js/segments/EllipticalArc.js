@@ -14,11 +14,12 @@ define( function( require ) {
   var Bounds2 = require( 'DOT/Bounds2' );
   var Matrix3 = require( 'DOT/Matrix3' );
   var Transform3 = require( 'DOT/Transform3' );
-  var toDegrees = require( 'DOT/Util' ).toDegrees;
-  var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
-
+  var Util = require( 'DOT/Util' );
   var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
+
+  // constants
+  var toDegrees = Util.toDegrees;
 
   // TODO: notes at http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
   // Canvas notes were at http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
@@ -260,8 +261,8 @@ define( function( require ) {
     mapAngle: function( angle ) {
       // consider an assert that we contain that angle?
       return ( this._startAngle > this.getActualEndAngle() ) ?
-             DotUtil.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
-             DotUtil.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
+             Util.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
+             Util.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
     },
 
     tAtAngle: function( angle ) {

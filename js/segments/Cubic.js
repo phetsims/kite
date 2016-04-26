@@ -17,13 +17,16 @@ define( function( require ) {
   var Bounds2 = require( 'DOT/Bounds2' );
   var Vector2 = require( 'DOT/Vector2' );
   var Matrix3 = require( 'DOT/Matrix3' );
-  var solveQuadraticRootsReal = require( 'DOT/Util' ).solveQuadraticRootsReal;
-  var solveCubicRootsReal = require( 'DOT/Util' ).solveCubicRootsReal;
-  var arePointsCollinear = require( 'DOT/Util' ).arePointsCollinear;
+  var Util = require( 'DOT/Util' );
 
   var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
   require( 'KITE/segments/Quadratic' );
+
+  // constants
+  var solveQuadraticRootsReal = Util.solveQuadraticRootsReal;
+  var solveCubicRootsReal = Util.solveCubicRootsReal;
+  var arePointsCollinear = Util.arePointsCollinear;
 
   var scratchVector1 = new Vector2();
   var scratchVector2 = new Vector2();

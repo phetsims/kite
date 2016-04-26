@@ -14,11 +14,13 @@ define( function( require ) {
   var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Matrix3 = require( 'DOT/Matrix3' );
-  var solveQuadraticRootsReal = require( 'DOT/Util' ).solveQuadraticRootsReal;
-  var arePointsCollinear = require( 'DOT/Util' ).arePointsCollinear;
-
+  var Util = require( 'DOT/Util' );
   var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
+
+  // constants
+  var solveQuadraticRootsReal = Util.solveQuadraticRootsReal;
+  var arePointsCollinear = Util.arePointsCollinear;
 
   function Quadratic( start, control, end ) {
     Segment.call( this );
