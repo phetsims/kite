@@ -21,30 +21,42 @@
 define( function( require ) {
   'use strict';
 
-  var kite = require( 'KITE/kite' );
-
-  var inherit = require( 'PHET_CORE/inherit' );
-  var Events = require( 'AXON/Events' );
-
-  var Vector2 = require( 'DOT/Vector2' );
-  var Bounds2 = require( 'DOT/Bounds2' );
-  var Ray2 = require( 'DOT/Ray2' );
-
-  var Subpath = require( 'KITE/util/Subpath' );
-  var svgPath = require( 'KITE/parser/svgPath' );
   var Arc = require( 'KITE/segments/Arc' );
+  var Bounds2 = require( 'DOT/Bounds2' );
   var Cubic = require( 'KITE/segments/Cubic' );
+  var Events = require( 'AXON/Events' );
   var EllipticalArc = require( 'KITE/segments/EllipticalArc' );
+  var kite = require( 'KITE/kite' );
+  var inherit = require( 'PHET_CORE/inherit' );
   var Line = require( 'KITE/segments/Line' );
   var Quadratic = require( 'KITE/segments/Quadratic' );
+  var Ray2 = require( 'DOT/Ray2' );
+  var Subpath = require( 'KITE/util/Subpath' );
+  var svgPath = require( 'KITE/parser/svgPath' );
+  var Vector2 = require( 'DOT/Vector2' );
 
   // for brevity
   function p( x, y ) { return new Vector2( x, y ); }
+  /**
+   * Convenience function that returns a Vector2
+   * used throughout this file as an abbreviation for a displacement, a position or a point.
+   * @private
+   * @param {number} x
+   * @param {number} y
+   * @returns {Vector2}
+   */
+  function v( x, y ) { return new Vector2( x, y ); }
 
-  function v( x, y ) { return new Vector2( x, y ); } // TODO: use this version in general, it makes more sense and is easier to type
-
-  // The tension parameter controls how smoothly the curve turns through its control points. For a Catmull-Rom
-  // curve, the tension is zero. The tension should range from -1 to 1.
+  /**
+   * The tension parameter controls how smoothly the curve turns through its control points. For a Catmull-Rom curve,
+   * the tension is zero. The tension should range from -1 to 1.
+   * @private
+   * @param {Vector2} beforeVector
+   * @param {Vector2} currentVector
+   * @param {Vector2} afterVector
+   * @param {number} tension - the tension should range from -1 to 1.
+   * @returns {Vector2}
+   */
   function weightedSplineVector( beforeVector, currentVector, afterVector, tension ) {
     return afterVector.copy()
       .subtract( beforeVector )
@@ -53,9 +65,15 @@ define( function( require ) {
   }
 
   // a normalized vector for non-zero winding checks
-  // var weirdDir = p( Math.PI, 22 / 7 );
+  // var weirdDir = v( Math.PI, 22 / 7 );
 
-  // all arguments optional, they are for the copy() method. if used, ensure that 'bounds' is consistent with 'subpaths'
+  /**
+   * All arguments optional, they are for the copy() method. if used, ensure that 'bounds' is consistent with 'subpaths'
+   *
+   * @param {Array.<Subpath>} [subpaths]
+   * @param {Bounds2} [bounds]
+   * @constructor
+   */
   function Shape( subpaths, bounds ) {
     var self = this;
 
@@ -99,23 +117,44 @@ define( function( require ) {
 
   inherit( Events, Shape, {
 
-    // for tracking the last quadratic/cubic control point for smooth* functions
-    // see https://github.com/phetsims/kite/issues/38
+    /**
+     * Resets the control points
+     * for tracking the last quadratic/cubic control point for smooth* functions
+     * see https://github.com/phetsims/kite/issues/38
+     * @private
+     */
     resetControlPoints: function() {
       this.lastQuadraticControlPoint = null;
       this.lastCubicControlPoint = null;
     },
+
+    /**
+     * Sets the quadratic control point
+     * @private
+     * @param {Vector2} point
+     */
     setQuadraticControlPoint: function( point ) {
       this.lastQuadraticControlPoint = point;
       this.lastCubicControlPoint = null;
     },
+
+    /**
+     * Sets the cubic control point
+     * @private
+     * @param {Vector2} point
+     */
     setCubicControlPoint: function( point ) {
       this.lastQuadraticControlPoint = null;
       this.lastCubicControlPoint = point;
     },
 
-    // Adds a new subpath if there have already been draw calls made. Will prevent any line or connection from the last
-    // draw call to future draw calls.
+    /**
+     * Adds a new subpath if there have already been draw calls made. Will prevent any line or connection from the last
+     * draw call to future draw calls.
+     * @private
+     * @returns {Shape}
+     * //TODO delete?, this function is not used within kite
+     */
     subpath: function() {
       if ( this.hasSubpaths() ) {
         this.addSubpath( new Subpath() );
@@ -124,19 +163,77 @@ define( function( require ) {
       return this; // for chaining
     },
 
+    /**
+     * Moves to a point given by the coordinates x and y
+     * @public
+     * @param {number} x
+     * @param {number} y
+     * @returns {Shape}
+     */
     moveTo: function( x, y ) { return this.moveToPoint( v( x, y ) ); },
+
+    /**
+     * Moves a relative displacement (x,y) from last point
+     * @public
+     * @param {number} x
+     * @param {number} y
+     * @returns {Shape}
+     */
     moveToRelative: function( x, y ) { return this.moveToPointRelative( v( x, y ) ); },
+
+    /**
+     * Moves a relative displacement (point) from last point
+     * @public
+     * @param {Vector2} point - a displacement
+     * @returns {Shape}
+     */
     moveToPointRelative: function( point ) { return this.moveToPoint( this.getRelativePoint().plus( point ) ); },
+
+    /**
+     * Adds to this shape a subpath that moves (no joint) it to a point
+     * @public
+     * @param {Vector2} point
+     * @returns {Shape}
+     */
     moveToPoint: function( point ) {
       this.addSubpath( new Subpath().addPoint( point ) );
       this.resetControlPoints();
 
-      return this;
+     return this;  // for chaining
     },
 
+    /**
+     * Adds to this shape a straight line from last point to the coordinate (x,y)
+     * @public
+     * @param {number} x
+     * @param {number} y
+     * @returns {Shape}
+     */
     lineTo: function( x, y ) { return this.lineToPoint( v( x, y ) ); },
+
+    /**
+     * Adds to this shape a straight line displaced by a relative amount x, and y  from last point
+     * @public
+     * @param {number} x - horizontal displacement
+     * @param {number} y - vertical displacement
+     * @returns {Shape}
+     */
     lineToRelative: function( x, y ) { return this.lineToPointRelative( v( x, y ) ); },
+
+    /**
+     * Adds to this shape a straight line displaced by a relative displacement (point)
+     * @public
+     * @param {Vector2} point - a displacement
+     * @returns {Shape}
+     */
     lineToPointRelative: function( point ) { return this.lineToPoint( this.getRelativePoint().plus( point ) ); },
+
+    /**
+     * Adds to this shape a straight line from this lastPoint to point
+     * @public
+     * @param {Vector2} point
+     * @returns {Shape}
+     */
     lineToPoint: function( point ) {
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-lineto
       if ( this.hasSubpaths() ) {
@@ -151,24 +248,105 @@ define( function( require ) {
       }
       this.resetControlPoints();
 
-      return this;
+     return this;  // for chaining
     },
 
+    /**
+     * Adds a horizontal line (x represents the x-coordinate of the end point)
+     * @public
+     * @param {number} x -
+     * @returns {Shape}
+     */
     horizontalLineTo: function( x ) { return this.lineTo( x, this.getRelativePoint().y ); },
+
+    /**
+     * Adds a horizontal line (x represent a horizontal displacement)
+     * @public
+     * @param {number} x
+     * @returns {Shape}
+     */
     horizontalLineToRelative: function( x ) { return this.lineToRelative( x, 0 ); },
 
+    /**
+     * Adds a vertical line (y represents the y-coordinate of the end point)
+     * @public
+     * @param {number} y
+     * @returns {Shape}
+     */
     verticalLineTo: function( y ) { return this.lineTo( this.getRelativePoint().x, y ); },
+
+    /**
+     * Adds a vertical line (y represents a vertical displacement)
+     * @public
+     * @param {number} y
+     * @returns {Shape}
+     */
     verticalLineToRelative: function( y ) { return this.lineToRelative( 0, y ); },
 
+    /**
+     * Adds a quadratic curve to this shape
+     * The curve is guaranteed to pass through the coordinate (x,y) but does not
+     * pass through the control point
+     * @public
+     * @param {number} cpx - control point horizontal coordinate
+     * @param {number} cpy - control point vertical coordinate
+     * @param {number} x
+     * @param {number} y
+     * @returns {Shape}
+     */
     quadraticCurveTo: function( cpx, cpy, x, y ) { return this.quadraticCurveToPoint( v( cpx, cpy ), v( x, y ) ); },
+
+    /**
+     * Adds a quadratic curve to this shape. The control and final points are specified as displacment from the last point in this shape
+     * @public
+     * @param {number} cpx - control point horizontal coordinate
+     * @param {number} cpy - control point vertical coordinate
+     * @param {number} x - final x position of the quadratic curve
+     * @param {number} y - final y position of the quadratic curve
+     * @returns {Shape}
+     */
     quadraticCurveToRelative: function( cpx, cpy, x, y ) { return this.quadraticCurveToPointRelative( v( cpx, cpy ), v( x, y ) ); },
+
+    /**
+     * Adds a quadratic curve to this shape. The control and final points are specified as displacement from the last point in this shape
+     * @public
+     * @param {Vector2} controlPoint
+     * @param {Vector2} point - the quadratic curve passes through this point
+     * @returns {Shape}
+     */
     quadraticCurveToPointRelative: function( controlPoint, point ) {
       var relativePoint = this.getRelativePoint();
       return this.quadraticCurveToPoint( relativePoint.plus( controlPoint ), relativePoint.plus( point ) );
     },
     // TODO: consider a rename to put 'smooth' farther back?
+
+    /**
+     * Adds a quadratic curve to this shape. The quadratic curves passes through the x and y coordinate.
+     * The shape should join smoothly with the previous subpaths
+     * @public
+     * @param {number} x - final x position of the quadratic curve
+     * @param {number} y - final y position of the quadratic curve
+     * @returns {Shape}
+     */
     smoothQuadraticCurveTo: function( x, y ) { return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ) ); },
+
+    /**
+     * Adds a quadratic curve to this shape. The quadratic curves passes through the x and y coordinate.
+     * The shape should join smoothly with the previous subpaths
+     * @public
+     * @param {number} x - final x position of the quadratic curve
+     * @param {number} y - final y position of the quadratic curve
+     * @returns {Shape}
+     */
     smoothQuadraticCurveToRelative: function( x, y ) { return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ).plus( this.getRelativePoint() ) ); },
+
+    /**
+     * Adds a quadratic curve to this shape.
+     * @public
+     * @param {Vector2} controlPoint
+     * @param {Vector2} point - the quadratic curve passes through this point
+     * @returns {Shape}
+     */
     quadraticCurveToPoint: function( controlPoint, point ) {
       var shape = this;
 
@@ -184,17 +362,72 @@ define( function( require ) {
       } );
       this.setQuadraticControlPoint( controlPoint );
 
-      return this;
+     return this;  // for chaining
     },
 
+    /**
+     * @public
+     * @param {number} cp1x - control point 1,  horizontal coordinate
+     * @param {number} cp1y - control point 1,  vertical coordinate
+     * @param {number} cp2x - control point 2,  horizontal coordinate
+     * @param {number} cp2y - control point 2,  vertical coordinate
+     * @param {number} x - final x position of the cubic curve
+     * @param {number} y - final y position of the cubic curve
+     * @returns {Shape}
+     */
     cubicCurveTo: function( cp1x, cp1y, cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) ); },
+
+    /**
+     * @public
+     * @param {number} cp1x - control point 1,  horizontal displacement
+     * @param {number} cp1y - control point 1,  vertical displacement
+     * @param {number} cp2x - control point 2,  horizontal displacement
+     * @param {number} cp2y - control point 2,  vertical displacement
+     * @param {number} x - final horizontal displacement
+     * @param {number} y - final vertical displacment
+     * @returns {Shape}
+     */
     cubicCurveToRelative: function( cp1x, cp1y, cp2x, cp2y, x, y ) { return this.cubicCurveToPointRelative( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) ); },
+
+    /**
+     * @public
+     * @param {Vector2} control1 - control displacement  1
+     * @param {Vector2} control2 - control displacement 2
+     * @param {Vector2} point - final displacement
+     * @returns {Shape}
+     */
     cubicCurveToPointRelative: function( control1, control2, point ) {
       var relativePoint = this.getRelativePoint();
       return this.cubicCurveToPoint( relativePoint.plus( control1 ), relativePoint.plus( control2 ), relativePoint.plus( point ) );
     },
+
+    /**
+     * @public
+     * @param {number} cp2x - control point 2,  horizontal coordinate
+     * @param {number} cp2y - control point 2,  vertical coordinate
+     * @param {number} x
+     * @param {number} y
+     * @returns {Shape}
+     */
     smoothCubicCurveTo: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ), v( x, y ) ); },
+
+    /**
+     * @public
+     * @param {number} cp2x - control point 2,  horizontal coordinate
+     * @param {number} cp2y - control point 2,  vertical coordinate
+     * @param {number} x
+     * @param {number} y
+     * @returns {Shape}
+     */
     smoothCubicCurveToRelative: function( cp2x, cp2y, x, y ) { return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ).plus( this.getRelativePoint() ), v( x, y ).plus( this.getRelativePoint() ) ); },
+
+    /**
+     * @public
+     * @param {Vector2} control1
+     * @param {Vector2} control2
+     * @param {Vector2} point
+     * @returns {Shape}
+     */
     cubicCurveToPoint: function( control1, control2, point ) {
       var shape = this;
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
@@ -210,10 +443,30 @@ define( function( require ) {
 
       this.setCubicControlPoint( control2 );
 
-      return this;
+     return this;  // for chaining
     },
 
+    /**
+     * @public
+     * @param {number} centerX - horizontal coordinate of the center of the arc
+     * @param {number} centerY - Center of the arc
+     * @param {number} radius - How far from the center the arc will be
+     * @param {number} startAngle - Angle (radians) of the start of the arc
+     * @param {number} endAngle - Angle (radians) of the end of the arc
+     * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
+     * @returns {Shape}
+     **/
     arc: function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) { return this.arcPoint( v( centerX, centerY ), radius, startAngle, endAngle, anticlockwise ); },
+
+    /**
+     * @public
+     * @param {Vector2} center - Center of the arc (every point on the arc is equally far from the center)
+     * @param {number} radius - How far from the center the arc will be
+     * @param {number} startAngle - Angle (radians) of the start of the arc
+     * @param {number} endAngle - Angle (radians) of the end of the arc
+     * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
+     * @returns {Shape}
+     **/
     arcPoint: function( center, radius, startAngle, endAngle, anticlockwise ) {
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
 
@@ -239,10 +492,38 @@ define( function( require ) {
       this.addSegmentAndBounds( arc );
       this.resetControlPoints();
 
-      return this;
+     return this;  // for chaining
     },
 
-    ellipticalArc: function( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) { return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ); },
+    /**
+     * Creates an elliptical arc
+     * @public
+     * @param {number} centerX - horizontal coordinate of the center of the arc
+     * @param {number} centerY -  vertical coordinate of the center of the arc
+     * @param {number} radiusX - semi axis
+     * @param {number} radiusY - semi axis
+     * @param {number} rotation - rotation of the elliptical arc with respect to the
+     * @param {number} startAngle
+     * @param {number} endAngle
+     * @param {boolean} anticlockwise
+     * @returns {Shape}
+     */
+    ellipticalArc: function( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
+      return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
+    },
+
+    /**
+     * Creates an elliptic arc
+     * @public
+     * @param {Vector2} center
+     * @param {number} radiusX
+     * @param {number} radiusY
+     * @param {number} rotation - rotation of the arc with respect to the positive x axis.
+     * @param {number} startAngle -
+     * @param {number} endAngle
+     * @param {boolean} anticlockwise
+     * @returns {Shape}
+     */
     ellipticalArcPoint: function( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
 
@@ -268,9 +549,14 @@ define( function( require ) {
       this.addSegmentAndBounds( ellipticalArc );
       this.resetControlPoints();
 
-      return this;
+     return this;  // for chaining
     },
 
+    /**
+     * Adds a subpath that joins the last point of this shape to the first point to form a closed shape
+     * @public
+     * @returns {Shape}
+     */
     close: function() {
       if ( this.hasSubpaths() ) {
         var previousPath = this.getLastSubpath();
@@ -281,22 +567,50 @@ define( function( require ) {
         nextPath.addPoint( previousPath.getFirstPoint() );
       }
       this.resetControlPoints();
-      return this;
+     return this;  // for chaining
     },
 
-    // matches SVG's elliptical arc from http://www.w3.org/TR/SVG/paths.html
+    /**
+     * Matches SVG's elliptical arc from http://www.w3.org/TR/SVG/paths.html
+     * //TODO : fill out JSDOC
+     * @public
+     * @param {number} radiusX
+     * @param {number} radiusY
+     * @param rotation
+     * @param largeArc
+     * @param sweep
+     * @param {number} x
+     * @param {number} y
+     * @returns {*}
+     * unimplemented
+     */
     ellipticalArcToRelative: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
       var relativePoint = this.getRelativePoint();
       return this.ellipticalArcTo( radiusX, radiusY, rotation, largeArc, sweep, x + relativePoint.x, y + relativePoint.y );
     },
+
+    /**
+     * //TODO: implement this method
+     * @param {number} radiusX
+     * @param {number} radiusY
+     * @param rotation
+     * @param largeArc
+     * @param sweep
+     * @param {number} x
+     * @param {number} y
+     */
     ellipticalArcTo: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
       throw new Error( 'ellipticalArcTo unimplemented' );
     },
 
-    /*
+     /**
      * Draws a circle using the arc() call with the following parameters:
      * circle( center, radius ) // center is a Vector2
      * circle( centerX, centerY, radius )
+     * @param {Vector2|number} centerX
+     * @param {number} centerY
+     * @param {number} [radius]
+     * @returns {*}
      */
     circle: function( centerX, centerY, radius ) {
       if ( typeof centerX === 'object' ) {
@@ -307,16 +621,23 @@ define( function( require ) {
       }
       else {
         // circle( centerX, centerY, radius )
-        return this.arcPoint( p( centerX, centerY ), radius, 0, Math.PI * 2, false );
+        return this.arcPoint( v( centerX, centerY ), radius, 0, Math.PI * 2, false );
       }
     },
 
-    /*
+    /**
      * Draws an ellipse using the ellipticalArc() call with the following parameters:
      * ellipse( center, radiusX, radiusY, rotation ) // center is a Vector2
      * ellipse( centerX, centerY, radiusX, radiusY, rotation )
      *
      * The rotation is about the centerX, centerY.
+     * @public
+     * @param {number|Vector2} centerX
+     * @param {number} [centerY]
+     * @param {number} radiusX
+     * @param {number} radiusY
+     * @param {number} rotation
+     * @returns {Shape}
      */
     ellipse: function( centerX, centerY, radiusX, radiusY, rotation ) {
       // TODO: separate into ellipse() and ellipsePoint()?
@@ -335,6 +656,15 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Creates a rectangle shape
+     * @public
+     * @param {number} x - left position
+     * @param {number} y - bottom position (in non inverted cartesian system)
+     * @param {number} width
+     * @param {number} height
+     * @returns {Shape}
+     */
     rect: function( x, y, width, height ) {
       var subpath = new Subpath();
       this.addSubpath( subpath );
@@ -354,7 +684,17 @@ define( function( require ) {
       return this;
     },
 
-    //Create a round rectangle. All arguments are number.
+    /**
+     * Creates a round rectangle. All arguments are number.
+     * @public
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width - width of the rectangle
+     * @param {number} height - height of the rectangle
+     * @param {number} arcw - arc width
+     * @param {number} arch - arc height
+     * @returns {Shape}
+     */
     roundRect: function( x, y, width, height, arcw, arch ) {
       var lowX = x + arcw;
       var highX = x + width - arcw;
@@ -382,6 +722,12 @@ define( function( require ) {
       return this;
     },
 
+    /**
+     * Creates a polygon from an array of vertices.
+     * @public
+     * @param {Array.<Vector2>} vertices
+     * @returns {Shape}
+     */
     polygon: function( vertices ) {
       var length = vertices.length;
       if ( length > 0 ) {
@@ -403,6 +749,7 @@ define( function( require ) {
      * a rubber band around pegs. however unlike a rubber band the tension can be negative.
      * the tension ranges from -1 to 1
      *
+     * @public
      * @param {Array.<Vector2>} positions
      * @param {Object} [options] - see documentation below
      * @returns {Shape}
@@ -475,12 +822,20 @@ define( function( require ) {
       return this;
     },
 
+    /**
+     * Returns a copy of this shape
+     * @public
+     * @returns {Shape}
+     */
     copy: function() {
       // copy each individual subpath, so future modifications to either Shape doesn't affect the other one
       return new Shape( _.map( this.subpaths, function( subpath ) { return subpath.copy(); } ), this.bounds );
     },
 
-    // write out this shape's path to a canvas 2d context. does NOT include the beginPath()!
+    /**
+     * Writes out this shape's path to a canvas 2d context. does NOT include the beginPath()!
+     * @param {CanvasRenderingContext2D} context
+     */
     writeToContext: function( context ) {
       var len = this.subpaths.length;
       for ( var i = 0; i < len; i++ ) {
@@ -488,7 +843,10 @@ define( function( require ) {
       }
     },
 
-    // returns something like "M150 0 L75 200 L225 200 Z" for a triangle
+    /**
+     * Returns something like "M150 0 L75 200 L225 200 Z" for a triangle
+     * @returns {string}
+     */
     getSVGPath: function() {
       var string = '';
       var len = this.subpaths.length;
@@ -512,7 +870,11 @@ define( function( require ) {
       return string;
     },
 
-    // return a new Shape that is transformed by the associated matrix
+    /**
+     * Returns a new Shape that is transformed by the associated matrix
+     * @param {Matrix3} matrix
+     * @returns {Shape}
+     */
     transformed: function( matrix ) {
       // TODO: allocation reduction
       var subpaths = _.map( this.subpaths, function( subpath ) { return subpath.transformed( matrix ); } );
@@ -520,7 +882,7 @@ define( function( require ) {
       return new Shape( subpaths, bounds );
     },
 
-    /*
+    /**
      * Provided options (see Segment.nonlinearTransformed)
      * - minLevels:                       how many levels to force subdivisions
      * - maxLevels:                       prevent subdivision past this level
@@ -546,7 +908,7 @@ define( function( require ) {
       return new Shape( subpaths, bounds );
     },
 
-    /*
+    /**
      * Maps points by treating their x coordinate as polar angle, and y coordinate as polar magnitude.
      * See http://en.wikipedia.org/wiki/Polar_coordinate_system
      *
@@ -564,7 +926,7 @@ define( function( require ) {
       }, options ) );
     },
 
-    /*
+    /**
      * Converts each segment into lines, using an adaptive (midpoint distance subdivision) method.
      *
      * NOTE: uses nonlinearTransformed method internally, but since we don't provide a pointMap or methodName, it won't create anything but line segments.
@@ -576,6 +938,11 @@ define( function( require ) {
       return this.nonlinearTransformed( options );
     },
 
+    /**
+     * Is this point contained in this shape
+     * @param {Vector2} point
+     * @returns {boolean}
+     */
     containsPoint: function( point ) {
       // we pick a ray, and determine the winding number over that ray. if the number of segments crossing it CCW == number of segments crossing it CW, then the point is contained in the shape
       var ray = new Ray2( point, Vector2.X_UNIT );
@@ -583,6 +950,11 @@ define( function( require ) {
       return this.windingIntersection( ray ) !== 0;
     },
 
+    /**
+     *
+     * @param {Ray2} ray
+     * @returns {Array}
+     */
     intersection: function( ray ) {
       var hits = [];
       var numSubpaths = this.subpaths.length;
@@ -604,6 +976,11 @@ define( function( require ) {
       return _.sortBy( hits, function( hit ) { return hit.distance; } );
     },
 
+    /**
+     * Returns the winding number for intersection with a ray
+     * @param {Ray2} ray
+     * @returns {number}
+     */
     windingIntersection: function( ray ) {
       var wind = 0;
 
@@ -633,6 +1010,7 @@ define( function( require ) {
      * contained within the bounding box.
      *
      * @param {Bounds2} bounds
+     * @returns {boolean}
      */
     intersectsBounds: function( bounds ) {
       // If the bounding box completely surrounds our shape, it intersects the bounds
@@ -669,8 +1047,12 @@ define( function( require ) {
       return false;
     },
 
-    // returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be nested (doesn't do intersection computations yet)
     // TODO: rename stroked( lineStyles )
+    /**
+     * Returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be nested (doesn't do intersection computations yet)
+     * @param {LineStyles} lineStyles
+     * @returns {Shape}
+     */
     getStrokedShape: function( lineStyles ) {
       var subpaths = [];
       var bounds = Bounds2.NOTHING.copy();
@@ -687,7 +1069,12 @@ define( function( require ) {
       return new Shape( subpaths, bounds );
     },
 
-    // {experimental!}
+    /**
+     *
+     * {experimental!}
+     * @param {number} distance
+     * @returns {Shape}
+     */
     getOffsetShape: function( distance ) {
       // TODO: abstract away this type of behavior
       var subpaths = [];
@@ -703,6 +1090,10 @@ define( function( require ) {
       return new Shape( subpaths, bounds );
     },
 
+    /**
+     *
+     * @returns {Bounds2}
+     */
     getBounds: function() {
       if ( this._bounds === null ) {
         var bounds = Bounds2.NOTHING.copy();
@@ -715,6 +1106,11 @@ define( function( require ) {
     },
     get bounds() { return this.getBounds(); },
 
+    /**
+     *
+     * @param {LineStyles} lineStyles
+     * @returns {Bounds2}
+     */
     getStrokedBounds: function( lineStyles ) {
       // Check if all of our segments end vertically or horizontally AND our drawable subpaths are all closed. If so,
       // we can apply a bounds dilation.
@@ -745,6 +1141,12 @@ define( function( require ) {
       }
     },
 
+    /**
+     *
+     * @param {Matrix3} matrix
+     * @param {LineStyles} [lineStyles]
+     * @returns {Bounds2}
+     */
     getBoundsWithTransform: function( matrix, lineStyles ) {
       // if we don't need to handle rotation/shear, don't use the extra effort!
       if ( matrix.isAxisAligned() ) {
@@ -783,6 +1185,10 @@ define( function( require ) {
       this.invalidate();
     },
 
+    /**
+     *
+     * @returns {string}
+     */
     toString: function() {
       // TODO: consider a more verbose but safer way?
       return 'new kite.Shape( \'' + this.getSVGPath() + '\' )';
@@ -792,7 +1198,9 @@ define( function( require ) {
      * Internal subpath computations
      *----------------------------------------------------------------------------*/
 
-    // @private
+    /**
+     * @private
+     */
     invalidate: function() {
       if ( !this._invalidatingPoints ) {
         this._bounds = null;
@@ -801,13 +1209,18 @@ define( function( require ) {
       }
     },
 
-    // @private
+    /**
+     * @private
+     */
     addSegmentAndBounds: function( segment ) {
       this.getLastSubpath().addSegment( segment );
       this.invalidate();
     },
 
-    // @private
+    /**
+     * @private
+     * @param {Vector2} point
+     */
     ensure: function( point ) {
       if ( !this.hasSubpaths() ) {
         this.addSubpath( new Subpath() );
@@ -815,7 +1228,11 @@ define( function( require ) {
       }
     },
 
-    // @private
+    /**
+     * Adds a subpath
+     * @private
+     * @param {Subpath} subpath
+     */
     addSubpath: function( subpath ) {
       this.subpaths.push( subpath );
 
@@ -827,22 +1244,38 @@ define( function( require ) {
       return this; // allow chaining
     },
 
-    // @private
+    /**
+     * Determines if there are any subpaths
+     * @private
+     * @returns {boolean}
+     */
     hasSubpaths: function() {
       return this.subpaths.length > 0;
     },
 
-    // @private
+    /**
+     * Gets the last subpath
+     * @private
+     * @returns {Subpath}
+     */
     getLastSubpath: function() {
       return _.last( this.subpaths );
     },
 
-    // @private - gets the last point in the last subpath, or null if it doesn't exist
+    /**
+     * Gets the last point in the last subpath, or null if it doesn't exist
+     * @private
+     * @returns {Subpath|null}
+     */
     getLastPoint: function() {
       return this.hasSubpaths() ? this.getLastSubpath().getLastPoint() : null;
     },
 
-    // @private
+    /**
+     * Gets the last drawable segment in the last subpath, or null if it doesn't exist
+     * @private
+     * @returns {Segment|null}
+     */
     getLastSegment: function() {
       if ( !this.hasSubpaths() ) { return null; }
 
@@ -852,7 +1285,11 @@ define( function( require ) {
       return subpath.getLastSegment();
     },
 
-    // @private - returns the point to be used for smooth quadratic segments
+    /**
+     * Returns the control point to be used to create a smooth quadratic segments
+     * @private
+     * @returns {Vector2}
+     */
     getSmoothQuadraticControlPoint: function() {
       var lastPoint = this.getLastPoint();
 
@@ -864,7 +1301,11 @@ define( function( require ) {
       }
     },
 
-    // @private - returns the point to be used for smooth cubic segments
+    /**
+     * Returns the control point to be used to create a smooth cubic segment
+     * @private
+     * @returns {Vector2}
+     */
     getSmoothCubicControlPoint: function() {
       var lastPoint = this.getLastPoint();
 
@@ -876,7 +1317,11 @@ define( function( require ) {
       }
     },
 
-    // @private
+    /**
+     * Returns the last point in the last subpath, or the Vector ZERO if it doesn't exist
+     * @private
+     * @returns {Vector2}
+     */
     getRelativePoint: function() {
       var lastPoint = this.getLastPoint();
       return lastPoint ? lastPoint : Vector2.ZERO;
@@ -887,12 +1332,31 @@ define( function( require ) {
    * Shape shortcuts
    *----------------------------------------------------------------------------*/
 
+  /**
+   * Creates a rectangle
+   * @public
+   * @param {number} x
+   * @param {number} y
+   * @param {number} width
+   * @param {number} height
+   * @returns {Shape}
+   */
   Shape.rectangle = function( x, y, width, height ) {
     return new Shape().rect( x, y, width, height );
   };
   Shape.rect = Shape.rectangle;
 
-  // Create a round rectangle {Shape}, with {Number} arguments. Uses circular or elliptical arcs if given.
+  /**
+   * Creates a round rectangle {Shape}, with {number} arguments. Uses circular or elliptical arcs if given.
+   * @public
+   * @param {number} x
+   * @param {number} y
+   * @param {number} width
+   * @param {number} height
+   * @param {number} arcw
+   * @param {number} arch
+   * @returns {Shape}
+   */
   Shape.roundRect = function( x, y, width, height, arcw, arch ) {
     return new Shape().roundRect( x, y, width, height, arcw, arch );
   };
@@ -916,6 +1380,7 @@ define( function( require ) {
    * @param {number} width - Width of rectangle
    * @param {number} height - Height of rectangle
    * @param {Object} [cornerRadii] - Optional object with potential radii for each corner.
+   * @returns {Shape}
    */
   Shape.roundedRectangleWithRadii = function( x, y, width, height, cornerRadii ) {
     // defaults to 0 (not using _.extends, since we reference each multiple times)
@@ -984,25 +1449,55 @@ define( function( require ) {
     return shape;
   };
 
+  /**
+   * Creates a closed polygon from an array of vertices by connecting them by a series of lines.
+   * The lines are joining the adjacent vertices in the array.
+   * @public
+   * @param {Array.<Vector2>} vertices
+   * @returns {Shape}
+   */
   Shape.polygon = function( vertices ) {
     return new Shape().polygon( vertices );
   };
 
+  /**
+   * Creates a rectangular shape from bounds
+   * @public
+   * @param {Bounds2} bounds
+   * @returns {Shape}
+   */
   Shape.bounds = function( bounds ) {
     return new Shape().rect( bounds.minX, bounds.minY, bounds.maxX - bounds.minX, bounds.maxY - bounds.minY );
   };
 
-  //Create a line segment, using either (x1,y1,x2,y2) or ({x1,y1},{x2,y2}) arguments
+  /**
+   * Creates a line segment, using either (x1,y1,x2,y2) or ({x1,y1},{x2,y2}) arguments
+   * @public
+   * @param {number|Vector2} a
+   * @param {number|Vector2} b
+   * @param {number} [c]
+   * @param {number} [d]
+   * @returns {Shape}
+   */
   Shape.lineSegment = function( a, b, c, d ) {
     // TODO: add type assertions?
     if ( typeof a === 'number' ) {
       return new Shape().moveTo( a, b ).lineTo( c, d );
     }
     else {
+      // then a and b must be {Vector2}
       return new Shape().moveToPoint( a ).lineToPoint( b );
     }
   };
 
+  /**
+   * Returns a regular polygon of radius and number of sides
+   * The regular polygon is oriented such that the first vertex lies on the positive x-axis.
+   * @public
+   * @param {number} sides - an integer
+   * @param {number} radius
+   * @returns {Shape}
+   */
   Shape.regularPolygon = function( sides, radius ) {
     var shape = new Shape();
     _.each( _.range( sides ), function( k ) {
@@ -1012,7 +1507,15 @@ define( function( require ) {
     return shape.close();
   };
 
-  // supports both circle( centerX, centerY, radius ), circle( center, radius ), and circle( radius ) with the center default to 0,0
+  /**
+   * Creates a circle
+   * supports both circle( centerX, centerY, radius ), circle( center, radius ), and circle( radius ) with the center default to 0,0
+   * @public
+   * @param {Vector2|number} centerX
+   * @param {number} [centerY]
+   * @param {number} [radius]
+   * @returns {Shape}
+   */
   Shape.circle = function( centerX, centerY, radius ) {
     if ( centerY === undefined ) {
       // circle( radius ), center = 0,0
@@ -1021,9 +1524,16 @@ define( function( require ) {
     return new Shape().circle( centerX, centerY, radius ).close();
   };
 
-  /*
+  /**
    * Supports ellipse( centerX, centerY, radiusX, radiusY, rotation ), ellipse( center, radiusX, radiusY, rotation ), and ellipse( radiusX, radiusY, rotation )
    * with the center default to 0,0 and rotation of 0.  The rotation is about the centerX, centerY.
+   * @public
+   * @param {number|Vector2} centerX
+   * @param {number} [centerY]
+   * @param {number|Vector2} radiusX
+   * @param {number} [radiusY]
+   * @param {number} rotation
+   * @returns {Shape}
    */
   Shape.ellipse = function( centerX, centerY, radiusX, radiusY, rotation ) {
     // TODO: Ellipse/EllipticalArc has a mess of parameters. Consider parameter object, or double-check parameter handling
@@ -1034,7 +1544,17 @@ define( function( require ) {
     return new Shape().ellipse( centerX, centerY, radiusX, radiusY, rotation ).close();
   };
 
-  // supports both arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) and arc( center, radius, startAngle, endAngle, anticlockwise )
+  /**
+   * Supports both arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) and arc( center, radius, startAngle, endAngle, anticlockwise )
+   * @public
+   * @param {Vector2|number} centerX
+   * @param {number} [centerY]
+   * @param {number} radius - How far from the center the arc will be
+   * @param {number} startAngle - Angle (radians) of the start of the arc
+   * @param {number} endAngle - Angle (radians) of the end of the arc
+   * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
+   * @returns {Shape}
+   */
   Shape.arc = function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) {
     return new Shape().arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise );
   };
