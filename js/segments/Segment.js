@@ -16,7 +16,7 @@ define( function( require ) {
   var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
   var Bounds2 = require( 'DOT/Bounds2' );
 
-  /*
+  /**
    * Will contain (for segments):
    * properties (backed by ES5 getters, created usually lazily):
    * start        - start point of this segment
@@ -38,6 +38,8 @@ define( function( require ) {
    *
    * writeToContext( context ) - draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
    * transformed( matrix )     - returns a new segment that represents this segment after transformation by the matrix
+   *
+   * @constructor
    */
   function Segment() {
     Events.call( this );
@@ -45,6 +47,11 @@ define( function( require ) {
 
   kite.register( 'Segment', Segment );
 
+  /**
+   * Returns itself
+   * @param {Vector2} x
+   * @returns {Vector2}
+   */
   var identityFunction = function identityFunction( x ) { return x; };
 
   inherit( Events, Segment, {
@@ -65,13 +72,21 @@ define( function( require ) {
       return Math.abs( this.startTangent.x * this.startTangent.y ) < epsilon && Math.abs( this.endTangent.x * this.endTangent.y ) < epsilon;
     },
 
-    // TODO: override everywhere so this isn't necessary (it's not particularly efficient!)
+    /**
+     *  // TODO: override everywhere so this isn't necessary (it's not particularly efficient!)
+     * @param {Matrix3} matrix
+     * @returns {Bounds2}
+     */
     getBoundsWithTransform: function( matrix ) {
       var transformedSegment = this.transformed( matrix );
       return transformedSegment.getBounds();
     },
 
-    // tList should be a list of sorted t values from 0 <= t <= 1
+    /**
+     *
+     * @param {Array.<number>} tList - list of sorted t values from 0 <= t <= 1
+     * @returns {Array}
+     */
     subdivisions: function( tList ) {
       // this could be solved by recursion, but we don't plan on the JS engine doing tail-call optimization
       var right = this;
@@ -98,15 +113,22 @@ define( function( require ) {
       return this.subdivisions( this.getInteriorExtremaTs() );
     },
 
-    /*
-     * toPiecewiseLinearSegments( options ), with the following options provided:
-     * - minLevels:                       how many levels to force subdivisions
-     * - maxLevels:                       prevent subdivision past this level
-     * - distanceEpsilon (optional null): controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve
-     * - curveEpsilon (optional null):    controls level of subdivision by attempting to ensure a maximum curvature change between segments
-     * - pointMap (optional):             function( Vector2 ) : Vector2, represents a (usually non-linear) transformation applied
-     * - methodName (optional):           if the method name is found on the segment, it is called with the expected signature function( options ) : Array[Segment]
-     *                                    instead of using our brute-force logic
+    /**
+     *
+     * @param {object} [options] -           with the following options provided:
+     *  - minLevels:                       how many levels to force subdivisions
+     *  - maxLevels:                       prevent subdivision past this level
+     *  - distanceEpsilon (optional null): controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve
+     *  - curveEpsilon (optional null):    controls level of subdivision by attempting to ensure a maximum curvature change between segments
+     *  - pointMap (optional):             function( Vector2 ) : Vector2, represents a (usually non-linear) transformation applied
+     *  - methodName (optional):           if the method name is found on the segment, it is called with the expected signature function( options ) : Array[Segment]
+     *                                     instead of using our brute-force logic
+     * @param {number} [minLevels] -   how many levels to force subdivisions
+     * @param {number} [maxLevels] -   prevent subdivision past this level
+     * @param {Array.<Segment>} [segments]
+     * @param {Vector2} [start]
+     * @param {Vector2} [end]
+     * @returns {Array.<Line>}
      */
     toPiecewiseLinearSegments: function( options, minLevels, maxLevels, segments, start, end ) {
       // for the first call, initialize min/max levels from our options
@@ -155,7 +177,7 @@ define( function( require ) {
    * It assumes the following is the internal name: '_' + name
    *
    * @param {Function} type - Should be the constructor of the type. We will modify its prototype
-   * @param {string} name - Name of the
+   * @param {string} name - Name of the attribute
    */
   Segment.addInvalidatingGetterSetter = function( type, name ) {
     var internalName = '_' + name;
@@ -183,9 +205,15 @@ define( function( require ) {
     } );
   };
 
-  // list of { segment: ..., t: ..., closestPoint: ..., distanceSquared: ... } (since there can be duplicates), threshold is used for subdivision,
-  // where it will exit if all of the segments are shorter than the threshold
-  // TODO: solve segments to determine this analytically!
+  /**
+   * list of { segment: ..., t: ..., closestPoint: ..., distanceSquared: ... } (since there can be duplicates), threshold is used for subdivision,
+   * where it will exit if all of the segments are shorter than the threshold
+   *  TODO: solve segments to determine this analytically!
+   * @param {Array.<Segment>} segments
+   * @param {Vector2} point
+   * @param {number} threshold
+   * @returns {Array.<Object>}
+   */
   Segment.closestToPoint = function( segments, point, threshold ) {
     var thresholdSquared = threshold * threshold;
     var items = [];
