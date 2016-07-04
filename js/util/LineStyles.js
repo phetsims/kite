@@ -19,6 +19,11 @@ define( function( require ) {
   // constants
   var lineLineIntersection = Util.lineLineIntersection;
 
+  /**
+   *
+   * @param {Object} [args]
+   * @constructor
+   */
   function LineStyles( args ) {
     if ( args === undefined ) {
       args = {};
@@ -37,6 +42,11 @@ define( function( require ) {
 
   inherit( Object, LineStyles, {
 
+    /**
+     * Determines of this lineStyles is equal to the other LineStyles
+     * @param {Object} other - arguments of LineStyles
+     * @returns {boolean}
+     */
     equals: function( other ) {
       var typical = this.lineWidth === other.lineWidth &&
                     this.lineCap === other.lineCap &&
@@ -62,11 +72,16 @@ define( function( require ) {
       return true;
     },
 
-    /*
+    /**
      * Creates an array of Segments that make up a line join, to the left side.
      *
      * Joins two segments together on the logical "left" side, at 'center' (where they meet), and un-normalized tangent
      * vectors in the direction of the stroking. To join on the "right" side, switch the tangent order and negate them.
+     *
+     * @param {Vector2} center
+     * @param {Vector2} fromTangent
+     * @param {Vector2} toTangent
+     * @returns {Array.<Line>|null}
      */
     leftJoin: function( center, fromTangent, toTangent ) {
       fromTangent = fromTangent.normalized();
@@ -111,18 +126,26 @@ define( function( require ) {
       }
     },
 
-    /*
+    /**
      * Creates an array of Segments that make up a line join, to the right side.
      *
      * Joins two segments together on the logical "right" side, at 'center' (where they meet), and normalized tangent
      * vectors in the direction of the stroking. To join on the "left" side, switch the tangent order and negate them.
+     * @param {Vector2} center
+     * @param {Vector2} fromTangent
+     * @param {Vector2} toTangent
+     * @returns {Array.<Line>|null}
      */
     rightJoin: function( center, fromTangent, toTangent ) {
       return this.leftJoin( center, toTangent.negated(), fromTangent.negated() );
     },
 
-    /*
+    /**
      * Creates an array of Segments that make up a line cap from the endpoint 'center' in the direction of the tangent
+     *
+     * @param {Vector2} center
+     * @param {Vector2} tangent
+     * @returns {Array.<Arc>|Array.<Line>}
      */
     cap: function( center, tangent ) {
       tangent = tangent.normalized();
