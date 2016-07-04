@@ -22,7 +22,13 @@ define( function( require ) {
   var Arc = require( 'KITE/segments/Arc' );
   var LineStyles = require( 'KITE/util/LineStyles' );
 
-  // all arguments optional (they are for the copy() method)
+  /**
+   * all arguments optional (they are for the copy() method)
+   * @param {Array.<Segment>} [segments]
+   * @param {Array.<Vector2>} [points]
+   * @param {boolean} [closed]
+   * @constructor
+   */
   function Subpath( segments, points, closed ) {
     Events.call( this );
 
@@ -57,6 +63,11 @@ define( function( require ) {
   kite.register( 'Subpath', Subpath );
 
   inherit( Events, Subpath, {
+
+    /**
+     * The bounding box for this subpath
+     * @returns {Bounds2}
+     */
     getBounds: function() {
       if ( this._bounds === null ) {
         var bounds = Bounds2.NOTHING.copy();
@@ -69,6 +80,10 @@ define( function( require ) {
     },
     get bounds() { return this.getBounds(); },
 
+    /**
+     * Returns an immutable copy of this subpath
+     * @returns {Subpath}
+     */
     copy: function() {
       return new Subpath( this.segments.slice( 0 ), this.points.slice( 0 ), this.closed );
     },
@@ -93,13 +108,22 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Adds a point to this subpath
+     * @param {Vector2} point
+     * @returns {Subpath}
+     */
     addPoint: function( point ) {
       this.points.push( point );
 
       return this; // allow chaining
     },
 
-    // @private - REALLY! Make sure we invalidate() after this is called
+    /**
+     * @private - REALLY! Make sure we invalidate() after this is called
+     * @param {Segment} segment
+     * @returns {Subpath}
+     */
     addSegmentDirectly: function( segment ) {
       assert && assert( segment.start.isFinite(), 'Segment start is infinite' );
       assert && assert( segment.end.isFinite(), 'Segment end is infinite' );
@@ -115,6 +139,11 @@ define( function( require ) {
       return this; // allow chaining
     },
 
+    /**
+     * Adds a segment to this subpath
+     * @param {Segment} segment
+     * @returns {Subpath}
+     */
     addSegment: function( segment ) {
       var nondegenerateSegments = segment.getNondegenerateSegments();
       var numNondegenerateSegments = nondegenerateSegments.length;
@@ -126,8 +155,10 @@ define( function( require ) {
       return this; // allow chaining
     },
 
-    // Adds a line segment from the start to end (if non-zero length) and marks the subpath as closed.
-    // NOTE: normally you just want to mark the subpath as closed, and not generate the closing segment this way?
+    /**
+     * Adds a line segment from the start to end (if non-zero length) and marks the subpath as closed.
+     * NOTE: normally you just want to mark the subpath as closed, and not generate the closing segment this way?
+     */
     addClosingSegment: function() {
       if ( this.hasClosingSegment() ) {
         var closingSegment = this.getClosingSegment();
@@ -139,47 +170,90 @@ define( function( require ) {
     },
 
     // TODO: consider always adding a closing segment into our segments list for easier processing!! see addClosingSegment()
+    /**
+     * Sets this subpath to be a closed path
+     */
     close: function() {
       this.closed = true;
     },
 
+    /**
+     * Returns the numbers of points in this subpath
+     * @returns {number}
+     */
     getLength: function() {
       return this.points.length;
     },
 
+    /**
+     * Returns the first point of this subpath
+     * @returns {Vector2}
+     */
     getFirstPoint: function() {
       return _.first( this.points );
     },
 
+    /**
+     * Returns the last point of this subpath
+     * @returns {Vector2}
+     */
     getLastPoint: function() {
       return _.last( this.points );
     },
 
+    /**
+     * Returns the first segment of this subpath
+     * @returns {Segment}
+     */
     getFirstSegment: function() {
       return _.first( this.segments );
     },
 
+    /**
+     * Returns the last segment of this subpath
+     * @returns {Segment}
+     */
     getLastSegment: function() {
       return _.last( this.segments );
     },
 
+    /**
+     * Determines if this subpath is drawable, i.e. if it contains asny segments
+     * @returns {boolean}
+     */
     isDrawable: function() {
       return this.segments.length > 0;
     },
 
+    /**
+     * Determines if this subpath is a closed path, i.e. if the flag is set to closed
+     * @returns {boolean}
+     */
     isClosed: function() {
       return this.closed;
     },
 
+    /**
+     * Determines if this subpath is a closed path, i.e. if it has a closed segment
+     * @returns {boolean}
+     */
     hasClosingSegment: function() {
       return !this.getFirstPoint().equalsEpsilon( this.getLastPoint(), 0.000000001 );
     },
 
+    /**
+     * Returns a line that would closed this subpath
+     * @returns {Line}
+     */
     getClosingSegment: function() {
       assert && assert( this.hasClosingSegment(), 'Implicit closing segment unnecessary on a fully closed path' );
       return new Line( this.getLastPoint(), this.getFirstPoint() );
     },
 
+    /**
+     * Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
+     * @param {CanvasRenderingContext2D} context
+     */
     writeToContext: function( context ) {
       if ( this.isDrawable() ) {
         var startPoint = this.getFirstSegment().start;
@@ -196,7 +270,17 @@ define( function( require ) {
       }
     },
 
-    // see Segment.toPiecewiseLinearSegments for documentation
+    /**
+     * @param {object} [options] -           with the following options provided:
+     *  - minLevels:                       how many levels to force subdivisions
+     *  - maxLevels:                       prevent subdivision past this level
+     *  - distanceEpsilon (optional null): controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve
+     *  - curveEpsilon (optional null):    controls level of subdivision by attempting to ensure a maximum curvature change between segments
+     *  - pointMap (optional):             function( Vector2 ) : Vector2, represents a (usually non-linear) transformation applied
+     *  - methodName (optional):           if the method name is found on the segment, it is called with the expected signature function( options ) : Array[Segment]
+     *                                     instead of using our brute-force logic
+     * @returns {Subpath}
+     */
     toPiecewiseLinear: function( options ) {
       assert && assert( !options.pointMap, 'For use with pointMap, please use nonlinearTransformed' );
       return new Subpath( _.flatten( _.map( this.segments, function( segment ) {
@@ -204,6 +288,11 @@ define( function( require ) {
       } ) ), null, this.closed );
     },
 
+    /**
+     *
+     * @param {Matrix3} matrix
+     * @returns {Subpath}
+     */
     transformed: function( matrix ) {
       return new Subpath(
         _.map( this.segments, function( segment ) { return segment.transformed( matrix ); } ),
@@ -212,7 +301,18 @@ define( function( require ) {
       );
     },
 
-    // see Segment.toPiecewiseLinearSegments for documentation
+    /**
+     *
+     * @param {object} [options] -           with the following options provided:
+     *  - minLevels:                       how many levels to force subdivisions
+     *  - maxLevels:                       prevent subdivision past this level
+     *  - distanceEpsilon (optional null): controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve
+     *  - curveEpsilon (optional null):    controls level of subdivision by attempting to ensure a maximum curvature change between segments
+     *  - pointMap (optional):             function( Vector2 ) : Vector2, represents a (usually non-linear) transformation applied
+     *  - methodName (optional):           if the method name is found on the segment, it is called with the expected signature function( options ) : Array[Segment]
+     *                                     instead of using our brute-force logic
+     * @returns {Subpath}
+     */
     nonlinearTransformed: function( options ) {
       // specify an actual closing segment, so it can be mapped properly by any non-linear transforms
       // TODO: always create and add the closing segments when the subpath is closed!!!
@@ -231,6 +331,12 @@ define( function( require ) {
       } ) ), null, this.closed );
     },
 
+    /**
+     * Returns the bounds of this subpath when transform by a matrix
+     * An immutable method
+     * @param {Matrix3} matrix
+     * @returns {bounds}
+     */
     getBoundsWithTransform: function( matrix ) {
       var bounds = Bounds2.NOTHING.copy();
       var numSegments = this.segments.length;
@@ -240,7 +346,12 @@ define( function( require ) {
       return bounds;
     },
 
-    // {experimental} returns a subpath
+    /**
+     * Returns a subpath that is offset from this subpath by a distance
+     * {experimental} returns a subpath
+     * @param {number} distance
+     * @returns {Subpath}
+     */
     offset: function( distance ) {
       if ( !this.isDrawable() ) {
         return new Subpath( [], null, this.closed );
@@ -280,7 +391,11 @@ define( function( require ) {
       return new Subpath( segments, null, this.closed );
     },
 
-    // returns an array of subpaths (one if open, two if closed) that represent a stroked copy of this subpath.
+    /**
+     * Returns an array of subpaths (one if open, two if closed) that represent a stroked copy of this subpath.
+     * @param {LineStyles} lineStyles
+     * @returns {Array.<Subpath>}
+     */
     stroked: function( lineStyles ) {
       // non-drawable subpaths convert to empty subpaths
       if ( !this.isDrawable() ) {
