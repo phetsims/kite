@@ -35,8 +35,6 @@ define( function( require ) {
   var svgPath = require( 'KITE/parser/svgPath' );
   var Vector2 = require( 'DOT/Vector2' );
 
-  // for brevity
-  function p( x, y ) { return new Vector2( x, y ); }
   /**
    * Convenience function that returns a Vector2
    * used throughout this file as an abbreviation for a displacement, a position or a point.
