@@ -19,11 +19,17 @@ define( function( require ) {
 
   var scratchVector2 = new Vector2();
 
+  /**
+   *
+   * @param {Vector2} start
+   * @param {Vector2} end
+   * @constructor
+   */
   function Line( start, end ) {
     Segment.call( this );
 
-    this._start = start;
-    this._end = end;
+    this._start = start; // @private {Vector2}
+    this._end = end; // @private  {Vector2}
 
     this.invalidate();
   }
@@ -32,7 +38,10 @@ define( function( require ) {
 
   inherit( Segment, Line, {
 
-    // @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
+    /**
+     * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
+     * @public
+     */
     invalidate: function() {
       // Lazily-computed derived information
       this._tangent = null; // {Vector2 | null}
@@ -41,6 +50,11 @@ define( function( require ) {
       this.trigger0( 'invalidated' );
     },
 
+    /**
+     * Returns a normalized unit vector that is tangent to this line (at the starting point)
+     * the unit vectors points toward the end points.
+     * @returns {Vector2}
+     */
     getStartTangent: function() {
       if ( this._tangent === null ) {
         // TODO: allocation reduction
@@ -50,11 +64,20 @@ define( function( require ) {
     },
     get startTangent() { return this.getStartTangent(); },
 
+    /**
+     * Returns the normalized unit vector that is tangent to this line
+     * same as getStartTangent, since this is a straight line
+     * @returns {Vector2}
+     */
     getEndTangent: function() {
       return this.getStartTangent();
     },
     get endTangent() { return this.getEndTangent(); },
 
+    /**
+     * Gets the bounds of this line
+     * @returns {Bounds2}
+     */
     getBounds: function() {
       // TODO: allocation reduction
       if ( this._bounds === null ) {
@@ -64,6 +87,11 @@ define( function( require ) {
     },
     get bounds() { return this.getBounds(); },
 
+    /**
+     * Returns the bounding box for this transformed Line
+     * @param {Matrix3} matrix
+     * @returns {Bounds2}
+     */
     getBoundsWithTransform: function( matrix ) {
       // uses mutable calls
       var bounds = Bounds2.NOTHING.copy();
@@ -72,6 +100,11 @@ define( function( require ) {
       return bounds;
     },
 
+    /**
+     * Returns the non degenerate segments of ths line
+     * Unless it is of zero length, it will returns this line in an array.
+     * @returns {Array.<Line>|[]}
+     */
     getNondegenerateSegments: function() {
       // if it is degenerate (0-length), just ignore it
       if ( this._start.equals( this._end ) ) {
@@ -82,36 +115,76 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Returns the position parametrically, with 0 <= t <= 1.
+     * @param {number} t
+     * @returns {Vector2}
+     */
     positionAt: function( t ) {
       return this._start.plus( this._end.minus( this._start ).times( t ) );
     },
 
+    /**
+     * Returns the non-normalized tangent (dx/dt, dy/dt) parametrically, with 0 <= t <= 1.
+     * For a line, the tangent is independent of t
+     * @param {number} t
+     * @returns {Vector2}
+     */
     tangentAt: function( t ) {
-      // tangent always the same, just use the start tanget
+      // tangent always the same, just use the start tangent
       return this.getStartTangent();
     },
 
+    /**
+     * Returns the signed curvature (positive for visual clockwise - mathematical counterclockwise) of this Line
+     * Since a line is straight, it returns zero
+     * @param {number} t
+     * @returns {number}
+     */
     curvatureAt: function( t ) {
       return 0; // no curvature on a straight line segment
     },
 
+    /**
+     * Returns a string containing the SVG path. assumes that the start point is already provided,
+     * so anything that calls this needs to put the M calls first
+     * @returns {string}
+     */
     getSVGPathFragment: function() {
       return 'L ' + kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
     },
 
+    /**
+     * Returns an array of Line that will draw an offset curve on the logical left side
+     * @param {number} lineWidth
+     * @returns {Array.<Line>}
+     */
     strokeLeft: function( lineWidth ) {
       var offset = this.getEndTangent().perpendicular().negated().times( lineWidth / 2 );
       return [ new kite.Line( this._start.plus( offset ), this._end.plus( offset ) ) ];
     },
-
+    /**
+     * Returns an array of Line that will draw an offset curve on the logical right side
+     * @param {number} lineWidth
+     * @returns {Array.<Line>}
+     */
     strokeRight: function( lineWidth ) {
       var offset = this.getStartTangent().perpendicular().times( lineWidth / 2 );
       return [ new kite.Line( this._end.plus( offset ), this._start.plus( offset ) ) ];
     },
 
-    // lines are already monotone
+    /**
+     * In general, this method returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
+     * Since lines are already monotone, it returns an empty array
+     * @returns {Array}
+     */
     getInteriorExtremaTs: function() { return []; },
 
+    /**
+     * Returns an array with 2 sub-segments, split at the parametric t value.
+     * @param {number} t
+     * @returns {Array.<Line>}
+     */
     subdivided: function( t ) {
       var pt = this.positionAt( t );
       return [
@@ -120,6 +193,11 @@ define( function( require ) {
       ];
     },
 
+    /**
+     *  // TODO complete JSDOC
+     * @param {Ray2} ray
+     * @returns {Array.<Object>|[]}
+     */
     intersection: function( ray ) {
       // We solve for the parametric line-line intersection, and then ensure the parameters are within both
       // the line segment and forwards from the ray.
@@ -170,7 +248,11 @@ define( function( require ) {
       return result;
     },
 
-    // returns the resultant winding number of this ray intersecting this segment.
+    /**
+     * Returns the resultant winding number of a ray intersecting this line.
+     * @param {Ray2} ray
+     * @returns {number}
+     */
     windingIntersection: function( ray ) {
       var hits = this.intersection( ray );
       if ( hits.length ) {
@@ -181,15 +263,28 @@ define( function( require ) {
       }
     },
 
-    // assumes the current position is at start
+    /**
+     * Draws this line to the 2D Canvas context, assuming the context's current location is already at the start point
+     * @param {CanvasRenderingContext2D} context
+     */
     writeToContext: function( context ) {
       context.lineTo( this._end.x, this._end.y );
     },
 
+    /**
+     * Returns a new Line that represents this line after transformation by the matrix
+     * @param {Matrix3} matrix
+     * @returns {Line}
+     */
     transformed: function( matrix ) {
       return new kite.Line( matrix.timesVector2( this._start ), matrix.timesVector2( this._end ) );
     },
 
+    /**
+     * Returns an object that gives information about the closest point (on a line segment) to the point argument
+     * @param {Vector2} point
+     * @returns {Array.<Object>}
+     */
     explicitClosestToPoint: function( point ) {
       var diff = this._end.minus( this._start );
       var t = point.minus( this._start ).dot( diff ) / diff.magnitudeSquared();
@@ -205,12 +300,25 @@ define( function( require ) {
       ];
     },
 
-    // given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
+    /**
+     * Given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
+     * @param {number} a
+     * @param {number} b
+     * @returns {Line}
+     */
     reparameterized: function( a, b ) {
       return new kite.Line( this.positionAt( b ), this.positionAt( a + b ) );
     },
 
+    /**
+     * Convert a line in the $(theta,r)$ plane of the form $(\theta_1,r_1)$ to $(\theta_2,r_2)$ and
+     * converts to the the cartesian coordinate system
+     * E.g. a polar line (0,1) to (2 Pi,1) would be mapped to a circle of radius 1
+     * @param {Object} options
+     * @returns {Array.<Line>|Array.<Arc>|Array.<Segment>}
+     */
     polarToCartesian: function( options ) {
+      // x represent an angle whereas y represent a radius
       if ( this._start.x === this._end.x ) {
         // angle is the same, we are still a line segment!
         return [ new kite.Line( Vector2.createPolar( this._start.y, this._start.x ), Vector2.createPolar( this._end.y, this._end.x ) ) ];
@@ -225,6 +333,9 @@ define( function( require ) {
     }
   } );
 
+  /**
+   * Add getters and setters
+   */
   Segment.addInvalidatingGetterSetter( Line, 'start' );
   Segment.addInvalidatingGetterSetter( Line, 'end' );
 
