@@ -22,6 +22,13 @@ define( function( require ) {
   var solveQuadraticRootsReal = Util.solveQuadraticRootsReal;
   var arePointsCollinear = Util.arePointsCollinear;
 
+  /**
+   *
+   * @param {Vector2} start
+   * @param {Vector2} control
+   * @param {Vector2} end
+   * @constructor
+   */
   function Quadratic( start, control, end ) {
     Segment.call( this );
 
@@ -36,9 +43,11 @@ define( function( require ) {
 
   inherit( Segment, Quadratic, {
 
-    degree: 2,
+    degree: 2, // degree of the polynomial (quadratic)
 
-    // @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
+    /**
+     * @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
+     */
     invalidate: function() {
       // Lazily-computed derived information
       this._startTangent = null; // {Vector2 | null}
@@ -51,6 +60,10 @@ define( function( require ) {
       this.trigger0( 'invalidated' );
     },
 
+    /**
+     * Returns the tangent vector (normalized) to the segment at the start, pointing in the direction of motion (from start to end)
+     * @returns {Vector2}
+     */
     getStartTangent: function() {
       if ( this._startTangent === null ) {
         var controlIsStart = this._start.equals( this._control );
@@ -63,6 +76,10 @@ define( function( require ) {
     },
     get startTangent() { return this.getStartTangent(); },
 
+    /**
+     * Returns the tangent vector (normalized) to the segment at the end, pointing in the direction of motion (from start to end)
+     * @returns {Vector2}
+     */
     getEndTangent: function() {
       if ( this._endTangent === null ) {
         var controlIsEnd = this._end.equals( this._control );
@@ -75,6 +92,10 @@ define( function( require ) {
     },
     get endTangent() { return this.getEndTangent(); },
 
+    /**
+     *
+     * @returns {number}
+     */
     getTCriticalX: function() {
       // compute x where the derivative is 0 (used for bounds and other things)
       if ( this._tCriticalX === null ) {
@@ -84,6 +105,11 @@ define( function( require ) {
     },
     get tCriticalX() { return this.getTCriticalX(); },
 
+
+    /**
+     *
+     * @returns {number}
+     */
     getTCriticalY: function() {
       // compute y where the derivative is 0 (used for bounds and other things)
       if ( this._tCriticalY === null ) {
@@ -93,6 +119,10 @@ define( function( require ) {
     },
     get tCriticalY() { return this.getTCriticalY(); },
 
+    /**
+     *
+     * @returns {Array.<Line>}
+     */
     getNondegenerateSegments: function() {
       var start = this._start;
       var control = this._control;
@@ -144,6 +174,10 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Returns the bounding box for this quadratic
+     * @returns {Bounds2}
+     */
     getBounds: function() {
       // calculate our temporary guaranteed lower bounds based on the end points
       if ( this._bounds === null ) {
@@ -164,19 +198,34 @@ define( function( require ) {
     },
     get bounds() { return this.getBounds(); },
 
-    // can be described from t=[0,1] as: (1-t)^2 start + 2(1-t)t control + t^2 end
+    /**
+     * Returns the position parametrically, with 0 <= t <= 1
+     * can be described from t=[0,1] as: (1-t)^2 start + 2(1-t)t control + t^2 end
+     * @param {number} t
+     * @returns {Vector2}
+     */
     positionAt: function( t ) {
       var mt = 1 - t;
       // TODO: allocation reduction
       return this._start.times( mt * mt ).plus( this._control.times( 2 * mt * t ) ).plus( this._end.times( t * t ) );
     },
 
-    // derivative: 2(1-t)( control - start ) + 2t( end - control )
+    /**
+     * Returns the non-normalized tangent (dx/dt, dy/dt) parametrically, with 0 <= t <= 1.
+     * For a quadratic curve, the derivavtive is given by : 2(1-t)( control - start ) + 2t( end - control )
+     * @param {number} t
+     * @returns {Vector2}
+     */
     tangentAt: function( t ) {
       // TODO: allocation reduction
       return this._control.minus( this._start ).times( 2 * ( 1 - t ) ).plus( this._end.minus( this._control ).times( 2 * t ) );
     },
 
+    /**
+     * Returns the signed curvature (positive for visual clockwise - mathematical counterclockwise)
+     * @param {number} t
+     * @returns {number}
+     */
     curvatureAt: function( t ) {
       // see http://cagd.cs.byu.edu/~557/text/ch2.pdf p31
       // TODO: remove code duplication with Cubic
@@ -199,6 +248,12 @@ define( function( require ) {
     // see http://www.visgraf.impa.br/sibgrapi96/trabs/pdf/a14.pdf
     // and http://math.stackexchange.com/questions/12186/arc-length-of-bezier-curves for curvature / arc length
 
+    /**
+     * Returns an array of quadratic that are offset to this quadratic by a distance r
+     * @param {number} r - distance
+     * @param {boolean} reverse
+     * @returns {Array.<Quadratic>}
+     */
     offsetTo: function( r, reverse ) {
       // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html
       // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
@@ -222,6 +277,11 @@ define( function( require ) {
       return offsetCurves;
     },
 
+    /**
+     * Returns an array with 2 quadratic, split at the parametric t value.
+     * @param {number} t
+     * @returns {Array.<Quadratic>}
+     */
     subdivided: function( t ) {
       // de Casteljau method
       var leftMid = this._start.blend( this._control, t );
@@ -233,7 +293,10 @@ define( function( require ) {
       ];
     },
 
-    // elevation of this quadratic Bezier curve to a cubic Bezier curve
+    /**
+     * elevation of this quadratic Bezier curve to a cubic Bezier curve
+     * @returns {Cubic}
+     */
     degreeElevated: function() {
       // TODO: allocation reduction
       return new kite.Cubic(
@@ -244,10 +307,19 @@ define( function( require ) {
       );
     },
 
+    /**
+     * Returns a quadratic where the end and starting point have been reversed
+     * @returns {Quadratic}
+     */
     reversed: function() {
       return new kite.Quadratic( this._end, this._control, this._start );
     },
 
+    /**
+     *
+     * @param {number} r - distance
+     * @returns {Quadratic}
+     */
     approximateOffset: function( r ) {
       return new kite.Quadratic(
         this._start.plus( ( this._start.equals( this._control ) ? this._end.minus( this._start ) : this._control.minus( this._start ) ).perpendicular().normalized().times( r ) ),
@@ -256,19 +328,37 @@ define( function( require ) {
       );
     },
 
+    /**
+     * Returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls this needs to put the M calls first
+     * @returns {string}
+     */
     getSVGPathFragment: function() {
       return 'Q ' + kite.svgNumber( this._control.x ) + ' ' + kite.svgNumber( this._control.y ) + ' ' +
              kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
     },
 
+    /**
+     * Returns an array of lines that will draw an offset curve on the logical left side
+     * @param {number} lineWidth
+     * @returns {Array.<Quadratic>}
+     */
     strokeLeft: function( lineWidth ) {
       return this.offsetTo( -lineWidth / 2, false );
     },
 
+    /**
+     * Returns an array of lines that will draw an offset curve on the logical right side
+     * @param {number} lineWidth
+     * @returns {Array.<Quadratic>}
+     */
     strokeRight: function( lineWidth ) {
       return this.offsetTo( lineWidth / 2, true );
     },
 
+    /**
+     *
+     * @returns {Array.<number>}
+     */
     getInteriorExtremaTs: function() {
       // TODO: we assume here we are reduce, so that a criticalX doesn't equal a criticalY?
       var result = [];
@@ -287,6 +377,11 @@ define( function( require ) {
     },
 
     // returns the resultant winding number of this ray intersecting this segment.
+    /**
+     *
+     * @param {Ray2} ray
+     * @returns {Array.<Object>}
+     */
     intersection: function( ray ) {
       var self = this;
       var result = [];
@@ -326,6 +421,11 @@ define( function( require ) {
       return result;
     },
 
+    /**
+     * Returns the winding number for intersection with a ray
+     * @param {Ray2} ray
+     * @returns {number}
+     */
     windingIntersection: function( ray ) {
       var wind = 0;
       var hits = this.intersection( ray );
@@ -335,16 +435,29 @@ define( function( require ) {
       return wind;
     },
 
-    // assumes the current position is at start
+    /**
+     * Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
+     * @param {CanvasRenderingContext2D} context
+     */
     writeToContext: function( context ) {
       context.quadraticCurveTo( this._control.x, this._control.y, this._end.x, this._end.y );
     },
 
+    /**
+     * Returns a new quadratic that represents this quadratic after transformation by the matrix
+     * @param {Matrix3} matrix
+     * @returns {Quadratic}
+     */
     transformed: function( matrix ) {
       return new kite.Quadratic( matrix.timesVector2( this._start ), matrix.timesVector2( this._control ), matrix.timesVector2( this._end ) );
     },
 
-    // given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
+    /**
+     * given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
+     * @param {number} a
+     * @param {number} b
+     * @returns {Quadratic}
+     */
     reparameterized: function( a, b ) {
       // to the polynomial pt^2 + qt + r:
       var p = this._start.plus( this._end.plus( this._control.timesScalar( -2 ) ) );
@@ -361,6 +474,9 @@ define( function( require ) {
     }
   } );
 
+  /**
+   * Add getters and setters
+   */
   Segment.addInvalidatingGetterSetter( Quadratic, 'start' );
   Segment.addInvalidatingGetterSetter( Quadratic, 'control' );
   Segment.addInvalidatingGetterSetter( Quadratic, 'end' );
