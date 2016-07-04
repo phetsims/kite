@@ -23,16 +23,18 @@ define( function( require ) {
   var Segment = require( 'KITE/segments/Segment' );
   require( 'KITE/segments/Quadratic' );
 
-  // constants
-  var solveQuadraticRootsReal = Util.solveQuadraticRootsReal;
-  var solveCubicRootsReal = Util.solveCubicRootsReal;
-  var arePointsCollinear = Util.arePointsCollinear;
 
+  var solveQuadraticRootsReal = Util.solveQuadraticRootsReal; // function that returns an array of number
+  var solveCubicRootsReal = Util.solveCubicRootsReal; // function that returns an array of number
+  var arePointsCollinear = Util.arePointsCollinear; // function that returns a boolean
+
+  // convenience variables use to reduce the number of vector allocations
   var scratchVector1 = new Vector2();
   var scratchVector2 = new Vector2();
   var scratchVector3 = new Vector2();
 
   /**
+   * Creates a cubic bezier curve
    * @param {Vector2} start - Start point of the cubic bezier
    * @param {Vector2} control1 - First control point
    * @param {Vector2} control2 - Second control point
@@ -42,10 +44,10 @@ define( function( require ) {
   function Cubic( start, control1, control2, end ) {
     Segment.call( this );
 
-    this._start = start;
-    this._control1 = control1;
-    this._control2 = control2;
-    this._end = end;
+    this._start = start; //  @private {Vector2}
+    this._control1 = control1; // @private {Vector2}
+    this._control2 = control2; // @private {Vector2}
+    this._end = end; // @private {Vector2}
 
     this.invalidate();
   }
@@ -54,9 +56,12 @@ define( function( require ) {
 
   inherit( Segment, Cubic, {
 
-    degree: 3,
+    degree: 3, // degree of this polynomial (cubic)
 
-    // @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
+    /**
+     * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
+     * @public
+     */
     invalidate: function() {
       // Lazily-computed derived information
       this._startTangent = null; // {Vector2 | null}
@@ -81,6 +86,11 @@ define( function( require ) {
       this.trigger0( 'invalidated' );
     },
 
+    /**
+     * Gets the start position of this cubic polynomial
+     * @public
+     * @returns {Vector2}
+     */
     getStartTangent: function() {
       if ( this._startTangent === null ) {
         this._startTangent = this.tangentAt( 0 ).normalized();
@@ -89,6 +99,11 @@ define( function( require ) {
     },
     get startTangent() { return this.getStartTangent(); },
 
+    /**
+     * Gets the end position of this cubic polynomial
+     * @public
+     * @returns {Vector2}
+     */
     getEndTangent: function() {
       if ( this._endTangent === null ) {
         this._endTangent = this.tangentAt( 1 ).normalized();
@@ -97,6 +112,10 @@ define( function( require ) {
     },
     get endTangent() { return this.getEndTangent(); },
 
+    /**
+     * @public
+     * @returns {Vector2}
+     */
     getR: function() {
       // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
       if ( this._r === null ) {
@@ -106,6 +125,10 @@ define( function( require ) {
     },
     get r() { return this.getR(); },
 
+    /**
+     * @public
+     * @returns {Vector2}
+     */
     getS: function() {
       // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
       if ( this._s === null ) {
@@ -115,6 +138,10 @@ define( function( require ) {
     },
     get s() { return this.getS(); },
 
+    /**
+     *
+     * @returns {number}
+     */
     getTCusp: function() {
       if ( this._tCusp === null ) {
         this.computeCuspInfo();
@@ -124,6 +151,10 @@ define( function( require ) {
     },
     get tCusp() { return this.getTCusp(); },
 
+    /**
+     *
+     * @returns {number}
+     */
     getTDeterminant: function() {
       if ( this._tDeterminant === null ) {
         this.computeCuspInfo();
@@ -133,6 +164,10 @@ define( function( require ) {
     },
     get tDeterminant() { return this.getTDeterminant(); },
 
+    /**
+     *
+     * @returns {number}
+     */
     getTInflection1: function() {
       if ( this._tInflection1 === null ) {
         this.computeCuspInfo();
@@ -142,6 +177,10 @@ define( function( require ) {
     },
     get tInflection1() { return this.getTInflection1(); },
 
+    /**
+     *
+     * @returns {number}
+     */
     getTInflection2: function() {
       if ( this._tInflection2 === null ) {
         this.computeCuspInfo();
@@ -151,6 +190,10 @@ define( function( require ) {
     },
     get tInflection2() { return this.getTInflection2(); },
 
+    /**
+     *
+     * @returns {Quadratic}
+     */
     getStartQuadratic: function() {
       if ( this._startQuadratic === null ) {
         this.computeCuspSegments();
@@ -160,6 +203,10 @@ define( function( require ) {
     },
     get startQuadratic() { return this.getStartQuadratic(); },
 
+    /**
+     *
+     * @returns {Quadratic}
+     */
     getEndQuadratic: function() {
       if ( this._endQuadratic === null ) {
         this.computeCuspSegments();
@@ -169,6 +216,11 @@ define( function( require ) {
     },
     get endQuadratic() { return this.getEndQuadratic(); },
 
+    /**
+     *
+     *
+     * @returns {Array.<number>}
+     */
     getXExtremaT: function() {
       if ( this._xExtremaT === null ) {
         this._xExtremaT = Cubic.extremaT( this._start.x, this._control1.x, this._control2.x, this._end.x );
@@ -177,6 +229,10 @@ define( function( require ) {
     },
     get xExtremaT() { return this.getXExtremaT(); },
 
+    /**
+     *
+     * @returns {Array.<number>}
+     */
     getYExtremaT: function() {
       if ( this._yExtremaT === null ) {
         this._yExtremaT = Cubic.extremaT( this._start.y, this._control1.y, this._control2.y, this._end.y );
@@ -185,6 +241,10 @@ define( function( require ) {
     },
     get yExtremaT() { return this.getYExtremaT(); },
 
+    /**
+     *
+     * @returns {Bounds2}
+     */
     getBounds: function() {
       if ( this._bounds === null ) {
         this._bounds = Bounds2.NOTHING;
@@ -211,7 +271,9 @@ define( function( require ) {
     },
     get bounds() { return this.getBounds(); },
 
-    // t value for the cusp, and the related determinant and inflection points
+    /**
+     * t value for the cusp, and the related determinant and inflection points
+     */
     computeCuspInfo: function() {
       // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
       // TODO: allocation reduction
@@ -219,24 +281,27 @@ define( function( require ) {
       var b = this._start.times( 3 ).plus( this._control1.times( -6 ) ).plus( this._control2.times( 3 ) );
       var c = this._start.times( -3 ).plus( this._control1.times( 3 ) );
 
-      var aPerp = a.perpendicular();
-      var bPerp = b.perpendicular();
-      var aPerpDotB = aPerp.dot( b );
+      var aPerp = a.perpendicular(); // {Vector2}
+      var bPerp = b.perpendicular(); // {Vector2}
+      var aPerpDotB = aPerp.dot( b ); // {number}
 
-      this._tCusp = -0.5 * ( aPerp.dot( c ) / aPerpDotB );
-      this._tDeterminant = this._tCusp * this._tCusp - ( 1 / 3 ) * ( bPerp.dot( c ) / aPerpDotB );
+      this._tCusp = -0.5 * ( aPerp.dot( c ) / aPerpDotB ); // {number}
+      this._tDeterminant = this._tCusp * this._tCusp - ( 1 / 3 ) * ( bPerp.dot( c ) / aPerpDotB ); // {number}
       if ( this._tDeterminant >= 0 ) {
         var sqrtDet = Math.sqrt( this._tDeterminant );
         this._tInflection1 = this._tCusp - sqrtDet;
         this._tInflection2 = this._tCusp + sqrtDet;
       }
       else {
+        // there are no real roots to the quadratic polynomial.
         this._tInflection1 = NaN;
         this._tInflection2 = NaN;
       }
     },
 
-    // the cusp allows us to split into 2 quadratic Bezier curves
+    /**
+     *   the cusp allows us to split into 2 quadratic Bezier curves
+     */
     computeCuspSegments: function() {
       if ( this.hasCusp() ) {
         // if there is a cusp, we'll split at the cusp into two quadratic bezier curves.
@@ -251,6 +316,10 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Returns non degenerate segments of this cubic
+     * @returns
+     */
     getNondegenerateSegments: function() {
       var self = this;
 
@@ -299,6 +368,10 @@ define( function( require ) {
       }
     },
 
+    /**
+     *
+     * @returns {boolean}
+     */
     hasCusp: function() {
       var tCusp = this.getTCusp();
 
@@ -306,13 +379,27 @@ define( function( require ) {
       return this.tangentAt( tCusp ).magnitude() < epsilon && tCusp >= 0 && tCusp <= 1;
     },
 
-    // position: (1 - t)^3*start + 3*(1 - t)^2*t*control1 + 3*(1 - t) t^2*control2 + t^3*end
+    /**
+     * Returns the position along the polynomial paramaterized with the variable t.
+     * Recall that t=0 is the start position and t=1 is the end position
+     * Equivalent position: (1 - t)^3*start + 3*(1 - t)^2*t*control1 + 3*(1 - t) t^2*control2 + t^3*end
+     * @public
+     * @param {number} t
+     * @returns {Vector2}
+     */
     positionAt: function( t ) {
       var mt = 1 - t;
       return this._start.times( mt * mt * mt ).plus( this._control1.times( 3 * mt * mt * t ) ).plus( this._control2.times( 3 * mt * t * t ) ).plus( this._end.times( t * t * t ) );
     },
 
-    // derivative: -3 p0 (1 - t)^2 + 3 p1 (1 - t)^2 - 6 p1 (1 - t) t + 6 p2 (1 - t) t - 3 p2 t^2 + 3 p3 t^2
+    //
+    /**
+     * Returns the derivative along this polynomial paramaterized with the variable t.
+     * Recall that t=0 is the derivative at the start position and t=1 is the derivative at the end position
+     * derivative: -3 p0 (1 - t)^2 + 3 p1 (1 - t)^2 - 6 p1 (1 - t) t + 6 p2 (1 - t) t - 3 p2 t^2 + 3 p3 t^2
+     * @param {number} t
+     * @returns {Vector2}
+     */
     tangentAt: function( t ) {
       var mt = 1 - t;
       var result = new Vector2();
@@ -322,6 +409,13 @@ define( function( require ) {
         .add( scratchVector1.set( this._end ).multiplyScalar( 3 * t * t ) );
     },
 
+    /**
+     * Returns the curvature of this polynomial paramaterized with the variable t.
+     * Recall that t=0 is the curvature at the start position and t=1 is the curvature at the end position
+     * @public
+     * @param {number} t
+     * @returns {number}
+     */
     curvatureAt: function( t ) {
       // see http://cagd.cs.byu.edu/~557/text/ch2.pdf p31
       // TODO: remove code duplication with Quadratic
@@ -341,11 +435,21 @@ define( function( require ) {
       }
     },
 
+    /**
+     *
+     * @param {Vector2} point
+     * @returns {Vector2}
+     */
     toRS: function( point ) {
       var firstVector = point.minus( this._start );
       return new Vector2( firstVector.dot( this.getR() ), firstVector.dot( this.getS() ) );
     },
 
+    /**
+     * Returns an array with 2 cubic segments, split at the parametric t value.
+     * @param {number} t
+     * @returns {Array.<Cubic>}
+     */
     subdivided: function( t ) {
       // de Casteljau method
       // TODO: add a 'bisect' or 'between' method for vectors?
@@ -361,6 +465,12 @@ define( function( require ) {
       ];
     },
 
+    /**
+     *
+     * @param {number} r
+     * @param {boolean} reverse
+     * @returns {Array.<Line>}
+     */
     offsetTo: function( r, reverse ) {
       // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html
       // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
@@ -385,20 +495,40 @@ define( function( require ) {
       return result;
     },
 
+    /**
+     * Returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls this needs to put
+     * the M calls first
+     * @returns {string}
+     */
     getSVGPathFragment: function() {
       return 'C ' + kite.svgNumber( this._control1.x ) + ' ' + kite.svgNumber( this._control1.y ) + ' ' +
              kite.svgNumber( this._control2.x ) + ' ' + kite.svgNumber( this._control2.y ) + ' ' +
              kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
     },
 
+    /**
+     * Returns an array of lines that will draw an offset curve on the logical left side
+     * @param {number} lineWidth
+     * @returns {Array.<Line>}
+     */
     strokeLeft: function( lineWidth ) {
       return this.offsetTo( -lineWidth / 2, false );
     },
 
+    /**
+     * Returns an array of lines that will draw an offset curve on the logical right side
+     * @param {number} lineWidth
+     * @returns {Array.<Line>}
+     */
     strokeRight: function( lineWidth ) {
       return this.offsetTo( lineWidth / 2, true );
     },
 
+    /**
+     * Returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
+     * The list does not include t=0 and t=1
+     * @returns {Array.<number>}
+     */
     getInteriorExtremaTs: function() {
       var ts = this.getXExtremaT().concat( this.getYExtremaT() );
       var result = [];
@@ -414,7 +544,11 @@ define( function( require ) {
       return result.sort();
     },
 
-    // returns the resultant winding number of this ray intersecting this segment.
+
+    /**
+     * @param {Ray2} ray
+     * @returns {Array}
+     */
     intersection: function( ray ) {
       var self = this;
       var result = [];
@@ -456,6 +590,11 @@ define( function( require ) {
       return result;
     },
 
+    /**
+     * Returns the winding number for intersection with a ray
+     * @param {Ray2} ray
+     * @returns {number}
+     */
     windingIntersection: function( ray ) {
       var wind = 0;
       var hits = this.intersection( ray );
@@ -465,16 +604,29 @@ define( function( require ) {
       return wind;
     },
 
-    // assumes the current position is at start
+    /**
+     * Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
+     * @param {CanvasRenderingContext2D} context
+     */
     writeToContext: function( context ) {
       context.bezierCurveTo( this._control1.x, this._control1.y, this._control2.x, this._control2.y, this._end.x, this._end.y );
     },
 
+    /**
+     * Returns a new cubic that represents this cubic after transformation by the matrix
+     * @param {Matrix3} matrix
+     * @returns {Cubic}
+     */
     transformed: function( matrix ) {
       return new kite.Cubic( matrix.timesVector2( this._start ), matrix.timesVector2( this._control1 ), matrix.timesVector2( this._control2 ), matrix.timesVector2( this._end ) );
     },
 
-    // returns a degree-reduced quadratic Bezier if possible, otherwise it returns null
+
+    /**
+     * Returns a degree-reduced quadratic Bezier if possible, otherwise it returns null
+     * @param {number} epsilon
+     * @returns {Quadratic|null}
+     */
     degreeReduced: function( epsilon ) {
       epsilon = epsilon || 0; // if not provided, use an exact version
       var controlA = scratchVector1.set( this._control1 ).multiplyScalar( 3 ).subtract( this._start ).divideScalar( 2 );
@@ -526,12 +678,23 @@ define( function( require ) {
     // }
   } );
 
+  /**
+   * Add getters and setters
+   */
   Segment.addInvalidatingGetterSetter( Cubic, 'start' );
   Segment.addInvalidatingGetterSetter( Cubic, 'control1' );
   Segment.addInvalidatingGetterSetter( Cubic, 'control2' );
   Segment.addInvalidatingGetterSetter( Cubic, 'end' );
 
-  // finds what t values the cubic extrema are at (if any). This is just the 1-dimensional case, used for multiple purposes
+
+  /**
+   * finds what t values the cubic extrema are at (if any). This is just the 1-dimensional case, used for multiple purposes
+   * @param {number} v0
+   * @param {number} v1
+   * @param {number} v2
+   * @param {number} v3
+   * @returns {number}
+   */
   Cubic.extremaT = function( v0, v1, v2, v3 ) {
     if ( v0 === v1 && v0 === v2 && v0 === v3 ) {
       return [];
