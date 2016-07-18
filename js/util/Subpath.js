@@ -65,7 +65,9 @@ define( function( require ) {
   inherit( Events, Subpath, {
 
     /**
-     * The bounding box for this subpath
+     * Returns the bounds of this subpath. It is the bounding-box union of the bounds of each segment contained.
+     * @public
+     *
      * @returns {Bounds2}
      */
     getBounds: function() {

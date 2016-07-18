@@ -55,6 +55,40 @@ define( function( require ) {
   inherit( Segment, EllipticalArc, {
 
     /**
+     * Returns the position parametrically, with 0 <= t <= 1.
+     * @public
+     *
+     * NOTE: positionAt( 0 ) will return the start of the segment, and positionAt( 1 ) will return the end of the
+     * segment.
+     *
+     * @param {number} t
+     * @returns {Vector2}
+     */
+    positionAt: function( t ) {
+      assert && assert( t >= 0, 'positionAt t should be non-negative' );
+      assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
+
+      return this.positionAtAngle( this.angleAt( t ) );
+    },
+
+    /**
+     * Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with 0 <= t <= 1.
+     * @public
+     *
+     * NOTE: tangentAt( 0 ) will return the tangent at the start of the segment, and tangentAt( 1 ) will return the
+     * tangent at the end of the segment.
+     *
+     * @param {number} t
+     * @returns {Vector2}
+     */
+    tangentAt: function( t ) {
+      assert && assert( t >= 0, 'tangentAt t should be non-negative' );
+      assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
+
+      return this.tangentAtAngle( this.angleAt( t ) );
+    },
+
+    /**
      * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
      * @public
      */
@@ -253,9 +287,11 @@ define( function( require ) {
       }
       return this._unitArcSegment;
     },
+    get unitArcSegment() { return this.getUnitArcSegment(); },
 
-    // temporary shims
     /**
+     * Returns the bounds of this segment.
+     * @public
      *
      * @returns {Bounds2}
      */
@@ -287,8 +323,11 @@ define( function( require ) {
     get bounds() { return this.getBounds(); },
 
     /**
-     * Returns non degenerate segments of this ellipticalArc
-     * @returns {Array.<EllipticalArc>|Array.<Arc>}
+     * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
+     * invalid or repeated segments.
+     * @public
+     *
+     * @returns {Array.<Segment>}
      */
     getNondegenerateSegments: function() {
       if ( this._radiusX <= 0 || this._radiusY <= 0 || this._startAngle === this._endAngle ) {
@@ -314,7 +353,7 @@ define( function( require ) {
      * @param {number} angle
      */
     includeBoundsAtAngle: function( angle ) {
-      if ( this.containsAngle( angle ) ) {
+      if ( this.unitArcSegment.containsAngle( angle ) ) {
         // the boundary point is in the arc
         this._bounds = this._bounds.withPoint( this.positionAtAngle( angle ) );
       }
@@ -347,24 +386,6 @@ define( function( require ) {
      */
     angleAt: function( t ) {
       return this._startAngle + ( this.getActualEndAngle() - this._startAngle ) * t;
-    },
-
-    /**
-     * Returns the position parametrically, with 0 <= t <= 1.
-     * @param {number} t
-     * @returns {Vector2}
-     */
-    positionAt: function( t ) {
-      return this.positionAtAngle( this.angleAt( t ) );
-    },
-
-    /**
-     * Returns the non-normalized tangent (dx/dt, dy/dt) of this arc at a parametric value t, with 0 <= t <= 1.
-     * @param {number} t
-     * @returns {number}
-     */
-    tangentAt: function( t ) {
-      return this.tangentAtAngle( this.angleAt( t ) );
     },
 
     /**
@@ -401,27 +422,6 @@ define( function( require ) {
       var normal = this.getUnitTransform().transformNormal2( Vector2.createPolar( 1, angle ) );
 
       return this._anticlockwise ? normal.perpendicular() : normal.perpendicular().negated();
-    },
-
-    // TODO: refactor? exact same as Arc
-    /**
-     * //TODO add JSDOC
-     * @param {number} angle
-     * @returns {boolean}
-     */
-    containsAngle: function( angle ) {
-      // transform the angle into the appropriate coordinate form
-      // TODO: check anticlockwise version!
-      var normalizedAngle = this._anticlockwise ? angle - this._endAngle : angle - this._startAngle;
-
-      // get the angle between 0 and 2pi
-      var positiveMinAngle = normalizedAngle % ( Math.PI * 2 );
-      // check this because modular arithmetic with negative numbers reveal a negative number
-      if ( positiveMinAngle < 0 ) {
-        positiveMinAngle += Math.PI * 2;
-      }
-
-      return positiveMinAngle <= this.getAngleDifference();
     },
 
     /**
@@ -514,11 +514,11 @@ define( function( require ) {
      * @returns {Array.<number>}
      */
     getInteriorExtremaTs: function() {
-      var that = this;
+      var self = this;
       var result = [];
       _.each( this.possibleExtremaAngles, function( angle ) {
-        if ( that.containsAngle( angle ) ) {
-          var t = that.tAtAngle( angle );
+        if ( self.unitArcSegment.containsAngle( angle ) ) {
+          var t = self.tAtAngle( angle );
           var epsilon = 0.0000000001; // TODO: general kite epsilon?
           if ( t > epsilon && t < 1 - epsilon ) {
             result.push( t );
@@ -545,9 +545,12 @@ define( function( require ) {
     },
 
     /**
-     * // TODO complete JSDOC
+     * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
+     * For details, see the documentation in Segment.js
+     * @public
+     *
      * @param {Ray2} ray
-     * @returns
+     * @returns {Array.<Intersection>} - See Segment.js for details
      */
     intersection: function( ray ) {
       // be lazy. transform it into the space of a non-elliptical arc.

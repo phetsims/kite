@@ -39,6 +39,41 @@ define( function( require ) {
   inherit( Segment, Line, {
 
     /**
+     * Returns the position parametrically, with 0 <= t <= 1.
+     * @public
+     *
+     * NOTE: positionAt( 0 ) will return the start of the segment, and positionAt( 1 ) will return the end of the
+     * segment.
+     *
+     * @param {number} t
+     * @returns {Vector2}
+     */
+    positionAt: function( t ) {
+      assert && assert( t >= 0, 'positionAt t should be non-negative' );
+      assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
+
+      return this._start.plus( this._end.minus( this._start ).times( t ) );
+    },
+
+    /**
+     * Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with 0 <= t <= 1.
+     * @public
+     *
+     * NOTE: tangentAt( 0 ) will return the tangent at the start of the segment, and tangentAt( 1 ) will return the
+     * tangent at the end of the segment.
+     *
+     * @param {number} t
+     * @returns {Vector2}
+     */
+    tangentAt: function( t ) {
+      assert && assert( t >= 0, 'tangentAt t should be non-negative' );
+      assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
+
+      // tangent always the same, just use the start tangent
+      return this.getStartTangent();
+    },
+
+    /**
      * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
      * @public
      */
@@ -75,7 +110,9 @@ define( function( require ) {
     get endTangent() { return this.getEndTangent(); },
 
     /**
-     * Gets the bounds of this line
+     * Returns the bounds of this segment.
+     * @public
+     *
      * @returns {Bounds2}
      */
     getBounds: function() {
@@ -101,9 +138,11 @@ define( function( require ) {
     },
 
     /**
-     * Returns the non degenerate segments of ths line
-     * Unless it is of zero length, it will returns this line in an array.
-     * @returns {Array.<Line>|[]}
+     * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
+     * invalid or repeated segments.
+     * @public
+     *
+     * @returns {Array.<Segment>}
      */
     getNondegenerateSegments: function() {
       // if it is degenerate (0-length), just ignore it
@@ -113,26 +152,6 @@ define( function( require ) {
       else {
         return [ this ];
       }
-    },
-
-    /**
-     * Returns the position parametrically, with 0 <= t <= 1.
-     * @param {number} t
-     * @returns {Vector2}
-     */
-    positionAt: function( t ) {
-      return this._start.plus( this._end.minus( this._start ).times( t ) );
-    },
-
-    /**
-     * Returns the non-normalized tangent (dx/dt, dy/dt) parametrically, with 0 <= t <= 1.
-     * For a line, the tangent is independent of t
-     * @param {number} t
-     * @returns {Vector2}
-     */
-    tangentAt: function( t ) {
-      // tangent always the same, just use the start tangent
-      return this.getStartTangent();
     },
 
     /**
@@ -194,9 +213,12 @@ define( function( require ) {
     },
 
     /**
-     *  // TODO complete JSDOC
+     * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
+     * For details, see the documentation in Segment.js
+     * @public
+     *
      * @param {Ray2} ray
-     * @returns {Array.<Object>|[]}
+     * @returns {Array.<Intersection>} - See Segment.js for details
      */
     intersection: function( ray ) {
       // We solve for the parametric line-line intersection, and then ensure the parameters are within both

@@ -949,9 +949,13 @@ define( function( require ) {
     },
 
     /**
+     * Hit-tests this shape with the ray. An array of all intersections of the ray with this shape will be returned.
+     * For details, see the documentation in Segment.js
+     * @public
      *
      * @param {Ray2} ray
-     * @returns {Array}
+     * @returns {Array.<Intersection>} - See Segment.js for details. For this function, intersections will be returned
+     *                                   sorted by the distance from the ray's location.
      */
     intersection: function( ray ) {
       var hits = [];
@@ -1089,6 +1093,8 @@ define( function( require ) {
     },
 
     /**
+     * Returns the bounds of this shape. It is the bounding-box union of the bounds of each subpath contained.
+     * @public
      *
      * @returns {Bounds2}
      */
@@ -1105,6 +1111,9 @@ define( function( require ) {
     get bounds() { return this.getBounds(); },
 
     /**
+     * Returns the bounds for a stroked version of this shape. The input lineStyles are used to determine the size and
+     * style of the stroke, and then the bounds of the stroked shape are returned.
+     * @public
      *
      * @param {LineStyles} lineStyles
      * @returns {Bounds2}

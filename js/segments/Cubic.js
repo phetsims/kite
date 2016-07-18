@@ -35,11 +35,12 @@ define( function( require ) {
 
   /**
    * Creates a cubic bezier curve
+   * @constructor
+   *
    * @param {Vector2} start - Start point of the cubic bezier
    * @param {Vector2} control1 - First control point
    * @param {Vector2} control2 - Second control point
    * @param {Vector2} end - End point of the cubic bezier
-   * @constructor
    */
   function Cubic( start, control1, control2, end ) {
     Segment.call( this );
@@ -57,6 +58,48 @@ define( function( require ) {
   inherit( Segment, Cubic, {
 
     degree: 3, // degree of this polynomial (cubic)
+
+    /**
+     * Returns the position parametrically, with 0 <= t <= 1.
+     * @public
+     *
+     * NOTE: positionAt( 0 ) will return the start of the segment, and positionAt( 1 ) will return the end of the
+     * segment.
+     *
+     * @param {number} t
+     * @returns {Vector2}
+     */
+    positionAt: function( t ) {
+      assert && assert( t >= 0, 'positionAt t should be non-negative' );
+      assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
+
+      // Equivalent position: (1 - t)^3*start + 3*(1 - t)^2*t*control1 + 3*(1 - t) t^2*control2 + t^3*end
+      var mt = 1 - t;
+      return this._start.times( mt * mt * mt ).plus( this._control1.times( 3 * mt * mt * t ) ).plus( this._control2.times( 3 * mt * t * t ) ).plus( this._end.times( t * t * t ) );
+    },
+
+    /**
+     * Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with 0 <= t <= 1.
+     * @public
+     *
+     * NOTE: tangentAt( 0 ) will return the tangent at the start of the segment, and tangentAt( 1 ) will return the
+     * tangent at the end of the segment.
+     *
+     * @param {number} t
+     * @returns {Vector2}
+     */
+    tangentAt: function( t ) {
+      assert && assert( t >= 0, 'tangentAt t should be non-negative' );
+      assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
+
+      // derivative: -3 p0 (1 - t)^2 + 3 p1 (1 - t)^2 - 6 p1 (1 - t) t + 6 p2 (1 - t) t - 3 p2 t^2 + 3 p3 t^2
+      var mt = 1 - t;
+      var result = new Vector2();
+      return result.set( this._start ).multiplyScalar( -3 * mt * mt )
+        .add( scratchVector1.set( this._control1 ).multiplyScalar( 3 * mt * mt - 6 * mt * t ) )
+        .add( scratchVector1.set( this._control2 ).multiplyScalar( 6 * mt * t - 3 * t * t ) )
+        .add( scratchVector1.set( this._end ).multiplyScalar( 3 * t * t ) );
+    },
 
     /**
      * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
@@ -87,8 +130,9 @@ define( function( require ) {
     },
 
     /**
-     * Gets the start position of this cubic polynomial
+     * Gets the start position of this cubic polynomial.
      * @public
+     *
      * @returns {Vector2}
      */
     getStartTangent: function() {
@@ -100,8 +144,9 @@ define( function( require ) {
     get startTangent() { return this.getStartTangent(); },
 
     /**
-     * Gets the end position of this cubic polynomial
+     * Gets the end position of this cubic polynomial.
      * @public
+     *
      * @returns {Vector2}
      */
     getEndTangent: function() {
@@ -113,7 +158,9 @@ define( function( require ) {
     get endTangent() { return this.getEndTangent(); },
 
     /**
+     * TODO: documentation
      * @public
+     *
      * @returns {Vector2}
      */
     getR: function() {
@@ -126,7 +173,9 @@ define( function( require ) {
     get r() { return this.getR(); },
 
     /**
+     * TODO: documentation
      * @public
+     *
      * @returns {Vector2}
      */
     getS: function() {
@@ -139,6 +188,8 @@ define( function( require ) {
     get s() { return this.getS(); },
 
     /**
+     * Returns the parametric t value for the possible cusp location. A cusp may or may not exist at that point.
+     * @public
      *
      * @returns {number}
      */
@@ -152,6 +203,8 @@ define( function( require ) {
     get tCusp() { return this.getTCusp(); },
 
     /**
+     * Returns the determinant value for the cusp, which indicates the presence (or lack of presence) of a cusp.
+     * @public
      *
      * @returns {number}
      */
@@ -165,6 +218,8 @@ define( function( require ) {
     get tDeterminant() { return this.getTDeterminant(); },
 
     /**
+     * Returns the parametric t value for the potential location of the first possible inflection point.
+     * @public
      *
      * @returns {number}
      */
@@ -178,6 +233,8 @@ define( function( require ) {
     get tInflection1() { return this.getTInflection1(); },
 
     /**
+     * Returns the parametric t value for the potential location of the second possible inflection point.
+     * @public
      *
      * @returns {number}
      */
@@ -191,8 +248,11 @@ define( function( require ) {
     get tInflection2() { return this.getTInflection2(); },
 
     /**
+     * If there is a cusp, this cubic essentially consists of two quadratic segments: "start => cusp" and "cusp => end".
+     * This will return the first quadratic segment (start => cusp).
+     * @public
      *
-     * @returns {Quadratic}
+     * @returns {Quadratic|null}
      */
     getStartQuadratic: function() {
       if ( this._startQuadratic === null ) {
@@ -204,8 +264,11 @@ define( function( require ) {
     get startQuadratic() { return this.getStartQuadratic(); },
 
     /**
+     * If there is a cusp, this cubic essentially consists of two quadratic segments: "start => cusp" and "cusp => end".
+     * This will return the second quadratic segment (cusp => end).
+     * @public
      *
-     * @returns {Quadratic}
+     * @returns {Quadratic|null}
      */
     getEndQuadratic: function() {
       if ( this._endQuadratic === null ) {
@@ -217,7 +280,9 @@ define( function( require ) {
     get endQuadratic() { return this.getEndQuadratic(); },
 
     /**
-     *
+     * Returns a list of parametric t values where x-extrema exist, i.e. where dx/dt==0. These are candidate locations
+     * on the cubic for "maximum X" and "minimum X", and are needed for bounds computations.
+     * @public
      *
      * @returns {Array.<number>}
      */
@@ -230,6 +295,9 @@ define( function( require ) {
     get xExtremaT() { return this.getXExtremaT(); },
 
     /**
+     * Returns a list of parametric t values where y-extrema exist, i.e. where dy/dt==0. These are candidate locations
+     * on the cubic for "maximum Y" and "minimum Y", and are needed for bounds computations.
+     * @public
      *
      * @returns {Array.<number>}
      */
@@ -242,6 +310,8 @@ define( function( require ) {
     get yExtremaT() { return this.getYExtremaT(); },
 
     /**
+     * Returns the bounds of this segment.
+     * @public
      *
      * @returns {Bounds2}
      */
@@ -272,7 +342,8 @@ define( function( require ) {
     get bounds() { return this.getBounds(); },
 
     /**
-     * t value for the cusp, and the related determinant and inflection points
+     * Computes all cusp-related information, including whether there is a cusp, any inflection points, etc.
+     * @private
      */
     computeCuspInfo: function() {
       // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
@@ -300,7 +371,8 @@ define( function( require ) {
     },
 
     /**
-     *   the cusp allows us to split into 2 quadratic Bezier curves
+     * If there is a cusp, this computes the 2 quadratic Bezier curves that this Cubic can be converted into.
+     * @private
      */
     computeCuspSegments: function() {
       if ( this.hasCusp() ) {
@@ -317,8 +389,11 @@ define( function( require ) {
     },
 
     /**
-     * Returns non degenerate segments of this cubic
-     * @returns
+     * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
+     * invalid or repeated segments.
+     * @public
+     *
+     * @returns {Array.<Segment>}
      */
     getNondegenerateSegments: function() {
       var self = this;
@@ -369,6 +444,8 @@ define( function( require ) {
     },
 
     /**
+     * Returns whether this cubic has a cusp.
+     * @public
      *
      * @returns {boolean}
      */
@@ -376,37 +453,7 @@ define( function( require ) {
       var tCusp = this.getTCusp();
 
       var epsilon = 1e-7; // TODO: make this available to change?
-      return this.tangentAt( tCusp ).magnitude() < epsilon && tCusp >= 0 && tCusp <= 1;
-    },
-
-    /**
-     * Returns the position along the polynomial paramaterized with the variable t.
-     * Recall that t=0 is the start position and t=1 is the end position
-     * Equivalent position: (1 - t)^3*start + 3*(1 - t)^2*t*control1 + 3*(1 - t) t^2*control2 + t^3*end
-     * @public
-     * @param {number} t
-     * @returns {Vector2}
-     */
-    positionAt: function( t ) {
-      var mt = 1 - t;
-      return this._start.times( mt * mt * mt ).plus( this._control1.times( 3 * mt * mt * t ) ).plus( this._control2.times( 3 * mt * t * t ) ).plus( this._end.times( t * t * t ) );
-    },
-
-    //
-    /**
-     * Returns the derivative along this polynomial paramaterized with the variable t.
-     * Recall that t=0 is the derivative at the start position and t=1 is the derivative at the end position
-     * derivative: -3 p0 (1 - t)^2 + 3 p1 (1 - t)^2 - 6 p1 (1 - t) t + 6 p2 (1 - t) t - 3 p2 t^2 + 3 p3 t^2
-     * @param {number} t
-     * @returns {Vector2}
-     */
-    tangentAt: function( t ) {
-      var mt = 1 - t;
-      var result = new Vector2();
-      return result.set( this._start ).multiplyScalar( -3 * mt * mt )
-        .add( scratchVector1.set( this._control1 ).multiplyScalar( 3 * mt * mt - 6 * mt * t ) )
-        .add( scratchVector1.set( this._control2 ).multiplyScalar( 6 * mt * t - 3 * t * t ) )
-        .add( scratchVector1.set( this._end ).multiplyScalar( 3 * t * t ) );
+      return tCusp >= 0 && tCusp <= 1 && this.tangentAt( tCusp ).magnitude() < epsilon;
     },
 
     /**
@@ -546,8 +593,12 @@ define( function( require ) {
 
 
     /**
+     * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
+     * For details, see the documentation in Segment.js
+     * @public
+     *
      * @param {Ray2} ray
-     * @returns {Array}
+     * @returns {Array.<Intersection>} - See Segment.js for details
      */
     intersection: function( ray ) {
       var self = this;

@@ -3,6 +3,9 @@
 /**
  * A segment represents a specific curve with a start and end.
  *
+ * Each segment is treated parametrically, where t=0 is the start of the segment, and t=1 is the end. Values of t
+ * between those represent points along the segment.
+ *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
@@ -17,29 +20,52 @@ define( function( require ) {
   var Bounds2 = require( 'DOT/Bounds2' );
 
   /**
-   * Will contain (for segments):
+   * @constructor
+   *
+   * Each segment should implement the following API.
+   *
    * properties (backed by ES5 getters, created usually lazily):
-   * start        - start point of this segment
-   * end          - end point of this segment
-   * startTangent - the tangent vector (normalized) to the segment at the start, pointing in the direction of motion (from start to end)
-   * endTangent   - the tangent vector (normalized) to the segment at the end, pointing in the direction of motion (from start to end)
-   * bounds       - the bounding box for the segment
+   *   start        - {Vector2} Start point of this segment
+   *   end          - {Vector2} End point of this segment
+   *   startTangent - {Vector2} The tangent vector (normalized) to the segment at the start, pointing in the direction
+   *                            of motion (from start to end)
+   *   endTangent   - {Vector2} The tangent vector (normalized) to the segment at the end, pointing in the direction
+   *                            of motion (from start to end)
+   *   bounds       - {Bounds2} The bounding box for the segment
    *
    * methods:
-   * positionAt( t )          - returns the position parametrically, with 0 <= t <= 1. this does NOT guarantee a constant magnitude tangent... don't feel like adding elliptical functions yet!
-   * tangentAt( t )           - returns the non-normalized tangent (dx/dt, dy/dt) parametrically, with 0 <= t <= 1.
-   * curvatureAt( t )         - returns the signed curvature (positive for visual clockwise - mathematical counterclockwise)
-   * subdivided( t )          - returns an array with 2 sub-segments, split at the parametric t value.
-   * getSVGPathFragment()     - returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls this needs to put the M calls first
-   * strokeLeft( lineWidth )  - returns an array of segments that will draw an offset curve on the logical left side
-   * strokeRight( lineWidth ) - returns an array of segments that will draw an offset curve on the logical right side
-   * windingIntersection      - returns the winding number for intersection with a ray
-   * getInteriorExtremaTs     - returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
-   *
-   * writeToContext( context ) - draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
-   * transformed( matrix )     - returns a new segment that represents this segment after transformation by the matrix
-   *
-   * @constructor
+   *   positionAt( t: {number} ) : {Vector2} - Returns the position parametrically, with 0 <= t <= 1. NOTE that this
+   *                                           function doesn't keep a constant magnitude tangent.
+   *   tangentAt( t )           - returns the non-normalized tangent (dx/dt, dy/dt) parametrically, with 0 <= t <= 1.
+   *   curvatureAt( t )         - returns the signed curvature (positive for visual clockwise - mathematical
+   *                              counterclockwise)
+   *   subdivided( t )          - returns an array with 2 sub-segments, split at the parametric t value.
+   *   getSVGPathFragment()     - returns a string containing the SVG path. assumes that the start point is already
+   *                              provided, so anything that calls this needs to put the M calls first
+   *   strokeLeft( lineWidth )  - returns an array of segments that will draw an offset curve on the logical left side
+   *   strokeRight( lineWidth ) - returns an array of segments that will draw an offset curve on the logical right side
+   *   windingIntersection      - returns the winding number for intersection with a ray
+   *   getInteriorExtremaTs     - returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on
+   *                              these will result in monotonic segments
+   *   intersection( ray )      - returns a list of intersections between the segment and the ray. Intersections will be
+   *                              of the given format:
+   *                              {
+   *                                distance: {number} - Distance from the ray's origin to the intersection
+   *                                point: {Vector2} - The location of the intersection
+   *                                normal: {Vector2} - The normal (unit vector perpendicular to the segment at the
+   *                                                    location) at the intersection, such that the dot product between
+   *                                                    the normal and ray direction is <= 0
+   *                                wind: {number} - The winding number for the intersection. Either 1 or -1, depending
+   *                                                 on the direction the segment goes relative to the ray (to the left
+   *                                                 or right). Used for computing Shape intersection via the non-zero
+   *                                                 fill rule.
+   *                              }
+   *   getBounds() : {Bounds2} - Returns a {Bounds2} representing the bounding box for the segment.
+   *   getNondegenerateSegments() : {Array.<Segment>} - Returns a list of non-degenerate segments that are equivalent to
+   *                                                    this segment. Generally gets rid (or simplifies) invalid or
+   *                                                    repeated segments.
+   *   writeToContext( context ) - draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
+   *   transformed( matrix )     - returns a new segment that represents this segment after transformation by the matrix
    */
   function Segment() {
     Events.call( this );

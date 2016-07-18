@@ -19,6 +19,8 @@ define( function( require ) {
 
   /**
    * Creates a circular arc (or circle if the startAngle/endAngle difference is ~2pi).
+   * @constructor
+   *
    * See http://www.w3.org/TR/2dcontext/#dom-context-2d-arc for detailed information on the parameters.
    *
    * @param {Vector2} center - Center of the arc (every point on the arc is equally far from the center)
@@ -26,13 +28,12 @@ define( function( require ) {
    * @param {number} startAngle - Angle (radians) of the start of the arc
    * @param {number} endAngle - Angle (radians) of the end of the arc
    * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
-   * @constructor
    */
   function Arc( center, radius, startAngle, endAngle, anticlockwise ) {
     Segment.call( this );
 
     this._center = center; // @private {Vector2}
-    this._radius = radius; // @private {num,ber}
+    this._radius = radius; // @private {number}
     this._startAngle = startAngle; // @private {number}
     this._endAngle = endAngle; // @private {number}
     this._anticlockwise = anticlockwise; // @private {boolean}
@@ -43,6 +44,40 @@ define( function( require ) {
   kite.register( 'Arc', Arc );
 
   inherit( Segment, Arc, {
+
+    /**
+     * Returns the position parametrically, with 0 <= t <= 1.
+     * @public
+     *
+     * NOTE: positionAt( 0 ) will return the start of the segment, and positionAt( 1 ) will return the end of the
+     * segment.
+     *
+     * @param {number} t
+     * @returns {Vector2}
+     */
+    positionAt: function( t ) {
+      assert && assert( t >= 0, 'positionAt t should be non-negative' );
+      assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
+
+      return this.positionAtAngle( this.angleAt( t ) );
+    },
+
+    /**
+     * Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with 0 <= t <= 1.
+     * @public
+     *
+     * NOTE: tangentAt( 0 ) will return the tangent at the start of the segment, and tangentAt( 1 ) will return the
+     * tangent at the end of the segment.
+     *
+     * @param {number} t
+     * @returns {Vector2}
+     */
+    tangentAt: function( t ) {
+      assert && assert( t >= 0, 'tangentAt t should be non-negative' );
+      assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
+
+      return this.tangentAtAngle( this.angleAt( t ) );
+    },
 
     /**
      * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
@@ -79,8 +114,9 @@ define( function( require ) {
     },
 
     /**
-     * Gets the start position of this arc
+     * Gets the start position of this arc.
      * @public
+     *
      * @returns {Vector2}
      */
     getStart: function() {
@@ -92,8 +128,9 @@ define( function( require ) {
     get start() { return this.getStart(); },
 
     /**
-     * Gets the end position of this arc
+     * Gets the end position of this arc.
      * @public
+     *
      * @returns {Vector2}
      */
     getEnd: function() {
@@ -105,8 +142,9 @@ define( function( require ) {
     get end() { return this.getEnd(); },
 
     /**
-     * Gets the unit vector tangent to this arc at the start point
+     * Gets the unit vector tangent to this arc at the start point.
      * @public
+     *
      * @returns {Vector2}
      */
     getStartTangent: function() {
@@ -118,8 +156,9 @@ define( function( require ) {
     get startTangent() { return this.getStartTangent(); },
 
     /**
-     * Gets the unit vector tangent to the arc at the end point
+     * Gets the unit vector tangent to the arc at the end point.
      * @public
+     *
      * @returns {Vector2}
      */
     getEndTangent: function() {
@@ -131,7 +170,8 @@ define( function( require ) {
     get endTangent() { return this.getEndTangent(); },
 
     /**
-     * Gets the end angle in radians
+     * Gets the end angle in radians.
+     *
      * @public
      * @returns {number}
      */
@@ -172,8 +212,9 @@ define( function( require ) {
     get actualEndAngle() { return this.getActualEndAngle(); },
 
     /**
-     * Returns a boolean value that indicates if the arc wraps up by more than two Pi
+     * Returns a boolean value that indicates if the arc wraps up by more than two Pi.
      * @public
+     *
      * @returns {boolean}
      */
     getIsFullPerimeter: function() {
@@ -185,10 +226,11 @@ define( function( require ) {
     get isFullPerimeter() { return this.getIsFullPerimeter(); },
 
     /**
-     * Returns an angle difference that represents how "much" of the circle our arc covers
+     * Returns an angle difference that represents how "much" of the circle our arc covers.
      * The answer is always greater or equal to zero
      * The answer can exceed two Pi
      * @public
+     *
      * @returns {number}
      */
     getAngleDifference: function() {
@@ -205,8 +247,9 @@ define( function( require ) {
     get angleDifference() { return this.getAngleDifference(); },
 
     /**
-     * Gets the bounds of this arc
+     * Returns the bounds of this segment.
      * @public
+     *
      * @returns {Bounds2}
      */
     getBounds: function() {
@@ -229,9 +272,11 @@ define( function( require ) {
     get bounds() { return this.getBounds(); },
 
     /**
-     * Returns non degenerate segments of this arc
+     * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
+     * invalid or repeated segments.
      * @public
-     * @returns {Array.<Arc>}
+     *
+     * @returns {Array.<Segment>}
      */
     getNondegenerateSegments: function() {
       if ( this._radius <= 0 || this._startAngle === this._endAngle ) {
@@ -243,7 +288,11 @@ define( function( require ) {
     },
 
     /**
-     * // TODO complete JSDOC
+     * Attempts to expand the private _bounds bounding box to include a point at a specific angle, making sure that
+     * angle is actually included in the arc. This will presumably be called at angles that are at critical points,
+     * where the arc should have maximum/minimum x/y values.
+     * @private
+     *
      * @param {number} angle
      */
     includeBoundsAtAngle: function( angle ) {
@@ -256,6 +305,7 @@ define( function( require ) {
     /**
      * Maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
      * @public
+     *
      * @param {number} angle
      * @returns {number}
      */
@@ -267,8 +317,9 @@ define( function( require ) {
     },
 
     /**
-     * Returns the parametrized value t for a given angle. The value t should range from 0 to 1 (inclusive)
+     * Returns the parametrized value t for a given angle. The value t should range from 0 to 1 (inclusive).
      * @public
+     *
      * @param {number} angle
      * @returns {number}
      */
@@ -277,7 +328,7 @@ define( function( require ) {
     },
 
     /**
-     * Returns the angle for the parametrized t value. The t value should range from 0 to 1 (inclusive)
+     * Returns the angle for the parametrized t value. The t value should range from 0 to 1 (inclusive).
      * @public
      * @param {number} t
      * @returns {number}
@@ -287,30 +338,11 @@ define( function( require ) {
     },
 
     /**
-     * Returns the position parametrically, with 0 <= t <= 1.
-     * @public
-     * @param {number} t
-     * @returns {Vector2}
-     */
-    positionAt: function( t ) {
-      return this.positionAtAngle( this.angleAt( t ) );
-    },
-
-    /**
-     * Returns the non-normalized tangent (dx/dt, dy/dt) of this arc at a parametric value t, with 0 <= t <= 1.
-     * @public
-     * @param {number} t
-     * @returns {Vector2}
-     */
-    tangentAt: function( t ) {
-      return this.tangentAtAngle( this.angleAt( t ) );
-    },
-
-    /**
      * Returns the curvature at the parametric value t
      * The curvature is positive (negative) for clockwise (anticlockwise) arc
      * Since it is an arc of as circle, the curvature is independent of t
      * @public
+     *
      * @param {number} t
      * @returns {number}
      */
@@ -321,6 +353,7 @@ define( function( require ) {
     /**
      * Returns the position of this arc at angle.
      * @public
+     *
      * @param {number} angle
      * @returns {Vector2}
      */
@@ -332,6 +365,7 @@ define( function( require ) {
      * Returns the normalized tangent of this arc.
      * The tangent points outward (inward) of this arc for clockwise (anticlockwise) direction.
      * @public
+     *
      * @param {number} angle
      * @returns {Vector2}
      */
@@ -341,10 +375,11 @@ define( function( require ) {
       return this._anticlockwise ? normal.perpendicular() : normal.perpendicular().negated();
     },
 
-    // TODO: refactor? shared with EllipticalArc (use this improved version)
     /**
-     * //TODO complet JSDOC
+     * Returns whether the given angle is contained by the arc (whether a ray from the arc's origin going in that angle
+     * will intersect the arc).
      * @public
+     *
      * @param {number} angle
      * @returns {boolean}
      */
@@ -363,6 +398,7 @@ define( function( require ) {
      * Returns a string containing the SVG path. assumes that the start point is already provided,
      * so anything that calls this needs to put the M calls first
      * @public
+     *
      * @returns {string}
      */
     getSVGPathFragment: function() {
@@ -399,6 +435,7 @@ define( function( require ) {
     /**
      * Returns an array of arcs that will draw an offset on the logical left side
      * @public
+     *
      * @param {number} lineWidth
      * @returns {Array.<Arc>}
      */
@@ -409,6 +446,7 @@ define( function( require ) {
     /**
      * Returns an array of arcs that will draw an offset curve on the logical right side
      * @public
+     *
      * @param {number} lineWidth
      * @returns {Array.<Arc>}
      */
@@ -420,6 +458,7 @@ define( function( require ) {
      * Returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
      * Does not include t=0 and t=1
      * @public
+     *
      * @returns {Array.<number>}
      */
     getInteriorExtremaTs: function() {
@@ -440,6 +479,7 @@ define( function( require ) {
     /**
      * Returns an array with 2 sub-segments, split at the parametric t value.
      * @public
+     *
      * @param {number} t
      * @returns {Array.<Arc>}
      */
@@ -455,10 +495,12 @@ define( function( require ) {
     },
 
     /**
-     * // TODO complete JSDOC
+     * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
+     * For details, see the documentation in Segment.js
      * @public
+     *
      * @param {Ray2} ray
-     * @returns {Array}
+     * @returns {Array.<Intersection>} - See Segment.js for details
      */
     intersection: function( ray ) {
       var result = []; // hits in order
@@ -530,6 +572,7 @@ define( function( require ) {
     /**
      * Returns the resultant winding number of this ray intersecting this arc.
      * @public
+     *
      * @param {Ray2} ray
      * @returns {number}
      */
@@ -545,6 +588,7 @@ define( function( require ) {
     /**
      * Draws this arc to the 2D Canvas context, assuming the context's current location is already at the start point
      * @public
+     *
      * @param {CanvasRenderingContext2D} context
      */
     writeToContext: function( context ) {
@@ -552,10 +596,11 @@ define( function( require ) {
     },
 
     /**
-     * Returns this arc transformed by a matrix
-     * An immutable method
-     * // TODO: test various transform types, especially rotations, scaling, shears, etc.
+     * Returns a new copy of this arc, transformed by the given matrix.
      * @public
+     *
+     * TODO: test various transform types, especially rotations, scaling, shears, etc.
+     *
      * @param {Matrix3} matrix
      * @returns {Arc|EllipticalArc}
      */

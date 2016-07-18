@@ -46,6 +46,45 @@ define( function( require ) {
     degree: 2, // degree of the polynomial (quadratic)
 
     /**
+     * Returns the position parametrically, with 0 <= t <= 1.
+     * @public
+     *
+     * NOTE: positionAt( 0 ) will return the start of the segment, and positionAt( 1 ) will return the end of the
+     * segment.
+     *
+     * @param {number} t
+     * @returns {Vector2}
+     */
+    positionAt: function( t ) {
+      assert && assert( t >= 0, 'positionAt t should be non-negative' );
+      assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
+
+      var mt = 1 - t;
+      // described from t=[0,1] as: (1-t)^2 start + 2(1-t)t control + t^2 end
+      // TODO: allocation reduction
+      return this._start.times( mt * mt ).plus( this._control.times( 2 * mt * t ) ).plus( this._end.times( t * t ) );
+    },
+
+    /**
+     * Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with 0 <= t <= 1.
+     * @public
+     *
+     * NOTE: tangentAt( 0 ) will return the tangent at the start of the segment, and tangentAt( 1 ) will return the
+     * tangent at the end of the segment.
+     *
+     * @param {number} t
+     * @returns {Vector2}
+     */
+    tangentAt: function( t ) {
+      assert && assert( t >= 0, 'tangentAt t should be non-negative' );
+      assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
+
+      // For a quadratic curve, the derivavtive is given by : 2(1-t)( control - start ) + 2t( end - control )
+      // TODO: allocation reduction
+      return this._control.minus( this._start ).times( 2 * ( 1 - t ) ).plus( this._end.minus( this._control ).times( 2 * t ) );
+    },
+
+    /**
      * @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
      */
     invalidate: function() {
@@ -120,8 +159,11 @@ define( function( require ) {
     get tCriticalY() { return this.getTCriticalY(); },
 
     /**
+     * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
+     * invalid or repeated segments.
+     * @public
      *
-     * @returns {Array.<Line>}
+     * @returns {Array.<Segment>}
      */
     getNondegenerateSegments: function() {
       var start = this._start;
@@ -175,7 +217,9 @@ define( function( require ) {
     },
 
     /**
-     * Returns the bounding box for this quadratic
+     * Returns the bounds of this segment.
+     * @public
+     *
      * @returns {Bounds2}
      */
     getBounds: function() {
@@ -197,29 +241,6 @@ define( function( require ) {
       return this._bounds;
     },
     get bounds() { return this.getBounds(); },
-
-    /**
-     * Returns the position parametrically, with 0 <= t <= 1
-     * can be described from t=[0,1] as: (1-t)^2 start + 2(1-t)t control + t^2 end
-     * @param {number} t
-     * @returns {Vector2}
-     */
-    positionAt: function( t ) {
-      var mt = 1 - t;
-      // TODO: allocation reduction
-      return this._start.times( mt * mt ).plus( this._control.times( 2 * mt * t ) ).plus( this._end.times( t * t ) );
-    },
-
-    /**
-     * Returns the non-normalized tangent (dx/dt, dy/dt) parametrically, with 0 <= t <= 1.
-     * For a quadratic curve, the derivavtive is given by : 2(1-t)( control - start ) + 2t( end - control )
-     * @param {number} t
-     * @returns {Vector2}
-     */
-    tangentAt: function( t ) {
-      // TODO: allocation reduction
-      return this._control.minus( this._start ).times( 2 * ( 1 - t ) ).plus( this._end.minus( this._control ).times( 2 * t ) );
-    },
 
     /**
      * Returns the signed curvature (positive for visual clockwise - mathematical counterclockwise)
@@ -376,11 +397,13 @@ define( function( require ) {
       return result.sort();
     },
 
-    // returns the resultant winding number of this ray intersecting this segment.
     /**
+     * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
+     * For details, see the documentation in Segment.js
+     * @public
      *
      * @param {Ray2} ray
-     * @returns {Array.<Object>}
+     * @returns {Array.<Intersection>} - See Segment.js for details
      */
     intersection: function( ray ) {
       var self = this;
