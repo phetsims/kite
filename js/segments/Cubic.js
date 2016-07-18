@@ -761,7 +761,7 @@ define( function( require ) {
     var b = 6 * v0 - 12 * v1 + 6 * v2;
     var c = -3 * v0 + 3 * v1;
 
-    return filter( solveQuadraticRootsReal( a, b, c ), isBetween0And1 );
+    return _.filter( solveQuadraticRootsReal( a, b, c ), isBetween0And1 );
   };
 
   return Cubic;
