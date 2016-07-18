@@ -33,6 +33,11 @@ define( function( require ) {
   var scratchVector2 = new Vector2();
   var scratchVector3 = new Vector2();
 
+  // Used in multiple filters
+  function isBetween0And1( t ) {
+    return t >= 0 && t <= 1;
+  }
+
   /**
    * Creates a cubic bezier curve
    * @constructor
@@ -756,7 +761,7 @@ define( function( require ) {
     var b = 6 * v0 - 12 * v1 + 6 * v2;
     var c = -3 * v0 + 3 * v1;
 
-    return solveQuadraticRootsReal( a, b, c );
+    return filter( solveQuadraticRootsReal( a, b, c ), isBetween0And1 );
   };
 
   return Cubic;
