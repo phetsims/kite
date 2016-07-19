@@ -71,6 +71,8 @@ define( function( require ) {
      * NOTE: positionAt( 0 ) will return the start of the segment, and positionAt( 1 ) will return the end of the
      * segment.
      *
+     * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
+     *
      * @param {number} t
      * @returns {Vector2}
      */
@@ -90,6 +92,8 @@ define( function( require ) {
      * NOTE: tangentAt( 0 ) will return the tangent at the start of the segment, and tangentAt( 1 ) will return the
      * tangent at the end of the segment.
      *
+     * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
+     *
      * @param {number} t
      * @returns {Vector2}
      */
@@ -104,6 +108,76 @@ define( function( require ) {
         .add( scratchVector1.set( this._control1 ).multiplyScalar( 3 * mt * mt - 6 * mt * t ) )
         .add( scratchVector1.set( this._control2 ).multiplyScalar( 6 * mt * t - 3 * t * t ) )
         .add( scratchVector1.set( this._end ).multiplyScalar( 3 * t * t ) );
+    },
+
+    /**
+     * Returns the signed curvature of the segment at the parametric value t, where 0 <= t <= 1.
+     * @public
+     *
+     * The curvature will be positive for visual clockwise / mathematical counterclockwise curves, negative for opposite
+     * curvature, and 0 for no curvature.
+     *
+     * NOTE: curvatureAt( 0 ) will return the curvature at the start of the segment, and curvatureAt( 1 ) will return
+     * the curvature at the end of the segment.
+     *
+     * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
+     *
+     * @param {number} t
+     * @returns {number}
+     */
+    curvatureAt: function( t ) {
+      assert && assert( t >= 0, 'curvatureAt t should be non-negative' );
+      assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
+
+      // see http://cagd.cs.byu.edu/~557/text/ch2.pdf p31
+      // TODO: remove code duplication with Quadratic
+      var epsilon = 0.0000001;
+      if ( Math.abs( t - 0.5 ) > 0.5 - epsilon ) {
+        var isZero = t < 0.5;
+        var p0 = isZero ? this._start : this._end;
+        var p1 = isZero ? this._control1 : this._control2;
+        var p2 = isZero ? this._control2 : this._control1;
+        var d10 = p1.minus( p0 );
+        var a = d10.magnitude();
+        var h = ( isZero ? -1 : 1 ) * d10.perpendicular().normalized().dot( p2.minus( p1 ) );
+        return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
+      }
+      else {
+        return this.subdivided( t )[ 0 ].curvatureAt( 1 );
+      }
+    },
+
+    /**
+     * Returns an array with up to 2 sub-segments, split at the parametric t value. Together (in order) they should make
+     * up the same shape as the current segment.
+     * @public
+     *
+     * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
+     *
+     * @param {number} t
+     * @returns {Array.<Segment>}
+     */
+    subdivided: function( t ) {
+      assert && assert( t >= 0, 'subdivided t should be non-negative' );
+      assert && assert( t <= 1, 'subdivided t should be no greater than 1' );
+
+      // If t is 0 or 1, we only need to return 1 segment
+      if ( t === 0 || t === 1 ) {
+        return [ this ];
+      }
+
+      // de Casteljau method
+      // TODO: add a 'bisect' or 'between' method for vectors?
+      var left = this._start.blend( this._control1, t );
+      var right = this._control2.blend( this._end, t );
+      var middle = this._control1.blend( this._control2, t );
+      var leftMid = left.blend( middle, t );
+      var rightMid = middle.blend( right, t );
+      var mid = leftMid.blend( rightMid, t );
+      return [
+        new kite.Cubic( this._start, left, leftMid, mid ),
+        new kite.Cubic( mid, rightMid, right, this._end )
+      ];
     },
 
     /**
@@ -462,32 +536,6 @@ define( function( require ) {
     },
 
     /**
-     * Returns the curvature of this polynomial paramaterized with the variable t.
-     * Recall that t=0 is the curvature at the start position and t=1 is the curvature at the end position
-     * @public
-     * @param {number} t
-     * @returns {number}
-     */
-    curvatureAt: function( t ) {
-      // see http://cagd.cs.byu.edu/~557/text/ch2.pdf p31
-      // TODO: remove code duplication with Quadratic
-      var epsilon = 0.0000001;
-      if ( Math.abs( t - 0.5 ) > 0.5 - epsilon ) {
-        var isZero = t < 0.5;
-        var p0 = isZero ? this._start : this._end;
-        var p1 = isZero ? this._control1 : this._control2;
-        var p2 = isZero ? this._control2 : this._control1;
-        var d10 = p1.minus( p0 );
-        var a = d10.magnitude();
-        var h = ( isZero ? -1 : 1 ) * d10.perpendicular().normalized().dot( p2.minus( p1 ) );
-        return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
-      }
-      else {
-        return this.subdivided( t )[ 0 ].curvatureAt( 1 );
-      }
-    },
-
-    /**
      *
      * @param {Vector2} point
      * @returns {Vector2}
@@ -495,26 +543,6 @@ define( function( require ) {
     toRS: function( point ) {
       var firstVector = point.minus( this._start );
       return new Vector2( firstVector.dot( this.getR() ), firstVector.dot( this.getS() ) );
-    },
-
-    /**
-     * Returns an array with 2 cubic segments, split at the parametric t value.
-     * @param {number} t
-     * @returns {Array.<Cubic>}
-     */
-    subdivided: function( t ) {
-      // de Casteljau method
-      // TODO: add a 'bisect' or 'between' method for vectors?
-      var left = this._start.blend( this._control1, t );
-      var right = this._control2.blend( this._end, t );
-      var middle = this._control1.blend( this._control2, t );
-      var leftMid = left.blend( middle, t );
-      var rightMid = middle.blend( right, t );
-      var mid = leftMid.blend( rightMid, t );
-      return [
-        new kite.Cubic( this._start, left, leftMid, mid ),
-        new kite.Cubic( mid, rightMid, right, this._end )
-      ];
     },
 
     /**

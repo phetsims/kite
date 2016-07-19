@@ -52,6 +52,8 @@ define( function( require ) {
      * NOTE: positionAt( 0 ) will return the start of the segment, and positionAt( 1 ) will return the end of the
      * segment.
      *
+     * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
+     *
      * @param {number} t
      * @returns {Vector2}
      */
@@ -69,6 +71,8 @@ define( function( require ) {
      * NOTE: tangentAt( 0 ) will return the tangent at the start of the segment, and tangentAt( 1 ) will return the
      * tangent at the end of the segment.
      *
+     * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
+     *
      * @param {number} t
      * @returns {Vector2}
      */
@@ -77,6 +81,58 @@ define( function( require ) {
       assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
       return this.tangentAtAngle( this.angleAt( t ) );
+    },
+
+    /**
+     * Returns the signed curvature of the segment at the parametric value t, where 0 <= t <= 1.
+     * @public
+     *
+     * The curvature will be positive for visual clockwise / mathematical counterclockwise curves, negative for opposite
+     * curvature, and 0 for no curvature.
+     *
+     * NOTE: curvatureAt( 0 ) will return the curvature at the start of the segment, and curvatureAt( 1 ) will return
+     * the curvature at the end of the segment.
+     *
+     * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
+     *
+     * @param {number} t
+     * @returns {number}
+     */
+    curvatureAt: function( t ) {
+      assert && assert( t >= 0, 'curvatureAt t should be non-negative' );
+      assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
+
+      // Since it is an arc of as circle, the curvature is independent of t
+      return ( this._anticlockwise ? -1 : 1 ) / this._radius;
+    },
+
+    /**
+     * Returns an array with up to 2 sub-segments, split at the parametric t value. Together (in order) they should make
+     * up the same shape as the current segment.
+     * @public
+     *
+     * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
+     *
+     * @param {number} t
+     * @returns {Array.<Segment>}
+     */
+    subdivided: function( t ) {
+      assert && assert( t >= 0, 'subdivided t should be non-negative' );
+      assert && assert( t <= 1, 'subdivided t should be no greater than 1' );
+
+      // If t is 0 or 1, we only need to return 1 segment
+      if ( t === 0 || t === 1 ) {
+        return [ this ];
+      }
+
+      // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles
+      var angle0 = this.angleAt( 0 );
+      var angleT = this.angleAt( t );
+      var angle1 = this.angleAt( 1 );
+      return [
+        new kite.Arc( this._center, this._radius, angle0, angleT, this._anticlockwise ),
+        new kite.Arc( this._center, this._radius, angleT, angle1, this._anticlockwise )
+      ];
     },
 
     /**
@@ -338,19 +394,6 @@ define( function( require ) {
     },
 
     /**
-     * Returns the curvature at the parametric value t
-     * The curvature is positive (negative) for clockwise (anticlockwise) arc
-     * Since it is an arc of as circle, the curvature is independent of t
-     * @public
-     *
-     * @param {number} t
-     * @returns {number}
-     */
-    curvatureAt: function( t ) {
-      return ( this._anticlockwise ? -1 : 1 ) / this._radius;
-    },
-
-    /**
      * Returns the position of this arc at angle.
      * @public
      *
@@ -474,24 +517,6 @@ define( function( require ) {
         }
       } );
       return result.sort(); // modifies original, which is OK
-    },
-
-    /**
-     * Returns an array with 2 sub-segments, split at the parametric t value.
-     * @public
-     *
-     * @param {number} t
-     * @returns {Array.<Arc>}
-     */
-    subdivided: function( t ) {
-      // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles
-      var angle0 = this.angleAt( 0 );
-      var angleT = this.angleAt( t );
-      var angle1 = this.angleAt( 1 );
-      return [
-        new kite.Arc( this._center, this._radius, angle0, angleT, this._anticlockwise ),
-        new kite.Arc( this._center, this._radius, angleT, angle1, this._anticlockwise )
-      ];
     },
 
     /**

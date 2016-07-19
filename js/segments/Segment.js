@@ -25,21 +25,41 @@ define( function( require ) {
    * Each segment should implement the following API.
    *
    * properties (backed by ES5 getters, created usually lazily):
-   *   start        - {Vector2} Start point of this segment
-   *   end          - {Vector2} End point of this segment
-   *   startTangent - {Vector2} The tangent vector (normalized) to the segment at the start, pointing in the direction
-   *                            of motion (from start to end)
-   *   endTangent   - {Vector2} The tangent vector (normalized) to the segment at the end, pointing in the direction
-   *                            of motion (from start to end)
-   *   bounds       - {Bounds2} The bounding box for the segment
+   *
+   *   start {Vector2}
+   *     The start point of the segment, parametrically at t=0.
+   *
+   *   end {Vector2}
+   *     The end point of the segment, parametrically at t=1.
+   *
+   *   startTangent {Vector2}
+   *     The normalized tangent vector to the segment at its start point, pointing in the direction of motion
+   *     (form start to end).
+   *
+   *   endTangent {Vector2}
+   *     The normalized tangent vector to the segment at its end point, pointing in the direction of motion
+   *     (form start to end).
+   *
+   *   bounds {Bounds2}
+   *     The bounding box for the segment.
    *
    * methods:
-   *   positionAt( t: {number} ) : {Vector2} - Returns the position parametrically, with 0 <= t <= 1. NOTE that this
-   *                                           function doesn't keep a constant magnitude tangent.
-   *   tangentAt( t )           - returns the non-normalized tangent (dx/dt, dy/dt) parametrically, with 0 <= t <= 1.
-   *   curvatureAt( t )         - returns the signed curvature (positive for visual clockwise - mathematical
-   *                              counterclockwise)
-   *   subdivided( t )          - returns an array with 2 sub-segments, split at the parametric t value.
+   *
+   *   positionAt( t: {number} ) : {Vector2}
+   *     Returns the position parametrically, with 0 <= t <= 1. NOTE that this function doesn't keep a constant
+   *     magnitude tangent.
+   *
+   *   tangentAt( t: {number} ) : {Vector2}
+   *     Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with
+   *     0 <= t <= 1.
+   *
+   *   curvatureAt( t: {number} ) : {number}
+   *     Returns the signed curvature (positive for visual clockwise - mathematical counterclockwise)
+   *
+   *   subdivided( t: {number} ) : {Array.<Segment>}
+   *     Returns an array with up to 2 sub-segments, split at the parametric t value. The segments together should make
+   *     the same shape as the original segment.
+   *
    *   getSVGPathFragment()     - returns a string containing the SVG path. assumes that the start point is already
    *                              provided, so anything that calls this needs to put the M calls first
    *   strokeLeft( lineWidth )  - returns an array of segments that will draw an offset curve on the logical left side

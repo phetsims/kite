@@ -45,6 +45,8 @@ define( function( require ) {
      * NOTE: positionAt( 0 ) will return the start of the segment, and positionAt( 1 ) will return the end of the
      * segment.
      *
+     * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
+     *
      * @param {number} t
      * @returns {Vector2}
      */
@@ -62,6 +64,8 @@ define( function( require ) {
      * NOTE: tangentAt( 0 ) will return the tangent at the start of the segment, and tangentAt( 1 ) will return the
      * tangent at the end of the segment.
      *
+     * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
+     *
      * @param {number} t
      * @returns {Vector2}
      */
@@ -71,6 +75,54 @@ define( function( require ) {
 
       // tangent always the same, just use the start tangent
       return this.getStartTangent();
+    },
+
+    /**
+     * Returns the signed curvature of the segment at the parametric value t, where 0 <= t <= 1.
+     * @public
+     *
+     * The curvature will be positive for visual clockwise / mathematical counterclockwise curves, negative for opposite
+     * curvature, and 0 for no curvature.
+     *
+     * NOTE: curvatureAt( 0 ) will return the curvature at the start of the segment, and curvatureAt( 1 ) will return
+     * the curvature at the end of the segment.
+     *
+     * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
+     *
+     * @param {number} t
+     * @returns {number}
+     */
+    curvatureAt: function( t ) {
+      assert && assert( t >= 0, 'curvatureAt t should be non-negative' );
+      assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
+
+      return 0; // no curvature on a straight line segment
+    },
+
+    /**
+     * Returns an array with up to 2 sub-segments, split at the parametric t value. Together (in order) they should make
+     * up the same shape as the current segment.
+     * @public
+     *
+     * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
+     *
+     * @param {number} t
+     * @returns {Array.<Segment>}
+     */
+    subdivided: function( t ) {
+      assert && assert( t >= 0, 'subdivided t should be non-negative' );
+      assert && assert( t <= 1, 'subdivided t should be no greater than 1' );
+
+      // If t is 0 or 1, we only need to return 1 segment
+      if ( t === 0 || t === 1 ) {
+        return [ this ];
+      }
+
+      var pt = this.positionAt( t );
+      return [
+        new kite.Line( this._start, pt ),
+        new kite.Line( pt, this._end )
+      ];
     },
 
     /**
@@ -155,16 +207,6 @@ define( function( require ) {
     },
 
     /**
-     * Returns the signed curvature (positive for visual clockwise - mathematical counterclockwise) of this Line
-     * Since a line is straight, it returns zero
-     * @param {number} t
-     * @returns {number}
-     */
-    curvatureAt: function( t ) {
-      return 0; // no curvature on a straight line segment
-    },
-
-    /**
      * Returns a string containing the SVG path. assumes that the start point is already provided,
      * so anything that calls this needs to put the M calls first
      * @returns {string}
@@ -198,19 +240,6 @@ define( function( require ) {
      * @returns {Array}
      */
     getInteriorExtremaTs: function() { return []; },
-
-    /**
-     * Returns an array with 2 sub-segments, split at the parametric t value.
-     * @param {number} t
-     * @returns {Array.<Line>}
-     */
-    subdivided: function( t ) {
-      var pt = this.positionAt( t );
-      return [
-        new kite.Line( this._start, pt ),
-        new kite.Line( pt, this._end )
-      ];
-    },
 
     /**
      * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
