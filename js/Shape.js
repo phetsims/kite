@@ -451,7 +451,7 @@ define( function( require ) {
      * @param {number} radius - How far from the center the arc will be
      * @param {number} startAngle - Angle (radians) of the start of the arc
      * @param {number} endAngle - Angle (radians) of the end of the arc
-     * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
+     * @param {boolean} [anticlockwise] - Decides which direction the arc takes around the center
      * @returns {Shape}
      **/
     arc: function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) { return this.arcPoint( v( centerX, centerY ), radius, startAngle, endAngle, anticlockwise ); },
@@ -462,7 +462,7 @@ define( function( require ) {
      * @param {number} radius - How far from the center the arc will be
      * @param {number} startAngle - Angle (radians) of the start of the arc
      * @param {number} endAngle - Angle (radians) of the end of the arc
-     * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
+     * @param {boolean} [anticlockwise] - Decides which direction the arc takes around the center
      * @returns {Shape}
      **/
     arcPoint: function( center, radius, startAngle, endAngle, anticlockwise ) {
@@ -503,7 +503,7 @@ define( function( require ) {
      * @param {number} rotation - rotation of the elliptical arc with respect to the
      * @param {number} startAngle
      * @param {number} endAngle
-     * @param {boolean} anticlockwise
+     * @param {boolean} [anticlockwise]
      * @returns {Shape}
      */
     ellipticalArc: function( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
@@ -519,7 +519,7 @@ define( function( require ) {
      * @param {number} rotation - rotation of the arc with respect to the positive x axis.
      * @param {number} startAngle -
      * @param {number} endAngle
-     * @param {boolean} anticlockwise
+     * @param {boolean} [anticlockwise]
      * @returns {Shape}
      */
     ellipticalArcPoint: function( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
@@ -1550,7 +1550,7 @@ define( function( require ) {
    * @param {number} radius - How far from the center the arc will be
    * @param {number} startAngle - Angle (radians) of the start of the arc
    * @param {number} endAngle - Angle (radians) of the end of the arc
-   * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
+   * @param {boolean} [anticlockwise] - Decides which direction the arc takes around the center
    * @returns {Shape}
    */
   Shape.arc = function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) {
