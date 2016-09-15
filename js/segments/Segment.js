@@ -89,22 +89,22 @@ define( function( require ) {
      */
     subdivisions: function( tList ) {
       // this could be solved by recursion, but we don't plan on the JS engine doing tail-call optimization
-      var self = this;
+      var right = this; // eslint-disable-line consistent-this
       var result = [];
       for ( var i = 0; i < tList.length; i++ ) {
         // assume binary subdivision
         var t = tList[ i ];
-        var arr = self.subdivided( t );
+        var arr = right.subdivided( t );
         assert && assert( arr.length === 2 );
         result.push( arr[ 0 ] );
-        self = arr[ 1 ];
+        right = arr[ 1 ];
 
         // scale up the remaining t values
         for ( var j = i + 1; j < tList.length; j++ ) {
           tList[ j ] = DotUtil.linear( t, 1, 0, 1, tList[ j ] );
         }
       }
-      result.push( self );
+      result.push( right );
       return result;
     },
 
