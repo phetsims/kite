@@ -514,11 +514,11 @@ define( function( require ) {
      * @returns {Array.<number>}
      */
     getInteriorExtremaTs: function() {
-      var that = this;
+      var self = this;
       var result = [];
       _.each( this.possibleExtremaAngles, function( angle ) {
-        if ( that.containsAngle( angle ) ) {
-          var t = that.tAtAngle( angle );
+        if ( self.containsAngle( angle ) ) {
+          var t = self.tAtAngle( angle );
           var epsilon = 0.0000000001; // TODO: general kite epsilon?
           if ( t > epsilon && t < 1 - epsilon ) {
             result.push( t );

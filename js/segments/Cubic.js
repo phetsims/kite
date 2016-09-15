@@ -251,15 +251,15 @@ define( function( require ) {
         this._bounds = this._bounds.withPoint( this._start );
         this._bounds = this._bounds.withPoint( this._end );
 
-        var cubic = this;
+        var self = this;
         _.each( this.getXExtremaT(), function( t ) {
           if ( t >= 0 && t <= 1 ) {
-            cubic._bounds = cubic._bounds.withPoint( cubic.positionAt( t ) );
+            self._bounds = self._bounds.withPoint( self.positionAt( t ) );
           }
         } );
         _.each( this.getYExtremaT(), function( t ) {
           if ( t >= 0 && t <= 1 ) {
-            cubic._bounds = cubic._bounds.withPoint( cubic.positionAt( t ) );
+            self._bounds = self._bounds.withPoint( self.positionAt( t ) );
           }
         } );
 
