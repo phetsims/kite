@@ -117,6 +117,8 @@ define( function( require ) {
             break;
           case 'bevel':
             return bevel;
+          default:
+            throw new Error( 'invalid lineJoin: ' + this.lineJoin );
         }
       }
       else {
@@ -171,6 +173,8 @@ define( function( require ) {
             new Line( left, right ),
             new Line( right, toPoint )
           ];
+        default:
+          throw new Error( 'invalid lineCap: ' + this.lineCap );
       }
     }
   } );
