@@ -346,7 +346,7 @@ define( function( require ) {
      * @returns {Shape}
      */
     quadraticCurveToPoint: function( controlPoint, point ) {
-      var shape = this;
+      var self = this;
 
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
       this.ensure( controlPoint );
@@ -356,7 +356,7 @@ define( function( require ) {
       var nondegenerateSegments = quadratic.getNondegenerateSegments();
       _.each( nondegenerateSegments, function( segment ) {
         // TODO: optimization
-        shape.addSegmentAndBounds( segment );
+        self.addSegmentAndBounds( segment );
       } );
       this.setQuadraticControlPoint( controlPoint );
 
@@ -427,7 +427,7 @@ define( function( require ) {
      * @returns {Shape}
      */
     cubicCurveToPoint: function( control1, control2, point ) {
-      var shape = this;
+      var self = this;
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
       this.ensure( control1 );
       var start = this.getLastSubpath().getLastPoint();
@@ -435,7 +435,7 @@ define( function( require ) {
 
       var nondegenerateSegments = cubic.getNondegenerateSegments();
       _.each( nondegenerateSegments, function( segment ) {
-        shape.addSegmentAndBounds( segment );
+        self.addSegmentAndBounds( segment );
       } );
       this.getLastSubpath().addPoint( point );
 

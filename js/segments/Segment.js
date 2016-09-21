@@ -135,7 +135,7 @@ define( function( require ) {
      */
     subdivisions: function( tList ) {
       // this could be solved by recursion, but we don't plan on the JS engine doing tail-call optimization
-      var right = this;
+      var right = this; // eslint-disable-line consistent-this
       var result = [];
       for ( var i = 0; i < tList.length; i++ ) {
         // assume binary subdivision
