@@ -88,6 +88,10 @@ define( function( require ) {
     this._invalidateListener = this.invalidate.bind( this );
     this._invalidatingPoints = false; // So we can invalidate all of the points without firing invalidation tons of times
 
+    // @private {boolean} - When set by makeImmutable(), it indicates this Shape won't be changed from now on, and
+    //                      attempts to change it may result in errors.
+    this._immutable = false;
+
     // Add in subpaths from the constructor (if applicable)
     if ( typeof subpaths === 'object' ) {
       // assume it's an array
@@ -566,6 +570,29 @@ define( function( require ) {
       }
       this.resetControlPoints();
      return this;  // for chaining
+    },
+
+    /**
+     * Makes this Shape immutable, so that attempts to further change the Shape will fail. This allows clients to avoid
+     * adding change listeners to this Shape.
+     * @public
+     *
+     * @returns {Shape} - Self, for chaining
+     */
+    makeImmutable: function() {
+      this._immutable = true;
+
+      return this; // for chaining
+    },
+
+    /**
+     * Returns whether this Shape is immutable (see makeImmutable for details).
+     * @public
+     *
+     * @returns {boolean}
+     */
+    isImmutable: function() {
+      return this._immutable;
     },
 
     /**
@@ -1209,6 +1236,8 @@ define( function( require ) {
      * @private
      */
     invalidate: function() {
+      assert && assert( !this._immutable, 'Attempt to modify an immutable Shape' );
+
       if ( !this._invalidatingPoints ) {
         this._bounds = null;
 

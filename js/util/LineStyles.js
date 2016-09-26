@@ -114,7 +114,6 @@ define( function( require ) {
               // angle too steep, use bevel instead. same as below, but copied for linter
               return bevel;
             }
-            break;
           case 'bevel':
             return bevel;
           default:
