@@ -582,6 +582,8 @@ define( function( require ) {
     makeImmutable: function() {
       this._immutable = true;
 
+      this.notifyInvalidationListeners();
+
       return this; // for chaining
     },
 
@@ -1232,8 +1234,16 @@ define( function( require ) {
       if ( !this._invalidatingPoints ) {
         this._bounds = null;
 
-        this.trigger0( 'invalidated' );
+        this.notifyInvalidationListeners();
       }
+    },
+
+    /**
+     * Called when a part of the Shape has changed, or if metadata on the Shape has changed (e.g. it became immutable).
+     * @private
+     */
+    notifyInvalidationListeners: function() {
+      this.trigger0( 'invalidated' );
     },
 
     /**
