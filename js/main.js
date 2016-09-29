@@ -24,8 +24,9 @@ define( [
   'KITE/util/Subpath',
 
   'KITE/parser/svgPath'
-], function( kite // note: we don't need any of the other parts, we just need to specify them as dependencies so they fill in the kite namespace
-) {
+
+  // note: the kite variable is filled in as modules are visited
+], function( kite ) {
   'use strict';
 
   return kite;
