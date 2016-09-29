@@ -77,6 +77,23 @@
       'Line goes above bounds' );
   } );
 
+  test( 'interiorIntersectsLineSegment', function() {
+    var circle = kite.Shape.circle( 0, 0, 10 ); // radius 10 at 0,0
+
+    ok( circle.interiorIntersectsLineSegment( new dot.Vector2( -1, 0 ), new dot.Vector2( 1, 0 ) ),
+      'Fully contained' );
+    ok( !circle.interiorIntersectsLineSegment( new dot.Vector2( -100, 0 ), new dot.Vector2( -50, 0 ) ),
+      'Outside with ray towards circle' );
+    ok( !circle.interiorIntersectsLineSegment( new dot.Vector2( 50, 0 ), new dot.Vector2( 100, 0 ) ),
+      'Outside with ray away from circle' );
+    ok( circle.interiorIntersectsLineSegment( new dot.Vector2( 100, 0 ), new dot.Vector2( 0, 0 ) ),
+      'Inside to outside (intersects)' );
+    ok( !circle.interiorIntersectsLineSegment( new dot.Vector2( 100, 0 ), new dot.Vector2( 0, 100 ) ),
+      'Outside at an angle' );
+    ok( circle.interiorIntersectsLineSegment( new dot.Vector2( 10.1, 0 ), new dot.Vector2( 0, 10.1 ) ),
+      'Glancing with two intersection points' );
+  } );
+
   // test( 'Arc mutation', function() {
   // } );
 })();
