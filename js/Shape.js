@@ -1004,6 +1004,51 @@ define( function( require ) {
     },
 
     /**
+     * Returns whether the provided line segment would have some part on top or touching the interior (filled area) of
+     * this shape.
+     * @public
+     *
+     * This differs somewhat from an intersection of the line segment with the Shape's path, as we will return true
+     * ("intersection") if the line segment is entirely contained in the interior of the Shape's path.
+     *
+     * @param {Vector2} startPoint - One end of the line segment
+     * @param {Vector2} endPoint - The other end of the line segment
+     * @returns {boolean}
+     */
+    interiorIntersectsLineSegment: function( startPoint, endPoint ) {
+      // First check if our midpoint is in the Shape (as either our midpoint is in the Shape, OR the line segment will
+      // intersect the Shape's boundary path).
+      var midpoint = startPoint.blend( endPoint, 0.5 );
+      if ( this.containsPoint( midpoint ) ) {
+        return true;
+      }
+
+      // TODO: if an issue, we can reduce this allocation to a scratch variable local in the Shape.js scope.
+      var delta = endPoint.minus( startPoint );
+      var length = delta.magnitude();
+
+      if ( length === 0 ) {
+        return false;
+      }
+
+      delta.normalize(); // so we can use it as a unit vector, expected by the Ray
+
+      // Grab all intersections (that are from startPoint towards the direction of endPoint)
+      var hits = this.intersection( new Ray2( startPoint, delta ) );
+
+      // See if we have any intersections along our infinite ray whose distance from the startPoint is less than or
+      // equal to our line segment's length.
+      for ( var i = 0; i < hits.length; i++ ) {
+        if ( hits[ i ].distance <= length ) {
+          return true;
+        }
+      }
+
+      // Did not hit the boundary, and wasn't fully contained.
+      return false;
+    },
+
+    /**
      * Returns the winding number for intersection with a ray
      * @param {Ray2} ray
      * @returns {number}
