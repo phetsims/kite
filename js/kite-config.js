@@ -7,7 +7,7 @@
  */
 
 require.config( {
-  // depends on all of Scenery, Kite, Dot, Axon and phet-core
+  // depends on all of Kite, Dot, Axon and phet-core
   deps: [ 'kite-main' ],
 
   paths: {
