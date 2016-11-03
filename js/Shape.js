@@ -915,7 +915,7 @@ define( function( require ) {
      * - maxLevels:                       prevent subdivision past this level
      * - distanceEpsilon (optional null): controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve. smaller => more subdivision
      * - curveEpsilon (optional null):    controls level of subdivision by attempting to ensure a maximum curvature change between segments. smaller => more subdivision
-     * -   OR includeCurvature:           {Boolean}, whether to include a default curveEpsilon (usually off by default)
+     * -   OR includeCurvature:           {boolean}, whether to include a default curveEpsilon (usually off by default)
      * - pointMap (optional):             function( Vector2 ) : Vector2, represents a (usually non-linear) transformation applied
      * - methodName (optional):           if the method name is found on the segment, it is called with the expected signature function( options ) : Array[Segment]
      *                                    instead of using our brute-force logic. Supports optimizations for custom non-linear transforms (like polar coordinates)

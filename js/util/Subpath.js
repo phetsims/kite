@@ -273,7 +273,7 @@ define( function( require ) {
     },
 
     /**
-     * @param {object} [options] -           with the following options provided:
+     * @param {Object} [options] -           with the following options provided:
      *  - minLevels:                       how many levels to force subdivisions
      *  - maxLevels:                       prevent subdivision past this level
      *  - distanceEpsilon (optional null): controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve
@@ -305,7 +305,7 @@ define( function( require ) {
 
     /**
      *
-     * @param {object} [options] -           with the following options provided:
+     * @param {Object} [options] -           with the following options provided:
      *  - minLevels:                       how many levels to force subdivisions
      *  - maxLevels:                       prevent subdivision past this level
      *  - distanceEpsilon (optional null): controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve
