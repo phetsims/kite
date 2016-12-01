@@ -1,3 +1,5 @@
+// Copyright 2016, University of Colorado Boulder
+
 // path to test base, without a slash, e.g. '../../../scenery/tests/qunit'
 function runKiteTests( pathToTestBase ) {
   function loadTestFile( src ) {
