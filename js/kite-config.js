@@ -24,7 +24,6 @@ require.config( {
     AXON: '../../axon/js',
 
     TANDEM: '../../tandem/js',
-    PHETCOMMON: '../../phetcommon/js',
     REPOSITORY: '..'
   },
 
