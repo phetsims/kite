@@ -2,6 +2,8 @@
 
 // path to test base, without a slash, e.g. '../../../scenery/tests/qunit'
 function runKiteTests( pathToTestBase ) {
+  'use strict';
+  
   function loadTestFile( src ) {
     var script = document.createElement( 'script' );
     script.type = 'text/javascript';
