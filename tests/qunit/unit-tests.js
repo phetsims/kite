@@ -1,7 +1,7 @@
 // Copyright 2016, University of Colorado Boulder
 
 // path to test base, without a slash, e.g. '../../../scenery/tests/qunit'
-function runKiteTests( pathToTestBase ) {
+function runKiteTests( pathToTestBase ) { // eslint-disable-line no-unused-vars
   'use strict';
   
   function loadTestFile( src ) {
