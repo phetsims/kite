@@ -196,8 +196,7 @@ define( function( require ) {
       this._tDeterminant = null; // {number | null}
       this._tInflection1 = null; // {number | null} - NaN if not applicable
       this._tInflection2 = null; // {number | null} - NaN if not applicable
-      this._startQuadratic = null; // {Quadratic | null}
-      this._endQuadratic = null; // {Quadratic | null}
+      this._quadratics = null; // {Array.<Quadratic> | null}
 
       // T-values where X and Y (respectively) reach an extrema (not necessarily including 0 and 1)
       this._xExtremaT = null; // {Array.<number> | null}
@@ -327,36 +326,19 @@ define( function( require ) {
     get tInflection2() { return this.getTInflection2(); },
 
     /**
-     * If there is a cusp, this cubic essentially consists of two quadratic segments: "start => cusp" and "cusp => end".
-     * This will return the first quadratic segment (start => cusp).
+     * If there is a cusp, this cubic will consist of one or two quadratic segments, typically "start => cusp" and
+     * "cusp => end".
      * @public
      *
-     * @returns {Quadratic|null}
+     * @returns {Array.<Quadratic>|null}
      */
-    getStartQuadratic: function() {
-      if ( this._startQuadratic === null ) {
+    getQuadratics: function() {
+      if ( this._quadratics === null ) {
         this.computeCuspSegments();
       }
-      assert && assert( this._startQuadratic !== null );
-      return this._startQuadratic;
+      assert && assert( this._quadratics !== null );
+      return this._quadratics;
     },
-    get startQuadratic() { return this.getStartQuadratic(); },
-
-    /**
-     * If there is a cusp, this cubic essentially consists of two quadratic segments: "start => cusp" and "cusp => end".
-     * This will return the second quadratic segment (cusp => end).
-     * @public
-     *
-     * @returns {Quadratic|null}
-     */
-    getEndQuadratic: function() {
-      if ( this._endQuadratic === null ) {
-        this.computeCuspSegments();
-      }
-      assert && assert( this._endQuadratic !== null );
-      return this._endQuadratic;
-    },
-    get endQuadratic() { return this.getEndQuadratic(); },
 
     /**
      * Returns a list of parametric t values where x-extrema exist, i.e. where dx/dt==0. These are candidate locations
@@ -457,13 +439,22 @@ define( function( require ) {
       if ( this.hasCusp() ) {
         // if there is a cusp, we'll split at the cusp into two quadratic bezier curves.
         // see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.94.8088&rep=rep1&type=pdf (Singularities of rational Bezier curves - J Monterde, 2001)
-        var subdividedAtCusp = this.subdivided( this.getTCusp );
-        this._startQuadratic = new kite.Quadratic( subdividedAtCusp[ 0 ].start, subdividedAtCusp[ 0 ].control1, subdividedAtCusp[ 0 ].end, false );
-        this._endQuadratic = new kite.Quadratic( subdividedAtCusp[ 1 ].start, subdividedAtCusp[ 1 ].control2, subdividedAtCusp[ 1 ].end, false );
+        this._quadratics = [];
+        var tCusp = this.getTCusp();
+        if ( tCusp === 0 ) {
+          this._quadratics.push( new kite.Quadratic( this.start, this.control2, this.end, false ) );
+        }
+        else if ( tCusp === 1 ) {
+          this._quadratics.push( new kite.Quadratic( this.start, this.control1, this.end, false ) );
+        }
+        else {
+          var subdividedAtCusp = this.subdivided( tCusp );
+          this._quadratics.push( new kite.Quadratic( subdividedAtCusp[ 0 ].start, subdividedAtCusp[ 0 ].control1, subdividedAtCusp[ 0 ].end, false ) );
+          this._quadratics.push( new kite.Quadratic( subdividedAtCusp[ 1 ].start, subdividedAtCusp[ 1 ].control2, subdividedAtCusp[ 1 ].end, false ) );
+        }
       }
       else {
-        this._startQuadratic = null;
-        this._endQuadratic = null;
+        this._quadratics = null;
       }
     },
 
@@ -489,10 +480,9 @@ define( function( require ) {
         return [];
       }
       else if ( this.hasCusp() ) {
-        return _.flatten( [
-          this._startQuadratic.getNondegenerateSegments(),
-          this._endQuadratic.getNondegenerateSegments()
-        ] );
+        return _.flatten( this.getQuadratics().map( function( quadratic ) {
+          return quadratic.getNondegenerateSegments();
+        } ) );
       }
       else if ( reduced ) {
         // if we can reduce to a quadratic Bezier, always do this (and make sure it is non-degenerate)
