@@ -1276,6 +1276,34 @@ define( function( require ) {
     },
 
     /**
+     * Return the approximate location of the centroid of the Shape (the average of all points where containsPoint is true)
+     * using Monte-Carlo methods.
+     * @public
+     *
+     * @param {number} numSamples - How many times to randomly check for inclusion of points.
+     * @returns {number}
+     */
+    getApproximateCentroid: function( numSamples ) {
+      var x = this.bounds.minX;
+      var y = this.bounds.minY;
+      var width = this.bounds.width;
+      var height = this.bounds.height;
+
+      var count = 0;
+      var sum = new Vector2();
+      var point = new Vector2();
+      for ( var i = 0; i < numSamples; i++ ) {
+        point.x = x + Math.random() * width;
+        point.y = y + Math.random() * height;
+        if ( this.containsPoint( point ) ) {
+          sum.add( point );
+          count++;
+        }
+      }
+      return sum.dividedScalar( count );
+    },
+
+    /**
      * Should be called after mutating the x/y of Vector2 points that were passed in to various Shape calls, so that
      * derived information computed (bounds, etc.) will be correct, and any clients (e.g. Scenery Paths) will be
      * notified of the updates.
