@@ -204,6 +204,8 @@ define( function( require ) {
       assert && assert( !( ( !this._anticlockwise && this._endAngle - this._startAngle > Math.PI * 2 ) ||
                            ( this._anticlockwise && this._startAngle - this._endAngle > Math.PI * 2 ) ),
         'Not handling elliptical arcs with start/end angles that show differences in-between browser handling' );
+
+      this.trigger0( 'invalidated' );
     },
 
     /**
