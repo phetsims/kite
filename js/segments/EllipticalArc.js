@@ -198,11 +198,11 @@ define( function( require ) {
       }
 
       // constraints shared with Arc
-      assert && assert( !( ( !this.anticlockwise && this.endAngle - this.startAngle <= -Math.PI * 2 ) ||
-                           ( this.anticlockwise && this.startAngle - this.endAngle <= -Math.PI * 2 ) ),
+      assert && assert( !( ( !this._anticlockwise && this._endAngle - this._startAngle <= -Math.PI * 2 ) ||
+                           ( this._anticlockwise && this._startAngle - this._endAngle <= -Math.PI * 2 ) ),
         'Not handling elliptical arcs with start/end angles that show differences in-between browser handling' );
-      assert && assert( !( ( !this.anticlockwise && this.endAngle - this.startAngle > Math.PI * 2 ) ||
-                           ( this.anticlockwise && this.startAngle - this.endAngle > Math.PI * 2 ) ),
+      assert && assert( !( ( !this._anticlockwise && this._endAngle - this._startAngle > Math.PI * 2 ) ||
+                           ( this._anticlockwise && this._startAngle - this._endAngle > Math.PI * 2 ) ),
         'Not handling elliptical arcs with start/end angles that show differences in-between browser handling' );
     },
 
