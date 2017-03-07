@@ -149,11 +149,11 @@ coordinate
   = number
 
 nonnegativeNumber
-  = number:floatingPointConstant { return parseFloat( number, 10 ); }
+  = number:floatingPointConstant { return parseFloat( number ); }
     / number:integerConstant { return parseInt( number, 10 ); }
 
 number
-  = ( sign:sign? number:floatingPointConstant ) { return parseFloat( sign + number, 10 ); }
+  = ( sign:sign? number:floatingPointConstant ) { return parseFloat( sign + number ); }
     / ( sign:sign? number:integerConstant ) { return parseInt( sign + number, 10 ); }
 
 flag

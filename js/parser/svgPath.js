@@ -1,5 +1,7 @@
-// NOTE: Generated from svgPath.pegjs using PEG.js, with added kite namespace and require.js compatibility.
-// See svgPath.pegjs for more documentation, or run "grunt generate-svgPath-parser" to regenerate.
+/*
+ * NOTE: Generated from svgPath.pegjs using PEG.js, with added kite namespace and require.js compatibility.
+ * See svgPath.pegjs for more documentation, or run 'grunt generate-svgPath-parser' to regenerate.
+ */
 
 define( function( require ) {
   var kite = require( 'KITE/kite' );
@@ -2090,7 +2092,7 @@ define( function( require ) {
         pos0 = pos;
         result0 = parse_floatingPointConstant();
         if ( result0 !== null ) {
-          result0 = (function( offset, number ) { return parseFloat( number, 10 ); })( pos0, result0 );
+          result0 = (function( offset, number ) { return parseFloat( number ); })( pos0, result0 );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -2131,7 +2133,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, sign, number ) { return parseFloat( sign + number, 10 ); })( pos0, result0[ 0 ], result0[ 1 ] );
+          result0 = (function( offset, sign, number ) { return parseFloat( sign + number ); })( pos0, result0[ 0 ], result0[ 1 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
