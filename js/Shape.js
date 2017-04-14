@@ -608,7 +608,7 @@ define( function( require ) {
      * @param sweep
      * @param {number} x
      * @param {number} y
-     * @returns {*}
+     * @returns {Shape} - this Shape for chaining
      * unimplemented
      */
     ellipticalArcToRelative: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
@@ -637,7 +637,7 @@ define( function( require ) {
      * @param {Vector2|number} centerX
      * @param {number} centerY
      * @param {number} [radius]
-     * @returns {*}
+      * @returns {Shape} - this shape for chaining
      */
     circle: function( centerX, centerY, radius ) {
       if ( typeof centerX === 'object' ) {
