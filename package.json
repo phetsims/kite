@@ -8,7 +8,6 @@
   },
   "devDependencies": {
     "grunt": "~0.4.1",
-    "grunt-eslint": "~19.0.0",
     "pegjs": "0.7.0"
   },
   "phet": {
