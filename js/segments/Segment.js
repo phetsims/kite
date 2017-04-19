@@ -511,5 +511,9 @@ define( function( require ) {
     };
   };
 
+  Segment.clipOverlap = function( overlap ) {
+
+  };
+
   return Segment;
 } );

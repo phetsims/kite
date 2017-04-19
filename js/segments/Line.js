@@ -16,6 +16,7 @@ define( function( require ) {
 
   var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
+  var Overlap = require( 'KITE/util/Overlap' );
 
   var scratchVector2 = new Vector2();
 
@@ -413,6 +414,8 @@ define( function( require ) {
      * And we use the upper-left section of (at+b) adjustment matrix relevant for the line.
      */
 
+    var noOverlap = [];
+
     // Efficiently compute the multiplication of the bezier matrix:
     var p0x = line1._start.x;
     var p1x = -1 * line1._start.x + line1._end.x;
@@ -428,7 +431,7 @@ define( function( require ) {
     var yOverlap = Segment.polynomialGetOverlapLinear( p0y, p1y, q0y, q1y );
     var overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
     if ( overlap === null || overlap === true ) {
-      return null; // No way to pin down an overlap
+      return noOverlap; // No way to pin down an overlap
     }
 
     // Grab an approximate value to use as epsilon (that is scale-independent)
@@ -441,23 +444,20 @@ define( function( require ) {
     var b = overlap.b;
 
     // Check that the formula is satisfied (2 equations per x and y each)
-    if ( Math.abs( q0x + b * q1x - p0x ) > approxEpsilon ) { return null; }
-    if ( Math.abs( a * q1x - p1x ) > approxEpsilon ) { return null; }
-    if ( Math.abs( q0y + b * q1y - p0y ) > approxEpsilon ) { return null; }
-    if ( Math.abs( a * q1y - p1y ) > approxEpsilon ) { return null; }
+    if ( Math.abs( q0x + b * q1x - p0x ) > approxEpsilon ) { return noOverlap; }
+    if ( Math.abs( a * q1x - p1x ) > approxEpsilon ) { return noOverlap; }
+    if ( Math.abs( q0y + b * q1y - p0y ) > approxEpsilon ) { return noOverlap; }
+    if ( Math.abs( a * q1y - p1y ) > approxEpsilon ) { return noOverlap; }
 
     var qt0 = b;
     var qt1 = a + b;
 
     // TODO: do we want an epsilon in here to be permissive?
     if ( ( qt0 > 1 && qt1 > 1 ) || ( qt0 < 0 && qt1 < 0 ) ) {
-      return null;
+      return noOverlap;
     }
 
-    return {
-      a: a,
-      b: b
-    };
+    return [ new Overlap( a, b ) ];
   };
 
   return Line;

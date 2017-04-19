@@ -100,71 +100,71 @@
     var cubic = new kite.Cubic( dot.v2( 0, 0 ), dot.v2( 0, 3 ), dot.v2( 10, 7 ), dot.v3( 10, 9 ) );
     var otherCubic = new kite.Cubic( dot.v2( 10, 0 ), dot.v2( 0, 3 ), dot.v2( 10, 7 ), dot.v3( 10, 9 ) );
 
-    var selfTest = kite.Cubic.getOverlaps( cubic, cubic );
+    var selfTest = kite.Cubic.getOverlaps( cubic, cubic )[ 0 ];
     equal( selfTest.a, 1, 'selfTest.a' );
     equal( selfTest.b, 0, 'selfTest.b' );
 
     var firstHalf = cubic.subdivided( 0.5 )[ 0 ];
-    var firstTest = kite.Cubic.getOverlaps( cubic, firstHalf );
+    var firstTest = kite.Cubic.getOverlaps( cubic, firstHalf )[ 0 ];
     equal( firstTest.a, 2, 'firstTest.a' );
     equal( firstTest.b, 0, 'firstTest.b' );
     ok( cubic.positionAt( 0.25 ).distance( firstHalf.positionAt( 0.25 * firstTest.a + firstTest.b ) ) < 1e-6, 'firstHalf t=0.25 check' );
 
     var secondHalf = cubic.subdivided( 0.5 )[ 1 ];
-    var secondTest = kite.Cubic.getOverlaps( cubic, secondHalf );
+    var secondTest = kite.Cubic.getOverlaps( cubic, secondHalf )[ 0 ];
     equal( secondTest.a, 2, 'secondTest.a' );
     equal( secondTest.b, -1, 'secondTest.b' );
     ok( cubic.positionAt( 0.75 ).distance( secondHalf.positionAt( 0.75 * secondTest.a + secondTest.b ) ) < 1e-6, 'secondHalf t=0.75 check' );
 
     var negativeTest = kite.Cubic.getOverlaps( cubic, otherCubic );
-    equal( negativeTest, null, 'negativeTest' );
+    equal( negativeTest.length, 0, 'negativeTest' );
   } );
 
   test( 'Quadratic overlap', function() {
     var quadratic = new kite.Quadratic( dot.v2( 0, 0 ), dot.v2( 0, 3 ), dot.v3( 10, 9 ) );
     var otherQuadratic = new kite.Quadratic( dot.v2( 10, 0 ), dot.v2( 0, 3 ), dot.v3( 10, 9 ) );
 
-    var selfTest = kite.Quadratic.getOverlaps( quadratic, quadratic );
+    var selfTest = kite.Quadratic.getOverlaps( quadratic, quadratic )[ 0 ];
     equal( selfTest.a, 1, 'selfTest.a' );
     equal( selfTest.b, 0, 'selfTest.b' );
 
     var firstHalf = quadratic.subdivided( 0.5 )[ 0 ];
-    var firstTest = kite.Quadratic.getOverlaps( quadratic, firstHalf );
+    var firstTest = kite.Quadratic.getOverlaps( quadratic, firstHalf )[ 0 ];
     equal( firstTest.a, 2, 'firstTest.a' );
     equal( firstTest.b, 0, 'firstTest.b' );
     ok( quadratic.positionAt( 0.25 ).distance( firstHalf.positionAt( 0.25 * firstTest.a + firstTest.b ) ) < 1e-6, 'firstHalf t=0.25 check' );
 
     var secondHalf = quadratic.subdivided( 0.5 )[ 1 ];
-    var secondTest = kite.Quadratic.getOverlaps( quadratic, secondHalf );
+    var secondTest = kite.Quadratic.getOverlaps( quadratic, secondHalf )[ 0 ];
     equal( secondTest.a, 2, 'secondTest.a' );
     equal( secondTest.b, -1, 'secondTest.b' );
     ok( quadratic.positionAt( 0.75 ).distance( secondHalf.positionAt( 0.75 * secondTest.a + secondTest.b ) ) < 1e-6, 'secondHalf t=0.75 check' );
 
     var negativeTest = kite.Quadratic.getOverlaps( quadratic, otherQuadratic );
-    equal( negativeTest, null, 'negativeTest' );
+    equal( negativeTest.length, 0, 'negativeTest' );
   } );
 
   test( 'Linear overlap', function() {
     var line = new kite.Line( dot.v2( 0, 0 ), dot.v3( 10, 9 ) );
     var otherLine = new kite.Line( dot.v2( 10, 0 ), dot.v3( 10, 9 ) );
 
-    var selfTest = kite.Line.getOverlaps( line, line );
+    var selfTest = kite.Line.getOverlaps( line, line )[ 0 ];
     equal( selfTest.a, 1, 'selfTest.a' );
     equal( selfTest.b, 0, 'selfTest.b' );
 
     var firstHalf = line.subdivided( 0.5 )[ 0 ];
-    var firstTest = kite.Line.getOverlaps( line, firstHalf );
+    var firstTest = kite.Line.getOverlaps( line, firstHalf )[ 0 ];
     equal( firstTest.a, 2, 'firstTest.a' );
     equal( firstTest.b, 0, 'firstTest.b' );
     ok( line.positionAt( 0.25 ).distance( firstHalf.positionAt( 0.25 * firstTest.a + firstTest.b ) ) < 1e-6, 'firstHalf t=0.25 check' );
 
     var secondHalf = line.subdivided( 0.5 )[ 1 ];
-    var secondTest = kite.Line.getOverlaps( line, secondHalf );
+    var secondTest = kite.Line.getOverlaps( line, secondHalf )[ 0 ];
     equal( secondTest.a, 2, 'secondTest.a' );
     equal( secondTest.b, -1, 'secondTest.b' );
     ok( line.positionAt( 0.75 ).distance( secondHalf.positionAt( 0.75 * secondTest.a + secondTest.b ) ) < 1e-6, 'secondHalf t=0.75 check' );
 
     var negativeTest = kite.Line.getOverlaps( line, otherLine );
-    equal( negativeTest, null, 'negativeTest' );
+    equal( negativeTest.length, 0, 'negativeTest' );
   } );
 })();

@@ -17,6 +17,7 @@ define( function( require ) {
   var Util = require( 'DOT/Util' );
   var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
+  var Overlap = require( 'KITE/util/Overlap' );
 
   // constants
   var solveQuadraticRootsReal = Util.solveQuadraticRootsReal;
@@ -573,6 +574,8 @@ define( function( require ) {
      * And we use the upper-left section of (at+b) adjustment matrix relevant for the quadratic.
      */
 
+    var noOverlap = [];
+
     // Efficiently compute the multiplication of the bezier matrix:
     var p0x = quadratic1._start.x;
     var p1x = -2 * quadratic1._start.x + 2 * quadratic1._control.x;
@@ -592,7 +595,7 @@ define( function( require ) {
     var yOverlap = Segment.polynomialGetOverlapQuadratic( p0y, p1y, p2y, q0y, q1y, q2y );
     var overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
     if ( overlap === null || overlap === true ) {
-      return null; // No way to pin down an overlap
+      return noOverlap; // No way to pin down an overlap
     }
 
     // Grab an approximate value to use as epsilon (that is scale-independent)
@@ -609,25 +612,22 @@ define( function( require ) {
     var ab2 = 2 * a * b;
 
     // Check that the formula is satisfied (3 equations per x and y each)
-    if ( Math.abs( q0x + b * q1x + bb * q2x - p0x ) > approxEpsilon ) { return null; }
-    if ( Math.abs( a * q1x + ab2 * q2x - p1x ) > approxEpsilon ) { return null; }
-    if ( Math.abs( aa * q2x - p2x ) > approxEpsilon ) { return null; }
-    if ( Math.abs( q0y + b * q1y + bb * q2y - p0y ) > approxEpsilon ) { return null; }
-    if ( Math.abs( a * q1y + ab2 * q2y - p1y ) > approxEpsilon ) { return null; }
-    if ( Math.abs( aa * q2y - p2y ) > approxEpsilon ) { return null; }
+    if ( Math.abs( q0x + b * q1x + bb * q2x - p0x ) > approxEpsilon ) { return noOverlap; }
+    if ( Math.abs( a * q1x + ab2 * q2x - p1x ) > approxEpsilon ) { return noOverlap; }
+    if ( Math.abs( aa * q2x - p2x ) > approxEpsilon ) { return noOverlap; }
+    if ( Math.abs( q0y + b * q1y + bb * q2y - p0y ) > approxEpsilon ) { return noOverlap; }
+    if ( Math.abs( a * q1y + ab2 * q2y - p1y ) > approxEpsilon ) { return noOverlap; }
+    if ( Math.abs( aa * q2y - p2y ) > approxEpsilon ) { return noOverlap; }
 
     var qt0 = b;
     var qt1 = a + b;
 
     // TODO: do we want an epsilon in here to be permissive?
     if ( ( qt0 > 1 && qt1 > 1 ) || ( qt0 < 0 && qt1 < 0 ) ) {
-      return null;
+      return noOverlap;
     }
 
-    return {
-      a: a,
-      b: b
-    };
+    return [ new Overlap( a, b ) ];
   };
 
   return Quadratic;
