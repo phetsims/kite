@@ -21,6 +21,7 @@ define( [
   'KITE/segments/Quadratic',
   'KITE/segments/Segment',
   'KITE/util/LineStyles',
+  'KITE/util/Overlap',
   'KITE/util/Subpath',
 
   'KITE/parser/svgPath'
