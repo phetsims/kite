@@ -1,4 +1,4 @@
-// Copyright 2013-2015, University of Colorado Boulder
+// Copyright 2013-2017, University of Colorado Boulder
 
 /**
  * Cubic Bezier segment.
@@ -780,6 +780,127 @@ define( function( require ) {
     var c = -3 * v0 + 3 * v1;
 
     return _.filter( solveQuadraticRootsReal( a, b, c ), isBetween0And1 );
+  };
+
+  /**
+   * Determine whether two Cubics overlap over a continuous section, and if so finds the a,b pair such that
+   * p( t ) === q( a * t + b ).
+   * @public
+   *
+   * NOTE: for this particular function, we assume we're not degenerate. Things may work if we can be degree-reduced
+   * to a quadratic, but generally that shouldn't be done.
+   *
+   * @param {Cubic} cubic1
+   * @param {Cubic} cubic2
+   * @returns {null|{a:number,b:number}} - The solution, if there is one (and only one)
+   */
+  Cubic.getOverlaps = function( cubic1, cubic2 ) {
+    assert && assert( cubic1 instanceof Cubic, 'first Cubic is not an instance of Cubic' );
+    assert && assert( cubic2 instanceof Cubic, 'second Cubic is not an instance of Cubic' );
+
+    /*
+     * For a 1-dimensional cubic bezier, we have the formula:
+     *
+     *                            [  0  0  0  0 ]   [ p0 ]
+     * p( t ) = [ 1 t t^2 t^3 ] * [ -3  3  0  0 ] * [ p1 ]
+     *                            [  3 -6  3  0 ]   [ p2 ]
+     *                            [ -1  3 -3  1 ]   [ p3 ]
+     *
+     * where p0,p1,p2,p3 are the control values (start,control1,control2,end). We want to see if a linear-mapped cubic:
+     *
+     *                                              [ 1 b b^2  b^3  ]   [  0  0  0  0 ]   [ q0 ]
+     * p( t ) =? q( a * t + b ) = [ 1 t t^2 t^3 ] * [ 0 a 2ab 3ab^2 ] * [ -3  3  0  0 ] * [ q1 ]
+     *                                              [ 0 0 a^2 3a^2b ]   [  3 -6  3  0 ]   [ q2 ]
+     *                                              [ 0 0  0   a^3  ]   [ -1  3 -3  1 ]   [ q3 ]
+     *
+     * (is it equal to the second cubic if we can find a linear way to map its input t-value?)
+     *
+     * For simplicity and efficiency, we'll precompute the multiplication of the bezier matrix:
+     * [ p0s ]    [  1   0   0   0 ]   [ p0 ]
+     * [ p1s ] == [ -3   3   0   0 ] * [ p1 ]
+     * [ p2s ]    [  3  -6   3   0 ]   [ p2 ]
+     * [ p3s ]    [ -1   3  -3   1 ]   [ p3 ]
+     *
+     * Leaving our computation to solve for a,b such that:
+     *
+     * [ p0s ]    [ 1 b b^2  b^3  ]   [ q0s ]
+     * [ p1s ] == [ 0 a 2ab 3ab^2 ] * [ q1s ]
+     * [ p2s ]    [ 0 0 a^2 3a^2b ]   [ q2s ]
+     * [ p3s ]    [ 0 0  0   a^3  ]   [ q3s ]
+     *
+     * The subproblem of computing possible a,b pairs will be left to Segment.polynomialGetOverlapCubic and its
+     * reductions (if p3s/q3s are zero, they aren't fully cubic beziers and can be degree reduced, which is handled).
+     *
+     * Then, given an a,b pair, we need to ensure the above formula is satisfied (approximately, due to floating-point
+     * arithmetic).
+     */
+
+    // Efficiently compute the multiplication of the bezier matrix:
+    var p0x = cubic1._start.x;
+    var p1x = -3 * cubic1._start.x + 3 * cubic1._control1.x;
+    var p2x = 3 * cubic1._start.x - 6 * cubic1._control1.x + 3 * cubic1._control2.x;
+    var p3x = -1 * cubic1._start.x + 3 * cubic1._control1.x - 3 * cubic1._control2.x + cubic1._end.x;
+    var p0y = cubic1._start.y;
+    var p1y = -3 * cubic1._start.y + 3 * cubic1._control1.y;
+    var p2y = 3 * cubic1._start.y - 6 * cubic1._control1.y + 3 * cubic1._control2.y;
+    var p3y = -1 * cubic1._start.y + 3 * cubic1._control1.y - 3 * cubic1._control2.y + cubic1._end.y;
+    var q0x = cubic2._start.x;
+    var q1x = -3 * cubic2._start.x + 3 * cubic2._control1.x;
+    var q2x = 3 * cubic2._start.x - 6 * cubic2._control1.x + 3 * cubic2._control2.x;
+    var q3x = -1 * cubic2._start.x + 3 * cubic2._control1.x - 3 * cubic2._control2.x + cubic2._end.x;
+    var q0y = cubic2._start.y;
+    var q1y = -3 * cubic2._start.y + 3 * cubic2._control1.y;
+    var q2y = 3 * cubic2._start.y - 6 * cubic2._control1.y + 3 * cubic2._control2.y;
+    var q3y = -1 * cubic2._start.y + 3 * cubic2._control1.y - 3 * cubic2._control2.y + cubic2._end.y;
+
+    // Determine the candidate overlap
+    var xOverlap = Segment.polynomialGetOverlapCubic( p0x, p1x, p2x, p3x, q0x, q1x, q2x, q3x );
+    var yOverlap = Segment.polynomialGetOverlapCubic( p0y, p1y, p2y, p3y, q0y, q1y, q2y, q3y );
+    var overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
+    if ( overlap === null || overlap === true ) {
+      return null; // No way to pin down an overlap
+    }
+
+    // Grab an approximate value to use as epsilon (that is scale-independent)
+    var approxEpsilon = ( Math.abs( p0x ) + Math.abs( p1x ) + Math.abs( p2x ) + Math.abs( p3x ) +
+                          Math.abs( p0y ) + Math.abs( p1y ) + Math.abs( p2y ) + Math.abs( p3y ) +
+                          Math.abs( q0x ) + Math.abs( q1x ) + Math.abs( q2x ) + Math.abs( q3x ) +
+                          Math.abs( q0y ) + Math.abs( q1y ) + Math.abs( q2y ) + Math.abs( q3y ) ) * 1e-6;
+
+    var a = overlap.a;
+    var b = overlap.b;
+
+    // Premultiply a few values
+    var aa = a * a;
+    var aaa = a * a * a;
+    var bb = b * b;
+    var bbb = b * b * b;
+    var ab2 = 2 * a * b;
+    var abb3 = 3 * a * bb;
+    var aab3 = 3 * aa * b;
+
+    // Check that the formula is satisfied (4 equations per x and y each)
+    if ( Math.abs( q0x + b * q1x + bb * q2x + bbb * q3x - p0x ) > approxEpsilon ) { return null; }
+    if ( Math.abs( a * q1x + ab2 * q2x + abb3 * q3x - p1x ) > approxEpsilon ) { return null; }
+    if ( Math.abs( aa * q2x + aab3 * q3x - p2x ) > approxEpsilon ) { return null; }
+    if ( Math.abs( aaa * q3x - p3x ) > approxEpsilon ) { return null; }
+    if ( Math.abs( q0y + b * q1y + bb * q2y + bbb * q3y - p0y ) > approxEpsilon ) { return null; }
+    if ( Math.abs( a * q1y + ab2 * q2y + abb3 * q3y - p1y ) > approxEpsilon ) { return null; }
+    if ( Math.abs( aa * q2y + aab3 * q3y - p2y ) > approxEpsilon ) { return null; }
+    if ( Math.abs( aaa * q3y - p3y ) > approxEpsilon ) { return null; }
+
+    var qt0 = b;
+    var qt1 = a + b;
+
+    // TODO: do we want an epsilon in here to be permissive?
+    if ( ( qt0 > 1 && qt1 > 1 ) || ( qt0 < 0 && qt1 < 0 ) ) {
+      return null;
+    }
+
+    return {
+      a: a,
+      b: b
+    };
   };
 
   return Cubic;

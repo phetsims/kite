@@ -1,4 +1,4 @@
-// Copyright 2013-2015, University of Colorado Boulder
+// Copyright 2013-2017, University of Colorado Boulder
 
 /**
  * Quadratic Bezier segment
@@ -544,6 +544,90 @@ define( function( require ) {
     else {
       return NaN;
     }
+  };
+
+  /**
+   * Determine whether two Quadratics overlap over a continuous section, and if so finds the a,b pair such that
+   * p( t ) === q( a * t + b ).
+   * @public
+   *
+   * NOTE: for this particular function, we assume we're not degenerate. Things may work if we can be degree-reduced
+   * to a quadratic, but generally that shouldn't be done.
+   *
+   * @param {Quadratic} quadratic1
+   * @param {Quadratic} quadratic2
+   * @returns {null|{a:number,b:number}} - The solution, if there is one (and only one)
+   */
+  Quadratic.getOverlaps = function( quadratic1, quadratic2 ) {
+    assert && assert( quadratic1 instanceof Quadratic, 'first Quadratic is not an instance of Quadratic' );
+    assert && assert( quadratic2 instanceof Quadratic, 'second Quadratic is not an instance of Quadratic' );
+
+    /*
+     * NOTE: For implementation details in this function, please see Cubic.getOverlaps. It goes over all of the
+     * same implementation details, but instead our bezier matrix is a 3x3:
+     *
+     * [  1  0  0 ]
+     * [ -2  2  0 ]
+     * [  1 -2  1 ]
+     *
+     * And we use the upper-left section of (at+b) adjustment matrix relevant for the quadratic.
+     */
+
+    // Efficiently compute the multiplication of the bezier matrix:
+    var p0x = quadratic1._start.x;
+    var p1x = -2 * quadratic1._start.x + 2 * quadratic1._control.x;
+    var p2x = quadratic1._start.x - 2 * quadratic1._control.x + quadratic1._end.x;
+    var p0y = quadratic1._start.y;
+    var p1y = -2 * quadratic1._start.y + 2 * quadratic1._control.y;
+    var p2y = quadratic1._start.y - 2 * quadratic1._control.y + quadratic1._end.y;
+    var q0x = quadratic2._start.x;
+    var q1x = -2 * quadratic2._start.x + 2 * quadratic2._control.x;
+    var q2x = quadratic2._start.x - 2 * quadratic2._control.x + quadratic2._end.x;
+    var q0y = quadratic2._start.y;
+    var q1y = -2 * quadratic2._start.y + 2 * quadratic2._control.y;
+    var q2y = quadratic2._start.y - 2 * quadratic2._control.y + quadratic2._end.y;
+
+    // Determine the candidate overlap
+    var xOverlap = Segment.polynomialGetOverlapQuadratic( p0x, p1x, p2x, q0x, q1x, q2x );
+    var yOverlap = Segment.polynomialGetOverlapQuadratic( p0y, p1y, p2y, q0y, q1y, q2y );
+    var overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
+    if ( overlap === null || overlap === true ) {
+      return null; // No way to pin down an overlap
+    }
+
+    // Grab an approximate value to use as epsilon (that is scale-independent)
+    var approxEpsilon = ( Math.abs( p0x ) + Math.abs( p1x ) + Math.abs( p2x ) +
+                          Math.abs( p0y ) + Math.abs( p1y ) + Math.abs( p2y ) +
+                          Math.abs( q0x ) + Math.abs( q1x ) + Math.abs( q2x ) +
+                          Math.abs( q0y ) + Math.abs( q1y ) + Math.abs( q2y ) ) * 1e-6;
+
+    var a = overlap.a;
+    var b = overlap.b;
+
+    var aa = a * a;
+    var bb = b * b;
+    var ab2 = 2 * a * b;
+
+    // Check that the formula is satisfied (3 equations per x and y each)
+    if ( Math.abs( q0x + b * q1x + bb * q2x - p0x ) > approxEpsilon ) { return null; }
+    if ( Math.abs( a * q1x + ab2 * q2x - p1x ) > approxEpsilon ) { return null; }
+    if ( Math.abs( aa * q2x - p2x ) > approxEpsilon ) { return null; }
+    if ( Math.abs( q0y + b * q1y + bb * q2y - p0y ) > approxEpsilon ) { return null; }
+    if ( Math.abs( a * q1y + ab2 * q2y - p1y ) > approxEpsilon ) { return null; }
+    if ( Math.abs( aa * q2y - p2y ) > approxEpsilon ) { return null; }
+
+    var qt0 = b;
+    var qt1 = a + b;
+
+    // TODO: do we want an epsilon in here to be permissive?
+    if ( ( qt0 > 1 && qt1 > 1 ) || ( qt0 < 0 && qt1 < 0 ) ) {
+      return null;
+    }
+
+    return {
+      a: a,
+      b: b
+    };
   };
 
   return Quadratic;

@@ -1,4 +1,4 @@
-// Copyright 2013-2015, University of Colorado Boulder
+// Copyright 2013-2017, University of Colorado Boulder
 
 /**
  * A segment represents a specific curve with a start and end.
@@ -383,6 +383,132 @@ define( function( require ) {
     } );
 
     return bestList;
+  };
+
+  /**
+   * Given the cubic-premultiplied values for two cubic bezier curves, determines (if available) a specified (a,b) pair
+   * such that p( t ) === q( a * t + b ).
+   * @public
+   *
+   * Given a 1-dimensional cubic bezier determined by the control points p0, p1, p2 and p3, compute:
+   *
+   * [ p0s ]    [  1   0   0   0 ]   [ p0 ]
+   * [ p1s ] == [ -3   3   0   0 ] * [ p1 ]
+   * [ p2s ] == [  3  -6   3   0 ] * [ p2 ]
+   * [ p3s ]    [ -1   3  -3   1 ]   [ p3 ]
+   *
+   * see Cubic.getOverlaps for more information.
+   *
+   * @param {number} p0s
+   * @param {number} p1s
+   * @param {number} p2s
+   * @param {number} p3s
+   * @param {number} q0s
+   * @param {number} q1s
+   * @param {number} q2s
+   * @param {number} q3s
+   * @returns {null|true|{a:number,b:number}} - null if no solution, true if every a,b pair is a solution, otherwise
+   *                                            the single solution
+   */
+  Segment.polynomialGetOverlapCubic = function( p0s, p1s, p2s, p3s, q0s, q1s, q2s, q3s ) {
+    if ( q3s === 0 ) {
+      return Segment.polynomialGetOverlapQuadratic( p0s, p1s, p2s, q0s, q1s, q2s );
+    }
+
+    var a = Math.pow( p3s / q3s, 1 / 3 );
+    if ( a === 0 ) {
+      return null; // If there would be solutions, then q3s would have been non-zero
+    }
+    var b = ( p2s - a * a * q2s ) / ( 3 * a * a * q3s );
+    return {
+      a: a,
+      b: b
+    };
+  };
+
+  /**
+   * Given the quadratic-premultiplied values for two quadratic bezier curves, determines (if available) a specified (a,b) pair
+   * such that p( t ) === q( a * t + b ).
+   * @public
+   *
+   * Given a 1-dimensional quadratic bezier determined by the control points p0, p1, p2, compute:
+   *
+   * [ p0s ]    [  1   0   0 ]   [ p0 ]
+   * [ p1s ] == [ -2   2   0 ] * [ p1 ]
+   * [ p2s ]    [  2  -2   3 ] * [ p2 ]
+   *
+   * see Quadratic.getOverlaps for more information.
+   *
+   * @param {number} p0s
+   * @param {number} p1s
+   * @param {number} p2s
+   * @param {number} q0s
+   * @param {number} q1s
+   * @param {number} q2s
+   * @returns {null|true|{a:number,b:number}} - null if no solution, true if every a,b pair is a solution, otherwise
+   *                                            the single solution
+   */
+  Segment.polynomialGetOverlapQuadratic = function( p0s, p1s, p2s, q0s, q1s, q2s ) {
+    if ( q2s === 0 ) {
+      return Segment.polynomialGetOverlapLinear( p0s, p1s, q0s, q1s );
+    }
+
+    var discr = p2s / q2s;
+    if ( discr < 0 ) {
+      return null; // not possible to have a solution with an imaginary a
+    }
+
+    var a = Math.sqrt( p2s / q2s );
+    if ( a === 0 ) {
+      return null; // If there would be solutions, then q2s would have been non-zero
+    }
+
+    var b = ( p1s - a * q1s ) / ( 2 * a * q2s );
+    return {
+      a: a,
+      b: b
+    };
+  };
+
+  /**
+   * Given the linear-premultiplied values for two lines, determines (if available) a specified (a,b) pair
+   * such that p( t ) === q( a * t + b ).
+   * @public
+   *
+   * Given a line determined by the control points p0, p1, compute:
+   *
+   * [ p0s ] == [  1   0 ] * [ p0 ]
+   * [ p1s ] == [ -1   1 ] * [ p1 ]
+   *
+   * see Quadratic/Cubic.getOverlaps for more information.
+   *
+   * @param {number} p0s
+   * @param {number} p1s
+   * @param {number} q0s
+   * @param {number} q1s
+   * @returns {null|true|{a:number,b:number}} - null if no solution, true if every a,b pair is a solution, otherwise
+   *                                            the single solution
+   */
+  Segment.polynomialGetOverlapLinear = function( p0s, p1s, q0s, q1s ) {
+    if ( q1s === 0 ) {
+      if ( p0s === q0s ) {
+        return true;
+      }
+      else {
+        return null;
+      }
+    }
+
+    var a = p1s / q1s;
+    if ( a === 0 ) {
+      return null;
+    }
+
+    var b = ( p0s - q0s ) / q1s;
+    return {
+      a: a,
+      b: b
+    };
   };
 
   return Segment;

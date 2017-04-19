@@ -29,6 +29,11 @@
 
       console.log( 'loaded' );
 
+      window.initTest = function() {
+        window.cubic = new kite.Cubic( dot.v2( 0,0 ), dot.v2( 0,3), dot.v2( 10,7), dot.v3( 10, 9 ) );
+        return kite.Cubic.getOverlaps( cubic.subdivided( 0.7 )[ 0 ], cubic.subdivided( 0.3 )[ 1 ] );
+      };
+
       window.initLineTest = function() {
         // intersection with one ray returns a different result than another. need to add indeterminate intersection handling
         window.shape = new kite.Shape( 'M -100 -100 L -50 50 L 50 50 L 30 0' );
