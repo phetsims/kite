@@ -143,4 +143,28 @@
     var negativeTest = kite.Quadratic.getOverlaps( quadratic, otherQuadratic );
     equal( negativeTest, null, 'negativeTest' );
   } );
+
+  test( 'Linear overlap', function() {
+    var line = new kite.Line( dot.v2( 0, 0 ), dot.v3( 10, 9 ) );
+    var otherLine = new kite.Line( dot.v2( 10, 0 ), dot.v3( 10, 9 ) );
+
+    var selfTest = kite.Line.getOverlaps( line, line );
+    equal( selfTest.a, 1, 'selfTest.a' );
+    equal( selfTest.b, 0, 'selfTest.b' );
+
+    var firstHalf = line.subdivided( 0.5 )[ 0 ];
+    var firstTest = kite.Line.getOverlaps( line, firstHalf );
+    equal( firstTest.a, 2, 'firstTest.a' );
+    equal( firstTest.b, 0, 'firstTest.b' );
+    ok( line.positionAt( 0.25 ).distance( firstHalf.positionAt( 0.25 * firstTest.a + firstTest.b ) ) < 1e-6, 'firstHalf t=0.25 check' );
+
+    var secondHalf = line.subdivided( 0.5 )[ 1 ];
+    var secondTest = kite.Line.getOverlaps( line, secondHalf );
+    equal( secondTest.a, 2, 'secondTest.a' );
+    equal( secondTest.b, -1, 'secondTest.b' );
+    ok( line.positionAt( 0.75 ).distance( secondHalf.positionAt( 0.75 * secondTest.a + secondTest.b ) ) < 1e-6, 'secondHalf t=0.75 check' );
+
+    var negativeTest = kite.Line.getOverlaps( line, otherLine );
+    equal( negativeTest, null, 'negativeTest' );
+  } );
 })();

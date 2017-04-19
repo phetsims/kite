@@ -390,5 +390,75 @@ define( function( require ) {
   Segment.addInvalidatingGetterSetter( Line, 'start' );
   Segment.addInvalidatingGetterSetter( Line, 'end' );
 
+  /**
+   * Determine whether two lines overlap over a continuous section, and if so finds the a,b pair such that
+   * p( t ) === q( a * t + b ).
+   * @public
+   *
+   * @param {Line} line1
+   * @param {Line} line2
+   * @returns {null|{a:number,b:number}} - The solution, if there is one (and only one)
+   */
+  Line.getOverlaps = function( line1, line2 ) {
+    assert && assert( line1 instanceof Line, 'first Line is not an instance of Line' );
+    assert && assert( line2 instanceof Line, 'second Line is not an instance of Line' );
+
+    /*
+     * NOTE: For implementation details in this function, please see Cubic.getOverlaps. It goes over all of the
+     * same implementation details, but instead our bezier matrix is a 2x2:
+     *
+     * [  1  0 ]
+     * [ -1  1 ]
+     *
+     * And we use the upper-left section of (at+b) adjustment matrix relevant for the line.
+     */
+
+    // Efficiently compute the multiplication of the bezier matrix:
+    var p0x = line1._start.x;
+    var p1x = -1 * line1._start.x + line1._end.x;
+    var p0y = line1._start.y;
+    var p1y = -1 * line1._start.y + line1._end.y;
+    var q0x = line2._start.x;
+    var q1x = -1 * line2._start.x + line2._end.x;
+    var q0y = line2._start.y;
+    var q1y = -1 * line2._start.y + line2._end.y;
+
+    // Determine the candidate overlap
+    var xOverlap = Segment.polynomialGetOverlapLinear( p0x, p1x, q0x, q1x );
+    var yOverlap = Segment.polynomialGetOverlapLinear( p0y, p1y, q0y, q1y );
+    var overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
+    if ( overlap === null || overlap === true ) {
+      return null; // No way to pin down an overlap
+    }
+
+    // Grab an approximate value to use as epsilon (that is scale-independent)
+    var approxEpsilon = ( Math.abs( p0x ) + Math.abs( p1x ) +
+                          Math.abs( p0y ) + Math.abs( p1y ) +
+                          Math.abs( q0x ) + Math.abs( q1x ) +
+                          Math.abs( q0y ) + Math.abs( q1y ) ) * 1e-6;
+
+    var a = overlap.a;
+    var b = overlap.b;
+
+    // Check that the formula is satisfied (2 equations per x and y each)
+    if ( Math.abs( q0x + b * q1x - p0x ) > approxEpsilon ) { return null; }
+    if ( Math.abs( a * q1x - p1x ) > approxEpsilon ) { return null; }
+    if ( Math.abs( q0y + b * q1y - p0y ) > approxEpsilon ) { return null; }
+    if ( Math.abs( a * q1y - p1y ) > approxEpsilon ) { return null; }
+
+    var qt0 = b;
+    var qt1 = a + b;
+
+    // TODO: do we want an epsilon in here to be permissive?
+    if ( ( qt0 > 1 && qt1 > 1 ) || ( qt0 < 0 && qt1 < 0 ) ) {
+      return null;
+    }
+
+    return {
+      a: a,
+      b: b
+    };
+  };
+
   return Line;
 } );
