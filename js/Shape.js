@@ -882,7 +882,7 @@ define( function( require ) {
         if ( subpath.isDrawable() ) {
           // since the commands after this are relative to the previous 'point', we need to specify a move to the initial point
           var startPoint = subpath.segments[ 0 ].start;
-          assert && assert( startPoint.equalsEpsilon( subpath.getFirstPoint(), 0.00001 ) ); // sanity check
+
           string += 'M ' + kite.svgNumber( startPoint.x ) + ' ' + kite.svgNumber( startPoint.y ) + ' ';
 
           for ( var k = 0; k < subpath.segments.length; k++ ) {
