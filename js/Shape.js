@@ -644,11 +644,11 @@ define( function( require ) {
         // circle( center, radius )
         var center = centerX;
         radius = centerY;
-        return this.arcPoint( center, radius, 0, Math.PI * 2, false );
+        return this.arcPoint( center, radius, 0, Math.PI * 2, false ).close();
       }
       else {
         // circle( centerX, centerY, radius )
-        return this.arcPoint( v( centerX, centerY ), radius, 0, Math.PI * 2, false );
+        return this.arcPoint( v( centerX, centerY ), radius, 0, Math.PI * 2, false ).close();
       }
     },
 
@@ -675,11 +675,11 @@ define( function( require ) {
         rotation = radiusY;
         radiusY = radiusX;
         radiusX = centerY;
-        return this.ellipticalArcPoint( center, radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
+        return this.ellipticalArcPoint( center, radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false ).close();
       }
       else {
         // ellipse( centerX, centerY, radiusX, radiusY, rotation )
-        return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false );
+        return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false ).close();
       }
     },
 
@@ -1666,7 +1666,7 @@ define( function( require ) {
       // circle( radius ), center = 0,0
       return new Shape().circle( 0, 0, centerX );
     }
-    return new Shape().circle( centerX, centerY, radius ).close();
+    return new Shape().circle( centerX, centerY, radius );
   };
 
   /**
@@ -1686,7 +1686,7 @@ define( function( require ) {
       // ellipse( radiusX, radiusY ), center = 0,0
       return new Shape().ellipse( 0, 0, centerX, centerY, radiusX );
     }
-    return new Shape().ellipse( centerX, centerY, radiusX, radiusY, rotation ).close();
+    return new Shape().ellipse( centerX, centerY, radiusX, radiusY, rotation );
   };
 
   /**

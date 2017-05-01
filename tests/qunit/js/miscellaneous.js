@@ -167,4 +167,14 @@
     var negativeTest = kite.Line.getOverlaps( line, otherLine );
     equal( negativeTest.length, 0, 'negativeTest' );
   } );
+
+  test( 'Closure of common Shape commands', function() {
+    ok( new Shape().circle( 0, 0, 10 ).subpaths[ 0 ].closed, 'circle should result in a closed subpath' );
+    ok( new Shape().ellipse( 0, 0, 10, 20, Math.PI / 4 ).subpaths[ 0 ].closed, 'ellipse should result in a closed subpath' );
+    ok( new Shape().rect( 0, 0, 100, 50 ).subpaths[ 0 ].closed, 'rect should result in a closed subpath' );
+    ok( new Shape().roundRect( 0, 0, 100, 50, 3, 4 ).subpaths[ 0 ].closed, 'roundRect should result in a closed subpath' );
+    ok( new Shape().polygon( [ dot.v2( 0, 0 ), dot.v2( 10, 0 ), dot.v2( 0, 10 ) ] ).subpaths[ 0 ].closed, 'polygon should result in a closed subpath' );
+    ok( Shape.regularPolygon( 6, 10 ).subpaths[ 0 ].closed, 'regularPolygon should result in a closed subpath' );
+  } );
+
 })();
