@@ -23,6 +23,9 @@ require.config( {
     PHET_CORE: '../../phet-core/js',
     AXON: '../../axon/js',
 
+    // Needs to be compatible in the sim, and also with scenery unit tests.
+    BRAND: '../../brand/' + (window.phet && phet.chipper && phet.chipper.brand ? phet.chipper.brand : 'adapted-from-phet') + '/js',
+
     TANDEM: '../../tandem/js',
     REPOSITORY: '..'
   },
