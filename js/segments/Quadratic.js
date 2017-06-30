@@ -160,12 +160,13 @@ define( function( require ) {
      */
     invalidate: function() {
       // Lazily-computed derived information
-      this._startTangent = null; // {Vector2 | null}
-      this._endTangent = null; // {Vector2 | null}
-      this._tCriticalX = null; // {number | null} T where x-derivative is 0 (replaced with NaN if not in range)
-      this._tCriticalY = null; // {number | null} T where y-derivative is 0 (replaced with NaN if not in range)
+      this._startTangent = null; // {Vector2|null}
+      this._endTangent = null; // {Vector2|null}
+      this._tCriticalX = null; // {number|null} T where x-derivative is 0 (replaced with NaN if not in range)
+      this._tCriticalY = null; // {number|null} T where y-derivative is 0 (replaced with NaN if not in range)
 
-      this._bounds = null; // {Bounds2 | null}
+      this._bounds = null; // {Bounds2|null}
+      this._svgPathFragment = null; // {string|null}
 
       this.trigger0( 'invalidated' );
     },
@@ -385,8 +386,20 @@ define( function( require ) {
      * @returns {string}
      */
     getSVGPathFragment: function() {
-      return 'Q ' + kite.svgNumber( this._control.x ) + ' ' + kite.svgNumber( this._control.y ) + ' ' +
-             kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
+      if ( assert ) {
+        var oldPathFragment = this._svgPathFragment;
+        this._svgPathFragment = null;
+      }
+      if ( !this._svgPathFragment ) {
+        this._svgPathFragment = 'Q ' + kite.svgNumber( this._control.x ) + ' ' + kite.svgNumber( this._control.y ) + ' ' +
+                                kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
+      }
+      if ( assert ) {
+        if ( oldPathFragment ) {
+          assert( oldPathFragment === this._svgPathFragment, 'Quadratic line segment changed without invalidate()' );
+        }
+      }
+      return this._svgPathFragment;
     },
 
     /**

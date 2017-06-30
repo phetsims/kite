@@ -154,16 +154,17 @@ define( function( require ) {
      */
     invalidate: function() {
       // Lazily-computed derived information
-      this._unitTransform = null; // {Transform3 | null} - Mapping between our ellipse and a unit circle
-      this._start = null; // {Vector2 | null}
-      this._end = null; // {Vector2 | null}
-      this._startTangent = null; // {Vector2 | null}
-      this._endTangent = null; // {Vector2 | null}
-      this._actualEndAngle = null; // {number | null} - End angle in relation to our start angle (can get remapped)
-      this._isFullPerimeter = null; // {boolean | null} - Whether it's a full ellipse (and not just an arc)
-      this._angleDifference = null; // {number | null}
-      this._unitArcSegment = null; // {Arc | null} - Corresponding circular arc for our unit transform.
-      this._bounds = null; // {Bounds2 | null}
+      this._unitTransform = null; // {Transform3|null} - Mapping between our ellipse and a unit circle
+      this._start = null; // {Vector2|null}
+      this._end = null; // {Vector2|null}
+      this._startTangent = null; // {Vector2|null}
+      this._endTangent = null; // {Vector2|null}
+      this._actualEndAngle = null; // {number|null} - End angle in relation to our start angle (can get remapped)
+      this._isFullPerimeter = null; // {boolean|null} - Whether it's a full ellipse (and not just an arc)
+      this._angleDifference = null; // {number|null}
+      this._unitArcSegment = null; // {Arc|null} - Corresponding circular arc for our unit transform.
+      this._bounds = null; // {Bounds2|null}
+      this._svgPathFragment = null; // {string|null}
 
       // remapping of negative radii
       if ( this._radiusX < 0 ) {
@@ -506,36 +507,48 @@ define( function( require ) {
      * @returns {string}
      */
     getSVGPathFragment: function() {
-      // see http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands for more info
-      // rx ry x-axis-rotation large-arc-flag sweep-flag x y
-      var epsilon = 0.01; // allow some leeway to render things as 'almost circles'
-      var sweepFlag = this._anticlockwise ? '0' : '1';
-      var largeArcFlag;
-      var degreesRotation = toDegrees( this._rotation ); // bleh, degrees?
-      if ( this.getAngleDifference() < Math.PI * 2 - epsilon ) {
-        largeArcFlag = this.getAngleDifference() < Math.PI ? '0' : '1';
-        return 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' + degreesRotation +
-               ' ' + largeArcFlag + ' ' + sweepFlag + ' ' + kite.svgNumber( this.getEnd().x ) + ' ' + kite.svgNumber( this.getEnd().y );
+      if ( assert ) {
+        var oldPathFragment = this._svgPathFragment;
+        this._svgPathFragment = null;
       }
-      else {
-        // ellipse (or almost-ellipse) case needs to be handled differently
-        // since SVG will not be able to draw (or know how to draw) the correct circle if we just have a start and end, we need to split it into two circular arcs
+      if ( !this._svgPathFragment ) {
+        // see http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands for more info
+        // rx ry x-axis-rotation large-arc-flag sweep-flag x y
+        var epsilon = 0.01; // allow some leeway to render things as 'almost circles'
+        var sweepFlag = this._anticlockwise ? '0' : '1';
+        var largeArcFlag;
+        var degreesRotation = toDegrees( this._rotation ); // bleh, degrees?
+        if ( this.getAngleDifference() < Math.PI * 2 - epsilon ) {
+          largeArcFlag = this.getAngleDifference() < Math.PI ? '0' : '1';
+          this._svgPathFragment = 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' + degreesRotation +
+                                  ' ' + largeArcFlag + ' ' + sweepFlag + ' ' + kite.svgNumber( this.getEnd().x ) + ' ' + kite.svgNumber( this.getEnd().y );
+        }
+        else {
+          // ellipse (or almost-ellipse) case needs to be handled differently
+          // since SVG will not be able to draw (or know how to draw) the correct circle if we just have a start and end, we need to split it into two circular arcs
 
-        // get the angle that is between and opposite of both of the points
-        var splitOppositeAngle = ( this._startAngle + this._endAngle ) / 2; // this _should_ work for the modular case?
-        var splitPoint = this.positionAtAngle( splitOppositeAngle );
+          // get the angle that is between and opposite of both of the points
+          var splitOppositeAngle = ( this._startAngle + this._endAngle ) / 2; // this _should_ work for the modular case?
+          var splitPoint = this.positionAtAngle( splitOppositeAngle );
 
-        largeArcFlag = '0'; // since we split it in 2, it's always the small arc
+          largeArcFlag = '0'; // since we split it in 2, it's always the small arc
 
-        var firstArc = 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' +
-                       degreesRotation + ' ' + largeArcFlag + ' ' + sweepFlag + ' ' +
-                       kite.svgNumber( splitPoint.x ) + ' ' + kite.svgNumber( splitPoint.y );
-        var secondArc = 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' +
-                        degreesRotation + ' ' + largeArcFlag + ' ' + sweepFlag + ' ' +
-                        kite.svgNumber( this.getEnd().x ) + ' ' + kite.svgNumber( this.getEnd().y );
+          var firstArc = 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' +
+                         degreesRotation + ' ' + largeArcFlag + ' ' + sweepFlag + ' ' +
+                         kite.svgNumber( splitPoint.x ) + ' ' + kite.svgNumber( splitPoint.y );
+          var secondArc = 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' +
+                          degreesRotation + ' ' + largeArcFlag + ' ' + sweepFlag + ' ' +
+                          kite.svgNumber( this.getEnd().x ) + ' ' + kite.svgNumber( this.getEnd().y );
 
-        return firstArc + ' ' + secondArc;
+          this._svgPathFragment = firstArc + ' ' + secondArc;
+        }
       }
+      if ( assert ) {
+        if ( oldPathFragment ) {
+          assert( oldPathFragment === this._svgPathFragment, 'Quadratic line segment changed without invalidate()' );
+        }
+      }
+      return this._svgPathFragment;
     },
     /**
      * Returns an array of straight lines  that will draw an offset on the logical left side

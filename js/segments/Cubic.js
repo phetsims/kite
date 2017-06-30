@@ -187,23 +187,24 @@ define( function( require ) {
      */
     invalidate: function() {
       // Lazily-computed derived information
-      this._startTangent = null; // {Vector2 | null}
-      this._endTangent = null; // {Vector2 | null}
-      this._r = null; // {number | null}
-      this._s = null; // {number | null}
+      this._startTangent = null; // {Vector2|null}
+      this._endTangent = null; // {Vector2|null}
+      this._r = null; // {number|null}
+      this._s = null; // {number|null}
 
       // Cusp-specific information
-      this._tCusp = null; // {number | null} - T value for a potential cusp
-      this._tDeterminant = null; // {number | null}
-      this._tInflection1 = null; // {number | null} - NaN if not applicable
-      this._tInflection2 = null; // {number | null} - NaN if not applicable
-      this._quadratics = null; // {Array.<Quadratic> | null}
+      this._tCusp = null; // {number|null} - T value for a potential cusp
+      this._tDeterminant = null; // {number|null}
+      this._tInflection1 = null; // {number|null} - NaN if not applicable
+      this._tInflection2 = null; // {number|null} - NaN if not applicable
+      this._quadratics = null; // {Array.<Quadratic>|null}
 
       // T-values where X and Y (respectively) reach an extrema (not necessarily including 0 and 1)
-      this._xExtremaT = null; // {Array.<number> | null}
-      this._yExtremaT = null; // {Array.<number> | null}
+      this._xExtremaT = null; // {Array.<number>|null}
+      this._yExtremaT = null; // {Array.<number>|null}
 
-      this._bounds = null; // {Bounds2 | null}
+      this._bounds = null; // {Bounds2|null}
+      this._svgPathFragment = null; // {string|null}
 
       this.trigger0( 'invalidated' );
     },
@@ -572,9 +573,21 @@ define( function( require ) {
      * @returns {string}
      */
     getSVGPathFragment: function() {
-      return 'C ' + kite.svgNumber( this._control1.x ) + ' ' + kite.svgNumber( this._control1.y ) + ' ' +
-             kite.svgNumber( this._control2.x ) + ' ' + kite.svgNumber( this._control2.y ) + ' ' +
-             kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
+      if ( assert ) {
+        var oldPathFragment = this._svgPathFragment;
+        this._svgPathFragment = null;
+      }
+      if ( !this._svgPathFragment ) {
+        this._svgPathFragment = 'C ' + kite.svgNumber( this._control1.x ) + ' ' + kite.svgNumber( this._control1.y ) + ' ' +
+                                kite.svgNumber( this._control2.x ) + ' ' + kite.svgNumber( this._control2.y ) + ' ' +
+                                kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
+      }
+      if ( assert ) {
+        if ( oldPathFragment ) {
+          assert( oldPathFragment === this._svgPathFragment, 'Quadratic line segment changed without invalidate()' );
+        }
+      }
+      return this._svgPathFragment;
     },
 
     /**
