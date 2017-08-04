@@ -715,7 +715,7 @@ define( function( require ) {
      * @param {Vector2|number} centerX
      * @param {number} centerY
      * @param {number} [radius]
-      * @returns {Shape} - this shape for chaining
+     * @returns {Shape} - this shape for chaining
      */
     circle: function( centerX, centerY, radius ) {
       if ( typeof centerX === 'object' ) {
