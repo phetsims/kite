@@ -599,17 +599,18 @@ define( function( require ) {
 
     /**
      * Matches SVG's elliptical arc from http://www.w3.org/TR/SVG/paths.html
-     * //TODO : fill out JSDOC
      * @public
-     * @param {number} radiusX
-     * @param {number} radiusY
-     * @param rotation
-     * @param largeArc
-     * @param sweep
-     * @param {number} x
-     * @param {number} y
+     *
+     * WARNING: rotation (for now) is in DEGREES. This will probably change in the future.
+     *
+     * @param {number} radiusX - Semi-major axis size
+     * @param {number} radiusY - Semi-minor axis size
+     * @param {number} rotation - IN DEGREES? TODO: SVG uses degrees, can we change the parser?
+     * @param {boolean} largeArc - Whether the arc will go the longest route around the ellipse.
+     * @param {boolean} sweep - Whether the arc made goes from start to end "clockwise" (opposite of anticlockwise flag)
+     * @param {number} x - End point X location
+     * @param {number} y - End point Y location
      * @returns {Shape} - this Shape for chaining
-     * unimplemented
      */
     ellipticalArcToRelative: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
       var relativePoint = this.getRelativePoint();
@@ -617,17 +618,94 @@ define( function( require ) {
     },
 
     /**
-     * //TODO: implement this method
-     * @param {number} radiusX
-     * @param {number} radiusY
-     * @param rotation
-     * @param largeArc
-     * @param sweep
-     * @param {number} x
-     * @param {number} y
+     * Matches SVG's elliptical arc from http://www.w3.org/TR/SVG/paths.html
+     * @public
+     *
+     * WARNING: rotation (for now) is in DEGREES. This will probably change in the future.
+     *
+     * @param {number} radiusX - Semi-major axis size
+     * @param {number} radiusY - Semi-minor axis size
+     * @param {number} rotation - IN DEGREES? TODO: SVG uses degrees, can we change the parser?
+     * @param {boolean} largeArc - Whether the arc will go the longest route around the ellipse.
+     * @param {boolean} sweep - Whether the arc made goes from start to end "clockwise" (opposite of anticlockwise flag)
+     * @param {number} x - End point X location
+     * @param {number} y - End point Y location
+     * @returns {Shape} - this Shape for chaining
      */
     ellipticalArcTo: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
-      throw new Error( 'ellipticalArcTo unimplemented' );
+      // See "F.6.5 Conversion from endpoint to center parameterization"
+      // in https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
+
+      var self = this;
+
+      // Convert to radians
+      rotation = Math.PI * rotation / 180;
+
+      var endPoint = new Vector2( x, y );
+      this.ensure( endPoint );
+
+      var startPoint = this.getLastSubpath().getLastPoint();
+      this.getLastSubpath().addPoint( endPoint );
+
+      // Absolute value applied to radii (per SVG spec)
+      if ( radiusX < 0 ) { radiusX *= -1.0; }
+      if ( radiusY < 0 ) { radiusY *= -1.0; }
+
+      var rxs = radiusX * radiusX;
+      var rys = radiusY * radiusY;
+      var prime = startPoint.minus( endPoint ).dividedScalar( 2 ).rotated( -rotation );
+      var pxs = prime.x * prime.x;
+      var pys = prime.y * prime.y;
+      var centerPrime = new Vector2( radiusX * prime.y / radiusY, -radiusY * prime.x / radiusX );
+
+      // If the radii are not large enough to accomodate the start/end point, apply F.6.6 correction
+      var size = pxs / rxs + pys / rys;
+      if ( size > 1 ) {
+        radiusX *= Math.sqrt( size );
+        radiusY *= Math.sqrt( size );
+
+        // redo some computations from above
+        rxs = radiusX * radiusX;
+        rys = radiusY * radiusY;
+        centerPrime = new Vector2( radiusX * prime.y / radiusY, -radiusY * prime.x / radiusX );
+      }
+
+      // Naming matches https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes for
+      // F.6.5 Conversion from endpoint to center parameterization
+
+      centerPrime.multiplyScalar( Math.sqrt( ( rxs * rys - rxs * pys - rys * pxs ) / ( rxs * pys + rys * pxs ) ) );
+      if ( largeArc === sweep ) {
+        // From spec: where the + sign is chosen if fA ≠ fS, and the − sign is chosen if fA = fS.
+        centerPrime.multiplyScalar( -1 );
+      }
+      var center = startPoint.blend( endPoint, 0.5 ).plus( centerPrime.rotated( rotation ) );
+      function signedAngle( u, v ) {
+        // From spec: where the ± sign appearing here is the sign of ux vy − uy vx.
+        return ( ( u.x * v.y - u.y * v.x ) > 0 ? 1 : -1 ) * u.angleBetween( v );
+      }
+      var victor = new Vector2( ( prime.x - centerPrime.x ) / radiusX, ( prime.y - centerPrime.y ) / radiusY );
+      var ross = new Vector2( ( -prime.x - centerPrime.x ) / radiusX, ( -prime.y - centerPrime.y ) / radiusY );
+      var startAngle = signedAngle( Vector2.X_UNIT, victor );
+      var deltaAngle = signedAngle( victor, ross ) % ( Math.PI * 2 );
+
+      // From spec:
+      // > In other words, if fS = 0 and the right side of (F.6.5.6) is greater than 0, then subtract 360°, whereas if
+      // > fS = 1 and the right side of (F.6.5.6) is less than 0, then add 360°. In all other cases leave it as is.
+      if ( !sweep && deltaAngle > 0 ) {
+        deltaAngle -= Math.PI * 2;
+      }
+      if ( sweep && deltaAngle < 0 ) {
+        deltaAngle += Math.PI * 2;
+      }
+
+      // Standard handling of degenerate segments (particularly, converting elliptical arcs to circular arcs)
+      var ellipticalArc = new EllipticalArc( center, radiusX, radiusY, rotation, startAngle, startAngle + deltaAngle, !sweep );
+      var nondegenerateSegments = ellipticalArc.getNondegenerateSegments();
+      _.each( nondegenerateSegments, function( segment ) {
+        self.addSegmentAndBounds( segment );
+      } );
+
+      return this;
     },
 
      /**
