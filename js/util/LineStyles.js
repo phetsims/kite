@@ -19,6 +19,14 @@ define( function( require ) {
   // constants
   var lineLineIntersection = Util.lineLineIntersection;
 
+  var DEFAULT_OPTIONS = {
+    lineWidth: 1,
+    lineCap: 'butt',
+    lineJoin: 'miter',
+    lineDashOffset: 0,
+    miterLimit: 10
+  };
+
   /**
    *
    * @param {Object} [args]
@@ -28,12 +36,12 @@ define( function( require ) {
     if ( args === undefined ) {
       args = {};
     }
-    this.lineWidth = args.lineWidth !== undefined ? args.lineWidth : 1;
-    this.lineCap = args.lineCap !== undefined ? args.lineCap : 'butt'; // butt, round, square
-    this.lineJoin = args.lineJoin !== undefined ? args.lineJoin : 'miter'; // miter, round, bevel
+    this.lineWidth = args.lineWidth !== undefined ? args.lineWidth : DEFAULT_OPTIONS.lineWidth;
+    this.lineCap = args.lineCap !== undefined ? args.lineCap : DEFAULT_OPTIONS.lineCap; // butt, round, square
+    this.lineJoin = args.lineJoin !== undefined ? args.lineJoin : DEFAULT_OPTIONS.lineJoin; // miter, round, bevel
     this.lineDash = args.lineDash ? args.lineDash : []; // [] is default, otherwise an array of numbers
-    this.lineDashOffset = args.lineDashOffset !== undefined ? args.lineDashOffset : 0; // 0 default, any number
-    this.miterLimit = args.miterLimit !== undefined ? args.miterLimit : 10; // see https://svgwg.org/svg2-draft/painting.html for miterLimit computations
+    this.lineDashOffset = args.lineDashOffset !== undefined ? args.lineDashOffset : DEFAULT_OPTIONS.lineDashOffset; // 0 default, any number
+    this.miterLimit = args.miterLimit !== undefined ? args.miterLimit : DEFAULT_OPTIONS.miterLimit; // see https://svgwg.org/svg2-draft/painting.html for miterLimit computations
 
     assert && assert( Array.isArray( this.lineDash ) );
   }
@@ -177,6 +185,8 @@ define( function( require ) {
       }
     }
   } );
+
+  LineStyles.DEFAULT_OPTIONS = DEFAULT_OPTIONS;
 
   return kite.LineStyles;
 } );
