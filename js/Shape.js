@@ -670,7 +670,7 @@ define( function( require ) {
       // Naming matches https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes for
       // F.6.5 Conversion from endpoint to center parameterization
 
-      centerPrime.multiplyScalar( Math.sqrt( ( rxs * rys - rxs * pys - rys * pxs ) / ( rxs * pys + rys * pxs ) ) );
+      centerPrime.multiplyScalar( Math.sqrt( Math.max( 0, ( rxs * rys - rxs * pys - rys * pxs ) / ( rxs * pys + rys * pxs ) ) ) );
       if ( largeArc === sweep ) {
         // From spec: where the + sign is chosen if fA ≠ fS, and the − sign is chosen if fA = fS.
         centerPrime.multiplyScalar( -1 );
