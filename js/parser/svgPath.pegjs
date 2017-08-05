@@ -131,8 +131,8 @@ smoothQuadraticBezierCurvetoArgumentSequence
     / a:coordinatePair { return [a]; }
 
 ellipticalArc
-  = 'A' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { return { cmd: 'ellipticalArcTo', args: arg } } ); }
-    / 'a' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { return { cmd: 'ellipticalArcToRelative', args: arg } } ); }
+  = 'A' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { arg[2] *= Math.PI / 180; return { cmd: 'ellipticalArcTo', args: arg } } ); }
+    / 'a' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { arg[2] *= Math.PI / 180; return { cmd: 'ellipticalArcToRelative', args: arg } } ); }
 
 ellipticalArcArgumentSequence
   = a:ellipticalArcArgument commaWsp? list:ellipticalArcArgumentSequence { return [a].concat( list ); }

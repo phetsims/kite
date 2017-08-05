@@ -605,7 +605,7 @@ define( function( require ) {
      *
      * @param {number} radiusX - Semi-major axis size
      * @param {number} radiusY - Semi-minor axis size
-     * @param {number} rotation - IN DEGREES? TODO: SVG uses degrees, can we change the parser?
+     * @param {number} rotation - Rotation of the ellipse (its semi-major axis)
      * @param {boolean} largeArc - Whether the arc will go the longest route around the ellipse.
      * @param {boolean} sweep - Whether the arc made goes from start to end "clockwise" (opposite of anticlockwise flag)
      * @param {number} x - End point X location
@@ -625,7 +625,7 @@ define( function( require ) {
      *
      * @param {number} radiusX - Semi-major axis size
      * @param {number} radiusY - Semi-minor axis size
-     * @param {number} rotation - IN DEGREES? TODO: SVG uses degrees, can we change the parser?
+     * @param {number} rotation - Rotation of the ellipse (its semi-major axis)
      * @param {boolean} largeArc - Whether the arc will go the longest route around the ellipse.
      * @param {boolean} sweep - Whether the arc made goes from start to end "clockwise" (opposite of anticlockwise flag)
      * @param {number} x - End point X location
@@ -637,9 +637,6 @@ define( function( require ) {
       // in https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
 
       var self = this;
-
-      // Convert to radians
-      rotation = Math.PI * rotation / 180;
 
       var endPoint = new Vector2( x, y );
       this.ensure( endPoint );
