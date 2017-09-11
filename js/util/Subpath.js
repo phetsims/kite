@@ -13,13 +13,13 @@ define( function( require ) {
   'use strict';
 
   var Bounds2 = require( 'DOT/Bounds2' );
-  var inherit = require( 'PHET_CORE/inherit' );
   var Events = require( 'AXON/Events' );
+  var inherit = require( 'PHET_CORE/inherit' );
 
   var kite = require( 'KITE/kite' );
 
-  var Line = require( 'KITE/segments/Line' );
   var Arc = require( 'KITE/segments/Arc' );
+  var Line = require( 'KITE/segments/Line' );
   var LineStyles = require( 'KITE/util/LineStyles' );
 
   /**

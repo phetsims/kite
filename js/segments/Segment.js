@@ -14,10 +14,10 @@ define( function( require ) {
 
   var kite = require( 'KITE/kite' );
 
-  var inherit = require( 'PHET_CORE/inherit' );
-  var Events = require( 'AXON/Events' );
-  var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
   var Bounds2 = require( 'DOT/Bounds2' );
+  var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
+  var Events = require( 'AXON/Events' );
+  var inherit = require( 'PHET_CORE/inherit' );
 
   /**
    * @constructor

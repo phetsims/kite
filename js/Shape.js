@@ -24,10 +24,10 @@ define( function( require ) {
   var Arc = require( 'KITE/segments/Arc' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Cubic = require( 'KITE/segments/Cubic' );
-  var Events = require( 'AXON/Events' );
   var EllipticalArc = require( 'KITE/segments/EllipticalArc' );
-  var kite = require( 'KITE/kite' );
+  var Events = require( 'AXON/Events' );
   var inherit = require( 'PHET_CORE/inherit' );
+  var kite = require( 'KITE/kite' );
   var Line = require( 'KITE/segments/Line' );
   var Quadratic = require( 'KITE/segments/Quadratic' );
   var Ray2 = require( 'DOT/Ray2' );

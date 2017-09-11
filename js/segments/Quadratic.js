@@ -11,13 +11,13 @@
 define( function( require ) {
   'use strict';
 
-  var inherit = require( 'PHET_CORE/inherit' );
   var Bounds2 = require( 'DOT/Bounds2' );
-  var Matrix3 = require( 'DOT/Matrix3' );
-  var Util = require( 'DOT/Util' );
+  var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
-  var Segment = require( 'KITE/segments/Segment' );
+  var Matrix3 = require( 'DOT/Matrix3' );
   var Overlap = require( 'KITE/util/Overlap' );
+  var Segment = require( 'KITE/segments/Segment' );
+  var Util = require( 'DOT/Util' );
 
   // constants
   var solveQuadraticRootsReal = Util.solveQuadraticRootsReal;

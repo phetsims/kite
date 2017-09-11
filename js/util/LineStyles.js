@@ -9,9 +9,9 @@
 define( function( require ) {
   'use strict';
 
+  var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Util = require( 'DOT/Util' );
-  var inherit = require( 'PHET_CORE/inherit' );
 
   var Arc = require( 'KITE/segments/Arc' );
   var Line = require( 'KITE/segments/Line' );

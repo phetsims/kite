@@ -9,14 +9,14 @@
 define( function( require ) {
   'use strict';
 
-  var inherit = require( 'PHET_CORE/inherit' );
-  var Vector2 = require( 'DOT/Vector2' );
   var Bounds2 = require( 'DOT/Bounds2' );
+  var inherit = require( 'PHET_CORE/inherit' );
+  var kite = require( 'KITE/kite' );
   var Matrix3 = require( 'DOT/Matrix3' );
+  var Segment = require( 'KITE/segments/Segment' );
   var Transform3 = require( 'DOT/Transform3' );
   var Util = require( 'DOT/Util' );
-  var kite = require( 'KITE/kite' );
-  var Segment = require( 'KITE/segments/Segment' );
+  var Vector2 = require( 'DOT/Vector2' );
 
   // constants
   var toDegrees = Util.toDegrees;
