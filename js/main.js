@@ -22,6 +22,7 @@ define( [
   'KITE/segments/Segment',
   'KITE/util/LineStyles',
   'KITE/util/Overlap',
+  'KITE/util/SegmentGraph',
   'KITE/util/Subpath',
 
   'KITE/parser/svgPath'
