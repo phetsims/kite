@@ -228,8 +228,10 @@ define( function( require ) {
 
     /**
      * Gets the end angle in radians.
-     *
      * @public
+     *
+     * TODO: Reduce code sharing with EllipticalArc?
+     *
      * @returns {number}
      */
     getActualEndAngle: function() {
@@ -664,6 +666,19 @@ define( function( require ) {
         var radius = scaleVector.x * this._radius;
         return new kite.Arc( matrix.timesVector2( this._center ), radius, startAngle, endAngle, anticlockwise );
       }
+    },
+
+    /**
+     * Returns the contribution to the signed area computed using Green's Theorem, with P=-y/2 and Q=x/2.
+     * @public
+     *
+     * NOTE: This is this segment's contribution to the line integral (-y/2 dx + x/2 dy).
+     *
+     * @returns {number}
+     */
+    getSignedAreaFragment: function() {
+      // TODO: Check all types of circle handling (the anticlockwise things, etc.)
+      return this._radius * this._radius * 0.5 * ( this.getActualEndAngle() - this._startAngle );
     }
   } );
 

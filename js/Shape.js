@@ -1351,6 +1351,27 @@ define( function( require ) {
     },
 
     /**
+     * Return the area inside of the Shape (where containsPoint is true), assuming there is no self-intersection or
+     * overlap, and the same orientation (winding order) is used. Should also support holes (with opposite orientation),
+     * assuming they don't intersect the containing subpath.
+     * @public
+     *
+     * @returns {number}
+     */
+    getNonoverlappingArea: function() {
+      // Only absolute-value the final value.
+      return Math.abs( _.sum( this.subpaths.map( function( subpath ) {
+        var segments = subpath.segments.slice();
+        if ( subpath.hasClosingSegment() ) {
+          segments.push( subpath.getClosingSegment() );
+        }
+        return _.sum( segments.map( function( segment ) {
+          return segment.getSignedAreaFragment();
+        } ) );
+      } ) ) );
+    },
+
+    /**
      * Return the approximate location of the centroid of the Shape (the average of all points where containsPoint is true)
      * using Monte-Carlo methods.
      * @public

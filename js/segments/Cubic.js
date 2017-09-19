@@ -731,6 +731,23 @@ define( function( require ) {
         // the two options for control points are too far away, this curve isn't easily reducible.
         return null;
       }
+    },
+
+    /**
+     * Returns the contribution to the signed area computed using Green's Theorem, with P=-y/2 and Q=x/2.
+     * @public
+     *
+     * NOTE: This is this segment's contribution to the line integral (-y/2 dx + x/2 dy).
+     *
+     * @returns {number}
+     */
+    getSignedAreaFragment: function() {
+      return 1 / 20 * (
+        this._start.x * ( 6 * this._control1.y + 3 * this._control2.y + this._end.y ) +
+        this._control1.x * ( -6 * this._start.y + 3 * this._control2.y + 3 * this._end.y ) +
+        this._control2.x * ( -3 * this._start.y - 3 * this._control1.y + 6 * this._end.y ) +
+        this._end.x * ( -this._start.y - 3 * this._control1.y - 6 * this._control2.y )
+      );
     }
 
     // returns the resultant winding number of this ray intersecting this segment.

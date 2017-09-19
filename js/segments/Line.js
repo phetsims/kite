@@ -366,6 +366,18 @@ define( function( require ) {
     },
 
     /**
+     * Returns the contribution to the signed area computed using Green's Theorem, with P=-y/2 and Q=x/2.
+     * @public
+     *
+     * NOTE: This is this segment's contribution to the line integral (-y/2 dx + x/2 dy).
+     *
+     * @returns {number}
+     */
+    getSignedAreaFragment: function() {
+      return 1 / 2 * ( this._start.x * this._end.y - this._start.y * this._end.x );
+    },
+
+    /**
      * Given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
      * @param {number} a
      * @param {number} b
