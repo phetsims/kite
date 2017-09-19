@@ -9,6 +9,7 @@
 define( function( require ) {
   'use strict';
 
+  var arrayRemove = require( 'PHET_CORE/arrayRemove' );
   var cleanArray = require( 'PHET_CORE/cleanArray' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
@@ -18,6 +19,7 @@ define( function( require ) {
   var Vector2 = require( 'DOT/Vector2' );
 
   var vertexEpsilon = 1e-5;
+  var edgeAngleEpsilon = 1e-4;
 
   /**
    * @public (kite-internal)
@@ -32,6 +34,9 @@ define( function( require ) {
 
     // @public {Array.<Edge>}
     this.edges = [];
+
+    // @public {Array.<Face>}
+    this.faces = [];
   }
 
   kite.register( 'SegmentGraph', SegmentGraph );
@@ -84,11 +89,11 @@ define( function( require ) {
         var start = segments[ index ].start;
 
         if ( start.equals( end ) ) {
-          vertices.push( new Vertex( start ) );
+          vertices.push( Vertex.createFromPool( start ) );
         }
         else {
           assert && assert( start.distance( end ) < vertexEpsilon, 'Inaccurate start/end points' );
-          vertices.push( new Vertex( start.average( end ) ) );
+          vertices.push( Vertex.createFromPool( start.average( end ) ) );
         }
       }
 
@@ -98,10 +103,13 @@ define( function( require ) {
           nextIndex = 0;
         }
 
-        edges.push( new Edge( segments[ index ], vertices[ index ], vertices[ nextIndex ] ) );
+        var edge = Edge.createFromPool( segments[ index ], vertices[ index ], vertices[ nextIndex ] );
+        edges.push( edge );
+        vertices[ index ].incidentEdges.push( edge );
+        vertices[ nextIndex ].incidentEdges.push( edge );
       }
 
-      var loop = new Loop( shapeId );
+      var loop = Loop.createFromPool( shapeId );
       for ( index = 0; index < edges.length; index++ ) {
         loop.halfEdges.push( edges[ index ].forwardHalf );
       }
@@ -128,10 +136,51 @@ define( function( require ) {
     },
 
     orderVertexEdges: function() {
-      // TODO
+      for ( var i = 0; i < this.vertices; i++ ) {
+        this.vertices[ i ].sortEdges();
+      }
     },
 
     extractFaces: function() {
+      var halfEdges = [];
+      for ( var i = 0; i < this.edges.length; i++ ) {
+        halfEdges.push( this.edges[ i ].forwardHalf );
+        halfEdges.push( this.edges[ i ].reversedHalf );
+      }
+
+      while ( halfEdges.length ) {
+        var faceHalfEdges = [];
+        var halfEdge = halfEdges[ 0 ];
+        var startingHalfEdge = halfEdge;
+        while ( halfEdge ) {
+          arrayRemove( halfEdges, halfEdge );
+          faceHalfEdges.push( halfEdge );
+          halfEdge = halfEdge.getNext();
+          if ( halfEdge === startingHalfEdge ) {
+            break;
+          }
+        }
+        this.faces.push( Face.createFromPool( faceHalfEdges ) );
+      }
+    },
+
+    computeFaceOrientation: function() {
+      // TODO
+    },
+
+    computeFaceGraph: function() {
+      // TODO
+    },
+
+    computeFaceInclusion: function() {
+      // TODO
+    },
+
+    collapseAdjacentFaces: function() {
+      // TODO
+    },
+
+    combineAdjacentSegments: function() {
       // TODO
     }
   } );
@@ -179,6 +228,9 @@ define( function( require ) {
    */
   function Vertex( point ) {
     this.initialize( point );
+
+    // @private {function}
+    this.edgeCompare = this.edgeComparison.bind( this );
   }
 
   inherit( Object, Vertex, {
@@ -190,6 +242,36 @@ define( function( require ) {
 
       // @public {Array.<Edge>}
       this.incidentEdges = cleanArray( this.incidentEdges );
+    },
+
+    /**
+     * Comparse two edges for sortEdges.
+     * @private
+     *
+     * TODO: For sorting, don't require multiple computation of the angles
+     *
+     * @param {Edge} edgeA
+     * @param {Edge} edgeB
+     * @returns {number}
+     */
+    edgeComparison: function( edgeA, edgeB ) {
+      var angleA = edgeA.getTangent( this ).angle();
+      var angleB = edgeB.getTangent( this ).angle();
+
+      if ( Math.abs( angleA - angleB ) > edgeAngleEpsilon ) {
+        return angleA < angleB ? -1 : 1;
+      }
+      else {
+        throw new Error( 'Need to implement curvature (2nd derivative) detection' );
+      }
+    },
+
+    /**
+     * Sorts the edges in increasing angle order.
+     * @public
+     */
+    sortEdges: function() {
+      this.incidentEdges.sort( this.edgeCompare );
     }
   } );
 
@@ -229,18 +311,37 @@ define( function( require ) {
       // @public {Segment}
       this.segment = segment;
 
-      // @public {HalfEdge}
-      this.forwardHalf = this.forwardHalf || new HalfEdge( this, false );
-      this.reversedHalf = this.reversedHalf || new HalfEdge( this, true );
-
       // @public {Vertex}
       this.startVertex = startVertex;
       this.endVertex = endVertex;
+
+      // @public {HalfEdge}
+      this.forwardHalf = this.forwardHalf || new HalfEdge( this, false );
+      this.reversedHalf = this.reversedHalf || new HalfEdge( this, true );
+    },
+
+    /**
+     * Returns the tangent of the edge at a specific vertex (in the direction away from the vertex).
+     * @public
+     *
+     * @param {Vertex} vertex
+     * @returns {Vector2}
+     */
+    getTangent: function( vertex ) {
+      if ( this.startVertex === vertex ) {
+        return this.segment.startTangent;
+      }
+      else if ( this.endVertex === vertex ) {
+        return this.segment.endTangent.negated();
+      }
+      else {
+        throw new Error( 'unknown vertex' );
+      }
     },
 
     /**
      * Update possibly reversed vertex references.
-     * @private
+     * @public
      */
     updateReferences: function() {
       this.forwardHalf.updateReferences();
@@ -286,15 +387,62 @@ define( function( require ) {
 
   inherit( Object, HalfEdge, {
     /**
+     * Returns the next half-edge, walking around counter-clockwise as possible. Assumes edges have been sorted.
+     * @public
+     */
+    getNext: function() {
+      var index = this.endVertex.incidentEdges.indexOf( this.edge ) - 1;
+      if ( index < 0 ) {
+        index = this.endVertex.incidentEdges.length - 1;
+      }
+      var edge = this.endVertex.incidentEdges[ index ];
+      var halfEdge = ( edge.endVertex === this.endVertex ) ? edge.reversedHalf : edge.forwardHalf;
+      assert && assert( this.endVertex === halfEdge.startVertex );
+      return halfEdge;
+    },
+
+    /**
      * Update possibly reversed vertex references.
      * @private
      */
     updateReferences: function() {
       this.startVertex = this.isReversed ? this.edge.endVertex : this.edge.startVertex;
       this.endVertex = this.isReversed ? this.edge.startVertex : this.edge.endVertex;
+      assert && assert( this.startVertex );
+      assert && assert( this.endVertex );
     }
   } );
 
+  /**
+   * A loop described by a list of half-edges.
+   * @public (kite-internal)
+   * @constructor
+   *
+   * @param {Array.<HalfEdge>} halfEdges
+   */
+  function Face( halfEdges ) {
+    this.initialize( halfEdges );
+  }
+
+  inherit( Object, Face, {
+    initialize: function( halfEdges ) {
+      // @public {Array.<HalfEdge>}
+      this.halfEdges = halfEdges;
+    }
+  } );
+
+  Poolable.mixin( Face, {
+    constructorDuplicateFactory: function( pool ) {
+      return function( halfEdges ) {
+        if ( pool.length ) {
+          return pool.pop().initialize( halfEdges );
+        }
+        else {
+          return new Face( halfEdges );
+        }
+      };
+    }
+  } );
 
   return kite.SegmentGraph;
 } );
