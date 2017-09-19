@@ -164,10 +164,6 @@ define( function( require ) {
       }
     },
 
-    computeFaceOrientation: function() {
-      // TODO
-    },
-
     computeFaceGraph: function() {
       // TODO
     },
@@ -315,6 +311,9 @@ define( function( require ) {
       this.startVertex = startVertex;
       this.endVertex = endVertex;
 
+      // @public {number}
+      this.signedAreaFragment = segment.getSignedAreaFragment();
+
       // @public {HalfEdge}
       this.forwardHalf = this.forwardHalf || new HalfEdge( this, false );
       this.reversedHalf = this.reversedHalf || new HalfEdge( this, true );
@@ -379,6 +378,9 @@ define( function( require ) {
     // @public {boolean}
     this.isReversed = isReversed;
 
+    // @public {number}
+    this.signedAreaFragment = edge.signedAreaFragment * ( isReversed ? -1 : 1 );
+
     // @public {Vertex|null}
     this.startVertex = null;
     this.endVertex = null;
@@ -428,6 +430,22 @@ define( function( require ) {
     initialize: function( halfEdges ) {
       // @public {Array.<HalfEdge>}
       this.halfEdges = halfEdges;
+
+      // @public {number}
+      this.signedArea = this.computeSignedArea();
+    },
+
+    /**
+     * @public
+     *
+     * @returns {number}
+     */
+    computeSignedArea: function() {
+      var signedArea = 0;
+      for ( var i = 0; i < this.halfEdges.length; i++ ) {
+        signedArea += this.halfEdges[ i ].signedAreaFragment;
+      }
+      return signedArea;
     }
   } );
 

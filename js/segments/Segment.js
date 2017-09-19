@@ -81,6 +81,7 @@ define( function( require ) {
    *                                                 fill rule.
    *                              }
    *   getBounds() : {Bounds2} - Returns a {Bounds2} representing the bounding box for the segment.
+   *   getSignedAreaFragment(): {number} - Returns signed area contribution for this segment using Green's Theorem
    *   getNondegenerateSegments() : {Array.<Segment>} - Returns a list of non-degenerate segments that are equivalent to
    *                                                    this segment. Generally gets rid (or simplifies) invalid or
    *                                                    repeated segments.
