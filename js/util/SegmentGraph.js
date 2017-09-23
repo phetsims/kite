@@ -10,10 +10,12 @@ define( function( require ) {
   'use strict';
 
   var arrayRemove = require( 'PHET_CORE/arrayRemove' );
+  var Bounds2 = require( 'DOT/Bounds2' );
   var cleanArray = require( 'PHET_CORE/cleanArray' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Poolable = require( 'PHET_CORE/Poolable' );
+  var Ray2 = require( 'DOT/Ray2' );
   var Segment = require( 'KITE/segments/Segment' );
   var Subpath = require( 'KITE/util/Subpath' );
   var Vector2 = require( 'DOT/Vector2' );
@@ -35,8 +37,14 @@ define( function( require ) {
     // @public {Array.<Edge>}
     this.edges = [];
 
+    // @public {Array.<Boundary>}
+    this.boundaries = [];
+
+    // @public {Face}
+    this.unboundedFace = Face.createFromPool( null );
+
     // @public {Array.<Face>}
-    this.faces = [];
+    this.faces = [ this.unboundedFace ];
   }
 
   kite.register( 'SegmentGraph', SegmentGraph );
@@ -149,23 +157,97 @@ define( function( require ) {
       }
 
       while ( halfEdges.length ) {
-        var faceHalfEdges = [];
+        var boundaryHalfEdges = [];
         var halfEdge = halfEdges[ 0 ];
         var startingHalfEdge = halfEdge;
         while ( halfEdge ) {
           arrayRemove( halfEdges, halfEdge );
-          faceHalfEdges.push( halfEdge );
+          boundaryHalfEdges.push( halfEdge );
           halfEdge = halfEdge.getNext();
           if ( halfEdge === startingHalfEdge ) {
             break;
           }
         }
-        this.faces.push( Face.createFromPool( faceHalfEdges ) );
+        this.boundaries.push( Boundary.createFromPool( boundaryHalfEdges ) );
+      }
+
+      for ( i = 0; i < this.boundaries.length; i++ ) {
+        var boundary = this.boundaries[ i ];
+        if ( boundary.signedArea < 0 ) {
+          this.faces.push( Face.createFromPool( boundary ) );
+        }
       }
     },
 
     computeFaceGraph: function() {
-      // TODO
+      for ( var i = 0; i < this.faces.length; i++ ) {
+        var face = this.faces[ i ];
+        if ( face.outerBoundary === null ) {
+          continue;
+        }
+        var topPoint = face.outerBoundary.computeMinYPoint();
+        var ray = new Ray2( topPoint.plus( new Vector2( 0, -1e-4 ) ), new Vector2( 0, -1 ) );
+
+        var closestEdge = null;
+        var closestDistance = Number.POSITIVE_INFINITY;
+        var closestWind = false;
+
+        for ( var j = 0; j < this.edges.length; j++ ) {
+          var edge = this.edges[ j ];
+
+          var intersections = edge.segment.intersection( ray );
+          for ( var k = 0; k < intersections.length; k++ ) {
+            var intersection = intersections[ k ];
+
+            if ( intersection.distance < closestDistance ) {
+              closestEdge = edge;
+              closestDistance = intersection.distance;
+              closestWind = intersection.wind;
+            }
+          }
+        }
+
+        var leftFace;
+        var isInternal;
+        if ( closestEdge === null ) {
+          leftFace = this.unboundedFace;
+          isInternal = true;
+        }
+        else {
+          hasFace:
+          for ( j = 0; j < this.faces.length; j++ ) {
+            var halfEdges = this.faces[ j ].outerBoundary.halfEdges;
+            for ( k = 0; k < halfEdges.length; k++ ) {
+              if ( halfEdges[ k ].edge === closestEdge ) {
+                leftFace = this.faces[ j ];
+                // TODO: determine if this is reversed
+                isInternal = closestWind > 0;
+                if ( halfEdges[ k ].isReversed ) {
+                  isInternal = !isInternal;
+                }
+                break hasFace;
+              }
+            }
+          }
+        }
+
+        if ( isInternal ) {
+          leftFace.containedAdjacentFaces.push( face );
+        }
+        else {
+          leftFace.adjacentFacesToRight.push( face );
+        }
+      }
+
+      function addHole( f ) {
+        face.holes.push( f );
+        face.adjacentFacesToRight.forEach( addHole );
+      }
+
+      for ( i = 0; i < this.faces.length; i++ ) {
+        face = this.faces[ i ];
+        face.containedAdjacentFaces.forEach( addHole );
+      }
     },
 
     computeFaceInclusion: function() {
@@ -422,17 +504,20 @@ define( function( require ) {
    *
    * @param {Array.<HalfEdge>} halfEdges
    */
-  function Face( halfEdges ) {
+  function Boundary( halfEdges ) {
     this.initialize( halfEdges );
   }
 
-  inherit( Object, Face, {
+  inherit( Object, Boundary, {
     initialize: function( halfEdges ) {
       // @public {Array.<HalfEdge>}
       this.halfEdges = halfEdges;
 
       // @public {number}
       this.signedArea = this.computeSignedArea();
+
+      // @public {Bounds2}
+      this.bounds = this.computeBounds();
     },
 
     /**
@@ -446,17 +531,92 @@ define( function( require ) {
         signedArea += this.halfEdges[ i ].signedAreaFragment;
       }
       return signedArea;
+    },
+
+    /**
+     * @public
+     *
+     * @returns {Bounds2}
+     */
+    computeBounds: function() {
+      var bounds = Bounds2.NOTHING.copy();
+
+      for ( var i = 0; i < this.halfEdges.length; i++ ) {
+        bounds.includeBounds( this.halfEdges[ i ].edge.segment.getBounds() );
+      }
+      return bounds;
+    },
+
+    /**
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    computeMinYPoint: function() {
+      for ( var i = 0; i < this.halfEdges.length; i++ ) {
+        var segment = this.halfEdges[ i ].edge.segment;
+        if ( segment.getBounds().top === this.bounds.top ) {
+          var minYPoint = new Vector2( 0, Number.POSITIVE_INFINITY );
+          var tValues = [ 0, 1, ].concat( segment.getInteriorExtremaTs() );
+          for ( var j = 0; j < tValues.length; j++ ) {
+            var point = segment.positionAt( tValues[ j ] );
+            if ( point.y < minYPoint.y ) {
+              minYPoint = point;
+            }
+          }
+          return minYPoint;
+        }
+      }
     }
   } );
 
-  Poolable.mixin( Face, {
+  Poolable.mixin( Boundary, {
     constructorDuplicateFactory: function( pool ) {
       return function( halfEdges ) {
         if ( pool.length ) {
           return pool.pop().initialize( halfEdges );
         }
         else {
-          return new Face( halfEdges );
+          return new Boundary( halfEdges );
+        }
+      };
+    }
+  } );
+
+  /**
+   * @public (kite-internal)
+   * @constructor
+   *
+   * @param {Boundary|null} outerBoundary - Null if it's the "outer" face
+   */
+  function Face( outerBoundary ) {
+    this.initialize( outerBoundary );
+  }
+
+  inherit( Object, Face, {
+    initialize: function( outerBoundary ) {
+      // @public {Boundary}
+      this.outerBoundary = outerBoundary;
+
+      // @public {Array.<Face>}
+      this.containedAdjacentFaces = cleanArray( this.containedAdjacentFaces );
+
+      // @public {Array.<Face>}
+      this.adjacentFacesToRight = cleanArray( this.adjacentFacesToRight );
+
+      // @public {Array.<Face>}
+      this.holes = cleanArray( this.holes );
+    }
+  } );
+
+  Poolable.mixin( Face, {
+    constructorDuplicateFactory: function( pool ) {
+      return function( outerBoundary ) {
+        if ( pool.length ) {
+          return pool.pop().initialize( outerBoundary );
+        }
+        else {
+          return new Face( outerBoundary );
         }
       };
     }
