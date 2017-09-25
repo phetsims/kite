@@ -227,7 +227,7 @@ define( function( require ) {
       var secondEdge = Edge.createFromPool( segments[ 1 ], vertex, edge.endVertex );
 
       // Remove old connections
-      arrayRemove( this.edges, edge );
+      arrayRemove( this.edges, edge ); // TODO: disposal
       arrayRemove( edge.startVertex.incidentEdges, edge );
       arrayRemove( edge.endVertex.incidentEdges, edge );
 
@@ -255,11 +255,113 @@ define( function( require ) {
     },
 
     collapseVertices: function() {
-      // TODO
+      var self = this;
+      assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
+      assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
+
+      var needsLoop = true;
+      while ( needsLoop ) {
+        needsLoop = false;
+        nextLoop:
+        for ( var i = 0; i < this.vertices.length; i++ ) {
+          var aVertex = this.vertices[ i ];
+          for ( var j = i + 1; j < this.vertices.length; j++ ) {
+            var bVertex = this.vertices[ j ];
+
+            var distance = aVertex.point.distance( bVertex.point );
+            if ( distance < vertexEpsilon ) {
+              var newVertex = Vertex.createFromPool( distance === 0 ? aVertex.point : aVertex.point.average( bVertex.point ) );
+              this.vertices.push( newVertex );
+
+              // TODO: disposal
+              arrayRemove( this.vertices, aVertex );
+              arrayRemove( this.vertices, bVertex );
+              for ( var k = this.edges.length - 1; k >= 0; k-- ) {
+                var edge = this.edges[ k ];
+                var startMatches = edge.startVertex === aVertex || edge.startVertex === bVertex;
+                var endMatches = edge.endVertex === aVertex || edge.endVertex === bVertex;
+
+                // Outright remove edges that were between A and B.
+                if ( startMatches && endMatches ) {
+                  this.edges.splice( k, 1 ); // TODO: disposal
+                  for ( var m = 0; m < this.loops.length; m++ ) {
+                    var loop = this.loops[ m ];
+                    for ( var n = loop.halfEdges.length - 1; n >= 0; n-- ) {
+                      if ( loop.halfEdges[ n ] === edge.forwardHalf || loop.halfEdges[ n ] === edge.reversedHalf ) {
+                        loop.halfEdges.splice( n, 1 );
+                      }
+                    }
+                    // TODO: check to see if the loop ceases to exist
+                  }
+                }
+                else if ( startMatches ) {
+                  edge.startVertex = newVertex;
+                  newVertex.incidentEdges.push( edge );
+                  edge.updateReferences();
+                }
+                else if ( endMatches ) {
+                  edge.endVertex = newVertex;
+                  newVertex.incidentEdges.push( edge );
+                  edge.updateReferences();
+                }
+              }
+
+              needsLoop = true;
+              break nextLoop;
+            }
+          }
+        }
+      }
+
+      assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
+      assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
     },
 
     removeSingleEdgeVertices: function() {
-      // TODO
+      var self = this;
+      assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
+      assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
+      // TODO: Really need to make sure things are 2-vertex-connected. Look up ways
+
+      var needsLoop = true;
+      while ( needsLoop ) {
+        needsLoop = false;
+
+        nextVertexLoop:
+        for ( var i = this.vertices.length - 1; i >= 0; i-- ) {
+          var vertex = this.vertices[ i ];
+
+          // TODO: proper disposal
+          if ( vertex.incidentEdges.length < 2 ) {
+            // Disconnect any existing edges
+            for ( var j = 0; j < vertex.incidentEdges.length; j++ ) {
+              var edge = vertex.incidentEdges[ j ];
+              var otherVertex = edge.getOtherVertex( vertex );
+              arrayRemove( otherVertex.incidentEdges, edge );
+              arrayRemove( this.edges, edge );
+
+              // TODO: remember to simplify this out (deduplicate)
+              for ( var m = 0; m < this.loops.length; m++ ) {
+                var loop = this.loops[ m ];
+                for ( var n = loop.halfEdges.length - 1; n >= 0; n-- ) {
+                  if ( loop.halfEdges[ n ] === edge.forwardHalf || loop.halfEdges[ n ] === edge.reversedHalf ) {
+                    loop.halfEdges.splice( n, 1 );
+                  }
+                }
+                // TODO: check to see if the loop ceases to exist
+              }
+            }
+
+            // Remove the vertex
+            this.vertices.splice( i, 1 );
+
+            needsLoop = true;
+            break nextVertexLoop;
+          }
+        }
+      }
+      assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
+      assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
     },
 
     orderVertexEdges: function() {

@@ -56,6 +56,12 @@ define( function( require ) {
       this.reversedHalf = this.reversedHalf || new HalfEdge( this, true );
     },
 
+    getOtherVertex: function( vertex ) {
+      assert && assert( vertex === this.startVertex || vertex === this.endVertex );
+
+      return this.startVertex === vertex ? this.endVertex : this.startVertex;
+    },
+
     /**
      * Returns the tangent of the edge at a specific vertex (in the direction away from the vertex).
      * @public
