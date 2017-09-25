@@ -1,7 +1,7 @@
 // Copyright 2017, University of Colorado Boulder
 
 /**
- * A graph whose edges are segments.
+ * TODO: doc
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
@@ -10,6 +10,7 @@ define( function( require ) {
   'use strict';
 
   var Bounds2 = require( 'DOT/Bounds2' );
+  var cleanArray = require( 'PHET_CORE/cleanArray' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Poolable = require( 'PHET_CORE/Poolable' );
@@ -38,6 +39,13 @@ define( function( require ) {
 
       // @public {Bounds2}
       this.bounds = this.computeBounds();
+
+      // @public {Boundary}
+      this.childBoundaries = cleanArray( this.childBoundaries );
+    },
+
+    isInner: function() {
+      return this.signedArea > 0;
     },
 
     /**
@@ -87,6 +95,15 @@ define( function( require ) {
           return minYPoint;
         }
       }
+    },
+
+    hasHalfEdge: function( halfEdge ) {
+      for ( var i = 0; i < this.halfEdges.length; i++ ) {
+        if ( this.halfEdges[ i ] === halfEdge ) {
+          return true;
+        }
+      }
+      return false;
     }
   } );
 

@@ -1,7 +1,7 @@
 // Copyright 2017, University of Colorado Boulder
 
 /**
- * A graph whose edges are segments.
+ * TODO: doc
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */

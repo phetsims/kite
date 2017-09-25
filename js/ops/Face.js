@@ -1,7 +1,7 @@
 // Copyright 2017, University of Colorado Boulder
 
 /**
- * A graph whose edges are segments.
+ * TODO: doc
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
@@ -18,38 +18,43 @@ define( function( require ) {
    * @public (kite-internal)
    * @constructor
    *
-   * @param {Boundary|null} outerBoundary - Null if it's the "outer" face
+   * @param {Boundary|null} boundary - Null if it's the unbounded face
    */
-  function Face( outerBoundary ) {
-    this.initialize( outerBoundary );
+  function Face( boundary ) {
+    this.initialize( boundary );
   }
 
   kite.register( 'Face', Face );
 
   inherit( Object, Face, {
-    initialize: function( outerBoundary ) {
-      // @public {Boundary}
-      this.outerBoundary = outerBoundary;
+    initialize: function( boundary ) {
+      assert && assert( boundary === null || boundary.isInner() );
 
-      // @public {Array.<Face>}
-      this.containedAdjacentFaces = cleanArray( this.containedAdjacentFaces );
+      // @public {Boundary} - "inner" types
+      this.boundary = boundary;
 
-      // @public {Array.<Face>}
-      this.adjacentFacesToRight = cleanArray( this.adjacentFacesToRight );
-
-      // @public {Array.<Face>}
+      // @public {Array.<Boundary>} - "outer" types
       this.holes = cleanArray( this.holes );
+    },
+
+    recursivelyAddHoles: function( outerBoundary ) {
+      assert && assert( !outerBoundary.isInner() );
+
+      this.holes.push( outerBoundary );
+      for ( var i = 0; i < outerBoundary.childBoundaries.length; i++ ) {
+        this.recursivelyAddHoles( outerBoundary.childBoundaries[ i ] );
+      }
     }
   } );
 
   Poolable.mixin( Face, {
     constructorDuplicateFactory: function( pool ) {
-      return function( outerBoundary ) {
+      return function( boundary ) {
         if ( pool.length ) {
-          return pool.pop().initialize( outerBoundary );
+          return pool.pop().initialize( boundary );
         }
         else {
-          return new Face( outerBoundary );
+          return new Face( boundary );
         }
       };
     }

@@ -39,6 +39,8 @@ define( function( require ) {
     this.edges = [];
 
     // @public {Array.<Boundary>}
+    this.innerBoundaries = [];
+    this.outerBoundaries = [];
     this.boundaries = [];
 
     // @public {Face}
@@ -169,24 +171,23 @@ define( function( require ) {
             break;
           }
         }
-        this.boundaries.push( Boundary.createFromPool( boundaryHalfEdges ) );
+        var boundary = Boundary.createFromPool( boundaryHalfEdges );
+        ( boundary.signedArea > 0 ? this.innerBoundaries : this.outerBoundaries ).push( boundary );
+        this.boundaries.push( boundary );
       }
 
-      for ( i = 0; i < this.boundaries.length; i++ ) {
-        var boundary = this.boundaries[ i ];
-        if ( boundary.signedArea < 0 ) {
-          this.faces.push( Face.createFromPool( boundary ) );
-        }
+      for ( i = 0; i < this.innerBoundaries.length; i++ ) {
+        this.faces.push( Face.createFromPool( this.innerBoundaries[ i ] ) );
       }
     },
 
-    computeFaceGraph: function() {
-      for ( var i = 0; i < this.faces.length; i++ ) {
-        var face = this.faces[ i ];
-        if ( face.outerBoundary === null ) {
-          continue;
-        }
-        var topPoint = face.outerBoundary.computeMinYPoint();
+    computeBoundaryGraph: function() {
+      var unboundedHoles = []; // {Array.<Boundary>}
+
+      for ( var i = 0; i < this.outerBoundaries.length; i++ ) {
+        var outerBoundary = this.outerBoundaries[ i ];
+
+        var topPoint = outerBoundary.computeMinYPoint();
         var ray = new Ray2( topPoint.plus( new Vector2( 0, -1e-4 ) ), new Vector2( 0, -1 ) );
 
         var closestEdge = null;
@@ -208,46 +209,23 @@ define( function( require ) {
           }
         }
 
-        var leftFace;
-        var isInternal;
         if ( closestEdge === null ) {
-          leftFace = this.unboundedFace;
-          isInternal = true;
+          unboundedHoles.push( outerBoundary );
         }
         else {
-          hasFace:
-          for ( j = 0; j < this.faces.length; j++ ) {
-            var halfEdges = this.faces[ j ].outerBoundary.halfEdges;
-            for ( k = 0; k < halfEdges.length; k++ ) {
-              if ( halfEdges[ k ].edge === closestEdge ) {
-                leftFace = this.faces[ j ];
-                // TODO: determine if this is reversed
-                isInternal = closestWind > 0;
-                if ( halfEdges[ k ].isReversed ) {
-                  isInternal = !isInternal;
-                }
-                break hasFace;
-              }
-            }
-          }
-        }
-
-        if ( isInternal ) {
-          leftFace.containedAdjacentFaces.push( face );
-        }
-        else {
-          leftFace.adjacentFacesToRight.push( face );
+          var reversed = closestWind < 0;
+          var closestHalfEdge = reversed ? closestEdge.reversedHalf : closestEdge.forwardHalf;
+          var closestBoundary = this.getBoundaryOfHalfEdge( closestHalfEdge );
+          closestBoundary.childBoundaries.push( outerBoundary );
         }
       }
 
-      function addHole( f ) {
-        face.holes.push( f );
-        face.adjacentFacesToRight.forEach( addHole );
-      }
-
+      unboundedHoles.forEach( this.unboundedFace.recursivelyAddHoles.bind( this.unboundedFace ) );
       for ( i = 0; i < this.faces.length; i++ ) {
-        face = this.faces[ i ];
-        face.containedAdjacentFaces.forEach( addHole );
+        var face = this.faces[ i ];
+        if ( face.boundary !== null ) {
+          face.boundary.childBoundaries.forEach( face.recursivelyAddHoles.bind( face ) );
+        }
       }
     },
 
@@ -261,6 +239,18 @@ define( function( require ) {
 
     combineAdjacentSegments: function() {
       // TODO
+    },
+
+    getBoundaryOfHalfEdge: function( halfEdge ) {
+      for ( var i = 0; i < this.boundaries.length; i++ ) {
+        var boundary = this.boundaries[ i ];
+
+        if ( boundary.hasHalfEdge( halfEdge ) ) {
+          return boundary;
+        }
+      }
+
+      throw new Error( 'Could not find boundary' );
     }
   } );
 
