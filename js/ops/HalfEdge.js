@@ -47,16 +47,23 @@ define( function( require ) {
     /**
      * Returns the next half-edge, walking around counter-clockwise as possible. Assumes edges have been sorted.
      * @public
+     *
+     * @param {function} [filter] --- TODO doc, {Edge} => {boolean}
      */
-    getNext: function() {
-      var index = this.endVertex.incidentEdges.indexOf( this.edge ) - 1;
-      if ( index < 0 ) {
-        index = this.endVertex.incidentEdges.length - 1;
+    getNext: function( filter ) {
+      for ( var i = 1;; i++ ) {
+        var index = this.endVertex.incidentEdges.indexOf( this.edge ) - i;
+        if ( index < 0 ) {
+          index += this.endVertex.incidentEdges.length;
+        }
+        var edge = this.endVertex.incidentEdges[ index ];
+        if ( filter && !filter( edge ) ) {
+          continue;
+        }
+        var halfEdge = ( edge.endVertex === this.endVertex ) ? edge.reversedHalf : edge.forwardHalf;
+        assert && assert( this.endVertex === halfEdge.startVertex );
+        return halfEdge;
       }
-      var edge = this.endVertex.incidentEdges[ index ];
-      var halfEdge = ( edge.endVertex === this.endVertex ) ? edge.reversedHalf : edge.forwardHalf;
-      assert && assert( this.endVertex === halfEdge.startVertex );
-      return halfEdge;
     },
 
     /**
