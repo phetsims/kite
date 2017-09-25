@@ -18,6 +18,7 @@ define( function( require ) {
   var kite = require( 'KITE/kite' );
   var Loop = require( 'KITE/ops/Loop' );
   var Ray2 = require( 'DOT/Ray2' );
+  var Segment = require( 'KITE/segments/Segment' );
   var Subpath = require( 'KITE/util/Subpath' );
   var Vector2 = require( 'DOT/Vector2' );
   var Vertex = require( 'KITE/ops/Vertex' );
@@ -136,7 +137,107 @@ define( function( require ) {
     },
 
     eliminateIntersection: function() {
-      // TODO
+      // TODO: ideally initially scan to determine potential "intersection" pairs based on bounds overlap
+      // TODO: Then iterate (potentially adding pairs when intersections split things) until no pairs exist
+
+      var needsLoop = true;
+      while ( needsLoop ) {
+        needsLoop = false;
+
+        intersect:
+        for ( var i = 0; i < this.edges.length; i++ ) {
+          var aEdge = this.edges[ i ];
+          var aSegment = aEdge.segment;
+          for ( var j = i + 1; j < this.edges.length; j++ ) {
+            var bEdge = this.edges[ j ];
+            var bSegment = bEdge.segment;
+
+            var intersections = Segment.intersect( aSegment, bSegment );
+            intersections = intersections.filter( function( intersection ) {
+              // TODO: refactor duplication
+              var aT = intersection.aT;
+              var bT = intersection.bT;
+              // TODO: factor out epsilon
+              var aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
+              var bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
+              return aInternal || bInternal;
+            } );
+            if ( intersections.length ) {
+
+              // TODO: In the future, handle multiple intersections (instead of re-running)
+              var intersection = intersections[ 0 ];
+
+              // TODO: handle better?
+              this.simpleSplit( aEdge, bEdge, intersection.aT, intersection.bT, intersection.point );
+
+              needsLoop = true;
+              break intersect;
+            }
+          }
+        }
+      }
+    },
+
+    simpleSplit: function( aEdge, bEdge, aT, bT, point ) {
+      // TODO: factor out epsilon and duplication
+      var aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
+      var bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
+
+      var vertex = null;
+      if ( !aInternal ) {
+        vertex = aT < 0.5 ? aEdge.startVertex : aEdge.endVertex;
+      }
+      else if ( !bInternal ) {
+        vertex = bT < 0.5 ? bEdge.startVertex : bEdge.endVertex;
+      }
+      else {
+        vertex = Vertex.createFromPool( point );
+        this.vertices.push( vertex );
+      }
+
+      if ( aInternal ) {
+        this.splitEdge( aEdge, aT, vertex );
+      }
+      if ( bInternal ) {
+        this.splitEdge( bEdge, bT, vertex );
+      }
+    },
+
+    splitEdge: function( edge, t, vertex ) {
+      assert && assert( this.boundaries.length === 0, 'Only handles simpler level primitive splitting right now' );
+
+      var segments = edge.segment.subdivided( t );
+      assert && assert( segments.length === 2 );
+
+      var firstEdge = Edge.createFromPool( segments[ 0 ], edge.startVertex, vertex );
+      var secondEdge = Edge.createFromPool( segments[ 1 ], vertex, edge.endVertex );
+
+      // Remove old connections
+      arrayRemove( this.edges, edge );
+      arrayRemove( edge.startVertex.incidentEdges, edge );
+      arrayRemove( edge.endVertex.incidentEdges, edge );
+
+      // Add new connections
+      this.edges.push( firstEdge );
+      this.edges.push( secondEdge );
+      vertex.incidentEdges.push( firstEdge );
+      vertex.incidentEdges.push( secondEdge );
+      edge.startVertex.incidentEdges.push( firstEdge );
+      edge.endVertex.incidentEdges.push( secondEdge );
+
+      for ( var i = 0; i < this.loops.length; i++ ) {
+        var loop = this.loops[ i ];
+
+        for ( var j = loop.halfEdges.length - 1; j >= 0; j-- ) {
+          var halfEdge = loop.halfEdges[ j ];
+          if ( halfEdge === edge.forwardHalf ) {
+            loop.halfEdges.splice( j, 1, firstEdge.forwardHalf, secondEdge.forwardHalf );
+          }
+          else if ( halfEdge === edge.reversedHalf ) {
+            loop.halfEdges.splice( j, 1, secondEdge.reversedHalf, firstEdge.reversedHalf );
+          }
+        }
+      }
     },
 
     collapseVertices: function() {
@@ -148,7 +249,7 @@ define( function( require ) {
     },
 
     orderVertexEdges: function() {
-      for ( var i = 0; i < this.vertices; i++ ) {
+      for ( var i = 0; i < this.vertices.length; i++ ) {
         this.vertices[ i ].sortEdges();
       }
     },
