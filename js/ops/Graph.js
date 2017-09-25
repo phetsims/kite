@@ -399,6 +399,7 @@ define( function( require ) {
       }
     },
 
+    // TODO: "glancing" rays screw with this. Fix: "random" angle, and also detect "indeterminate" for robustness
     computeBoundaryGraph: function() {
       var unboundedHoles = []; // {Array.<Boundary>}
 
@@ -584,7 +585,7 @@ define( function( require ) {
       }
 
       var debugSize = 256;
-      var pad = 10;
+      var pad = 20;
       var scale = ( debugSize - pad * 2 ) / Math.max( bounds.width, bounds.height );
 
       function transformContext( context ) {
@@ -593,6 +594,7 @@ define( function( require ) {
         context.scale( scale, -scale );
       }
 
+      //TODO: add title
       function draw( callback ) {
         var canvas = document.createElement( 'canvas' );
         canvas.width = debugSize;
