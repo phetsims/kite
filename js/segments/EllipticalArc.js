@@ -679,6 +679,16 @@ define( function( require ) {
     getSignedAreaFragment: function() {
       // TODO: Check all types of ellipse handling (the anticlockwise things, etc.)
       return this._radiusX * this._radiusY * 0.5 * ( this.getActualEndAngle() - this._startAngle );
+    },
+
+    /**
+     * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
+     * @public
+     *
+     * @returns {EllipticalArc}
+     */
+    reversed: function() {
+      return new kite.EllipticalArc( this._center, this._radiusX, this._radiusY, this._rotation, this._endAngle, this._startAngle, !this._anticlockwise );
     }
   } );
 

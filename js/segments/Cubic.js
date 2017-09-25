@@ -748,6 +748,16 @@ define( function( require ) {
         this._control2.x * ( -3 * this._start.y - 3 * this._control1.y + 6 * this._end.y ) +
         this._end.x * ( -this._start.y - 3 * this._control1.y - 6 * this._control2.y )
       );
+    },
+
+    /**
+     * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
+     * @public
+     *
+     * @returns {Cubic}
+     */
+    reversed: function() {
+      return new kite.Cubic( this._end, this._control2, this._control1, this._start );
     }
 
     // returns the resultant winding number of this ray intersecting this segment.

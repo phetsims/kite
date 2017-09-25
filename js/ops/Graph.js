@@ -11,6 +11,7 @@ define( function( require ) {
 
   var arrayRemove = require( 'PHET_CORE/arrayRemove' );
   var Boundary = require( 'KITE/ops/Boundary' );
+  var Bounds2 = require( 'DOT/Bounds2' );
   var Edge = require( 'KITE/ops/Edge' );
   var Face = require( 'KITE/ops/Face' );
   var inherit = require( 'PHET_CORE/inherit' );
@@ -251,6 +252,138 @@ define( function( require ) {
       }
 
       throw new Error( 'Could not find boundary' );
+    },
+
+    debug: function() {
+      var self = this;
+
+      var bounds = Bounds2.NOTHING.copy();
+      for ( var i = 0; i < this.edges.length; i++ ) {
+        bounds.includeBounds( this.edges[ i ].segment.getBounds() );
+      }
+
+      var debugSize = 256;
+      var pad = 10;
+      var scale = ( debugSize - pad * 2 ) / Math.max( bounds.width, bounds.height );
+
+      function transformContext( context ) {
+        context.translate( pad, debugSize - pad );
+        context.translate( -bounds.minX, -bounds.minY );
+        context.scale( scale, -scale );
+      }
+
+      function draw( callback ) {
+        var canvas = document.createElement( 'canvas' );
+        canvas.width = debugSize;
+        canvas.height = debugSize;
+        canvas.style.border = '1px solid black';
+        var context = canvas.getContext( '2d' );
+        transformContext( context );
+        callback( context );
+        document.body.appendChild( canvas );
+      }
+
+      function drawHalfEdges( context, halfEdges, color ) {
+        for ( var i = 0; i < halfEdges.length; i++ ) {
+          var segment = halfEdges[ i ].getDirectionalSegment();
+          context.beginPath();
+          context.moveTo( segment.start.x, segment.start.y );
+          segment.writeToContext( context );
+
+          var t = 0.8;
+          var t2 = 0.83;
+          var halfPosition = segment.positionAt( t );
+          var morePosition = segment.positionAt( t2 );
+          var ext = halfPosition.distance( morePosition ) * 2 / 3;
+          var halfTangent = segment.tangentAt( t ).normalized();
+          context.moveTo( halfPosition.x - halfTangent.y * ext, halfPosition.y + halfTangent.x * ext );
+          context.lineTo( halfPosition.x + halfTangent.y * ext, halfPosition.y - halfTangent.x * ext );
+          context.lineTo( morePosition.x, morePosition.y );
+          context.closePath();
+
+          context.strokeStyle = color;
+          context.lineWidth = 2 / scale;
+          context.stroke();
+        }
+      }
+
+      function drawVertices( context ) {
+        for ( var i = 0; i < self.vertices.length; i++ ) {
+          context.beginPath();
+          context.arc( self.vertices[ i ].point.x, self.vertices[ i ].point.y, 3 / scale, 0, Math.PI * 2, false );
+          context.closePath();
+          context.fillStyle = 'rgba(0,0,0,0.4)';
+          context.fill();
+        }
+      }
+
+      function drawEdges( context ) {
+        for ( var i = 0; i < self.edges.length; i++ ) {
+          var edge = self.edges[ i ];
+          context.beginPath();
+          context.moveTo( edge.segment.start.x, edge.segment.start.y );
+          edge.segment.writeToContext( context );
+          context.strokeStyle = 'rgba(0,0,0,0.4)';
+          context.lineWidth = 2 / scale;
+          context.stroke();
+        }
+      }
+
+      function followBoundary( context, boundary ) {
+        var startPoint = boundary.halfEdges[ 0 ].getDirectionalSegment().start;
+        context.moveTo( startPoint.x, startPoint.y );
+        for ( var i = 0; i < boundary.halfEdges.length; i++ ) {
+          var segment = boundary.halfEdges[ i ].getDirectionalSegment();
+          segment.writeToContext( context );
+        }
+        context.closePath();
+      }
+
+      function drawFace( context, face, color ) {
+        context.beginPath();
+        if ( face.boundary === null ) {
+          context.moveTo( 1000, 0 );
+          context.lineTo( 0, 1000 );
+          context.lineTo( -1000, 0 );
+          context.lineTo( 0, -1000 );
+          context.closePath();
+        }
+        else {
+          followBoundary( context, face.boundary );
+        }
+        face.holes.forEach( function( boundary ) {
+          followBoundary( context, boundary );
+        } );
+        context.fillStyle = color;
+        context.fill();
+      }
+
+      draw( function( context ) {
+        drawVertices( context );
+        drawEdges( context );
+      } );
+
+      for ( var j = 0; j < this.innerBoundaries.length; j++ ) {
+        var innerBoundary = this.innerBoundaries[ j ];
+        draw( function( context ) {
+          drawVertices( context );
+          drawHalfEdges( context, innerBoundary.halfEdges, 'rgba(0,0,255,0.4)' );
+        } );
+      }
+      for ( j = 0; j < this.outerBoundaries.length; j++ ) {
+        var outerBoundary = this.outerBoundaries[ j ];
+        draw( function( context ) {
+          drawVertices( context );
+          drawHalfEdges( context, outerBoundary.halfEdges, 'rgba(255,0,0,0.4)' );
+        } );
+      }
+      for ( j = 0; j < this.faces.length; j++ ) {
+        draw( function( context ) {
+          drawVertices( context );
+          drawEdges( context );
+          drawFace( context, self.faces[ j ], 'rgba(0,255,0,0.4)' );
+        } );
+      }
     }
   } );
 

@@ -361,14 +361,6 @@ define( function( require ) {
     },
 
     /**
-     * Returns a quadratic where the end and starting point have been reversed
-     * @returns {Quadratic}
-     */
-    reversed: function() {
-      return new kite.Quadratic( this._end, this._control, this._start );
-    },
-
-    /**
      *
      * @param {number} r - distance
      * @returns {Quadratic}
@@ -554,6 +546,16 @@ define( function( require ) {
 
       // back to the form start,control,end
       return new kite.Quadratic( gamma, beta.timesScalar( 0.5 ).plus( gamma ), alpha.plus( beta ).plus( gamma ) );
+    },
+
+    /**
+     * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
+     * @public
+     *
+     * @returns {Quadratic}
+     */
+    reversed: function() {
+      return new kite.Quadratic( this._end, this._control, this._start );
     }
   } );
 

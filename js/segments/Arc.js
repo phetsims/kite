@@ -679,6 +679,16 @@ define( function( require ) {
     getSignedAreaFragment: function() {
       // TODO: Check all types of circle handling (the anticlockwise things, etc.)
       return this._radius * this._radius * 0.5 * ( this.getActualEndAngle() - this._startAngle );
+    },
+
+    /**
+     * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
+     * @public
+     *
+     * @returns {Arc}
+     */
+    reversed: function() {
+      return new kite.Arc( this._center, this._radius, this._endAngle, this._startAngle, !this._anticlockwise );
     }
   } );
 

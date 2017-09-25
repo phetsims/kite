@@ -65,6 +65,15 @@ define( function( require ) {
       this.endVertex = this.isReversed ? this.edge.startVertex : this.edge.endVertex;
       assert && assert( this.startVertex );
       assert && assert( this.endVertex );
+    },
+
+    getDirectionalSegment: function() {
+      if ( this.isReversed ) {
+        return this.edge.segment.reversed();
+      }
+      else {
+        return this.edge.segment; // TODO: copy, so we don't need to worry about modification?
+      }
     }
   } );
 
