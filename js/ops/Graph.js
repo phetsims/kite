@@ -45,6 +45,9 @@ define( function( require ) {
     this.outerBoundaries = [];
     this.boundaries = [];
 
+    // @public {Array.<number>}
+    this.shapeIds = [];
+
     // @public {Face}
     this.unboundedFace = Face.createFromPool( null );
 
@@ -78,6 +81,10 @@ define( function( require ) {
     addSubpath: function( shapeId, subpath ) {
       assert && assert( typeof shapeId === 'number' );
       assert && assert( subpath instanceof Subpath );
+
+      if ( this.shapeIds.indexOf( shapeId ) < 0 ) {
+        this.shapeIds.push( shapeId );
+      }
 
       if ( subpath.segments.length === 0 ) {
         return;
@@ -331,6 +338,70 @@ define( function( require ) {
       }
     },
 
+    computeWindingMap: function() {
+      var edges = this.edges.slice();
+
+      // Winding numbers for "outside" are 0.
+      var outsideMap = {};
+      for ( var i = 0; i < this.shapeIds.length; i++ ) {
+        outsideMap[ this.shapeIds[ i ] ] = 0;
+      }
+      this.unboundedFace.windingMap = outsideMap;
+
+      while ( edges.length ) {
+        for ( var j = edges.length - 1; j >= 0; j-- ) {
+          var edge = edges[ j ];
+
+          var forwardHalf = edge.forwardHalf;
+          var reversedHalf = edge.reversedHalf;
+
+          var forwardFace = forwardHalf.face;
+          var reversedFace = reversedHalf.face;
+          assert && assert( forwardFace !== reversedFace );
+
+          var solvedForward = forwardFace.windingMap !== null;
+          var solvedReversed = reversedFace.windingMap !== null;
+
+          if ( solvedForward && solvedReversed ) {
+            edges.splice( j, 1 );
+          }
+          else if ( !solvedForward && !solvedReversed ) {
+            continue;
+          }
+          else {
+            var solvedFace = solvedForward ? forwardFace : reversedFace;
+            var unsolvedFace = solvedForward ? reversedFace : forwardFace;
+
+            var windingMap = {};
+            for ( var k = 0; k < this.shapeIds.length; k++ ) {
+              var shapeId = this.shapeIds[ k ];
+
+              var differential = 0; // forward face - reversed face
+              for ( var m = 0; m < this.loops.length; m++ ) {
+                var loop = this.loops[ m ];
+                if ( loop.shapeId !== shapeId ) {
+                  continue;
+                }
+
+                for ( var n = 0; n < loop.halfEdges.length; n++ ) {
+                  var loopHalfEdge = loop.halfEdges[ n ];
+                  if ( loopHalfEdge === forwardHalf ) {
+                    differential++;
+                  }
+                  else if ( loopHalfEdge === reversedHalf ) {
+                    differential--;
+                  }
+                }
+              }
+
+              windingMap[ shapeId ] = solvedFace.windingMap[ shapeId ] + differential * ( solvedForward ? -1 : 1 );
+            }
+            unsolvedFace.windingMap = windingMap;
+          }
+        }
+      }
+    },
+
     computeFaceInclusion: function() {
       // TODO
     },
@@ -464,7 +535,14 @@ define( function( require ) {
         drawEdges( context );
       } );
 
-      for ( var j = 0; j < this.innerBoundaries.length; j++ ) {
+      for ( var j = 0; j < this.loops.length; j++ ) {
+        var loop = this.loops[ j ];
+        draw( function( context ) {
+          drawVertices( context );
+          drawHalfEdges( context, loop.halfEdges, 'rgba(0,0,0,0.4)' );
+        } );
+      }
+      for ( j = 0; j < this.innerBoundaries.length; j++ ) {
         var innerBoundary = this.innerBoundaries[ j ];
         draw( function( context ) {
           drawVertices( context );
@@ -483,6 +561,24 @@ define( function( require ) {
           drawVertices( context );
           drawEdges( context );
           drawFace( context, self.faces[ j ], 'rgba(0,255,0,0.4)' );
+        } );
+      }
+      for ( var k = 0; k < this.shapeIds.length; k++ ) {
+        draw( function( context ) {
+          var colorMap = {
+            '-3': 'rgba(255,0,0,0.8)',
+            '-2': 'rgba(255,0,0,0.4)',
+            '-1': 'rgba(127,0,0,0.4)',
+            '0': 'rgba(0,0,0,0.4)',
+            '1': 'rgba(0,0,127,0.4)',
+            '2': 'rgba(0,0,255,0.4)',
+            '3': 'rgba(0,0,255,0.8)'
+          };
+          drawVertices( context );
+          drawEdges( context );
+          for ( j = 0; j < self.faces.length; j++ ) {
+            drawFace( context, self.faces[ j ], colorMap[ self.faces[ j ].windingMap[ self.shapeIds[ k ] ] ] || 'green' );
+          }
         } );
       }
     }
