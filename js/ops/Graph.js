@@ -402,8 +402,11 @@ define( function( require ) {
       }
     },
 
-    computeFaceInclusion: function() {
-      // TODO
+    computeFaceInclusion: function( windingMapFilter ) {
+      for ( var i = 0; i < this.faces.length; i++ ) {
+        var face = this.faces[ i ];
+        face.filled = windingMapFilter( face.windingMap );
+      }
     },
 
     collapseAdjacentFaces: function() {
@@ -581,6 +584,15 @@ define( function( require ) {
           }
         } );
       }
+      draw( function( context ) {
+        drawVertices( context );
+        drawEdges( context );
+        for ( j = 0; j < self.faces.length; j++ ) {
+          if ( self.faces[ j ].filled ) {
+            drawFace( context, self.faces[ j ], 'rgba(0,0,0,0.4)' );
+          }
+        }
+      } );
     }
   } );
 

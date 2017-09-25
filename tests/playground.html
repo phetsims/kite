@@ -44,6 +44,9 @@
         graph.extractFaces();
         graph.computeBoundaryGraph();
         graph.computeWindingMap();
+        graph.computeFaceInclusion( function( windingMap ) {
+          return windingMap[ '0' ] !== 0; // non-zero for first entry
+        } );
         graph.debug();
         // window.cubic = new kite.Cubic( dot.v2( 0 ,0 ), dot.v2( 0, 3 ), dot.v2( 10, 7 ), dot.v3( 10, 9 ) );
         // return kite.Cubic.getOverlaps( cubic.subdivided( 0.7 )[ 0 ], cubic.subdivided( 0.3 )[ 1 ] );

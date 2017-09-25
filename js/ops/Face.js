@@ -39,6 +39,9 @@ define( function( require ) {
       // @public {Object|null} - If non-null, it's a map from shapeId {number} => winding {number}
       this.windingMap = null;
 
+      // @public {boolean} - Filled in later
+      this.filled = false;
+
       if ( boundary ) {
         this.addBoundaryFaceReferences( boundary );
       }
