@@ -26,6 +26,9 @@ define( function( require ) {
     // @public {Edge}
     this.edge = edge;
 
+    // @public {Face|null} - Filled in later, contains a face reference
+    this.face = null;
+
     // @public {boolean}
     this.isReversed = isReversed;
 

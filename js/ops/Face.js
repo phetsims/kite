@@ -35,12 +35,28 @@ define( function( require ) {
 
       // @public {Array.<Boundary>} - "outer" types
       this.holes = cleanArray( this.holes );
+
+      // @public {Object|null} - If non-null, it's a map from shapeId {number} => winding {number}
+      this.windingMap = null;
+
+      if ( boundary ) {
+        this.addBoundaryFaceReferences( boundary );
+      }
+    },
+
+    addBoundaryFaceReferences: function( boundary ) {
+      for ( var i = 0; i < boundary.halfEdges.length; i++ ) {
+        assert && assert( boundary.halfEdges[ i ].face === null );
+
+        boundary.halfEdges[ i ].face = this;
+      }
     },
 
     recursivelyAddHoles: function( outerBoundary ) {
       assert && assert( !outerBoundary.isInner() );
 
       this.holes.push( outerBoundary );
+      this.addBoundaryFaceReferences( outerBoundary );
       for ( var i = 0; i < outerBoundary.childBoundaries.length; i++ ) {
         this.recursivelyAddHoles( outerBoundary.childBoundaries[ i ] );
       }
