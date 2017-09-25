@@ -14,6 +14,13 @@ define( [
   'KITE/kite',
 
   'KITE/Shape',
+  'KITE/ops/Boundary',
+  'KITE/ops/Edge',
+  'KITE/ops/Face',
+  'KITE/ops/Graph',
+  'KITE/ops/HalfEdge',
+  'KITE/ops/Loop',
+  'KITE/ops/Vertex',
   'KITE/segments/Arc',
   'KITE/segments/Cubic',
   'KITE/segments/EllipticalArc',
@@ -22,7 +29,6 @@ define( [
   'KITE/segments/Segment',
   'KITE/util/LineStyles',
   'KITE/util/Overlap',
-  'KITE/util/SegmentGraph',
   'KITE/util/Subpath',
 
   'KITE/parser/svgPath'

@@ -31,7 +31,7 @@
 
       window.initTest = function() {
         window.shape = new kite.Shape().moveTo( 0, 0 ).lineTo( 10, 10 ).lineTo( 20, 0 );
-        window.graph = new kite.SegmentGraph();
+        window.graph = new kite.Graph();
         shape.subpaths.forEach( function( subpath ) {
           graph.addSubpath( 0, subpath );
         } );
