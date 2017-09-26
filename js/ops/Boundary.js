@@ -14,6 +14,7 @@ define( function( require ) {
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Poolable = require( 'PHET_CORE/Poolable' );
+  var Ray2 = require( 'DOT/Ray2' );
   var Vector2 = require( 'DOT/Vector2' );
 
   /**
@@ -73,6 +74,41 @@ define( function( require ) {
         bounds.includeBounds( this.halfEdges[ i ].edge.segment.getBounds() );
       }
       return bounds;
+    },
+
+    computeExtremePoint: function( transform ) {
+      var transformedSegments = [];
+      for ( var i = 0; i < this.halfEdges.length; i++ ) {
+        transformedSegments.push( this.halfEdges[ i ].edge.segment.transformed( transform.getMatrix() ) );
+      }
+
+      var transformedBounds = Bounds2.NOTHING.copy();
+      for ( i = 0; i < transformedSegments.length; i++ ) {
+        transformedBounds.includeBounds( transformedSegments[ i ].getBounds() );
+      }
+
+      for ( i = 0; i < transformedSegments.length; i++ ) {
+        var segment = transformedSegments[ i ];
+        if ( segment.getBounds().top === transformedBounds.top ) {
+          var extremePoint = new Vector2( 0, Number.POSITIVE_INFINITY );
+          var tValues = [ 0, 1, ].concat( segment.getInteriorExtremaTs() );
+          for ( var j = 0; j < tValues.length; j++ ) {
+            var point = segment.positionAt( tValues[ j ] );
+            if ( point.y < extremePoint.y ) {
+              extremePoint = point;
+            }
+          }
+          return transform.inversePosition2( extremePoint );
+        }
+      }
+
+      throw new Error( 'No... segments?' );
+    },
+
+    computeExtremeRay: function( transform ) {
+      var extremePoint = this.computeExtremePoint( transform );
+      var orientation = transform.inverseDelta2( new Vector2( 0, -1 ) ).normalized();
+      return new Ray2( extremePoint.plus( orientation.timesScalar( 1e-4 ) ), orientation );
     },
 
     /**

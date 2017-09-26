@@ -17,10 +17,10 @@ define( function( require ) {
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Loop = require( 'KITE/ops/Loop' );
-  var Ray2 = require( 'DOT/Ray2' );
+  var Matrix3 = require( 'DOT/Matrix3' );
   var Segment = require( 'KITE/segments/Segment' );
   var Subpath = require( 'KITE/util/Subpath' );
-  var Vector2 = require( 'DOT/Vector2' );
+  var Transform3 = require( 'DOT/Transform3' );
   var Vertex = require( 'KITE/ops/Vertex' );
 
   // TODO: Move to common place
@@ -403,11 +403,13 @@ define( function( require ) {
     computeBoundaryGraph: function() {
       var unboundedHoles = []; // {Array.<Boundary>}
 
+      // TODO: uhhh, pray this angle works and doesnt get indeterminate results?
+      var transform = new Transform3( Matrix3.rotation2( 1.5729657 ) );
+
       for ( var i = 0; i < this.outerBoundaries.length; i++ ) {
         var outerBoundary = this.outerBoundaries[ i ];
 
-        var topPoint = outerBoundary.computeMinYPoint();
-        var ray = new Ray2( topPoint.plus( new Vector2( 0, -1e-4 ) ), new Vector2( 0, -1 ) );
+        var ray = outerBoundary.computeExtremeRay( transform );
 
         var closestEdge = null;
         var closestDistance = Number.POSITIVE_INFINITY;
@@ -698,6 +700,12 @@ define( function( require ) {
         draw( function( context ) {
           drawVertices( context );
           drawHalfEdges( context, innerBoundary.halfEdges, 'rgba(0,0,255,0.4)' );
+          // var ray = innerBoundary.computeExtremeRay( new Transform3( Matrix3.rotation2( Math.PI * 1.4 ) ) );
+          // context.beginPath();
+          // context.moveTo( ray.position.x, ray.position.y );
+          // context.lineTo( ray.pointAtDistance( 2 ).x, ray.pointAtDistance( 2 ).y );
+          // context.strokeStyle = 'rgba(0,255,0,0.4)';
+          // context.stroke();
         } );
       }
       for ( j = 0; j < this.outerBoundaries.length; j++ ) {
@@ -705,6 +713,12 @@ define( function( require ) {
         draw( function( context ) {
           drawVertices( context );
           drawHalfEdges( context, outerBoundary.halfEdges, 'rgba(255,0,0,0.4)' );
+          // var ray = outerBoundary.computeExtremeRay( new Transform3( Matrix3.rotation2( Math.PI * 1.4 ) ) );
+          // context.beginPath();
+          // context.moveTo( ray.position.x, ray.position.y );
+          // context.lineTo( ray.pointAtDistance( 2 ).x, ray.pointAtDistance( 2 ).y );
+          // context.strokeStyle = 'rgba(0,255,0,0.4)';
+          // context.stroke();
         } );
       }
       for ( j = 0; j < this.faces.length; j++ ) {
