@@ -15,6 +15,7 @@ define( function( require ) {
   var kite = require( 'KITE/kite' );
   var Poolable = require( 'PHET_CORE/Poolable' );
   var Ray2 = require( 'DOT/Ray2' );
+  var Subpath = require( 'KITE/util/Subpath' );
   var Vector2 = require( 'DOT/Vector2' );
 
   var globaId = 0;
@@ -145,6 +146,14 @@ define( function( require ) {
         }
       }
       return false;
+    },
+
+    toSubpath: function() {
+      var segments = [];
+      for ( var i = 0; i < this.halfEdges.length; i++ ) {
+        segments.push( this.halfEdges[ i ].getDirectionalSegment() );
+      }
+      return new Subpath( segments, null, true );
     }
   } );
 

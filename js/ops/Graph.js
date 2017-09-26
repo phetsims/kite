@@ -19,6 +19,7 @@ define( function( require ) {
   var Loop = require( 'KITE/ops/Loop' );
   var Matrix3 = require( 'DOT/Matrix3' );
   var Segment = require( 'KITE/segments/Segment' );
+  var Shape = require( 'KITE/Shape' );
   var Subpath = require( 'KITE/util/Subpath' );
   var Transform3 = require( 'DOT/Transform3' );
   var Vertex = require( 'KITE/ops/Vertex' );
@@ -549,8 +550,49 @@ define( function( require ) {
       return graph;
     },
 
-    combineAdjacentSegments: function() {
-      // TODO
+    fillAlternatingFaces: function() {
+      var nullFaceFilledCount = 0;
+      for ( var i = 0; i < this.faces.length; i++ ) {
+        this.faces[ i ].filled = null;
+        nullFaceFilledCount++;
+      }
+
+      this.unboundedFace.filled = false;
+      nullFaceFilledCount--;
+
+      while ( nullFaceFilledCount ) {
+        for ( i = 0; i < this.edges.length; i++ ) {
+          var edge = this.edges[ i ];
+          var forwardFace = edge.forwardHalf.face;
+          var reversedFace = edge.reversedHalf.face;
+
+          var forwardNull = forwardFace.filled === null;
+          var reversedNull = reversedFace.filled === null;
+
+          if ( forwardNull && !reversedNull ) {
+            forwardFace.filled = !reversedFace.filled;
+            nullFaceFilledCount--;
+          }
+          else if ( !forwardNull && reversedNull ) {
+            reversedFace.filled = !forwardFace.filled;
+            nullFaceFilledCount--;
+          }
+        }
+      }
+    },
+
+    facesToShape: function() {
+      var subpaths = [];
+      for ( var i = 0; i < this.faces.length; i++ ) {
+        var face = this.faces[ i ];
+        if ( face.filled ) {
+          subpaths.push( face.boundary.toSubpath() );
+          for ( var j = 0; j < face.holes.length; j++ ) {
+            subpaths.push( face.holes[ j ].toSubpath() );
+          }
+        }
+      }
+      return new Shape( subpaths );
     },
 
     getBoundaryOfHalfEdge: function( halfEdge ) {

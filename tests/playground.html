@@ -53,8 +53,12 @@
           return windingMap[ '0' ] !== 0; // non-zero for first entry
         } );
         graph.debug();
-        subgraph = graph.createFilledSubGraph();
+        window.subgraph = graph.createFilledSubGraph();
+        subgraph.fillAlternatingFaces();
         subgraph.debug();
+        window.shape = subgraph.facesToShape();
+        console.log( shape.getSVGPath() );
+
         // window.cubic = new kite.Cubic( dot.v2( 0 ,0 ), dot.v2( 0, 3 ), dot.v2( 10, 7 ), dot.v3( 10, 9 ) );
         // return kite.Cubic.getOverlaps( cubic.subdivided( 0.7 )[ 0 ], cubic.subdivided( 0.3 )[ 1 ] );
       };
