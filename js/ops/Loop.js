@@ -14,6 +14,8 @@ define( function( require ) {
   var kite = require( 'KITE/kite' );
   var Poolable = require( 'PHET_CORE/Poolable' );
 
+  var globaId = 0;
+
   /**
    * @public (kite-internal)
    * @constructor
@@ -21,6 +23,9 @@ define( function( require ) {
    * @param {number} shapeId
    */
   function Loop( shapeId ) {
+    // @public {number}
+    this.id = ++globaId;
+
     this.initialize( shapeId );
   }
 

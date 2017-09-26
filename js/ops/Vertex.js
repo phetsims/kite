@@ -18,6 +18,8 @@ define( function( require ) {
   // TODO: Move to common place
   var edgeAngleEpsilon = 1e-4;
 
+  var globaId = 0;
+
   /**
    * @public (kite-internal)
    * @constructor
@@ -25,6 +27,9 @@ define( function( require ) {
    * @param {Vector2} point
    */
   function Vertex( point ) {
+    // @public {number}
+    this.id = ++globaId;
+
     this.initialize( point );
 
     // @private {function}

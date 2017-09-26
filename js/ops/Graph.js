@@ -31,9 +31,6 @@ define( function( require ) {
    * @constructor
    */
   function Graph() {
-    // @public {Array.<Loop>}
-    this.loops = [];
-
     // @public {Array.<Vertex>}
     this.vertices = [];
 
@@ -48,18 +45,24 @@ define( function( require ) {
     // @public {Array.<number>}
     this.shapeIds = [];
 
+    // @public {Array.<Loop>}
+    this.loops = [];
+
     // @public {Face}
     this.unboundedFace = Face.createFromPool( null );
 
     // @public {Array.<Face>}
     this.faces = [ this.unboundedFace ];
 
-    // @public {Array.<Edge>}
-    this.finalEdges = [];
+    // // @public {Array.<Edge>}
+    // this.finalEdges = [];
 
-    // @public {Array.<Boundary>}
-    this.finalInnerBoundaries = [];
-    this.finalOuterBoundaries = [];
+    // // @public {Array.<Boundary>}
+    // this.finalInnerBoundaries = [];
+    // this.finalOuterBoundaries = [];
+
+    // // @public {Array.<Face>}
+    // this.finalFaces = [];
   }
 
   kite.register( 'Graph', Graph );
@@ -399,7 +402,7 @@ define( function( require ) {
       }
     },
 
-    // TODO: "glancing" rays screw with this. Fix: "random" angle, and also detect "indeterminate" for robustness
+    // TODO: detect "indeterminate" for robustness
     computeBoundaryGraph: function() {
       var unboundedHoles = []; // {Array.<Boundary>}
 
@@ -521,46 +524,81 @@ define( function( require ) {
       }
     },
 
-    collapseAdjacentFaces: function() {
-      var self = this;
+    createFilledSubGraph: function() {
+      var graph = new Graph();
+
+      var vertexMap = {}; // old id => newVertex
 
       for ( var i = 0; i < this.edges.length; i++ ) {
         var edge = this.edges[ i ];
         if ( edge.forwardHalf.face.filled !== edge.reversedHalf.face.filled ) {
-          this.finalEdges.push( edge );
-        }
-      }
-
-      //TODO: reduce duplication with other case where this happens
-      var halfEdges = [];
-      for ( i = 0; i < this.finalEdges.length; i++ ) {
-        halfEdges.push( this.finalEdges[ i ].forwardHalf );
-        halfEdges.push( this.finalEdges[ i ].reversedHalf );
-      }
-      while ( halfEdges.length ) {
-        var boundaryHalfEdges = [];
-        var halfEdge = halfEdges[ 0 ];
-        var startingHalfEdge = halfEdge;
-        while ( halfEdge ) {
-          arrayRemove( halfEdges, halfEdge );
-          boundaryHalfEdges.push( halfEdge );
-          halfEdge = halfEdge.getNext( function( edge ) {
-            return _.includes( self.finalEdges, edge );
-          } );
-          if ( halfEdge === startingHalfEdge ) {
-            break;
+          if ( !vertexMap[ edge.startVertex.id ] ) {
+            var newStartVertex = Vertex.createFromPool( edge.startVertex.point );
+            graph.vertices.push( newStartVertex );
+            vertexMap[ edge.startVertex.id ] = newStartVertex;
           }
+          if ( !vertexMap[ edge.endVertex.id ] ) {
+            var newEndVertex = Vertex.createFromPool( edge.endVertex.point );
+            graph.vertices.push( newEndVertex );
+            vertexMap[ edge.endVertex.id ] = newEndVertex;
+          }
+
+          var startVertex = vertexMap[ edge.startVertex.id ];
+          var endVertex = vertexMap[ edge.endVertex.id ];
+          var newEdge = Edge.createFromPool( edge.segment, startVertex, endVertex );
+          startVertex.incidentEdges.push( newEdge );
+          endVertex.incidentEdges.push( newEdge );
+          graph.edges.push( newEdge );
         }
-        var boundary = Boundary.createFromPool( boundaryHalfEdges );
-        ( boundary.signedArea > 0 ? this.finalInnerBoundaries : this.finalOuterBoundaries ).push( boundary );
       }
 
-      // TODO
+      graph.orderVertexEdges();
+      graph.extractFaces();
+      graph.computeBoundaryGraph();
 
-      // NOTE: Use "resultEdges"? "resultBoundaries"? "ResultVertices"... or generalize structure
-      // every edge a boundary between white and black. "tight" loops should give either "tight" section or holes
-      // THEN do normal "hole computation" to find what the holes are of.
+      return graph;
     },
+
+    // collapseAdjacentFaces: function() {
+    //   var self = this;
+
+    //   for ( var i = 0; i < this.edges.length; i++ ) {
+    //     var edge = this.edges[ i ];
+    //     if ( edge.forwardHalf.face.filled !== edge.reversedHalf.face.filled ) {
+    //       this.finalEdges.push( edge );
+    //     }
+    //   }
+
+    //   //TODO: reduce duplication with other case where this happens
+    //   var halfEdges = [];
+    //   for ( i = 0; i < this.finalEdges.length; i++ ) {
+    //     halfEdges.push( this.finalEdges[ i ].forwardHalf );
+    //     halfEdges.push( this.finalEdges[ i ].reversedHalf );
+    //   }
+    //   while ( halfEdges.length ) {
+    //     var boundaryHalfEdges = [];
+    //     var halfEdge = halfEdges[ 0 ];
+    //     var startingHalfEdge = halfEdge;
+    //     while ( halfEdge ) {
+    //       arrayRemove( halfEdges, halfEdge );
+    //       boundaryHalfEdges.push( halfEdge );
+    //       halfEdge = halfEdge.getNext( function( edge ) {
+    //         return _.includes( self.finalEdges, edge );
+    //       } );
+    //       if ( halfEdge === startingHalfEdge ) {
+    //         break;
+    //       }
+    //     }
+    //     var boundary = Boundary.createFromPool( boundaryHalfEdges );
+    //     ( boundary.signedArea > 0 ? this.finalInnerBoundaries : this.finalOuterBoundaries ).push( boundary );
+    //   }
+
+    //   // TODO
+
+    //   // NOTE: Use "resultEdges"? "resultBoundaries"? "ResultVertices"... or generalize structure
+    //   // every edge a boundary between white and black. "tight" loops should give either "tight" section or holes
+    //   // THEN do normal "hole computation" to find what the holes are of.
+    // },
 
     combineAdjacentSegments: function() {
       // TODO
@@ -755,31 +793,31 @@ define( function( require ) {
           }
         }
       } );
-      draw( function( context ) {
-        for ( var i = 0; i < self.finalEdges.length; i++ ) {
-          var edge = self.finalEdges[ i ];
-          context.beginPath();
-          context.moveTo( edge.segment.start.x, edge.segment.start.y );
-          edge.segment.writeToContext( context );
-          context.strokeStyle = 'rgba(0,0,0,0.4)';
-          context.lineWidth = 2 / scale;
-          context.stroke();
-        }
-      } );
-      for ( j = 0; j < this.finalInnerBoundaries.length; j++ ) {
-        var finalInnerBoundary = this.finalInnerBoundaries[ j ];
-        draw( function( context ) {
-          drawVertices( context );
-          drawHalfEdges( context, finalInnerBoundary.halfEdges, 'rgba(0,0,255,0.4)' );
-        } );
-      }
-      for ( j = 0; j < this.finalOuterBoundaries.length; j++ ) {
-        var finalOuterBoundary = this.finalOuterBoundaries[ j ];
-        draw( function( context ) {
-          drawVertices( context );
-          drawHalfEdges( context, finalOuterBoundary.halfEdges, 'rgba(255,0,0,0.4)' );
-        } );
-      }
+      // draw( function( context ) {
+      //   for ( var i = 0; i < self.finalEdges.length; i++ ) {
+      //     var edge = self.finalEdges[ i ];
+      //     context.beginPath();
+      //     context.moveTo( edge.segment.start.x, edge.segment.start.y );
+      //     edge.segment.writeToContext( context );
+      //     context.strokeStyle = 'rgba(0,0,0,0.4)';
+      //     context.lineWidth = 2 / scale;
+      //     context.stroke();
+      //   }
+      // } );
+      // for ( j = 0; j < this.finalInnerBoundaries.length; j++ ) {
+      //   var finalInnerBoundary = this.finalInnerBoundaries[ j ];
+      //   draw( function( context ) {
+      //     drawVertices( context );
+      //     drawHalfEdges( context, finalInnerBoundary.halfEdges, 'rgba(0,0,255,0.4)' );
+      //   } );
+      // }
+      // for ( j = 0; j < this.finalOuterBoundaries.length; j++ ) {
+      //   var finalOuterBoundary = this.finalOuterBoundaries[ j ];
+      //   draw( function( context ) {
+      //     drawVertices( context );
+      //     drawHalfEdges( context, finalOuterBoundary.halfEdges, 'rgba(255,0,0,0.4)' );
+      //   } );
+      // }
     }
   } );
 

@@ -17,6 +17,8 @@ define( function( require ) {
   var Ray2 = require( 'DOT/Ray2' );
   var Vector2 = require( 'DOT/Vector2' );
 
+  var globaId = 0;
+
   /**
    * A loop described by a list of half-edges.
    * @public (kite-internal)
@@ -25,6 +27,9 @@ define( function( require ) {
    * @param {Array.<HalfEdge>} halfEdges
    */
   function Boundary( halfEdges ) {
+    // @public {number}
+    this.id = ++globaId;
+
     this.initialize( halfEdges );
   }
 

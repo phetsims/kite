@@ -19,6 +19,8 @@ define( function( require ) {
   // TODO: Common ops place?
   var vertexEpsilon = 1e-5;
 
+  var globaId = 0;
+
   /**
    * @public (kite-internal)
    * @constructor
@@ -28,6 +30,9 @@ define( function( require ) {
    * @param {Vertex} endVertex
    */
   function Edge( segment, startVertex, endVertex ) {
+    // @public {number}
+    this.id = ++globaId;
+
     this.initialize( segment, startVertex, endVertex );
   }
 
