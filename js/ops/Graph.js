@@ -53,16 +53,6 @@ define( function( require ) {
 
     // @public {Array.<Face>}
     this.faces = [ this.unboundedFace ];
-
-    // // @public {Array.<Edge>}
-    // this.finalEdges = [];
-
-    // // @public {Array.<Boundary>}
-    // this.finalInnerBoundaries = [];
-    // this.finalOuterBoundaries = [];
-
-    // // @public {Array.<Face>}
-    // this.finalFaces = [];
   }
 
   kite.register( 'Graph', Graph );
@@ -559,47 +549,6 @@ define( function( require ) {
       return graph;
     },
 
-    // collapseAdjacentFaces: function() {
-    //   var self = this;
-
-    //   for ( var i = 0; i < this.edges.length; i++ ) {
-    //     var edge = this.edges[ i ];
-    //     if ( edge.forwardHalf.face.filled !== edge.reversedHalf.face.filled ) {
-    //       this.finalEdges.push( edge );
-    //     }
-    //   }
-
-    //   //TODO: reduce duplication with other case where this happens
-    //   var halfEdges = [];
-    //   for ( i = 0; i < this.finalEdges.length; i++ ) {
-    //     halfEdges.push( this.finalEdges[ i ].forwardHalf );
-    //     halfEdges.push( this.finalEdges[ i ].reversedHalf );
-    //   }
-    //   while ( halfEdges.length ) {
-    //     var boundaryHalfEdges = [];
-    //     var halfEdge = halfEdges[ 0 ];
-    //     var startingHalfEdge = halfEdge;
-    //     while ( halfEdge ) {
-    //       arrayRemove( halfEdges, halfEdge );
-    //       boundaryHalfEdges.push( halfEdge );
-    //       halfEdge = halfEdge.getNext( function( edge ) {
-    //         return _.includes( self.finalEdges, edge );
-    //       } );
-    //       if ( halfEdge === startingHalfEdge ) {
-    //         break;
-    //       }
-    //     }
-    //     var boundary = Boundary.createFromPool( boundaryHalfEdges );
-    //     ( boundary.signedArea > 0 ? this.finalInnerBoundaries : this.finalOuterBoundaries ).push( boundary );
-    //   }
-
-    //   // TODO
-
-    //   // NOTE: Use "resultEdges"? "resultBoundaries"? "ResultVertices"... or generalize structure
-    //   // every edge a boundary between white and black. "tight" loops should give either "tight" section or holes
-    //   // THEN do normal "hole computation" to find what the holes are of.
-    // },
-
     combineAdjacentSegments: function() {
       // TODO
     },
@@ -793,31 +742,6 @@ define( function( require ) {
           }
         }
       } );
-      // draw( function( context ) {
-      //   for ( var i = 0; i < self.finalEdges.length; i++ ) {
-      //     var edge = self.finalEdges[ i ];
-      //     context.beginPath();
-      //     context.moveTo( edge.segment.start.x, edge.segment.start.y );
-      //     edge.segment.writeToContext( context );
-      //     context.strokeStyle = 'rgba(0,0,0,0.4)';
-      //     context.lineWidth = 2 / scale;
-      //     context.stroke();
-      //   }
-      // } );
-      // for ( j = 0; j < this.finalInnerBoundaries.length; j++ ) {
-      //   var finalInnerBoundary = this.finalInnerBoundaries[ j ];
-      //   draw( function( context ) {
-      //     drawVertices( context );
-      //     drawHalfEdges( context, finalInnerBoundary.halfEdges, 'rgba(0,0,255,0.4)' );
-      //   } );
-      // }
-      // for ( j = 0; j < this.finalOuterBoundaries.length; j++ ) {
-      //   var finalOuterBoundary = this.finalOuterBoundaries[ j ];
-      //   draw( function( context ) {
-      //     drawVertices( context );
-      //     drawHalfEdges( context, finalOuterBoundary.halfEdges, 'rgba(255,0,0,0.4)' );
-      //   } );
-      // }
     }
   } );
 
