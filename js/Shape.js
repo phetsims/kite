@@ -26,6 +26,7 @@ define( function( require ) {
   var Cubic = require( 'KITE/segments/Cubic' );
   var EllipticalArc = require( 'KITE/segments/EllipticalArc' );
   var Events = require( 'AXON/Events' );
+  var Graph = require( 'KITE/ops/Graph' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Line = require( 'KITE/segments/Line' );
@@ -1566,6 +1567,53 @@ define( function( require ) {
     getRelativePoint: function() {
       var lastPoint = this.getLastPoint();
       return lastPoint ? lastPoint : Vector2.ZERO;
+    },
+
+    /**
+     * Returns a new shape that contains a union of the two shapes (a point in either shape is in the resulting shape).
+     * @public
+     *
+     * @param {Shape} shape
+     * @returns {Shape}
+     */
+    shapeUnion: function( shape ) {
+      return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_UNION );
+    },
+
+    /**
+     * Returns a new shape that contains the intersection of the two shapes (a point in both shapes is in the
+     * resulting shape).
+     * @public
+     *
+     * @param {Shape} shape
+     * @returns {Shape}
+     */
+    shapeIntersection: function( shape ) {
+      return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_INTERSECTION );
+    },
+
+    /**
+     * Returns a new shape that contains the difference of the two shapes (a point in the first shape and NOT in the
+     * second shape is in the resulting shape).
+     * @public
+     *
+     * @param {Shape} shape
+     * @returns {Shape}
+     */
+    shapeDifference: function( shape ) {
+      return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_DIFFERENCE );
+    },
+
+    /**
+     * Returns a new shape that contains the xor of the two shapes (a point in only one shape is in the resulting
+     * shape).
+     * @public
+     *
+     * @param {Shape} shape
+     * @returns {Shape}
+     */
+    shapeXor: function( shape ) {
+      return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_XOR );
     }
   } );
 

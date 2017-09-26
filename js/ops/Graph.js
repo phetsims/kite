@@ -19,7 +19,6 @@ define( function( require ) {
   var Loop = require( 'KITE/ops/Loop' );
   var Matrix3 = require( 'DOT/Matrix3' );
   var Segment = require( 'KITE/segments/Segment' );
-  var Shape = require( 'KITE/Shape' );
   var Subpath = require( 'KITE/util/Subpath' );
   var Transform3 = require( 'DOT/Transform3' );
   var Vertex = require( 'KITE/ops/Vertex' );
@@ -68,7 +67,7 @@ define( function( require ) {
      */
     addShape: function( shapeId, shape ) {
       for ( var i = 0; i < shape.subpaths.length; i++ ) {
-        this.addSubpath( shape.subpaths[ i ] );
+        this.addSubpath( shapeId, shape.subpaths[ i ] );
       }
     },
 
@@ -592,7 +591,7 @@ define( function( require ) {
           }
         }
       }
-      return new Shape( subpaths );
+      return new kite.Shape( subpaths );
     },
 
     getBoundaryOfHalfEdge: function( halfEdge ) {
@@ -786,6 +785,46 @@ define( function( require ) {
       } );
     }
   } );
+
+  Graph.BINARY_NONZERO_UNION = function( windingMap ) {
+    return windingMap[ '0' ] !== 0 || windingMap[ '1' ] !== 0;
+  };
+
+  Graph.BINARY_NONZERO_INTERSECTION = function( windingMap ) {
+    return windingMap[ '0' ] !== 0 && windingMap[ '1' ] !== 0;
+  };
+
+  Graph.BINARY_NONZERO_DIFFERENCE = function( windingMap ) {
+    return windingMap[ '0' ] !== 0 && windingMap[ '1' ] === 0;
+  };
+
+  Graph.BINARY_NONZERO_XOR = function( windingMap ) {
+    return ( ( windingMap[ '0' ] !== 0 ) ^ ( windingMap[ '1' ] !== 0 ) ) === 1;
+  };
+
+  Graph.binaryResult = function( shapeA, shapeB, windingMapFilter ) {
+    var graph = new Graph();
+    graph.addShape( 0, shapeA );
+    graph.addShape( 1, shapeB );
+
+    graph.eliminateIntersection();
+    graph.collapseVertices();
+    graph.removeSingleEdgeVertices();
+    graph.orderVertexEdges();
+    graph.extractFaces();
+    graph.computeBoundaryGraph();
+    graph.computeWindingMap();
+    graph.computeFaceInclusion( windingMapFilter );
+    // graph.debug();
+    var subgraph = graph.createFilledSubGraph();
+    subgraph.fillAlternatingFaces();
+    // subgraph.debug();
+    var shape = subgraph.facesToShape();
+
+    // TODO: disposal
+
+    return shape;
+  };
 
   return kite.Graph;
 } );
