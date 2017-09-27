@@ -141,6 +141,58 @@ define( function( require ) {
       this.edges.push.apply( this.edges, edges );
     },
 
+    collapseAdjacentEdges: function() {
+      //TODO: Do something like "overlap" analysis for other types?
+
+      var needsLoop = true;
+      while ( needsLoop ) {
+        needsLoop = false;
+
+        collapsed:
+        for ( var i = 0; i < this.vertices.length; i++ ) {
+          var vertex = this.vertices[ i ];
+          if ( vertex.incidentEdges.length === 2 ) {
+            var aEdge = vertex.incidentEdges[ 0 ];
+            var bEdge = vertex.incidentEdges[ 1 ];
+            var aSegment = aEdge.segment;
+            var bSegment = bEdge.segment;
+            var aVertex = aEdge.getOtherVertex( vertex );
+            var bVertex = bEdge.getOtherVertex( vertex );
+
+            // TODO: handle loops
+            assert && assert( this.loops.length === 0 );
+
+            // TODO: Can we avoid this in the inner loop?
+            if ( aEdge.startVertex === vertex ) {
+              aSegment = aSegment.reversed();
+            }
+            if ( bEdge.endVertex === vertex ) {
+              bSegment = bSegment.reversed();
+            }
+
+            if ( aSegment instanceof Line && bSegment instanceof Line ) {
+              if ( aSegment.tangentAt( 0 ).normalized().distance( bSegment.tangentAt( 0 ).normalized() ) < 1e-6 ) {
+                arrayRemove( this.vertices, vertex );
+                arrayRemove( this.edges, aEdge );
+                arrayRemove( this.edges, bEdge );
+                arrayRemove( aVertex.incidentEdges, aEdge );
+                arrayRemove( bVertex.incidentEdges, bEdge );
+
+                var newSegment = new Line( aVertex.point, bVertex.point );
+                var newEdge = new Edge( newSegment, aVertex, bVertex );
+                aVertex.incidentEdges.push( newEdge );
+                bVertex.incidentEdges.push( newEdge );
+                this.edges.push( newEdge );
+
+                needsLoop = true;
+                break collapsed;
+              }
+            }
+          }
+        }
+      }
+    },
+
     eliminateOverlap: function() {
       var needsLoop = true;
       while ( needsLoop ) {
@@ -746,6 +798,7 @@ define( function( require ) {
         }
       }
 
+      graph.collapseAdjacentEdges();
       graph.orderVertexEdges();
       graph.extractFaces();
       graph.computeBoundaryGraph();
