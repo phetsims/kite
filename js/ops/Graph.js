@@ -60,6 +60,19 @@ define( function( require ) {
   kite.register( 'Graph', Graph );
 
   inherit( Object, Graph, {
+
+    /**
+     * Adds an edge to the graph (and sets up connection information).
+     * @public
+     *
+     * @param {Edge} edge
+     */
+    addEdge: function( edge ) {
+      this.edges.push( edge );
+      edge.startVertex.incidentEdges.push( edge );
+      edge.endVertex.incidentEdges.push( edge );
+    },
+
     /**
      * Adds a Shape (with a given ID for CAG purposes) to the graph.
      * @public
@@ -99,7 +112,6 @@ define( function( require ) {
       }
 
       var vertices = [];
-      var edges = [];
 
       for ( index = 0; index < segments.length; index++ ) {
         var previousIndex = index - 1;
@@ -119,6 +131,7 @@ define( function( require ) {
         }
       }
 
+      var loop = Loop.createFromPool( shapeId );
       for ( index = 0; index < segments.length; index++ ) {
         var nextIndex = index + 1;
         if ( nextIndex === segments.length ) {
@@ -126,19 +139,12 @@ define( function( require ) {
         }
 
         var edge = Edge.createFromPool( segments[ index ], vertices[ index ], vertices[ nextIndex ] );
-        edges.push( edge );
-        vertices[ index ].incidentEdges.push( edge );
-        vertices[ nextIndex ].incidentEdges.push( edge );
-      }
-
-      var loop = Loop.createFromPool( shapeId );
-      for ( index = 0; index < edges.length; index++ ) {
-        loop.halfEdges.push( edges[ index ].forwardHalf );
+        loop.halfEdges.push( edge.forwardHalf );
+        this.addEdge( edge );
       }
 
       this.loops.push( loop );
       this.vertices.push.apply( this.vertices, vertices );
-      this.edges.push.apply( this.edges, edges );
     },
 
     collapseAdjacentEdges: function() {
@@ -179,10 +185,7 @@ define( function( require ) {
                 arrayRemove( bVertex.incidentEdges, bEdge );
 
                 var newSegment = new Line( aVertex.point, bVertex.point );
-                var newEdge = new Edge( newSegment, aVertex, bVertex );
-                aVertex.incidentEdges.push( newEdge );
-                bVertex.incidentEdges.push( newEdge );
-                this.edges.push( newEdge );
+                this.addEdge( new Edge( newSegment, aVertex, bVertex ) );
 
                 needsLoop = true;
                 break collapsed;
@@ -288,10 +291,7 @@ define( function( require ) {
       }
 
       var middleEdge = Edge.createFromPool( middle, beforeVertex, afterVertex );
-      beforeVertex.incidentEdges.push( middleEdge );
-      afterVertex.incidentEdges.push( middleEdge );
-      this.edges.push( middleEdge );
-
+      this.addEdge( middleEdge );
 
       var aBeforeEdge;
       var aAfterEdge;
@@ -299,33 +299,20 @@ define( function( require ) {
       var bAfterEdge;
 
       if ( aBefore ) {
-        var aBeforeVertex = beforeVertex;
-        aBeforeEdge = Edge.createFromPool( aBefore, aEdge.startVertex, aBeforeVertex );
-        aEdge.startVertex.incidentEdges.push( aBeforeEdge );
-        aBeforeVertex.incidentEdges.push( aBeforeEdge );
-        this.edges.push( aBeforeEdge );
+        aBeforeEdge = Edge.createFromPool( aBefore, aEdge.startVertex, beforeVertex );
+        this.addEdge( aBeforeEdge );
       }
       if ( aAfter ) {
-        var aAfterVertex = afterVertex;
-        aAfterEdge = Edge.createFromPool( aAfter, aAfterVertex, aEdge.endVertex );
-        aEdge.endVertex.incidentEdges.push( aAfterEdge );
-        aAfterVertex.incidentEdges.push( aAfterEdge );
-        this.edges.push( aAfterEdge );
+        aAfterEdge = Edge.createFromPool( aAfter, afterVertex, aEdge.endVertex );
+        this.addEdge( aAfterEdge );
       }
       if ( bBefore ) {
-        var bBeforeVertex = overlap.a > 0 ? beforeVertex : afterVertex;
-        bBeforeEdge = Edge.createFromPool( bBefore, bEdge.startVertex, bBeforeVertex );
-        bEdge.startVertex.incidentEdges.push( bBeforeEdge );
-        bBeforeVertex.incidentEdges.push( bBeforeEdge );
-        this.edges.push( bBeforeEdge );
+        bBeforeEdge = Edge.createFromPool( bBefore, bEdge.startVertex, overlap.a > 0 ? beforeVertex : afterVertex );
+        this.addEdge( bBeforeEdge );
       }
       if ( bAfter ) {
-        var bAfterVertex = overlap.a > 0 ? afterVertex : beforeVertex;
-        bAfterEdge = Edge.createFromPool( bAfter, bAfterVertex, bEdge.endVertex );
-        //TODO: consider Edge creation to do the adding to incident edges?
-        bEdge.endVertex.incidentEdges.push( bAfterEdge );
-        bAfterVertex.incidentEdges.push( bAfterEdge );
-        this.edges.push( bAfterEdge );
+        bAfterEdge = Edge.createFromPool( bAfter, overlap.a > 0 ? afterVertex : beforeVertex, bEdge.endVertex );
+        this.addEdge( bAfterEdge );
       }
 
       var aEdges = ( aBefore ? [ aBeforeEdge ] : [] ).concat( [ middleEdge ] ).concat( aAfter ? [ aAfterEdge ] : [] );
@@ -462,12 +449,8 @@ define( function( require ) {
       arrayRemove( edge.endVertex.incidentEdges, edge );
 
       // Add new connections
-      this.edges.push( firstEdge );
-      this.edges.push( secondEdge );
-      vertex.incidentEdges.push( firstEdge );
-      vertex.incidentEdges.push( secondEdge );
-      edge.startVertex.incidentEdges.push( firstEdge );
-      edge.endVertex.incidentEdges.push( secondEdge );
+      this.addEdge( firstEdge );
+      this.addEdge( secondEdge );
 
       for ( var i = 0; i < this.loops.length; i++ ) {
         var loop = this.loops[ i ];
@@ -791,10 +774,7 @@ define( function( require ) {
 
           var startVertex = vertexMap[ edge.startVertex.id ];
           var endVertex = vertexMap[ edge.endVertex.id ];
-          var newEdge = Edge.createFromPool( edge.segment, startVertex, endVertex );
-          startVertex.incidentEdges.push( newEdge );
-          endVertex.incidentEdges.push( newEdge );
-          graph.edges.push( newEdge );
+          graph.addEdge( Edge.createFromPool( edge.segment, startVertex, endVertex ) );
         }
       }
 
