@@ -68,6 +68,10 @@ define( function( require ) {
      * @param {Edge} edge
      */
     addEdge: function( edge ) {
+      assert && assert( edge instanceof Edge );
+      assert && assert( !_.includes( edge.startVertex.incidentEdges, edge ), 'Should not already be connected' );
+      assert && assert( !_.includes( edge.endVertex.incidentEdges, edge ), 'Should not already be connected' );
+
       this.edges.push( edge );
       edge.startVertex.incidentEdges.push( edge );
       edge.endVertex.incidentEdges.push( edge );
@@ -80,6 +84,8 @@ define( function( require ) {
      * @param {Edge} edge
      */
     removeEdge: function( edge ) {
+      assert && assert( edge instanceof Edge );
+
       arrayRemove( this.edges, edge );
       arrayRemove( edge.startVertex.incidentEdges, edge );
       arrayRemove( edge.endVertex.incidentEdges, edge );
@@ -89,7 +95,9 @@ define( function( require ) {
      * Adds a Shape (with a given ID for CAG purposes) to the graph.
      * @public
      *
-     * @param {number} shapeId
+     * @param {number} shapeId - The ID which should be shared for all paths/shapes that should be combined with
+     *                           respect to the winding number of faces. For CAG, independent shapes should be given
+     *                           different IDs (so they have separate winding numbers recorded).
      * @param {Shape} shape
      */
     addShape: function( shapeId, shape ) {
@@ -102,7 +110,7 @@ define( function( require ) {
      * Adds a subpath of a Shape (with a given ID for CAG purposes) to the graph.
      * @public
      *
-     * @param {number} shapeId
+     * @param {number} shapeId - See addShape() documentation
      * @param {Subpath} subpath
      */
     addSubpath: function( shapeId, subpath ) {
