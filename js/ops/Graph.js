@@ -74,6 +74,18 @@ define( function( require ) {
     },
 
     /**
+     * Removes an edge from the graph (and disconnects incident information).
+     * @public
+     *
+     * @param {Edge} edge
+     */
+    removeEdge: function( edge ) {
+      arrayRemove( this.edges, edge );
+      arrayRemove( edge.startVertex.incidentEdges, edge );
+      arrayRemove( edge.endVertex.incidentEdges, edge );
+    },
+
+    /**
      * Adds a Shape (with a given ID for CAG purposes) to the graph.
      * @public
      *
@@ -178,11 +190,9 @@ define( function( require ) {
 
             if ( aSegment instanceof Line && bSegment instanceof Line ) {
               if ( aSegment.tangentAt( 0 ).normalized().distance( bSegment.tangentAt( 0 ).normalized() ) < 1e-6 ) {
-                arrayRemove( this.vertices, vertex );
-                arrayRemove( this.edges, aEdge );
-                arrayRemove( this.edges, bEdge );
-                arrayRemove( aVertex.incidentEdges, aEdge );
-                arrayRemove( bVertex.incidentEdges, bEdge );
+                this.removeEdge( aEdge );
+                this.removeEdge( bEdge );
+                arrayRemove( this.vertices, vertex ); // TODO: removeVertex?
 
                 var newSegment = new Line( aVertex.point, bVertex.point );
                 this.addEdge( new Edge( newSegment, aVertex, bVertex ) );
@@ -235,12 +245,8 @@ define( function( require ) {
       var bSegment = bEdge.segment;
 
       // Remove the edges from before
-      arrayRemove( aEdge.startVertex.incidentEdges, aEdge );
-      arrayRemove( aEdge.endVertex.incidentEdges, aEdge );
-      arrayRemove( bEdge.startVertex.incidentEdges, bEdge );
-      arrayRemove( bEdge.endVertex.incidentEdges, bEdge );
-      arrayRemove( this.edges, aEdge );
-      arrayRemove( this.edges, bEdge );
+      this.removeEdge( aEdge );
+      this.removeEdge( bEdge );
 
       var t0 = overlap.t0;
       var t1 = overlap.t1;
@@ -444,9 +450,7 @@ define( function( require ) {
       var secondEdge = Edge.createFromPool( segments[ 1 ], vertex, edge.endVertex );
 
       // Remove old connections
-      arrayRemove( this.edges, edge ); // TODO: disposal
-      arrayRemove( edge.startVertex.incidentEdges, edge );
-      arrayRemove( edge.endVertex.incidentEdges, edge );
+      this.removeEdge( edge );
 
       // Add new connections
       this.addEdge( firstEdge );
@@ -549,9 +553,7 @@ define( function( require ) {
             // Disconnect any existing edges
             for ( var j = 0; j < vertex.incidentEdges.length; j++ ) {
               var edge = vertex.incidentEdges[ j ];
-              var otherVertex = edge.getOtherVertex( vertex );
-              arrayRemove( otherVertex.incidentEdges, edge );
-              arrayRemove( this.edges, edge );
+              this.removeEdge( edge );
 
               // TODO: remember to simplify this out (deduplicate)
               for ( var m = 0; m < this.loops.length; m++ ) {
