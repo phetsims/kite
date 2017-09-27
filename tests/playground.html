@@ -31,10 +31,15 @@
 
       window.initTest = function() {
         // window.shape = new kite.Shape().moveTo( 0, 0 ).lineTo( 10, 10 ).lineTo( 20, 0 ).close().moveTo( 4, 2 ).lineTo( 16, 2 ).lineTo( 10, 6 ).close();
+
+        // window.shape.moveTo( 0, 0 ).lineTo( 10, 10 ).lineTo( 20, 0 ).close().moveTo( 4, 2 ).lineTo( 16, 2 ).lineTo( 10, 6 ).close().moveTo( 0, 8 ).lineTo( 10, 18 ).lineTo( 20, 8 ).close();
+        // window.shape.moveTo( 0, 20 ).lineTo( 20, 25 ).lineTo( 20, 20 ).lineTo( 0, 25 ).close();
+        // window.shape.moveTo( 0, 25 ).lineTo( 20, 30 ).lineTo( 20, 25 ).lineTo( 0, 30 ).close();
+
         window.shape = new kite.Shape();
-        window.shape.moveTo( 0, 0 ).lineTo( 10, 10 ).lineTo( 20, 0 ).close().moveTo( 4, 2 ).lineTo( 16, 2 ).lineTo( 10, 6 ).close().moveTo( 0, 8 ).lineTo( 10, 18 ).lineTo( 20, 8 ).close();
-        window.shape.moveTo( 0, 20 ).lineTo( 20, 25 ).lineTo( 20, 20 ).lineTo( 0, 25 ).close();
-        window.shape.moveTo( 0, 25 ).lineTo( 20, 30 ).lineTo( 20, 25 ).lineTo( 0, 30 ).close();
+        shape.moveTo( 0, 0 ).lineTo( 10, 0 ).lineTo( 10, 10 ).lineTo( 0, 10 ).close();
+        shape.moveTo( 5, 10 ).lineTo( 15, 10 ).lineTo( 15, 20 ).lineTo( 5, 20 ).close();
+        shape.moveTo( 10, 0 ).lineTo( 20, 0 ).lineTo( 20, 10 ).lineTo( 10, 10 ).close();
 
 
 
@@ -42,6 +47,7 @@
         shape.subpaths.forEach( function( subpath ) {
           graph.addSubpath( 0, subpath );
         } );
+        graph.eliminateOverlap();
         graph.eliminateIntersection();
         graph.collapseVertices();
         graph.removeSingleEdgeVertices();

@@ -16,11 +16,13 @@ define( function( require ) {
   var Face = require( 'KITE/ops/Face' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
+  var Line = require( 'KITE/segments/Line' );
   var Loop = require( 'KITE/ops/Loop' );
   var Matrix3 = require( 'DOT/Matrix3' );
   var Segment = require( 'KITE/segments/Segment' );
   var Subpath = require( 'KITE/util/Subpath' );
   var Transform3 = require( 'DOT/Transform3' );
+  var Util = require( 'DOT/Util' );
   var Vertex = require( 'KITE/ops/Vertex' );
 
   // TODO: Move to common place
@@ -140,7 +142,175 @@ define( function( require ) {
     },
 
     eliminateOverlap: function() {
+      var needsLoop = true;
+      while ( needsLoop ) {
+        needsLoop = false;
+
+        overlap:
+        for ( var i = 0; i < this.edges.length; i++ ) {
+          var aEdge = this.edges[ i ];
+          var aSegment = aEdge.segment;
+          for ( var j = i + 1; j < this.edges.length; j++ ) {
+            var bEdge = this.edges[ j ];
+            var bSegment = bEdge.segment;
+
+            var overlaps;
+            var overlap;
+            if ( aSegment instanceof Line && bSegment instanceof Line ) {
+              overlaps = Line.getOverlaps( aSegment, bSegment );
+              if ( overlaps.length ) {
+                overlap = overlaps[ 0 ];
+                if ( Math.abs( overlap.t1 - overlap.t0 ) > 1e-5 &&
+                     Math.abs( overlap.qt1 - overlap.qt0 ) > 1e-5 ) {
+                  this.splitOverlap( aEdge, bEdge, overlap );
+
+                  needsLoop = true;
+                  break overlap;
+                }
+              }
+            }
+          }
+        }
+      }
       // TODO
+    },
+
+    splitOverlap: function( aEdge, bEdge, overlap ) {
+      var aSegment = aEdge.segment;
+      var bSegment = bEdge.segment;
+
+      // Remove the edges from before
+      arrayRemove( aEdge.startVertex.incidentEdges, aEdge );
+      arrayRemove( aEdge.endVertex.incidentEdges, aEdge );
+      arrayRemove( bEdge.startVertex.incidentEdges, bEdge );
+      arrayRemove( bEdge.endVertex.incidentEdges, bEdge );
+      arrayRemove( this.edges, aEdge );
+      arrayRemove( this.edges, bEdge );
+
+      var t0 = overlap.t0;
+      var t1 = overlap.t1;
+      var qt0 = overlap.qt0;
+      var qt1 = overlap.qt1;
+
+      // Apply rounding so we don't generate really small segments on the ends
+      if ( t0 < 1e-5 ) { t0 = 0; }
+      if ( t1 > 1 - 1e-5 ) { t1 = 1; }
+      if ( qt0 < 1e-5 ) { qt0 = 0; }
+      if ( qt1 > 1 - 1e-5 ) { qt1 = 1; }
+
+      var aBefore = t0 > 0 ? aSegment.subdivided( t0 )[ 0 ] : null;
+      var bBefore = qt0 > 0 ? bSegment.subdivided( qt0 )[ 0 ] : null;
+      var aAfter = t1 < 1 ? aSegment.subdivided( t1 )[ 1 ] : null;
+      var bAfter = qt1 < 1 ? bSegment.subdivided( qt1 )[ 1 ] : null;
+
+      var middle = aSegment;
+      if ( t0 > 0 ) {
+        middle = middle.subdivided( t0 )[ 1 ];
+      }
+      if ( t1 < 1 ) {
+        middle = middle.subdivided( Util.linear( t0, 1, 0, 1, t1 ) )[ 0 ];
+      }
+
+      var beforeVertex;
+      if ( aBefore && bBefore ) {
+        beforeVertex = Vertex.createFromPool( middle.start );
+        this.vertices.push( beforeVertex );
+      }
+      else if ( aBefore ) {
+        beforeVertex = overlap.a > 0 ? bEdge.startVertex : bEdge.endVertex;
+      }
+      else {
+        beforeVertex = aEdge.startVertex;
+      }
+
+      var afterVertex;
+      if ( aAfter && bAfter ) {
+        afterVertex = Vertex.createFromPool( middle.end );
+        this.vertices.push( afterVertex );
+      }
+      else if ( aAfter ) {
+        afterVertex = overlap.a > 0 ? bEdge.endVertex : bEdge.startVertex;
+      }
+      else {
+        afterVertex = aEdge.endVertex;
+      }
+
+      var middleEdge = Edge.createFromPool( middle, beforeVertex, afterVertex );
+      beforeVertex.incidentEdges.push( middleEdge );
+      afterVertex.incidentEdges.push( middleEdge );
+      this.edges.push( middleEdge );
+
+
+      var aBeforeEdge;
+      var aAfterEdge;
+      var bBeforeEdge;
+      var bAfterEdge;
+
+      if ( aBefore ) {
+        var aBeforeVertex = beforeVertex;
+        aBeforeEdge = Edge.createFromPool( aBefore, aEdge.startVertex, aBeforeVertex );
+        aEdge.startVertex.incidentEdges.push( aBeforeEdge );
+        aBeforeVertex.incidentEdges.push( aBeforeEdge );
+        this.edges.push( aBeforeEdge );
+      }
+      if ( aAfter ) {
+        var aAfterVertex = afterVertex;
+        aAfterEdge = Edge.createFromPool( aAfter, aAfterVertex, aEdge.endVertex );
+        aEdge.endVertex.incidentEdges.push( aAfterEdge );
+        aAfterVertex.incidentEdges.push( aAfterEdge );
+        this.edges.push( aAfterEdge );
+      }
+      if ( bBefore ) {
+        var bBeforeVertex = overlap.a > 0 ? beforeVertex : afterVertex;
+        bBeforeEdge = Edge.createFromPool( bBefore, bEdge.startVertex, bBeforeVertex );
+        bEdge.startVertex.incidentEdges.push( bBeforeEdge );
+        bBeforeVertex.incidentEdges.push( bBeforeEdge );
+        this.edges.push( bBeforeEdge );
+      }
+      if ( bAfter ) {
+        var bAfterVertex = overlap.a > 0 ? afterVertex : beforeVertex;
+        bAfterEdge = Edge.createFromPool( bAfter, bAfterVertex, bEdge.endVertex );
+        //TODO: consider Edge creation to do the adding to incident edges?
+        bEdge.endVertex.incidentEdges.push( bAfterEdge );
+        bAfterVertex.incidentEdges.push( bAfterEdge );
+        this.edges.push( bAfterEdge );
+      }
+
+      var aEdges = ( aBefore ? [ aBeforeEdge ] : [] ).concat( [ middleEdge ] ).concat( aAfter ? [ aAfterEdge ] : [] );
+      var bEdges = ( bBefore ? [ bBeforeEdge ] : [] ).concat( [ middleEdge ] ).concat( bAfter ? [ bAfterEdge ] : [] );
+
+      var aForwardHalfEdges = [];
+      var aReversedHalfEdges = [];
+      var bForwardHalfEdges = [];
+      var bReversedHalfEdges = [];
+
+      for ( var i = 0; i < aEdges.length; i++ ) {
+        aForwardHalfEdges.push( aEdges[ i ].forwardHalf );
+        aReversedHalfEdges.push( aEdges[ aEdges.length - 1 - i ].reversedHalf );
+      }
+      for ( i = 0; i < bEdges.length; i++ ) {
+        bForwardHalfEdges.push( bEdges[ i ].forwardHalf );
+        bReversedHalfEdges.push( bEdges[ bEdges.length - 1 - i ].reversedHalf );
+      }
+
+      for ( i = 0; i < this.loops.length; i++ ) {
+        var loop = this.loops[ i ];
+        for ( var j = loop.halfEdges.length - 1; j >= 0; j-- ) {
+          var halfEdge = loop.halfEdges[ j ];
+          if ( halfEdge === aEdge.forwardHalf ) {
+            loop.halfEdges.splice.apply( loop.halfEdges, [ 1 ].concat( aForwardHalfEdges ) );
+          }
+          if ( halfEdge === aEdge.reversedHalf ) {
+            loop.halfEdges.splice.apply( loop.halfEdges, [ 1 ].concat( aReversedHalfEdges ) );
+          }
+          if ( halfEdge === bEdge.forwardHalf ) {
+            loop.halfEdges.splice.apply( loop.halfEdges, [ 1 ].concat( bForwardHalfEdges ) );
+          }
+          if ( halfEdge === bEdge.reversedHalf ) {
+            loop.halfEdges.splice.apply( loop.halfEdges, [ 1 ].concat( bReversedHalfEdges ) );
+          }
+        }
+      }
     },
 
     eliminateIntersection: function() {
@@ -807,6 +977,7 @@ define( function( require ) {
     graph.addShape( 0, shapeA );
     graph.addShape( 1, shapeB );
 
+    graph.eliminateOverlap();
     graph.eliminateIntersection();
     graph.collapseVertices();
     graph.removeSingleEdgeVertices();
