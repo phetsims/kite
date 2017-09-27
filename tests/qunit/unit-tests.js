@@ -3,7 +3,7 @@
 // path to test base, without a slash, e.g. '../../../scenery/tests/qunit'
 function runKiteTests( pathToTestBase ) { // eslint-disable-line no-unused-vars
   'use strict';
-  
+
   function loadTestFile( src ) {
     var script = document.createElement( 'script' );
     script.type = 'text/javascript';
@@ -16,4 +16,5 @@ function runKiteTests( pathToTestBase ) { // eslint-disable-line no-unused-vars
   }
 
   loadTestFile( 'js/miscellaneous.js' );
+  loadTestFile( 'js/cag.js' );
 }
