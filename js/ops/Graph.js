@@ -289,8 +289,15 @@ define( function( require ) {
         aReversedHalfEdges.push( aEdges[ aEdges.length - 1 - i ].reversedHalf );
       }
       for ( i = 0; i < bEdges.length; i++ ) {
-        bForwardHalfEdges.push( bEdges[ i ].forwardHalf );
-        bReversedHalfEdges.push( bEdges[ bEdges.length - 1 - i ].reversedHalf );
+        if ( bEdges[ i ] !== middleEdge || overlap.a > 0 ) {
+          bForwardHalfEdges.push( bEdges[ i ].forwardHalf );
+          bReversedHalfEdges.push( bEdges[ bEdges.length - 1 - i ].reversedHalf );
+        }
+        // Handle reversing the "middle" edge
+        else {
+          bForwardHalfEdges.push( bEdges[ i ].reversedHalf );
+          bReversedHalfEdges.push( bEdges[ bEdges.length - 1 - i ].forwardHalf );
+        }
       }
 
       for ( i = 0; i < this.loops.length; i++ ) {
@@ -298,16 +305,24 @@ define( function( require ) {
         for ( var j = loop.halfEdges.length - 1; j >= 0; j-- ) {
           var halfEdge = loop.halfEdges[ j ];
           if ( halfEdge === aEdge.forwardHalf ) {
-            loop.halfEdges.splice.apply( loop.halfEdges, [ 1 ].concat( aForwardHalfEdges ) );
+            assert && assert( halfEdge.startVertex.point.distance( aForwardHalfEdges[ 0 ].startVertex.point ) < 1e-5 );
+            assert && assert( halfEdge.endVertex.point.distance( aForwardHalfEdges[ aForwardHalfEdges.length - 1 ].endVertex.point ) < 1e-5 );
+            Array.prototype.splice.apply( loop.halfEdges, [ j, 1 ].concat( aForwardHalfEdges ) );
           }
           if ( halfEdge === aEdge.reversedHalf ) {
-            loop.halfEdges.splice.apply( loop.halfEdges, [ 1 ].concat( aReversedHalfEdges ) );
+            assert && assert( halfEdge.startVertex.point.distance( aReversedHalfEdges[ 0 ].startVertex.point ) < 1e-5 );
+            assert && assert( halfEdge.endVertex.point.distance( aReversedHalfEdges[ aReversedHalfEdges.length - 1 ].endVertex.point ) < 1e-5 );
+            Array.prototype.splice.apply( loop.halfEdges, [ j, 1 ].concat( aReversedHalfEdges ) );
           }
           if ( halfEdge === bEdge.forwardHalf ) {
-            loop.halfEdges.splice.apply( loop.halfEdges, [ 1 ].concat( bForwardHalfEdges ) );
+            assert && assert( halfEdge.startVertex.point.distance( bForwardHalfEdges[ 0 ].startVertex.point ) < 1e-5 );
+            assert && assert( halfEdge.endVertex.point.distance( bForwardHalfEdges[ bForwardHalfEdges.length - 1 ].endVertex.point ) < 1e-5 );
+            Array.prototype.splice.apply( loop.halfEdges, [ j, 1 ].concat( bForwardHalfEdges ) );
           }
           if ( halfEdge === bEdge.reversedHalf ) {
-            loop.halfEdges.splice.apply( loop.halfEdges, [ 1 ].concat( bReversedHalfEdges ) );
+            assert && assert( halfEdge.startVertex.point.distance( bReversedHalfEdges[ 0 ].startVertex.point ) < 1e-5 );
+            assert && assert( halfEdge.endVertex.point.distance( bReversedHalfEdges[ bReversedHalfEdges.length - 1 ].endVertex.point ) < 1e-5 );
+            Array.prototype.splice.apply( loop.halfEdges, [ j, 1 ].concat( bReversedHalfEdges ) );
           }
         }
       }
@@ -639,6 +654,13 @@ define( function( require ) {
 
           if ( solvedForward && solvedReversed ) {
             edges.splice( j, 1 );
+
+            if ( assert ) {
+              for ( var m = 0; m < this.shapeIds.length; m++ ) {
+                var id = this.shapeIds[ m ];
+                assert( forwardFace.windingMap[ id ] - reversedFace.windingMap[ id ] === this.computeDifferential( edge, id ) );
+              }
+            }
           }
           else if ( !solvedForward && !solvedReversed ) {
             continue;
@@ -650,31 +672,43 @@ define( function( require ) {
             var windingMap = {};
             for ( var k = 0; k < this.shapeIds.length; k++ ) {
               var shapeId = this.shapeIds[ k ];
-
-              var differential = 0; // forward face - reversed face
-              for ( var m = 0; m < this.loops.length; m++ ) {
-                var loop = this.loops[ m ];
-                if ( loop.shapeId !== shapeId ) {
-                  continue;
-                }
-
-                for ( var n = 0; n < loop.halfEdges.length; n++ ) {
-                  var loopHalfEdge = loop.halfEdges[ n ];
-                  if ( loopHalfEdge === forwardHalf ) {
-                    differential++;
-                  }
-                  else if ( loopHalfEdge === reversedHalf ) {
-                    differential--;
-                  }
-                }
-              }
-
+              var differential = this.computeDifferential( edge, shapeId );
               windingMap[ shapeId ] = solvedFace.windingMap[ shapeId ] + differential * ( solvedForward ? -1 : 1 );
             }
             unsolvedFace.windingMap = windingMap;
           }
         }
       }
+    },
+
+    /**
+     * Computes the differential in winding numbers (forward face winding number minus the reversed face winding number)
+     * ("forward face" is the face on the forward half-edge side, etc.)
+     * @public
+     *
+     * @param {Edge} edge
+     * @param {number} shapeId
+     * @returns {number} - The difference between forward face and reversed face winding numbers.
+     */
+    computeDifferential: function( edge, shapeId ) {
+      var differential = 0; // forward face - reversed face
+      for ( var m = 0; m < this.loops.length; m++ ) {
+        var loop = this.loops[ m ];
+        if ( loop.shapeId !== shapeId ) {
+          continue;
+        }
+
+        for ( var n = 0; n < loop.halfEdges.length; n++ ) {
+          var loopHalfEdge = loop.halfEdges[ n ];
+          if ( loopHalfEdge === edge.forwardHalf ) {
+            differential++;
+          }
+          else if ( loopHalfEdge === edge.reversedHalf ) {
+            differential--;
+          }
+        }
+      }
+      return differential;
     },
 
     computeFaceInclusion: function( windingMapFilter ) {
@@ -940,7 +974,9 @@ define( function( require ) {
           drawVertices( context );
           drawEdges( context );
           for ( j = 0; j < self.faces.length; j++ ) {
-            drawFace( context, self.faces[ j ], colorMap[ self.faces[ j ].windingMap[ self.shapeIds[ k ] ] ] || 'green' );
+            if ( self.faces[ j ].windingMap ) {
+              drawFace( context, self.faces[ j ], colorMap[ self.faces[ j ].windingMap[ self.shapeIds[ k ] ] ] || 'green' );
+            }
           }
         } );
       }
@@ -953,6 +989,33 @@ define( function( require ) {
           }
         }
       } );
+      for ( k = 0; k < this.shapeIds.length; k++ ) {
+        draw( function( context ) {
+          drawVertices( context );
+          drawHalfEdges( context, self.edges.map( function( edge ) { return edge.forwardHalf; } ), 'rgba(0,0,0,0.4)' );
+          for ( j = 0; j < self.edges.length; j++ ) {
+            var edge = self.edges[ j ];
+            var center = edge.segment.start.average( edge.segment.end );
+            context.save();
+            context.translate( center.x, center.y );
+            context.scale( 1, -1 );
+            context.font = '2px serif';
+            context.textBasline = 'middle';
+            context.textAlign = 'center';
+            context.fillStyle = 'red';
+            context.fillText( '' + self.computeDifferential( edge, self.shapeIds[ k ] ), 0, 0 );
+            context.fillStyle = 'blue';
+            context.font = '1px serif';
+            context.fillText( edge.id, 0, 1 );
+            context.restore();
+          }
+          // for ( j = 0; j < self.faces.length; j++ ) {
+          //   if ( self.faces[ j ].windingMap ) {
+          //     drawFace( context, self.faces[ j ], colorMap[ self.faces[ j ].windingMap[ self.shapeIds[ k ] ] ] || 'green' );
+          //   }
+          // }
+        } );
+      }
     }
   } );
 
