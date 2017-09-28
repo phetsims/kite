@@ -51,6 +51,12 @@ define( function( require ) {
       this.childBoundaries = cleanArray( this.childBoundaries );
     },
 
+    dispose: function() {
+      this.halfEdges = [];
+      cleanArray( this.childBoundaries );
+      this.freeToPool();
+    },
+
     isInner: function() {
       return this.signedArea > 0;
     },

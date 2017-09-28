@@ -96,7 +96,7 @@
     bShape.writeToContext( normalContext );
     normalContext.fill();
 
-    document.body.appendChild( normalCanvas );
+    // document.body.appendChild( normalCanvas );
 
     var shape = aShape.shapeUnion( bShape );
 
@@ -110,7 +110,7 @@
     shape.writeToContext( testContext );
     testContext.fill();
 
-    document.body.appendChild( testCanvas );
+    // document.body.appendChild( testCanvas );
 
     var normalData = normalContext.getImageData( 0, 0, 100, 100 );
     var testData = testContext.getImageData( 0, 0, 100, 100 );
@@ -137,7 +137,7 @@
     bShape.writeToContext( normalContext );
     normalContext.fill();
 
-    document.body.appendChild( normalCanvas );
+    // document.body.appendChild( normalCanvas );
 
     var shape = aShape.shapeDifference( bShape );
 
@@ -153,7 +153,7 @@
     shape.writeToContext( testContext );
     testContext.fill();
 
-    document.body.appendChild( testCanvas );
+    // document.body.appendChild( testCanvas );
 
     var normalData = normalContext.getImageData( 0, 0, 100, 100 );
     var testData = testContext.getImageData( 0, 0, 100, 100 );
@@ -197,5 +197,30 @@
       new Shape().rect( 0, 0, 10, 100 ).rect( 20, 0, 10, 100 ).rect( 40, 0, 10, 100 ).rect( 60, 0, 10, 100 ).rect( 80, 0, 10, 100 ),
       1, 'Difference test'
     );
+  } );
+
+  test( 'CAG multiple test', function() {
+    var a = new kite.Shape();
+    var b = new kite.Shape();
+    var c = new kite.Shape();
+
+    a.moveTo( 0, 2 ).cubicCurveTo( 22, 2, -1, 10, 25, 10 ).lineTo( 25, 16.5 ).lineTo( 0, 16.5 ).close();
+    a.moveTo( 0, 10 ).lineTo( 10, 10 ).lineTo( 10, 25 ).lineTo( 0, 25 ).close();
+    a.moveTo( 13, 25 ).arc( 10, 25, 3, 0, Math.PI * 1.3, false ).close();
+
+    b.moveTo( 0, 0 ).lineTo( 30, 16.5 ).lineTo( 30, 0 ).close();
+    b.moveTo( 15, 2 ).lineTo( 25, 2 ).lineTo( 25, 7 ).quadraticCurveTo( 15, 7, 15, 2 ).close();
+
+    c.rect( 20, 0, 3, 20 );
+
+    a = a.transformed( dot.Matrix3.scaling( 3 ) );
+    b = b.transformed( dot.Matrix3.scaling( 3 ) );
+    c = c.transformed( dot.Matrix3.scaling( 3 ) );
+
+    testUnion( a, b, 1, 'CAG multiple #1' );
+
+    var ab = a.shapeUnion( b );
+
+    testDifference( ab, c, 1, 'CAG multiple #2' );
   } );
 })();
