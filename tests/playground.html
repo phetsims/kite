@@ -38,6 +38,7 @@
       window.initTest = function() {
         window.a = new kite.Shape();
         window.b = new kite.Shape();
+        window.c = new kite.Shape();
         // window.shape = new kite.Shape().moveTo( 0, 0 ).lineTo( 10, 10 ).lineTo( 20, 0 ).close().moveTo( 4, 2 ).lineTo( 16, 2 ).lineTo( 10, 6 ).close();
 
         // window.shape.moveTo( 0, 0 ).lineTo( 10, 10 ).lineTo( 20, 0 ).close().moveTo( 4, 2 ).lineTo( 16, 2 ).lineTo( 10, 6 ).close().moveTo( 0, 8 ).lineTo( 10, 18 ).lineTo( 20, 8 ).close();
@@ -51,17 +52,19 @@
 
         // window.shape = new kite.Shape( 'M 91.96915998525018665077 91.24718655934094613258 L 13.01036638487373942041 76.02537237375632628300 L 32.48787910190596051052 26.21682531027469309493 L 57.43999923297642595799 58.16090982079293780771 L 56.92264498180377074732 72.39921413690022689025 L 63.11761839905265247808 48.00123492133329961007 L 36.20150691457639879900 46.23372032562140532264 L 26.52509314322703914968 45.76710878371616786353 L 6.99623963468223308837 4.06981010500029327659 L 78.58765466056982518239 45.06909481993328370208 L 56.21565533621713228740 89.41787295920502742774 L 53.09754247353571088297 36.49609358296359573615 L 99.55379147744326928660 26.62796242781617550577 L 1.70625157676598249168 80.06082718577467005616 L 67.62497865906360061672 40.03197535570557619167 L 19.80434048368504562632 7.15560598983484563718 L 63.74050666740909321106 10.62303132213009426721 L 66.86197587106524053979 98.06782501581652411460 L 21.12594911002885211815 42.28418274336463156260 L 42.41733297393012946941 47.34011326985169887394 Z ' );
 
-        // window.shape = new kite.Shape();
         a.moveTo( 0, 2 ).cubicCurveTo( 22, 2, -1, 10, 25, 10 ).lineTo( 25, 16.5 ).lineTo( 0, 16.5 ).close();
         a.moveTo( 0, 10 ).lineTo( 10, 10 ).lineTo( 10, 25 ).lineTo( 0, 25 ).close();
-        // a.arc( 10, 25, 3, 0, Math.PI * 4, false ).close();
+        a.moveTo( 13, 25 ).arc( 10, 25, 3, 0, Math.PI * 1.3, false ).close();
 
         b.moveTo( 0, 0 ).lineTo( 30, 16.5 ).lineTo( 30, 0 ).close();
-        b.moveTo( 15, 2 ).lineTo( 25, 2 ).lineTo( 25, 7 ).close();
+        b.moveTo( 15, 2 ).lineTo( 25, 2 ).lineTo( 25, 7 ).quadraticCurveTo( 15, 7, 15, 2 ).close();
+
+        c.rect( 20, 0, 3, 20 );
 
         window.graph = new kite.Graph();
         graph.addShape( 0, a );
         graph.addShape( 1, b );
+        graph.addShape( 2, c );
         graph.eliminateOverlap();
         graph.eliminateIntersection();
         graph.collapseVertices();
@@ -71,7 +74,7 @@
         graph.computeBoundaryGraph();
         graph.computeWindingMap();
         graph.computeFaceInclusion( function( windingMap ) {
-          return windingMap[ '0' ] !== 0 || windingMap[ '1' ] !== 0; // non-zero for first entry
+          return ( windingMap[ '0' ] !== 0 || windingMap[ '1' ] !== 0 ) && windingMap[ '2' ] === 0; // non-zero for first entry
         } );
         graph.debug();
         window.subgraph = graph.createFilledSubGraph();

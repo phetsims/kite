@@ -677,8 +677,13 @@ define( function( require ) {
      * @returns {number}
      */
     getSignedAreaFragment: function() {
-      // TODO: Check all types of circle handling (the anticlockwise things, etc.)
-      return this._radius * this._radius * 0.5 * ( this.getActualEndAngle() - this._startAngle );
+      var t0 = this._startAngle;
+      var t1 = this.getActualEndAngle();
+
+      // Derived via Mathematica (curve-area.nb)
+      return 0.5 * this._radius * ( this._radius * ( t1 - t0 ) +
+                                    this._center.x * ( Math.sin( t1 ) - Math.sin( t0 ) ) -
+                                    this._center.y * ( Math.cos( t1 ) - Math.cos( t0 ) ) );
     },
 
     /**

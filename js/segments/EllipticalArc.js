@@ -677,8 +677,20 @@ define( function( require ) {
      * @returns {number}
      */
     getSignedAreaFragment: function() {
-      // TODO: Check all types of ellipse handling (the anticlockwise things, etc.)
-      return this._radiusX * this._radiusY * 0.5 * ( this.getActualEndAngle() - this._startAngle );
+      var t0 = this._startAngle;
+      var t1 = this.getActualEndAngle();
+
+      var sin0 = Math.sin( t0 );
+      var sin1 = Math.sin( t1 );
+      var cos0 = Math.cos( t0 );
+      var cos1 = Math.cos( t1 );
+
+      // Derived via Mathematica (curve-area.nb)
+      return 0.5 * ( this._radiusX * this._radiusY * ( t1 - t0 ) +
+                     Math.cos( this._rotation ) * ( this._radiusX * this._center.y * ( cos0 - cos1 ) +
+                                                    this._radiusY * this._center.x * ( sin1 - sin0 ) ) +
+                     Math.sin( this._rotation ) * ( this._radiusX * this._center.x * ( cos1 - cos0 ) +
+                                                    this._radiusY * this._center.y * ( sin1 - sin0 ) ) );
     },
 
     /**
