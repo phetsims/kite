@@ -586,7 +586,7 @@ define( function( require ) {
     var comparisons = [];
     for ( var i = 0; i < aInternals.length; i++ ) {
       for ( var j = 0; j < bInternals.length; j++ ) {
-        if ( Segment.slicesIntersect( a, b, aInternals[ i ][ 0 ], aInternals[ i ][ 1 ], bInternals[ i ][ 0 ], bInternals[ i ][ 1 ] ) ) {
+        if ( Segment.slicesIntersect( a, b, aInternals[ i ][ 0 ], aInternals[ i ][ 1 ], bInternals[ j ][ 0 ], bInternals[ j ][ 1 ] ) ) {
           comparisons.push( [ aInternals[ i ], bInternals[ j ] ] );
         }
       }
@@ -669,8 +669,8 @@ define( function( require ) {
       bT /= 2 * group.length;
 
       var positionA = a.positionAt( aT );
-      var positionB = b.positionAt( aT );
-      assert && assert( positionA.distance( positionB ) < 1e10 );
+      var positionB = b.positionAt( bT );
+      assert && assert( positionA.distance( positionB ) < 1e-10 );
 
       intersections.push( {
         point: positionA.average( positionB ),
