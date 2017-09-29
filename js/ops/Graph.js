@@ -542,7 +542,6 @@ define( function( require ) {
               var newVertex = Vertex.createFromPool( distance === 0 ? aVertex.point : aVertex.point.average( bVertex.point ) );
               this.vertices.push( newVertex );
 
-              // TODO: disposal
               arrayRemove( this.vertices, aVertex );
               arrayRemove( this.vertices, bVertex );
               for ( var k = this.edges.length - 1; k >= 0; k-- ) {
@@ -552,7 +551,7 @@ define( function( require ) {
 
                 // Outright remove edges that were between A and B.
                 if ( startMatches && endMatches ) {
-                  this.edges.splice( k, 1 ); // TODO: disposal
+                  this.removeEdge( edge );
                   for ( var m = 0; m < this.loops.length; m++ ) {
                     var loop = this.loops[ m ];
                     for ( var n = loop.halfEdges.length - 1; n >= 0; n-- ) {
@@ -562,6 +561,7 @@ define( function( require ) {
                     }
                     // TODO: check to see if the loop ceases to exist
                   }
+                  edge.dispose();
                 }
                 else if ( startMatches ) {
                   edge.startVertex = newVertex;
@@ -603,7 +603,6 @@ define( function( require ) {
         for ( var i = this.vertices.length - 1; i >= 0; i-- ) {
           var vertex = this.vertices[ i ];
 
-          // TODO: proper disposal
           if ( vertex.incidentEdges.length < 2 ) {
             // Disconnect any existing edges
             for ( var j = 0; j < vertex.incidentEdges.length; j++ ) {
@@ -626,6 +625,7 @@ define( function( require ) {
 
             // Remove the vertex
             this.vertices.splice( i, 1 );
+            vertex.dispose();
 
             needsLoop = true;
             break nextVertexLoop;
