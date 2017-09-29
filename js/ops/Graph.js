@@ -12,6 +12,7 @@ define( function( require ) {
   var arrayRemove = require( 'PHET_CORE/arrayRemove' );
   var Boundary = require( 'KITE/ops/Boundary' );
   var Bounds2 = require( 'DOT/Bounds2' );
+  var Cubic = require( 'KITE/segments/Cubic' );
   var Edge = require( 'KITE/ops/Edge' );
   var Face = require( 'KITE/ops/Face' );
   var inherit = require( 'PHET_CORE/inherit' );
@@ -19,6 +20,7 @@ define( function( require ) {
   var Line = require( 'KITE/segments/Line' );
   var Loop = require( 'KITE/ops/Loop' );
   var Matrix3 = require( 'DOT/Matrix3' );
+  var Quadratic = require( 'KITE/segments/Quadratic' );
   var Segment = require( 'KITE/segments/Segment' );
   var Subpath = require( 'KITE/util/Subpath' );
   var Transform3 = require( 'DOT/Transform3' );
@@ -227,18 +229,29 @@ define( function( require ) {
             var bEdge = this.edges[ j ];
             var bSegment = bEdge.segment;
 
-            var overlaps;
-            var overlap;
+            var overlapFunction = null;
             if ( aSegment instanceof Line && bSegment instanceof Line ) {
-              overlaps = Line.getOverlaps( aSegment, bSegment );
-              if ( overlaps.length ) {
-                overlap = overlaps[ 0 ];
-                if ( Math.abs( overlap.t1 - overlap.t0 ) > 1e-5 &&
-                     Math.abs( overlap.qt1 - overlap.qt0 ) > 1e-5 ) {
-                  this.splitOverlap( aEdge, bEdge, overlap );
+              overlapFunction = Line.getOverlaps;
+            }
+            if ( aSegment instanceof Quadratic && bSegment instanceof Quadratic ) {
+              overlapFunction = Quadratic.getOverlaps;
+            }
+            if ( aSegment instanceof Cubic && bSegment instanceof Cubic ) {
+              overlapFunction = Cubic.getOverlaps;
+            }
 
-                  needsLoop = true;
-                  break overlap;
+            if ( overlapFunction ) {
+              var overlaps = overlapFunction( aSegment, bSegment );
+              if ( overlaps.length ) {
+                for ( var k = 0; k < overlaps.length; k++ ) {
+                  var overlap = overlaps[ k ];
+                  if ( Math.abs( overlap.t1 - overlap.t0 ) > 1e-5 &&
+                       Math.abs( overlap.qt1 - overlap.qt0 ) > 1e-5 ) {
+                    this.splitOverlap( aEdge, bEdge, overlap );
+
+                    needsLoop = true;
+                    break overlap;
+                  }
                 }
               }
             }
