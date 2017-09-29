@@ -238,4 +238,19 @@
 
     testUnion( a, b, 1, 'Cubic overlap union' );
   } );
+
+  test( 'Testing quadratic overlap', function() {
+    var a = new kite.Shape();
+    var b = new kite.Shape();
+
+    var curve = new kite.Quadratic( dot.v2( 0, 0 ), dot.v2( 10, 0 ), dot.v2( 10, 10 ) );
+
+    var left = curve.subdivided( 0.7 )[ 0 ];
+    var right = curve.subdivided( 0.3 )[ 1 ];
+
+    a.moveTo( 0, 10 ).lineTo( left.start.x, left.start.y ).quadraticCurveTo( left.control.x, left.control.y, left.end.x, left.end.y ).close();
+    b.moveTo( 20, 0 ).lineTo( right.start.x, right.start.y ).quadraticCurveTo( right.control.x, right.control.y, right.end.x, right.end.y ).close();
+
+    testUnion( a, b, 1, 'Quadratic overlap union' );
+  } );
 })();
