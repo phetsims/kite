@@ -40,6 +40,13 @@ define( function( require ) {
 
       // @public {Array.<HalfEdge>}
       this.halfEdges = cleanArray( this.halfEdges );
+
+      return this;
+    },
+
+    dispose: function() {
+      cleanArray( this.halfEdges );
+      this.freeToPool();
     }
   } );
 

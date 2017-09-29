@@ -11,6 +11,7 @@ define( function( require ) {
 
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
+  var Poolable = require( 'PHET_CORE/Poolable' );
 
   /**
    * @public (kite-internal)
@@ -20,30 +21,45 @@ define( function( require ) {
    * @param {boolean} isReversed
    */
   function HalfEdge( edge, isReversed ) {
-    assert && assert( edge instanceof kite.Edge );
-    assert && assert( typeof isReversed === 'boolean' );
-
-    // @public {Edge}
-    this.edge = edge;
-
-    // @public {Face|null} - Filled in later, contains a face reference
-    this.face = null;
-
-    // @public {boolean}
-    this.isReversed = isReversed;
-
-    // @public {number}
-    this.signedAreaFragment = edge.signedAreaFragment * ( isReversed ? -1 : 1 );
-
-    // @public {Vertex|null}
-    this.startVertex = null;
-    this.endVertex = null;
-    this.updateReferences(); // Initializes vertex references
+    this.initialize( edge, isReversed );
   }
 
   kite.register( 'HalfEdge', HalfEdge );
 
   inherit( Object, HalfEdge, {
+    initialize: function( edge, isReversed ) {
+      assert && assert( edge instanceof kite.Edge );
+      assert && assert( typeof isReversed === 'boolean' );
+
+      // @public {Edge|null} - Null if disposed (in pool)
+      this.edge = edge;
+
+      // @public {Face|null} - Filled in later, contains a face reference
+      this.face = null;
+
+      // @public {boolean}
+      this.isReversed = isReversed;
+
+      // @public {number}
+      this.signedAreaFragment = edge.signedAreaFragment * ( isReversed ? -1 : 1 );
+
+      // @public {Vertex|null}
+      this.startVertex = null;
+      this.endVertex = null;
+
+      this.updateReferences(); // Initializes vertex references
+
+      return this;
+    },
+
+    dispose: function() {
+      this.edge = null;
+      this.face = null;
+      this.startVertex = null;
+      this.endVertex = null;
+      this.freeToPool();
+    },
+
     /**
      * Returns the next half-edge, walking around counter-clockwise as possible. Assumes edges have been sorted.
      * @public
@@ -84,6 +100,19 @@ define( function( require ) {
       else {
         return this.edge.segment; // TODO: copy, so we don't need to worry about modification?
       }
+    }
+  } );
+
+  Poolable.mixin( HalfEdge, {
+    constructorDuplicateFactory: function( pool ) {
+      return function( edge, isReversed ) {
+        if ( pool.length ) {
+          return pool.pop().initialize( edge, isReversed );
+        }
+        else {
+          return new HalfEdge( edge, isReversed );
+        }
+      };
     }
   } );
 

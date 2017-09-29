@@ -12,6 +12,7 @@ define( function( require ) {
   var arrayRemove = require( 'PHET_CORE/arrayRemove' );
   var Boundary = require( 'KITE/ops/Boundary' );
   var Bounds2 = require( 'DOT/Bounds2' );
+  var cleanArray = require( 'PHET_CORE/cleanArray' );
   var Cubic = require( 'KITE/segments/Cubic' );
   var Edge = require( 'KITE/ops/Edge' );
   var Face = require( 'KITE/ops/Face' );
@@ -62,6 +63,28 @@ define( function( require ) {
   kite.register( 'Graph', Graph );
 
   inherit( Object, Graph, {
+    dispose: function() {
+
+      // this.boundaries should contain all elements of innerBoundaries and outerBoundaries
+      while ( this.boundaries.length ) {
+        this.boundaries.pop().dispose();
+      }
+      cleanArray( this.innerBoundaries );
+      cleanArray( this.outerBoundaries );
+
+      while ( this.loops.length ) {
+        this.loops.pop().dispose();
+      }
+      while ( this.faces.length ) {
+        this.faces.pop().dispose();
+      }
+      while ( this.vertices.length ) {
+        this.vertices.pop().dispose();
+      }
+      while ( this.edges.length ) {
+        this.edges.pop().dispose();
+      }
+    },
 
     /**
      * Adds an edge to the graph (and sets up connection information).
@@ -202,7 +225,10 @@ define( function( require ) {
               if ( aSegment.tangentAt( 0 ).normalized().distance( bSegment.tangentAt( 0 ).normalized() ) < 1e-6 ) {
                 this.removeEdge( aEdge );
                 this.removeEdge( bEdge );
+                aEdge.dispose();
+                bEdge.dispose();
                 arrayRemove( this.vertices, vertex ); // TODO: removeVertex?
+                vertex.dispose();
 
                 var newSegment = new Line( aVertex.point, bVertex.point );
                 this.addEdge( new Edge( newSegment, aVertex, bVertex ) );
@@ -392,6 +418,9 @@ define( function( require ) {
           }
         }
       }
+
+      aEdge.dispose();
+      bEdge.dispose();
     },
 
     eliminateIntersection: function() {
@@ -490,6 +519,8 @@ define( function( require ) {
           }
         }
       }
+
+      edge.dispose();
     },
 
     collapseVertices: function() {
@@ -544,6 +575,9 @@ define( function( require ) {
                 }
               }
 
+              aVertex.dispose();
+              bVertex.dispose();
+
               needsLoop = true;
               break nextLoop;
             }
@@ -586,6 +620,8 @@ define( function( require ) {
                 }
                 // TODO: check to see if the loop ceases to exist
               }
+
+              edge.dispose();
             }
 
             // Remove the vertex
@@ -1065,11 +1101,6 @@ define( function( require ) {
             context.fillText( edge.id, 0, 1 );
             context.restore();
           }
-          // for ( j = 0; j < self.faces.length; j++ ) {
-          //   if ( self.faces[ j ].windingMap ) {
-          //     drawFace( context, self.faces[ j ], colorMap[ self.faces[ j ].windingMap[ self.shapeIds[ k ] ] ] || 'green' );
-          //   }
-          // }
         } );
       }
     }
@@ -1105,13 +1136,12 @@ define( function( require ) {
     graph.computeBoundaryGraph();
     graph.computeWindingMap();
     graph.computeFaceInclusion( windingMapFilter );
-    // graph.debug();
     var subgraph = graph.createFilledSubGraph();
     subgraph.fillAlternatingFaces();
-    // subgraph.debug();
     var shape = subgraph.facesToShape();
 
-    // TODO: disposal
+    graph.dispose();
+    subgraph.dispose();
 
     return shape;
   };

@@ -46,19 +46,35 @@ define( function( require ) {
       assert && assert( segment.start.distance( startVertex.point ) < vertexEpsilon );
       assert && assert( segment.end.distance( endVertex.point ) < vertexEpsilon );
 
-      // @public {Segment}
+      // @public {Segment|null} - Null when disposed (in pool)
       this.segment = segment;
 
-      // @public {Vertex}
+      // @public {Vertex|null} - Null when disposed (in pool)
       this.startVertex = startVertex;
       this.endVertex = endVertex;
 
       // @public {number}
       this.signedAreaFragment = segment.getSignedAreaFragment();
 
-      // @public {HalfEdge}
-      this.forwardHalf = this.forwardHalf || new HalfEdge( this, false );
-      this.reversedHalf = this.reversedHalf || new HalfEdge( this, true );
+      // @public {HalfEdge|null} - Null when disposed (in pool)
+      this.forwardHalf = HalfEdge.createFromPool( this, false );
+      this.reversedHalf = HalfEdge.createFromPool( this, true );
+
+      return this;
+    },
+
+    dispose: function() {
+      this.segment = null;
+      this.startVertex = null;
+      this.endVertex = null;
+
+      this.forwardHalf.dispose();
+      this.reversedHalf.dispose();
+
+      this.forwardHalf = null;
+      this.reversedHalf = null;
+
+      this.freeToPool();
     },
 
     getOtherVertex: function( vertex ) {

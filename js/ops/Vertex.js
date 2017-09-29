@@ -47,6 +47,14 @@ define( function( require ) {
 
       // @public {Array.<Edge>}
       this.incidentEdges = cleanArray( this.incidentEdges );
+
+      return this;
+    },
+
+    dispose: function() {
+      this.point = Vector2.ZERO;
+      cleanArray( this.incidentEdges );
+      this.freeToPool();
     },
 
     /**

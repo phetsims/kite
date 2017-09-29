@@ -35,7 +35,7 @@ define( function( require ) {
     initialize: function( boundary ) {
       assert && assert( boundary === null || boundary.isInner() );
 
-      // @public {Boundary} - "inner" types
+      // @public {Boundary|null} - "inner" types, null when disposed (in pool)
       this.boundary = boundary;
 
       // @public {Array.<Boundary>} - "outer" types
@@ -50,6 +50,16 @@ define( function( require ) {
       if ( boundary ) {
         this.addBoundaryFaceReferences( boundary );
       }
+
+      return this;
+    },
+
+    dispose: function() {
+      this.boundary = null;
+      cleanArray( this.holes );
+      this.windingMap = null;
+      this.filled = null;
+      this.freeToPool();
     },
 
     addBoundaryFaceReferences: function( boundary ) {

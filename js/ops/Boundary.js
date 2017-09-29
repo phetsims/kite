@@ -50,6 +50,8 @@ define( function( require ) {
 
       // @public {Boundary}
       this.childBoundaries = cleanArray( this.childBoundaries );
+
+      return this;
     },
 
     /**
