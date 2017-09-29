@@ -223,4 +223,19 @@
 
     testDifference( ab, c, 1, 'CAG multiple #2' );
   } );
+
+  test( 'Testing cubic overlap', function() {
+    var a = new kite.Shape();
+    var b = new kite.Shape();
+
+    var curve = new kite.Cubic( dot.v2( 0, 0 ), dot.v2( 10, 0 ), dot.v2( 10, 10 ), dot.v2( 20, 10 ) );
+
+    var left = curve.subdivided( 0.7 )[ 0 ];
+    var right = curve.subdivided( 0.3 )[ 1 ];
+
+    a.moveTo( 0, 10 ).lineTo( left.start.x, left.start.y ).cubicCurveTo( left.control1.x, left.control1.y, left.control2.x, left.control2.y, left.end.x, left.end.y ).close();
+    b.moveTo( 20, 0 ).lineTo( right.start.x, right.start.y ).cubicCurveTo( right.control1.x, right.control1.y, right.control2.x, right.control2.y, right.end.x, right.end.y ).close();
+
+    testUnion( a, b, 1, 'Cubic overlap union' );
+  } );
 })();
