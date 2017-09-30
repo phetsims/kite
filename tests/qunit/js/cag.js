@@ -273,4 +273,14 @@
 
     testUnion( a, b, 1, 'Cubic self-intersection' );
   } );
+
+  test( 'Removal of bridge edges', function() {
+    var a = new kite.Shape();
+    var b = new kite.Shape();
+
+    a.moveTo( 40, 50 ).lineTo( 20, 70 ).lineTo( 20, 30 ).lineTo( 40, 50 ).lineTo( 60, 50 ).lineTo( 80, 30 ).lineTo( 80, 70 ).lineTo( 60, 50 ).close();
+    b.rect( 0, 0, 5, 5 );
+
+    testUnion( a, b, 1, 'Removal of bridge edges' );
+  } );
 })();

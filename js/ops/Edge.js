@@ -60,6 +60,9 @@ define( function( require ) {
       this.forwardHalf = HalfEdge.createFromPool( this, false );
       this.reversedHalf = HalfEdge.createFromPool( this, true );
 
+      // @public {boolean} - Used for depth-first search
+      this.visited = false;
+
       return this;
     },
 

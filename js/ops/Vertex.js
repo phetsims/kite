@@ -50,6 +50,15 @@ define( function( require ) {
       // @public {Array.<HalfEdge>} - Records the half-edge that points to (ends at) this vertex.
       this.incidentHalfEdges = cleanArray( this.incidentHalfEdges );
 
+      // @public {boolean} - Used for depth-first search
+      this.visited = false;
+
+      // @public {number} - Visit index for bridge detection (more efficient to have inline here)
+      this.visitIndex = 0;
+
+      // @public {number} - Low index for bridge detection (more efficient to have inline here)
+      this.lowIndex = 0;
+
       return this;
     },
 

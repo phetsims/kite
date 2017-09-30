@@ -39,12 +39,7 @@
         window.a = new kite.Shape();
         window.b = new kite.Shape();
 
-        var curve = new kite.Quadratic( dot.v2( 0, 0 ), dot.v2( 10, 0 ), dot.v2( 10, 10 ) );
-
-        var left = curve.subdivided( 0.7 )[ 0 ];
-        var right = curve.subdivided( 0.3 )[ 1 ];
-
-        a.moveTo( 10, 0 ).lineTo( 10, 10 ).lineTo( 10, 0 ).cubicCurveTo( 30, 10, 0, 10, 20, 0 ).close();
+        a.moveTo( 40, 50 ).lineTo( 20, 70 ).lineTo( 20, 30 ).lineTo( 40, 50 ).lineTo( 60, 50 ).lineTo( 80, 30 ).lineTo( 80, 70 ).lineTo( 60, 50 ).close();
         b.rect( 0, 0, 5, 5 );
 
         window.graph = new kite.Graph();
@@ -54,6 +49,7 @@
         graph.eliminateSelfIntersection();
         graph.eliminateIntersection();
         graph.collapseVertices();
+        graph.removeBridges();
         graph.removeSingleEdgeVertices();
         graph.orderVertexEdges();
         graph.extractFaces();

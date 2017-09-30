@@ -1,7 +1,7 @@
 // Copyright 2017, University of Colorado Boulder
 
 /**
- * A graph whose edges are segments.
+ * A multigraph whose edges are segments.
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
@@ -30,6 +30,8 @@ define( function( require ) {
 
   // TODO: Move to common place
   var vertexEpsilon = 1e-5;
+
+  var bridgeId = 0;
 
   /**
    * @public (kite-internal)
@@ -602,6 +604,68 @@ define( function( require ) {
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
     },
 
+    /**
+     * Scan a given vertex for bridges recursively with a depth-first search.
+     * @public
+     *
+     * Records visit times to each vertex, and back-propagates so that we can efficiently determine if there was another
+     * path around to the vertex.
+     *
+     * Assumes this is only called one time once all edges/vertices are set up. Repeated calls will fail because we
+     * don't mark visited/etc. references again on startup
+     *
+     * See Tarjan's algorithm for more information. Some modifications were needed, since this is technically a
+     * multigraph/pseudograph (can have edges that have the same start/end vertex, and can have multiple edges
+     * going from the same two vertices).
+     *
+     * @param {Array.<Edge>} bridges - Appends bridge edges to here.
+     * @param {Vertex} vertex
+     */
+    markBridges: function( bridges, vertex ) {
+      vertex.visited = true;
+      vertex.visitIndex = vertex.lowIndex = bridgeId++;
+
+      for ( var i = 0; i < vertex.incidentHalfEdges.length; i++ ) {
+        var edge = vertex.incidentHalfEdges[ i ].edge;
+        var childVertex = vertex.incidentHalfEdges[ i ].startVertex; // by definition, our vertex should be the endVertex
+        if ( !childVertex.visited ) {
+          edge.visited = true;
+          childVertex.parent = vertex;
+          this.markBridges( bridges, childVertex );
+
+          // Check if there's another route that reaches back to our vertex from an ancestor
+          vertex.lowIndex = Math.min( vertex.lowIndex, childVertex.lowIndex );
+
+          // If there was no route, then we reached a bridge
+          if ( childVertex.lowIndex > vertex.visitIndex ) {
+            bridges.push( edge );
+          }
+        }
+        else if ( !edge.visited ) {
+          vertex.lowIndex = Math.min( vertex.lowIndex, childVertex.visitIndex );
+        }
+      }
+    },
+
+    removeBridges: function() {
+      var bridges = [];
+
+      for ( var i = 0; i < this.vertices.length; i++ ) {
+        var vertex = this.vertices[ i ];
+        if ( !vertex.visited ) {
+          this.markBridges( bridges, vertex );
+        }
+      }
+
+      for ( i = 0; i < bridges.length; i++ ) {
+        var bridgeEdge = bridges[ i ];
+
+        this.removeEdge( bridgeEdge );
+        this.replaceEdgeInLoops( bridgeEdge, [] );
+        bridgeEdge.dispose();
+      }
+    },
+
     removeSingleEdgeVertices: function() {
       var self = this;
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
@@ -621,9 +685,7 @@ define( function( require ) {
             for ( var j = 0; j < vertex.incidentHalfEdges.length; j++ ) {
               var edge = vertex.incidentHalfEdges[ j ].edge;
               this.removeEdge( edge );
-
               this.replaceEdgeInLoops( edge, [] ); // remove the edge from the loops
-
               edge.dispose();
             }
 
@@ -1134,6 +1196,7 @@ define( function( require ) {
     graph.eliminateSelfIntersection();
     graph.eliminateIntersection();
     graph.collapseVertices();
+    graph.removeBridges();
     graph.removeSingleEdgeVertices();
     graph.orderVertexEdges();
     graph.extractFaces();
