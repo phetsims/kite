@@ -195,7 +195,6 @@ define( function( require ) {
     computeExtremeRay: function( transform ) {
       var extremePoint = this.computeExtremePoint( transform );
       var orientation = transform.inverseDelta2( new Vector2( 0, -1 ) ).normalized();
-      // TODO: gather this epsilon somewhere?
       return new Ray2( extremePoint.plus( orientation.timesScalar( 1e-4 ) ), orientation );
     },
 

@@ -16,9 +16,6 @@ define( function( require ) {
   var Segment = require( 'KITE/segments/Segment' );
   var Vertex = require( 'KITE/ops/Vertex' );
 
-  // TODO: Common ops place?
-  var vertexEpsilon = 1e-5;
-
   var globaId = 0;
 
   /**
@@ -57,8 +54,8 @@ define( function( require ) {
       assert && assert( segment instanceof Segment );
       assert && assert( startVertex instanceof Vertex );
       assert && assert( endVertex instanceof Vertex );
-      assert && assert( segment.start.distance( startVertex.point ) < vertexEpsilon );
-      assert && assert( segment.end.distance( endVertex.point ) < vertexEpsilon );
+      assert && assert( segment.start.distance( startVertex.point ) < 1e-5 );
+      assert && assert( segment.end.distance( endVertex.point ) < 1e-5 );
 
       // @public {Segment|null} - Null when disposed (in pool)
       this.segment = segment;

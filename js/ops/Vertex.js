@@ -17,9 +17,6 @@ define( function( require ) {
   var Poolable = require( 'PHET_CORE/Poolable' );
   var Vector2 = require( 'DOT/Vector2' );
 
-  // TODO: Move to common place
-  var edgeAngleEpsilon = 1e-4;
-
   var globaId = 0;
 
   /**
@@ -35,7 +32,7 @@ define( function( require ) {
     var angleA = halfEdgeA.getEndTangent().angle();
     var angleB = halfEdgeB.getEndTangent().angle();
 
-    if ( Math.abs( angleA - angleB ) > edgeAngleEpsilon ) {
+    if ( Math.abs( angleA - angleB ) > 1e-4 ) {
       return angleA < angleB ? -1 : 1;
     }
     else {

@@ -3,6 +3,8 @@
 /**
  * A multigraph whose edges are segments.
  *
+ * TODO: Consider separating out epsilon values
+ *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
@@ -27,9 +29,6 @@ define( function( require ) {
   var Transform3 = require( 'DOT/Transform3' );
   var Util = require( 'DOT/Util' );
   var Vertex = require( 'KITE/ops/Vertex' );
-
-  // TODO: Move to common place
-  var vertexEpsilon = 1e-5;
 
   var bridgeId = 0;
 
@@ -128,7 +127,7 @@ define( function( require ) {
           vertices.push( Vertex.createFromPool( start ) );
         }
         else {
-          assert && assert( start.distance( end ) < vertexEpsilon, 'Inaccurate start/end points' );
+          assert && assert( start.distance( end ) < 1e-5, 'Inaccurate start/end points' );
           vertices.push( Vertex.createFromPool( start.average( end ) ) );
         }
       }
@@ -376,7 +375,6 @@ define( function( require ) {
             var aVertex = aEdge.getOtherVertex( vertex );
             var bVertex = bEdge.getOtherVertex( vertex );
 
-            // TODO: handle loops
             assert && assert( this.loops.length === 0 );
 
             // TODO: Can we avoid this in the inner loop?
@@ -393,7 +391,7 @@ define( function( require ) {
                 this.removeEdge( bEdge );
                 aEdge.dispose();
                 bEdge.dispose();
-                arrayRemove( this.vertices, vertex ); // TODO: removeVertex?
+                arrayRemove( this.vertices, vertex );
                 vertex.dispose();
 
                 var newSegment = new Line( aVertex.point, bVertex.point );
@@ -561,7 +559,6 @@ define( function( require ) {
         bForwardHalfEdges.push( isForward ? bEdges[ i ].forwardHalf : bEdges[ i ].reversedHalf );
       }
 
-      // TODO: remove reversedHalfEdges arrays here, unneeded
       this.replaceEdgeInLoops( aEdge, aForwardHalfEdges );
       this.replaceEdgeInLoops( bEdge, bForwardHalfEdges );
 
@@ -632,10 +629,8 @@ define( function( require ) {
 
             var intersections = Segment.intersect( aSegment, bSegment );
             intersections = intersections.filter( function( intersection ) {
-              // TODO: refactor duplication
               var aT = intersection.aT;
               var bT = intersection.bT;
-              // TODO: factor out epsilon
               var aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
               var bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
               return aInternal || bInternal;
@@ -645,7 +640,6 @@ define( function( require ) {
               // TODO: In the future, handle multiple intersections (instead of re-running)
               var intersection = intersections[ 0 ];
 
-              // TODO: handle better?
               this.simpleSplit( aEdge, bEdge, intersection.aT, intersection.bT, intersection.point );
 
               needsLoop = true;
@@ -667,7 +661,6 @@ define( function( require ) {
      * @param {Vector2} point - Location of the intersection
      */
     simpleSplit: function( aEdge, bEdge, aT, bT, point ) {
-      // TODO: factor out epsilon and duplication
       var aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
       var bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
 
@@ -739,7 +732,7 @@ define( function( require ) {
             var bVertex = this.vertices[ j ];
 
             var distance = aVertex.point.distance( bVertex.point );
-            if ( distance < vertexEpsilon ) {
+            if ( distance < 1e-5 ) {
               var newVertex = Vertex.createFromPool( distance === 0 ? aVertex.point : aVertex.point.average( bVertex.point ) );
               this.vertices.push( newVertex );
 
