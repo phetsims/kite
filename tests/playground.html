@@ -44,13 +44,14 @@
         var left = curve.subdivided( 0.7 )[ 0 ];
         var right = curve.subdivided( 0.3 )[ 1 ];
 
-        a.moveTo( 0, 10 ).lineTo( left.start.x, left.start.y ).quadraticCurveTo( left.control.x, left.control.y, left.end.x, left.end.y ).close();
-        b.moveTo( 20, 0 ).lineTo( right.start.x, right.start.y ).quadraticCurveTo( right.control.x, right.control.y, right.end.x, right.end.y ).close();
+        a.moveTo( 10, 0 ).cubicCurveTo( 30, 10, 0, 10, 20, 0 ).close();
+        b.rect( 0, 0, 5, 5 );
 
         window.graph = new kite.Graph();
         graph.addShape( 0, a );
         graph.addShape( 1, b );
         graph.eliminateOverlap();
+        graph.eliminateSelfIntersection();
         graph.eliminateIntersection();
         graph.collapseVertices();
         graph.removeSingleEdgeVertices();

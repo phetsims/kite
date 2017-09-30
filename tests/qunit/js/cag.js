@@ -253,4 +253,14 @@
 
     testUnion( a, b, 1, 'Quadratic overlap union' );
   } );
+
+  test( 'Cubic self-intersection', function() {
+    var a = new kite.Shape();
+    var b = new kite.Shape();
+
+    a.moveTo( 10, 0 ).cubicCurveTo( 30, 10, 0, 10, 20, 0 ).close();
+    b.rect( 0, 0, 5, 5 );
+
+    testUnion( a, b, 1, 'Cubic self-intersection' );
+  } );
 })();

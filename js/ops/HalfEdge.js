@@ -68,15 +68,14 @@ define( function( require ) {
      */
     getNext: function( filter ) {
       for ( var i = 1;; i++ ) {
-        var index = this.endVertex.incidentEdges.indexOf( this.edge ) - i;
+        var index = this.endVertex.incidentHalfEdges.indexOf( this ) - i;
         if ( index < 0 ) {
-          index += this.endVertex.incidentEdges.length;
+          index += this.endVertex.incidentHalfEdges.length;
         }
-        var edge = this.endVertex.incidentEdges[ index ];
-        if ( filter && !filter( edge ) ) {
+        var halfEdge = this.endVertex.incidentHalfEdges[ index ].getReversed();
+        if ( filter && !filter( halfEdge.edge ) ) {
           continue;
         }
-        var halfEdge = ( edge.endVertex === this.endVertex ) ? edge.reversedHalf : edge.forwardHalf;
         assert && assert( this.endVertex === halfEdge.startVertex );
         return halfEdge;
       }
@@ -91,6 +90,25 @@ define( function( require ) {
       this.endVertex = this.isReversed ? this.edge.startVertex : this.edge.endVertex;
       assert && assert( this.startVertex );
       assert && assert( this.endVertex );
+    },
+
+    /**
+     * Returns the tangent of the edge at the end vertex (in the direction away from the vertex).
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    getEndTangent: function() {
+      if ( this.isReversed ) {
+        return this.edge.segment.startTangent;
+      }
+      else {
+        return this.edge.segment.endTangent.negated();
+      }
+    },
+
+    getReversed: function() {
+      return this.isReversed ? this.edge.forwardHalf : this.edge.reversedHalf;
     },
 
     getDirectionalSegment: function() {

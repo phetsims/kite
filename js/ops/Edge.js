@@ -1,7 +1,7 @@
 // Copyright 2017, University of Colorado Boulder
 
 /**
- * TODO: doc
+ * Represents a segment in the graph (connects to vertices on both ends)
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
@@ -81,25 +81,6 @@ define( function( require ) {
       assert && assert( vertex === this.startVertex || vertex === this.endVertex );
 
       return this.startVertex === vertex ? this.endVertex : this.startVertex;
-    },
-
-    /**
-     * Returns the tangent of the edge at a specific vertex (in the direction away from the vertex).
-     * @public
-     *
-     * @param {Vertex} vertex
-     * @returns {Vector2}
-     */
-    getTangent: function( vertex ) {
-      if ( this.startVertex === vertex ) {
-        return this.segment.startTangent;
-      }
-      else if ( this.endVertex === vertex ) {
-        return this.segment.endTangent.negated();
-      }
-      else {
-        throw new Error( 'unknown vertex' );
-      }
     },
 
     /**

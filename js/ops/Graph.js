@@ -94,12 +94,12 @@ define( function( require ) {
      */
     addEdge: function( edge ) {
       assert && assert( edge instanceof Edge );
-      assert && assert( !_.includes( edge.startVertex.incidentEdges, edge ), 'Should not already be connected' );
-      assert && assert( !_.includes( edge.endVertex.incidentEdges, edge ), 'Should not already be connected' );
+      assert && assert( !_.includes( edge.startVertex.incidentHalfEdges, edge.reversedHalf ), 'Should not already be connected' );
+      assert && assert( !_.includes( edge.endVertex.incidentHalfEdges, edge.forwardHalf ), 'Should not already be connected' );
 
       this.edges.push( edge );
-      edge.startVertex.incidentEdges.push( edge );
-      edge.endVertex.incidentEdges.push( edge );
+      edge.startVertex.incidentHalfEdges.push( edge.reversedHalf );
+      edge.endVertex.incidentHalfEdges.push( edge.forwardHalf );
     },
 
     /**
@@ -112,8 +112,8 @@ define( function( require ) {
       assert && assert( edge instanceof Edge );
 
       arrayRemove( this.edges, edge );
-      arrayRemove( edge.startVertex.incidentEdges, edge );
-      arrayRemove( edge.endVertex.incidentEdges, edge );
+      arrayRemove( edge.startVertex.incidentHalfEdges, edge.reversedHalf );
+      arrayRemove( edge.endVertex.incidentHalfEdges, edge.forwardHalf );
     },
 
     /**
@@ -202,9 +202,9 @@ define( function( require ) {
         collapsed:
         for ( var i = 0; i < this.vertices.length; i++ ) {
           var vertex = this.vertices[ i ];
-          if ( vertex.incidentEdges.length === 2 ) {
-            var aEdge = vertex.incidentEdges[ 0 ];
-            var bEdge = vertex.incidentEdges[ 1 ];
+          if ( vertex.incidentHalfEdges.length === 2 ) {
+            var aEdge = vertex.incidentHalfEdges[ 0 ].edge;
+            var bEdge = vertex.incidentHalfEdges[ 1 ].edge;
             var aSegment = aEdge.segment;
             var bSegment = bEdge.segment;
             var aVertex = aEdge.getOtherVertex( vertex );
@@ -423,6 +423,56 @@ define( function( require ) {
       bEdge.dispose();
     },
 
+    eliminateSelfIntersection: function() {
+      assert && assert( this.boundaries.length === 0, 'Only handles simpler level primitive splitting right now' );
+
+      for ( var i = this.edges.length - 1; i >= 0; i-- ) {
+        var edge = this.edges[ i ];
+        var segment = edge.segment;
+
+        if ( segment instanceof Cubic ) {
+          // TODO: This might not properly handle when it only one endpoint is
+          var selfIntersection = segment.getSelfIntersection();
+
+          if ( selfIntersection ) {
+            assert && assert( selfIntersection.aT < selfIntersection.bT );
+
+            var segments = segment.subdivisions( [ selfIntersection.aT, selfIntersection.bT ] );
+
+            var vertex = Vertex.createFromPool( selfIntersection.point );
+            this.vertices.push( vertex );
+
+            var startEdge = Edge.createFromPool( segments[ 0 ], edge.startVertex, vertex );
+            var middleEdge = Edge.createFromPool( segments[ 1 ], vertex, vertex );
+            var endEdge = Edge.createFromPool( segments[ 2 ], vertex, edge.endVertex );
+
+            this.removeEdge( edge );
+
+            this.addEdge( startEdge );
+            this.addEdge( middleEdge );
+            this.addEdge( endEdge );
+
+            // TODO: extract code for loop edge replacement
+            for ( var j = 0; j < this.loops.length; j++ ) {
+              var loop = this.loops[ j ];
+
+              for ( var k = loop.halfEdges.length - 1; k >= 0; k-- ) {
+                var halfEdge = loop.halfEdges[ k ];
+                if ( halfEdge === edge.forwardHalf ) {
+                  loop.halfEdges.splice( k, 1, startEdge.forwardHalf, middleEdge.forwardHalf, endEdge.forwardHalf );
+                }
+                else if ( halfEdge === edge.reversedHalf ) {
+                  loop.halfEdges.splice( k, 1, endEdge.reversedHalf, middleEdge.reversedHalf, startEdge.reversedHalf );
+                }
+              }
+            }
+
+            edge.dispose();
+          }
+        }
+      }
+    },
+
     eliminateIntersection: function() {
       // TODO: ideally initially scan to determine potential "intersection" pairs based on bounds overlap
       // TODO: Then iterate (potentially adding pairs when intersections split things) until no pairs exist
@@ -565,12 +615,12 @@ define( function( require ) {
                 }
                 else if ( startMatches ) {
                   edge.startVertex = newVertex;
-                  newVertex.incidentEdges.push( edge );
+                  newVertex.incidentHalfEdges.push( edge.reversedHalf );
                   edge.updateReferences();
                 }
                 else if ( endMatches ) {
                   edge.endVertex = newVertex;
-                  newVertex.incidentEdges.push( edge );
+                  newVertex.incidentHalfEdges.push( edge.forwardHalf );
                   edge.updateReferences();
                 }
               }
@@ -603,10 +653,10 @@ define( function( require ) {
         for ( var i = this.vertices.length - 1; i >= 0; i-- ) {
           var vertex = this.vertices[ i ];
 
-          if ( vertex.incidentEdges.length < 2 ) {
+          if ( vertex.incidentHalfEdges.length < 2 ) {
             // Disconnect any existing edges
-            for ( var j = 0; j < vertex.incidentEdges.length; j++ ) {
-              var edge = vertex.incidentEdges[ j ];
+            for ( var j = 0; j < vertex.incidentHalfEdges.length; j++ ) {
+              var edge = vertex.incidentHalfEdges[ j ].edge;
               this.removeEdge( edge );
 
               // TODO: remember to simplify this out (deduplicate)
@@ -1128,6 +1178,7 @@ define( function( require ) {
     graph.addShape( 1, shapeB );
 
     graph.eliminateOverlap();
+    graph.eliminateSelfIntersection();
     graph.eliminateIntersection();
     graph.collapseVertices();
     graph.removeSingleEdgeVertices();

@@ -758,6 +758,49 @@ define( function( require ) {
      */
     reversed: function() {
       return new kite.Cubic( this._end, this._control2, this._control1, this._start );
+    },
+
+    /**
+     * If it exists, returns the point where the cubic curve self-intersects.
+     * @public
+     *
+     * @returns {Intersection|null} TODO doc
+     */
+    getSelfIntersection: function() {
+      // We split the cubic into monotone sections (which can't self-intersect), then check these for intersections
+      var tExtremes = this.getInteriorExtremaTs();
+      var fullExtremes = [ 0 ].concat( tExtremes ).concat( [ 1 ] );
+      var segments = this.subdivisions( tExtremes );
+      if ( segments.length < 3 ) {
+        return null;
+      }
+
+      for ( var i = 0; i < segments.length; i++ ) {
+        var aSegment = segments[ i ];
+        for ( var j = i + 1; j < segments.length; j++ ) {
+          var bSegment = segments[ j ];
+
+          var intersections = Segment.boundsBasedIntersect( aSegment, bSegment );
+          assert && assert( intersections.length < 2 );
+
+          if ( intersections.length ) {
+            var intersection = intersections[ 0 ];
+            // Exclude endpoints overlapping
+            if ( intersection.aT > 1e-7 && intersection.aT < ( 1 - 1e-7 ) &&
+                 intersection.bT > 1e-7 && intersection.bT < ( 1 - 1e-7 ) ) {
+              return {
+                point: intersection.point,
+                // Remap parametric values from the subdivided segments to the main segment
+                aT: fullExtremes[ i ] + intersection.aT * ( fullExtremes[ i + 1 ] - fullExtremes[ i ] ),
+                bT: fullExtremes[ j ] + intersection.bT * ( fullExtremes[ j + 1 ] - fullExtremes[ j ] )
+              };
+            }
+          }
+
+        }
+      }
+
+      return null;
     }
 
     // returns the resultant winding number of this ray intersecting this segment.

@@ -45,15 +45,15 @@ define( function( require ) {
       // @public {Vector2}
       this.point = point;
 
-      // @public {Array.<Edge>}
-      this.incidentEdges = cleanArray( this.incidentEdges );
+      // @public {Array.<HalfEdge>} - Records the half-edge that points to (ends at) this vertex.
+      this.incidentHalfEdges = cleanArray( this.incidentHalfEdges );
 
       return this;
     },
 
     dispose: function() {
       this.point = Vector2.ZERO;
-      cleanArray( this.incidentEdges );
+      cleanArray( this.incidentHalfEdges );
       this.freeToPool();
     },
 
@@ -63,13 +63,13 @@ define( function( require ) {
      *
      * TODO: For sorting, don't require multiple computation of the angles
      *
-     * @param {Edge} edgeA
-     * @param {Edge} edgeB
+     * @param {Edge} halfEdgeA
+     * @param {Edge} halfEdgeB
      * @returns {number}
      */
-    edgeComparison: function( edgeA, edgeB ) {
-      var angleA = edgeA.getTangent( this ).angle();
-      var angleB = edgeB.getTangent( this ).angle();
+    edgeComparison: function( halfEdgeA, halfEdgeB ) {
+      var angleA = halfEdgeA.getEndTangent().angle();
+      var angleB = halfEdgeB.getEndTangent().angle();
 
       if ( Math.abs( angleA - angleB ) > edgeAngleEpsilon ) {
         return angleA < angleB ? -1 : 1;
@@ -84,7 +84,7 @@ define( function( require ) {
      * @public
      */
     sortEdges: function() {
-      this.incidentEdges.sort( this.edgeCompare );
+      this.incidentHalfEdges.sort( this.edgeCompare );
     }
   } );
 
