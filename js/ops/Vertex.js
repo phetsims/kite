@@ -1,7 +1,9 @@
 // Copyright 2017, University of Colorado Boulder
 
 /**
- * TODO: doc
+ * Represents a point in space that connects to edges. It stores the edges that are connected (directionally as
+ * half-edges since Cubic segments can start and end at the same point/vertex), and can handle sorting edges so that
+ * a half-edge's "next" half-edge (following counter-clockwise) can be determined.
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */

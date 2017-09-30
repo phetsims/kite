@@ -1,7 +1,15 @@
 // Copyright 2017, University of Colorado Boulder
 
 /**
- * TODO: doc
+ * A directed set of half-edges determined by how the original shapes/subpaths were directionally. This is distinct from
+ * boundaries, as:
+ * 1. Input shapes/subpaths can self-intersect, ignore clockwise restrictions, and avoid boundary restrictions.
+ * 2. Input shapes/subpaths can repeat over the same edges multiple times (affecting winding order), and can even
+ *    double-back or do other operations.
+ * 3. We need to record separate shape IDs for the different loops, so we can perform CAG operations on separate ones.
+ *    This means we need to track winding order separately for each ID.
+ *
+ * As operations simplify/remove/replace edges, it will handle replacement of the edges in the loops.
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */

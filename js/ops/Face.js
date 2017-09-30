@@ -1,7 +1,12 @@
 // Copyright 2017, University of Colorado Boulder
 
 /**
- * TODO: doc
+ * A face is usually contained by an ("inner") boundary of edges, and zero or more ("outer") boundary holes on the inside.
+ * The naming is somewhat counterintuitive here, because the "inner" boundaries are on the inside of the edges
+ * (towards our face), and the "outer" hole boundaries are on the outer half-edges of the holes.
+ *
+ * There is normally one "unbounded" face without a normal boundary, whose "area" expands to infinity, and contains the
+ * everything on the exterior of all of the edges.
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */

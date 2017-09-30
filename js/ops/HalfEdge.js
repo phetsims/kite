@@ -1,7 +1,8 @@
 // Copyright 2017, University of Colorado Boulder
 
 /**
- * TODO: doc
+ * Represents a single direction/side of an Edge. There are two half-edges for each edge, representing each direction.
+ * The half-edge also stores face information for the face that would be to the left of the direction of travel.
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
