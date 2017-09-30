@@ -32,6 +32,8 @@ define( function( require ) {
     // @public {number}
     this.id = ++globaId;
 
+    // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
+    // definitions.
     this.initialize( halfEdges );
   }
 

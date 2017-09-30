@@ -34,6 +34,8 @@ define( function( require ) {
     // @public {number}
     this.id = ++globaId;
 
+    // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
+    // definitions.
     this.initialize( shapeId );
   }
 
@@ -52,6 +54,11 @@ define( function( require ) {
       return this;
     },
 
+    /**
+     * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
+     * can be reused.
+     * @public
+     */
     dispose: function() {
       cleanArray( this.halfEdges );
       this.freeToPool();

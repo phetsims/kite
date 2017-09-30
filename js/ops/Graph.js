@@ -65,6 +65,10 @@ define( function( require ) {
   kite.register( 'Graph', Graph );
 
   inherit( Object, Graph, {
+    /**
+     * Releases owned objects to their pools, and clears references that may have been picked up from external sources.
+     * @public
+     */
     dispose: function() {
 
       // this.boundaries should contain all elements of innerBoundaries and outerBoundaries

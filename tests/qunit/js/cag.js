@@ -283,4 +283,15 @@
 
     testUnion( a, b, 1, 'Removal of bridge edges' );
   } );
+
+  test( 'Double circle', function() {
+    var a = new kite.Shape();
+    var b = new kite.Shape();
+
+    a.circle( 20, 20, 10 );
+    b.circle( 25, 20, 10 );
+
+    testUnion( a, b, 1, 'Double circle union' );
+    testDifference( a, b, 1, 'Double circle difference' );
+  } );
 })();

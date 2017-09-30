@@ -22,6 +22,8 @@ define( function( require ) {
    * @param {boolean} isReversed
    */
   function HalfEdge( edge, isReversed ) {
+    // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
+    // definitions.
     this.initialize( edge, isReversed );
   }
 
@@ -53,6 +55,11 @@ define( function( require ) {
       return this;
     },
 
+    /**
+     * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
+     * can be reused.
+     * @public
+     */
     dispose: function() {
       this.edge = null;
       this.face = null;

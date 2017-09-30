@@ -23,19 +23,39 @@ define( function( require ) {
   var globaId = 0;
 
   /**
+   * Comparse two edges for sortEdges.
+   *
+   * TODO: For sorting, don't require multiple computation of the angles
+   *
+   * @param {Edge} halfEdgeA
+   * @param {Edge} halfEdgeB
+   * @returns {number}
+   */
+  function edgeComparison( halfEdgeA, halfEdgeB ) {
+    var angleA = halfEdgeA.getEndTangent().angle();
+    var angleB = halfEdgeB.getEndTangent().angle();
+
+    if ( Math.abs( angleA - angleB ) > edgeAngleEpsilon ) {
+      return angleA < angleB ? -1 : 1;
+    }
+    else {
+      throw new Error( 'TODO: Need to implement curvature (2nd derivative) detection' );
+    }
+  }
+
+  /**
    * @public (kite-internal)
    * @constructor
    *
-   * @param {Vector2} point
+   * @param {Vector2} point - The point where the vertex should be located.
    */
   function Vertex( point ) {
     // @public {number}
     this.id = ++globaId;
 
+    // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
+    // definitions.
     this.initialize( point );
-
-    // @private {function}
-    this.edgeCompare = this.edgeComparison.bind( this );
   }
 
   kite.register( 'Vertex', Vertex );
@@ -62,6 +82,11 @@ define( function( require ) {
       return this;
     },
 
+    /**
+     * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
+     * can be reused.
+     * @public
+     */
     dispose: function() {
       this.point = Vector2.ZERO;
       cleanArray( this.incidentHalfEdges );
@@ -69,33 +94,11 @@ define( function( require ) {
     },
 
     /**
-     * Comparse two edges for sortEdges.
-     * @private
-     *
-     * TODO: For sorting, don't require multiple computation of the angles
-     *
-     * @param {Edge} halfEdgeA
-     * @param {Edge} halfEdgeB
-     * @returns {number}
-     */
-    edgeComparison: function( halfEdgeA, halfEdgeB ) {
-      var angleA = halfEdgeA.getEndTangent().angle();
-      var angleB = halfEdgeB.getEndTangent().angle();
-
-      if ( Math.abs( angleA - angleB ) > edgeAngleEpsilon ) {
-        return angleA < angleB ? -1 : 1;
-      }
-      else {
-        throw new Error( 'Need to implement curvature (2nd derivative) detection' );
-      }
-    },
-
-    /**
      * Sorts the edges in increasing angle order.
      * @public
      */
     sortEdges: function() {
-      this.incidentHalfEdges.sort( this.edgeCompare );
+      this.incidentHalfEdges.sort( edgeComparison );
     }
   } );
 
