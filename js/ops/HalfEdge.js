@@ -65,7 +65,8 @@ define( function( require ) {
      * Returns the next half-edge, walking around counter-clockwise as possible. Assumes edges have been sorted.
      * @public
      *
-     * @param {function} [filter] --- TODO doc, {Edge} => {boolean}
+     * @param {function} [filter] - function( {Edge} ) => {boolean}. If it returns false, the edge will be skipped, and
+     *                              not returned by getNext
      */
     getNext: function( filter ) {
       for ( var i = 1;; i++ ) {
@@ -117,7 +118,7 @@ define( function( require ) {
         return this.edge.segment.reversed();
       }
       else {
-        return this.edge.segment; // TODO: copy, so we don't need to worry about modification?
+        return this.edge.segment;
       }
     }
   } );

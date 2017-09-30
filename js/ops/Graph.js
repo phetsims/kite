@@ -574,7 +574,6 @@ define( function( require ) {
                 if ( startMatches && endMatches ) {
                   this.removeEdge( edge );
                   this.replaceEdgeInLoops( edge, [] ); // remove the edge from loops with no replacement
-                  // TODO: check to see if the loop ceases to exist
                   edge.dispose();
                 }
                 else if ( startMatches ) {
@@ -624,7 +623,6 @@ define( function( require ) {
               this.removeEdge( edge );
 
               this.replaceEdgeInLoops( edge, [] ); // remove the edge from the loops
-              // TODO: check to see if the loop ceases to exist
 
               edge.dispose();
             }
@@ -926,7 +924,6 @@ define( function( require ) {
         context.scale( scale, -scale );
       }
 
-      //TODO: add title
       function draw( callback ) {
         var canvas = document.createElement( 'canvas' );
         canvas.width = debugSize;
