@@ -117,6 +117,34 @@ define( function( require ) {
     },
 
     /**
+     * Replaces a single edge (in loops) with a series of edges (possibly empty).
+     * @public
+     *
+     * @param {Edge} edge
+     * @param {Array.<HalfEdge>} forwardHalfEdges
+     */
+    replaceEdgeInLoops: function( edge, forwardHalfEdges ) {
+      // Compute reversed half-edges
+      var reversedHalfEdges = [];
+      for ( var i = 0; i < forwardHalfEdges.length; i++ ) {
+        reversedHalfEdges.push( forwardHalfEdges[ forwardHalfEdges.length - 1 - i ].getReversed() );
+      }
+
+      for ( i = 0; i < this.loops.length; i++ ) {
+        var loop = this.loops[ i ];
+
+        for ( var j = loop.halfEdges.length - 1; j >= 0; j-- ) {
+          var halfEdge = loop.halfEdges[ j ];
+
+          if ( halfEdge.edge === edge ) {
+            var replacementHalfEdges = halfEdge === edge.forwardHalf ? forwardHalfEdges : reversedHalfEdges;
+            Array.prototype.splice.apply( loop.halfEdges, [ j, 1 ].concat( replacementHalfEdges ) );
+          }
+        }
+      }
+    },
+
+    /**
      * Adds a Shape (with a given ID for CAG purposes) to the graph.
      * @public
      *
@@ -372,52 +400,20 @@ define( function( require ) {
       var bEdges = ( bBefore ? [ bBeforeEdge ] : [] ).concat( [ middleEdge ] ).concat( bAfter ? [ bAfterEdge ] : [] );
 
       var aForwardHalfEdges = [];
-      var aReversedHalfEdges = [];
       var bForwardHalfEdges = [];
-      var bReversedHalfEdges = [];
 
       for ( var i = 0; i < aEdges.length; i++ ) {
         aForwardHalfEdges.push( aEdges[ i ].forwardHalf );
-        aReversedHalfEdges.push( aEdges[ aEdges.length - 1 - i ].reversedHalf );
       }
       for ( i = 0; i < bEdges.length; i++ ) {
-        if ( bEdges[ i ] !== middleEdge || overlap.a > 0 ) {
-          bForwardHalfEdges.push( bEdges[ i ].forwardHalf );
-          bReversedHalfEdges.push( bEdges[ bEdges.length - 1 - i ].reversedHalf );
-        }
         // Handle reversing the "middle" edge
-        else {
-          bForwardHalfEdges.push( bEdges[ i ].reversedHalf );
-          bReversedHalfEdges.push( bEdges[ bEdges.length - 1 - i ].forwardHalf );
-        }
+        var isForward = bEdges[ i ] !== middleEdge || overlap.a > 0;
+        bForwardHalfEdges.push( isForward ? bEdges[ i ].forwardHalf : bEdges[ i ].reversedHalf );
       }
 
-      for ( i = 0; i < this.loops.length; i++ ) {
-        var loop = this.loops[ i ];
-        for ( var j = loop.halfEdges.length - 1; j >= 0; j-- ) {
-          var halfEdge = loop.halfEdges[ j ];
-          if ( halfEdge === aEdge.forwardHalf ) {
-            assert && assert( halfEdge.startVertex.point.distance( aForwardHalfEdges[ 0 ].startVertex.point ) < 1e-5 );
-            assert && assert( halfEdge.endVertex.point.distance( aForwardHalfEdges[ aForwardHalfEdges.length - 1 ].endVertex.point ) < 1e-5 );
-            Array.prototype.splice.apply( loop.halfEdges, [ j, 1 ].concat( aForwardHalfEdges ) );
-          }
-          if ( halfEdge === aEdge.reversedHalf ) {
-            assert && assert( halfEdge.startVertex.point.distance( aReversedHalfEdges[ 0 ].startVertex.point ) < 1e-5 );
-            assert && assert( halfEdge.endVertex.point.distance( aReversedHalfEdges[ aReversedHalfEdges.length - 1 ].endVertex.point ) < 1e-5 );
-            Array.prototype.splice.apply( loop.halfEdges, [ j, 1 ].concat( aReversedHalfEdges ) );
-          }
-          if ( halfEdge === bEdge.forwardHalf ) {
-            assert && assert( halfEdge.startVertex.point.distance( bForwardHalfEdges[ 0 ].startVertex.point ) < 1e-5 );
-            assert && assert( halfEdge.endVertex.point.distance( bForwardHalfEdges[ bForwardHalfEdges.length - 1 ].endVertex.point ) < 1e-5 );
-            Array.prototype.splice.apply( loop.halfEdges, [ j, 1 ].concat( bForwardHalfEdges ) );
-          }
-          if ( halfEdge === bEdge.reversedHalf ) {
-            assert && assert( halfEdge.startVertex.point.distance( bReversedHalfEdges[ 0 ].startVertex.point ) < 1e-5 );
-            assert && assert( halfEdge.endVertex.point.distance( bReversedHalfEdges[ bReversedHalfEdges.length - 1 ].endVertex.point ) < 1e-5 );
-            Array.prototype.splice.apply( loop.halfEdges, [ j, 1 ].concat( bReversedHalfEdges ) );
-          }
-        }
-      }
+      // TODO: remove reversedHalfEdges arrays here, unneeded
+      this.replaceEdgeInLoops( aEdge, aForwardHalfEdges );
+      this.replaceEdgeInLoops( bEdge, bForwardHalfEdges );
 
       aEdge.dispose();
       bEdge.dispose();
@@ -452,20 +448,7 @@ define( function( require ) {
             this.addEdge( middleEdge );
             this.addEdge( endEdge );
 
-            // TODO: extract code for loop edge replacement
-            for ( var j = 0; j < this.loops.length; j++ ) {
-              var loop = this.loops[ j ];
-
-              for ( var k = loop.halfEdges.length - 1; k >= 0; k-- ) {
-                var halfEdge = loop.halfEdges[ k ];
-                if ( halfEdge === edge.forwardHalf ) {
-                  loop.halfEdges.splice( k, 1, startEdge.forwardHalf, middleEdge.forwardHalf, endEdge.forwardHalf );
-                }
-                else if ( halfEdge === edge.reversedHalf ) {
-                  loop.halfEdges.splice( k, 1, endEdge.reversedHalf, middleEdge.reversedHalf, startEdge.reversedHalf );
-                }
-              }
-            }
+            this.replaceEdgeInLoops( edge, [ startEdge.forwardHalf, middleEdge.forwardHalf, endEdge.forwardHalf ] );
 
             edge.dispose();
           }
@@ -556,19 +539,7 @@ define( function( require ) {
       this.addEdge( firstEdge );
       this.addEdge( secondEdge );
 
-      for ( var i = 0; i < this.loops.length; i++ ) {
-        var loop = this.loops[ i ];
-
-        for ( var j = loop.halfEdges.length - 1; j >= 0; j-- ) {
-          var halfEdge = loop.halfEdges[ j ];
-          if ( halfEdge === edge.forwardHalf ) {
-            loop.halfEdges.splice( j, 1, firstEdge.forwardHalf, secondEdge.forwardHalf );
-          }
-          else if ( halfEdge === edge.reversedHalf ) {
-            loop.halfEdges.splice( j, 1, secondEdge.reversedHalf, firstEdge.reversedHalf );
-          }
-        }
-      }
+      this.replaceEdgeInLoops( edge, [ firstEdge.forwardHalf, secondEdge.forwardHalf ] );
 
       edge.dispose();
     },
@@ -602,15 +573,8 @@ define( function( require ) {
                 // Outright remove edges that were between A and B.
                 if ( startMatches && endMatches ) {
                   this.removeEdge( edge );
-                  for ( var m = 0; m < this.loops.length; m++ ) {
-                    var loop = this.loops[ m ];
-                    for ( var n = loop.halfEdges.length - 1; n >= 0; n-- ) {
-                      if ( loop.halfEdges[ n ] === edge.forwardHalf || loop.halfEdges[ n ] === edge.reversedHalf ) {
-                        loop.halfEdges.splice( n, 1 );
-                      }
-                    }
-                    // TODO: check to see if the loop ceases to exist
-                  }
+                  this.replaceEdgeInLoops( edge, [] ); // remove the edge from loops with no replacement
+                  // TODO: check to see if the loop ceases to exist
                   edge.dispose();
                 }
                 else if ( startMatches ) {
@@ -659,16 +623,8 @@ define( function( require ) {
               var edge = vertex.incidentHalfEdges[ j ].edge;
               this.removeEdge( edge );
 
-              // TODO: remember to simplify this out (deduplicate)
-              for ( var m = 0; m < this.loops.length; m++ ) {
-                var loop = this.loops[ m ];
-                for ( var n = loop.halfEdges.length - 1; n >= 0; n-- ) {
-                  if ( loop.halfEdges[ n ] === edge.forwardHalf || loop.halfEdges[ n ] === edge.reversedHalf ) {
-                    loop.halfEdges.splice( n, 1 );
-                  }
-                }
-                // TODO: check to see if the loop ceases to exist
-              }
+              this.replaceEdgeInLoops( edge, [] ); // remove the edge from the loops
+              // TODO: check to see if the loop ceases to exist
 
               edge.dispose();
             }
