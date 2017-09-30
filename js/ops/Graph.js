@@ -3,6 +3,7 @@
 /**
  * A multigraph whose edges are segments.
  *
+ * TODO: Performance checks
  * TODO: Consider separating out epsilon values
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
@@ -433,6 +434,7 @@ define( function( require ) {
             if ( aSegment instanceof Cubic && bSegment instanceof Cubic ) {
               overlapFunction = Cubic.getOverlaps;
             }
+            // TODO: ellipticalarc/arc overlap handling
 
             if ( overlapFunction ) {
               var overlaps = overlapFunction( aSegment, bSegment );
@@ -452,7 +454,6 @@ define( function( require ) {
           }
         }
       }
-      // TODO
     },
 
     /**
@@ -932,10 +933,9 @@ define( function( require ) {
      * This information is stored in the childBoundaries array of Boundary, and is then read out to set up faces.
      */
     computeBoundaryTree: function() {
-      // TODO: detect "indeterminate" for robustness
+      // TODO: detect "indeterminate" for robustness (and try new angles?)
       var unboundedHoles = []; // {Array.<Boundary>}
 
-      // TODO: uhhh, pray this angle works and doesnt get indeterminate results?
       var transform = new Transform3( Matrix3.rotation2( 1.5729657 ) );
 
       for ( var i = 0; i < this.outerBoundaries.length; i++ ) {
