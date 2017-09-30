@@ -92,6 +92,7 @@ define( function( require ) {
       assert && assert( typeof shapeId === 'number' );
       assert && assert( subpath instanceof Subpath );
 
+      // Ensure the shapeId is recorded
       if ( this.shapeIds.indexOf( shapeId ) < 0 ) {
         this.shapeIds.push( shapeId );
       }
@@ -100,23 +101,29 @@ define( function( require ) {
         return;
       }
 
-      var index;
+      // Workaround for current Subpath handling of closing segments. This ensures that we get segments as if the
+      // subpath is closed (even if it is not closed).
       var segments = subpath.segments.slice();
       if ( subpath.hasClosingSegment() ) {
         segments.push( subpath.getClosingSegment() );
       }
 
-      var vertices = [];
+      var index;
 
+      // Collects all of the vertices
+      var vertices = [];
       for ( index = 0; index < segments.length; index++ ) {
         var previousIndex = index - 1;
         if ( previousIndex < 0 ) {
           previousIndex = segments.length - 1;
         }
 
+        // Get the end of the previous segment and start of the next. Generally they should be equal or almost equal,
+        // as it's the point at the joint of two segments.
         var end = segments[ previousIndex ].end;
         var start = segments[ index ].start;
 
+        // If they are exactly equal, don't take a chance on floating-point arithmetic
         if ( start.equals( end ) ) {
           vertices.push( Vertex.createFromPool( start ) );
         }
@@ -126,6 +133,7 @@ define( function( require ) {
         }
       }
 
+      // Create the loop object from the vertices, filling in edges
       var loop = Loop.createFromPool( shapeId );
       for ( index = 0; index < segments.length; index++ ) {
         var nextIndex = index + 1;
@@ -152,10 +160,10 @@ define( function( require ) {
       this.eliminateIntersection();
       this.collapseVertices();
       this.removeBridges();
-      this.removeSingleEdgeVertices();
+      this.removeLowOrderVertices();
       this.orderVertexEdges();
       this.extractFaces();
-      this.computeBoundaryGraph();
+      this.computeBoundaryTree();
       this.computeWindingMap();
     },
 
@@ -231,7 +239,7 @@ define( function( require ) {
       graph.collapseAdjacentEdges();
       graph.orderVertexEdges();
       graph.extractFaces();
-      graph.computeBoundaryGraph();
+      graph.computeBoundaryTree();
       graph.fillAlternatingFaces();
 
       return graph;
@@ -344,6 +352,12 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Tries to combine adjacent edges (with a 2-order vertex) into one edge where possible.
+     * @private
+     *
+     * This helps to combine things like collinear lines, where there's a vertex that can basically be removed.
+     */
     collapseAdjacentEdges: function() {
       //TODO: Do something like "overlap" analysis for other types?
 
@@ -394,6 +408,10 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Gets rid of overlapping segments by combining overlaps into a shared edge.
+     * @private
+     */
     eliminateOverlap: function() {
       var needsLoop = true;
       while ( needsLoop ) {
@@ -439,6 +457,14 @@ define( function( require ) {
       // TODO
     },
 
+    /**
+     * Splits/combines edges when there is an overlap of two edges (two edges who have an infinite number of
+     * intersection points).
+     * @private
+     *
+     * Generally this creates an edge for the "shared" part of both segments, and then creates edges for the parts
+     * outside of the shared region, connecting them together.
+     */
     splitOverlap: function( aEdge, bEdge, overlap ) {
       var aSegment = aEdge.segment;
       var bSegment = bEdge.segment;
@@ -543,6 +569,10 @@ define( function( require ) {
       bEdge.dispose();
     },
 
+    /**
+     * Handles splitting of self-intersection of segments (happens with Cubics).
+     * @private
+     */
     eliminateSelfIntersection: function() {
       assert && assert( this.boundaries.length === 0, 'Only handles simpler level primitive splitting right now' );
 
@@ -580,6 +610,10 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Replace intersections between different segments by splitting them and creating a vertex.
+     * @private
+     */
     eliminateIntersection: function() {
       // TODO: ideally initially scan to determine potential "intersection" pairs based on bounds overlap
       // TODO: Then iterate (potentially adding pairs when intersections split things) until no pairs exist
@@ -622,6 +656,16 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Handles splitting two intersecting edges.
+     * @private
+     *
+     * @param {Edge} aEdge
+     * @param {Edge} bEdge
+     * @param {number} aT - Parametric t value of the intersection for aEdge
+     * @param {number} bT - Parametric t value of the intersection for bEdge
+     * @param {Vector2} point - Location of the intersection
+     */
     simpleSplit: function( aEdge, bEdge, aT, bT, point ) {
       // TODO: factor out epsilon and duplication
       var aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
@@ -647,6 +691,14 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Splits an edge into two edges at a specific parametric t value.
+     * @private
+     *
+     * @param {Edge} edge
+     * @param {number} t
+     * @param {Vertex} vertex - The vertex that is placed at the split location
+     */
     splitEdge: function( edge, t, vertex ) {
       assert && assert( this.boundaries.length === 0, 'Only handles simpler level primitive splitting right now' );
 
@@ -668,6 +720,10 @@ define( function( require ) {
       edge.dispose();
     },
 
+    /**
+     * Combine vertices that are almost exactly in the same place (removing edges and vertices where necessary).
+     * @private
+     */
     collapseVertices: function() {
       var self = this;
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
@@ -769,6 +825,11 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Removes edges that are the only edge holding two connected components together. Based on our problem, the
+     * face on either side of the "bridge" edges would always be the same, so we can safely remove them.
+     * @private
+     */
     removeBridges: function() {
       var bridges = [];
 
@@ -788,11 +849,14 @@ define( function( require ) {
       }
     },
 
-    removeSingleEdgeVertices: function() {
+    /**
+     * Removes vertices that have order less than 2 (so either a vertex with one or zero edges adjacent).
+     * @private
+     */
+    removeLowOrderVertices: function() {
       var self = this;
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
-      // TODO: Really need to make sure things are 2-vertex-connected. Look up ways
 
       var needsLoop = true;
       while ( needsLoop ) {
@@ -824,12 +888,20 @@ define( function( require ) {
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
     },
 
+    /**
+     * Sorts incident half-edges for each vertex.
+     * @private
+     */
     orderVertexEdges: function() {
       for ( var i = 0; i < this.vertices.length; i++ ) {
         this.vertices[ i ].sortEdges();
       }
     },
 
+    /**
+     * Creates boundaries and faces by following each half-edge counter-clockwise
+     * @private
+     */
     extractFaces: function() {
       var halfEdges = [];
       for ( var i = 0; i < this.edges.length; i++ ) {
@@ -859,8 +931,15 @@ define( function( require ) {
       }
     },
 
-    // TODO: detect "indeterminate" for robustness
-    computeBoundaryGraph: function() {
+    /**
+     * Given the inner and outer boundaries, it compues a tree representation to determine what boundaries are
+     * holes of what other boundaries, then sets up face holes with the result.
+     * @public
+     *
+     * This information is stored in the childBoundaries array of Boundary, and is then read out to set up faces.
+     */
+    computeBoundaryTree: function() {
+      // TODO: detect "indeterminate" for robustness
       var unboundedHoles = []; // {Array.<Boundary>}
 
       // TODO: uhhh, pray this angle works and doesnt get indeterminate results?
@@ -910,6 +989,10 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Computes the winding map for each face, starting with 0 on the unbounded face.
+     * @private
+     */
     computeWindingMap: function() {
       var edges = this.edges.slice();
 
@@ -993,6 +1076,14 @@ define( function( require ) {
       return differential;
     },
 
+    /**
+     * Sets the unbounded face as unfilled, and then sets each face's fill so that edges separate one filled face with
+     * one unfilled face.
+     * @private
+     *
+     * NOTE: Best to call this on the result from createFilledSubGraph(), since it should have guaranteed properties
+     *       to make this consistent. Notably, all vertices need to have an even order (number of edges)
+     */
     fillAlternatingFaces: function() {
       var nullFaceFilledCount = 0;
       for ( var i = 0; i < this.faces.length; i++ ) {
@@ -1024,6 +1115,15 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Returns the boundary that contains the specified half-edge.
+     * @private
+     *
+     * TODO: find a better way, this is crazy inefficient
+     *
+     * @param {HalfEdge} halfEdge
+     * @returns {Boundary}
+     */
     getBoundaryOfHalfEdge: function( halfEdge ) {
       for ( var i = 0; i < this.boundaries.length; i++ ) {
         var boundary = this.boundaries[ i ];
@@ -1036,6 +1136,12 @@ define( function( require ) {
       throw new Error( 'Could not find boundary' );
     },
 
+    /**
+     * Debugging function used for checking and analyzing output.
+     * @public
+     *
+     * TODO: Can we move the debugging function elsewhere (like just in the playground?)
+     */
     debug: function() {
       var self = this;
 
@@ -1157,12 +1263,6 @@ define( function( require ) {
         draw( function( context ) {
           drawVertices( context );
           drawHalfEdges( context, innerBoundary.halfEdges, 'rgba(0,0,255,0.4)' );
-          // var ray = innerBoundary.computeExtremeRay( new Transform3( Matrix3.rotation2( Math.PI * 1.4 ) ) );
-          // context.beginPath();
-          // context.moveTo( ray.position.x, ray.position.y );
-          // context.lineTo( ray.pointAtDistance( 2 ).x, ray.pointAtDistance( 2 ).y );
-          // context.strokeStyle = 'rgba(0,255,0,0.4)';
-          // context.stroke();
         } );
       }
       for ( j = 0; j < this.outerBoundaries.length; j++ ) {
@@ -1170,12 +1270,6 @@ define( function( require ) {
         draw( function( context ) {
           drawVertices( context );
           drawHalfEdges( context, outerBoundary.halfEdges, 'rgba(255,0,0,0.4)' );
-          // var ray = outerBoundary.computeExtremeRay( new Transform3( Matrix3.rotation2( Math.PI * 1.4 ) ) );
-          // context.beginPath();
-          // context.moveTo( ray.position.x, ray.position.y );
-          // context.lineTo( ray.pointAtDistance( 2 ).x, ray.pointAtDistance( 2 ).y );
-          // context.strokeStyle = 'rgba(0,255,0,0.4)';
-          // context.stroke();
         } );
       }
       for ( j = 0; j < this.faces.length; j++ ) {
@@ -1239,22 +1333,71 @@ define( function( require ) {
     }
   } );
 
+  /**
+   * "Union" binary winding map filter for use with Graph.binaryResult.
+   * @public
+   *
+   * This combines both shapes together so that a point is in the resulting shape if it was in either of the input
+   * shapes.
+   *
+   * @param {Object} windingMap - See computeFaceInclusion for more details
+   * @returns {boolean}
+   */
   Graph.BINARY_NONZERO_UNION = function( windingMap ) {
     return windingMap[ '0' ] !== 0 || windingMap[ '1' ] !== 0;
   };
 
+  /**
+   * "Intersection" binary winding map filter for use with Graph.binaryResult.
+   * @public
+   *
+   * This combines both shapes together so that a point is in the resulting shape if it was in both of the input
+   * shapes.
+   *
+   * @param {Object} windingMap - See computeFaceInclusion for more details
+   * @returns {boolean}
+   */
   Graph.BINARY_NONZERO_INTERSECTION = function( windingMap ) {
     return windingMap[ '0' ] !== 0 && windingMap[ '1' ] !== 0;
   };
 
+  /**
+   * "Difference" binary winding map filter for use with Graph.binaryResult.
+   * @public
+   *
+   * This combines both shapes together so that a point is in the resulting shape if it was in the first shape AND
+   * was NOT in the second shape.
+   *
+   * @param {Object} windingMap - See computeFaceInclusion for more details
+   * @returns {boolean}
+   */
   Graph.BINARY_NONZERO_DIFFERENCE = function( windingMap ) {
     return windingMap[ '0' ] !== 0 && windingMap[ '1' ] === 0;
   };
 
+  /**
+   * "XOR" binary winding map filter for use with Graph.binaryResult.
+   * @public
+   *
+   * This combines both shapes together so that a point is in the resulting shape if it is only in exactly one of the
+   * input shapes. It's like the union minus intersection.
+   *
+   * @param {Object} windingMap - See computeFaceInclusion for more details
+   * @returns {boolean}
+   */
   Graph.BINARY_NONZERO_XOR = function( windingMap ) {
     return ( ( windingMap[ '0' ] !== 0 ) ^ ( windingMap[ '1' ] !== 0 ) ) === 1;
   };
 
+  /**
+   * Returns the resulting Shape obtained by combining the two shapes given with the filter.
+   * @public
+   *
+   * @param {Shape} shapeA
+   * @param {Shape} shapeB
+   * @param {function} windingMapFilter - See computeFaceInclusion for details on the format
+   * @returns {Shape}
+   */
   Graph.binaryResult = function( shapeA, shapeB, windingMapFilter ) {
     var graph = new Graph();
     graph.addShape( 0, shapeA );
