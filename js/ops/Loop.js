@@ -28,6 +28,8 @@ define( function( require ) {
    * @public (kite-internal)
    * @constructor
    *
+   * NOTE: Use Loop.createFromPool for most usage instead of using the constructor directly.
+   *
    * @param {number} shapeId
    */
   function Loop( shapeId ) {
@@ -42,6 +44,14 @@ define( function( require ) {
   kite.register( 'Loop', Loop );
 
   inherit( Object, Loop, {
+    /**
+     * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
+     * support pooling.
+     * @private
+     *
+     * @param {number} shapeId
+     * @returns {Loop} - This reference for chaining
+     */
     initialize: function( shapeId ) {
       assert && assert( typeof shapeId === 'number' );
 

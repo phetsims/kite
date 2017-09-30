@@ -22,9 +22,10 @@ define( function( require ) {
   var globaId = 0;
 
   /**
-   * A loop described by a list of half-edges.
    * @public (kite-internal)
    * @constructor
+   *
+   * NOTE: Use Boundary.createFromPool for most usage instead of using the constructor directly.
    *
    * @param {Array.<HalfEdge>} halfEdges
    */
@@ -40,6 +41,14 @@ define( function( require ) {
   kite.register( 'Boundary', Boundary );
 
   inherit( Object, Boundary, {
+    /**
+     * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
+     * support pooling.
+     * @private
+     *
+     * @param {Array.<HalfEdge>} halfEdges
+     * @returns {Boundary} - This reference for chaining
+     */
     initialize: function( halfEdges ) {
       // @public {Array.<HalfEdge>}
       this.halfEdges = halfEdges;

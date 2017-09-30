@@ -47,6 +47,8 @@ define( function( require ) {
    * @public (kite-internal)
    * @constructor
    *
+   * NOTE: Use Vertex.createFromPool for most usage instead of using the constructor directly.
+   *
    * @param {Vector2} point - The point where the vertex should be located.
    */
   function Vertex( point ) {
@@ -61,6 +63,14 @@ define( function( require ) {
   kite.register( 'Vertex', Vertex );
 
   inherit( Object, Vertex, {
+    /**
+     * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
+     * support pooling.
+     * @private
+     *
+     * @param {Vector2} point
+     * @returns {Vertex} - This reference for chaining
+     */
     initialize: function( point ) {
       assert && assert( point instanceof Vector2 );
 

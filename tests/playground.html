@@ -45,22 +45,12 @@
         window.graph = new kite.Graph();
         graph.addShape( 0, a );
         graph.addShape( 1, b );
-        graph.eliminateOverlap();
-        graph.eliminateSelfIntersection();
-        graph.eliminateIntersection();
-        graph.collapseVertices();
-        graph.removeBridges();
-        graph.removeSingleEdgeVertices();
-        graph.orderVertexEdges();
-        graph.extractFaces();
-        graph.computeBoundaryGraph();
-        graph.computeWindingMap();
+        graph.computeSimplifiedFaces();
         graph.computeFaceInclusion( function( windingMap ) {
           return ( windingMap[ '0' ] !== 0 || windingMap[ '1' ] !== 0 ); // non-zero for first entry
         } );
         graph.debug();
         window.subgraph = graph.createFilledSubGraph();
-        subgraph.fillAlternatingFaces();
         subgraph.debug();
         window.shape = subgraph.facesToShape();
         console.log( shape.getSVGPath() );

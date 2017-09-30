@@ -25,6 +25,8 @@ define( function( require ) {
    * @public (kite-internal)
    * @constructor
    *
+   * NOTE: Use Edge.createFromPool for most usage instead of using the constructor directly.
+   *
    * @param {Segment} segment
    * @param {Vertex} startVertex
    * @param {Vertex} endVertex
@@ -41,6 +43,16 @@ define( function( require ) {
   kite.register( 'Edge', Edge );
 
   inherit( Object, Edge, {
+    /**
+     * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
+     * support pooling.
+     * @private
+     *
+     * @param {Segment} segment
+     * @param {Vertex} startVertex
+     * @param {Vertex} endVertex
+     * @returns {Edge} - This reference for chaining
+     */
     initialize: function( segment, startVertex, endVertex ) {
       assert && assert( segment instanceof Segment );
       assert && assert( startVertex instanceof Vertex );
@@ -87,6 +99,13 @@ define( function( require ) {
       this.freeToPool();
     },
 
+    /**
+     * Returns the other vertex associated with an edge.
+     * @public
+     *
+     * @param {Vertex} vertex
+     * @returns {Vertex}
+     */
     getOtherVertex: function( vertex ) {
       assert && assert( vertex === this.startVertex || vertex === this.endVertex );
 
@@ -94,7 +113,7 @@ define( function( require ) {
     },
 
     /**
-     * Update possibly reversed vertex references.
+     * Update possibly reversed vertex references (since they may be updated)
      * @public
      */
     updateReferences: function() {

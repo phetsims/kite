@@ -65,90 +65,6 @@ define( function( require ) {
   kite.register( 'Graph', Graph );
 
   inherit( Object, Graph, {
-    /**
-     * Releases owned objects to their pools, and clears references that may have been picked up from external sources.
-     * @public
-     */
-    dispose: function() {
-
-      // this.boundaries should contain all elements of innerBoundaries and outerBoundaries
-      while ( this.boundaries.length ) {
-        this.boundaries.pop().dispose();
-      }
-      cleanArray( this.innerBoundaries );
-      cleanArray( this.outerBoundaries );
-
-      while ( this.loops.length ) {
-        this.loops.pop().dispose();
-      }
-      while ( this.faces.length ) {
-        this.faces.pop().dispose();
-      }
-      while ( this.vertices.length ) {
-        this.vertices.pop().dispose();
-      }
-      while ( this.edges.length ) {
-        this.edges.pop().dispose();
-      }
-    },
-
-    /**
-     * Adds an edge to the graph (and sets up connection information).
-     * @public
-     *
-     * @param {Edge} edge
-     */
-    addEdge: function( edge ) {
-      assert && assert( edge instanceof Edge );
-      assert && assert( !_.includes( edge.startVertex.incidentHalfEdges, edge.reversedHalf ), 'Should not already be connected' );
-      assert && assert( !_.includes( edge.endVertex.incidentHalfEdges, edge.forwardHalf ), 'Should not already be connected' );
-
-      this.edges.push( edge );
-      edge.startVertex.incidentHalfEdges.push( edge.reversedHalf );
-      edge.endVertex.incidentHalfEdges.push( edge.forwardHalf );
-    },
-
-    /**
-     * Removes an edge from the graph (and disconnects incident information).
-     * @public
-     *
-     * @param {Edge} edge
-     */
-    removeEdge: function( edge ) {
-      assert && assert( edge instanceof Edge );
-
-      arrayRemove( this.edges, edge );
-      arrayRemove( edge.startVertex.incidentHalfEdges, edge.reversedHalf );
-      arrayRemove( edge.endVertex.incidentHalfEdges, edge.forwardHalf );
-    },
-
-    /**
-     * Replaces a single edge (in loops) with a series of edges (possibly empty).
-     * @public
-     *
-     * @param {Edge} edge
-     * @param {Array.<HalfEdge>} forwardHalfEdges
-     */
-    replaceEdgeInLoops: function( edge, forwardHalfEdges ) {
-      // Compute reversed half-edges
-      var reversedHalfEdges = [];
-      for ( var i = 0; i < forwardHalfEdges.length; i++ ) {
-        reversedHalfEdges.push( forwardHalfEdges[ forwardHalfEdges.length - 1 - i ].getReversed() );
-      }
-
-      for ( i = 0; i < this.loops.length; i++ ) {
-        var loop = this.loops[ i ];
-
-        for ( var j = loop.halfEdges.length - 1; j >= 0; j-- ) {
-          var halfEdge = loop.halfEdges[ j ];
-
-          if ( halfEdge.edge === edge ) {
-            var replacementHalfEdges = halfEdge === edge.forwardHalf ? forwardHalfEdges : reversedHalfEdges;
-            Array.prototype.splice.apply( loop.halfEdges, [ j, 1 ].concat( replacementHalfEdges ) );
-          }
-        }
-      }
-    },
 
     /**
      * Adds a Shape (with a given ID for CAG purposes) to the graph.
@@ -224,6 +140,208 @@ define( function( require ) {
 
       this.loops.push( loop );
       this.vertices.push.apply( this.vertices, vertices );
+    },
+
+    /**
+     * Simplifies edges/vertices, computes boundaries and faces (with the winding map).
+     * @public
+     */
+    computeSimplifiedFaces: function() {
+      this.eliminateOverlap();
+      this.eliminateSelfIntersection();
+      this.eliminateIntersection();
+      this.collapseVertices();
+      this.removeBridges();
+      this.removeSingleEdgeVertices();
+      this.orderVertexEdges();
+      this.extractFaces();
+      this.computeBoundaryGraph();
+      this.computeWindingMap();
+    },
+
+    /**
+     * Sets whether each face should be filled or unfilled based on a filter function.
+     * @public
+     *
+     * The windingMapFilter will be called on each face's winding map, and will use the return value as whether the face
+     * is filled or not.
+     *
+     * The winding map is an {Object} associated with each face that has a key for every shapeId that was used in
+     * addShape/addSubpath, and the value for those keys is the winding number of the face given all paths with the
+     * shapeId.
+     *
+     * For example, imagine you added two shapeIds (0 and 1), and the iteration is on a face that is included in
+     * one loop specified with shapeId:0 (inside a counter-clockwise curve), and is outside of any segments specified
+     * by the second loop (shapeId:1). Then the winding map will be:
+     * {
+     *   0: 1 // shapeId:0 has a winding number of 1 for this face (generally filled)
+     *   1: 0 // shapeId:1 has a winding number of 0 for this face (generally not filled)
+     * }
+     *
+     * Generally, winding map filters can be broken down into two steps:
+     * 1. Given the winding number for each shapeId, compute whether that loop was originally filled. Normally, this is
+     *    done with a non-zero rule (any winding number is filled, except zero). SVG also provides an even-odd rule
+     *    (odd numbers are filled, even numbers are unfilled).
+     * 2. Given booleans for each shapeId from step 1, compute CAG operations based on boolean formulas. Say you wanted
+     *    to take the union of shapeIds 0 and 1, then remove anything in shapeId 2. Given the booleans above, this can
+     *    be directly computed as (filled0 || filled1) && !filled2.
+     *
+     * @param {function} windingMapFilter
+     */
+    computeFaceInclusion: function( windingMapFilter ) {
+      for ( var i = 0; i < this.faces.length; i++ ) {
+        var face = this.faces[ i ];
+        face.filled = windingMapFilter( face.windingMap );
+      }
+    },
+
+    /**
+     * Create a new Graph object based only on edges in this graph that separate a "filled" face from an "unfilled"
+     * face.
+     * @public
+     *
+     * This is a convenient way to "collapse" adjacent filled and unfilled faces together, and compute the curves and
+     * holes properly, given a filled "normal" graph.
+     */
+    createFilledSubGraph: function() {
+      var graph = new Graph();
+
+      var vertexMap = {}; // old id => newVertex
+
+      for ( var i = 0; i < this.edges.length; i++ ) {
+        var edge = this.edges[ i ];
+        if ( edge.forwardHalf.face.filled !== edge.reversedHalf.face.filled ) {
+          if ( !vertexMap[ edge.startVertex.id ] ) {
+            var newStartVertex = Vertex.createFromPool( edge.startVertex.point );
+            graph.vertices.push( newStartVertex );
+            vertexMap[ edge.startVertex.id ] = newStartVertex;
+          }
+          if ( !vertexMap[ edge.endVertex.id ] ) {
+            var newEndVertex = Vertex.createFromPool( edge.endVertex.point );
+            graph.vertices.push( newEndVertex );
+            vertexMap[ edge.endVertex.id ] = newEndVertex;
+          }
+
+          var startVertex = vertexMap[ edge.startVertex.id ];
+          var endVertex = vertexMap[ edge.endVertex.id ];
+          graph.addEdge( Edge.createFromPool( edge.segment, startVertex, endVertex ) );
+        }
+      }
+
+      graph.collapseAdjacentEdges();
+      graph.orderVertexEdges();
+      graph.extractFaces();
+      graph.computeBoundaryGraph();
+      graph.fillAlternatingFaces();
+
+      return graph;
+    },
+
+    /**
+     * Returns a Shape that creates a subpath for each filled face (with the desired holes).
+     * @public
+     *
+     * Generally should be called on a graph created with createFilledSubGraph().
+     *
+     * @returns {Shape}
+     */
+    facesToShape: function() {
+      var subpaths = [];
+      for ( var i = 0; i < this.faces.length; i++ ) {
+        var face = this.faces[ i ];
+        if ( face.filled ) {
+          subpaths.push( face.boundary.toSubpath() );
+          for ( var j = 0; j < face.holes.length; j++ ) {
+            subpaths.push( face.holes[ j ].toSubpath() );
+          }
+        }
+      }
+      return new kite.Shape( subpaths );
+    },
+
+    /**
+     * Releases owned objects to their pools, and clears references that may have been picked up from external sources.
+     * @public
+     */
+    dispose: function() {
+
+      // this.boundaries should contain all elements of innerBoundaries and outerBoundaries
+      while ( this.boundaries.length ) {
+        this.boundaries.pop().dispose();
+      }
+      cleanArray( this.innerBoundaries );
+      cleanArray( this.outerBoundaries );
+
+      while ( this.loops.length ) {
+        this.loops.pop().dispose();
+      }
+      while ( this.faces.length ) {
+        this.faces.pop().dispose();
+      }
+      while ( this.vertices.length ) {
+        this.vertices.pop().dispose();
+      }
+      while ( this.edges.length ) {
+        this.edges.pop().dispose();
+      }
+    },
+
+    /**
+     * Adds an edge to the graph (and sets up connection information).
+     * @private
+     *
+     * @param {Edge} edge
+     */
+    addEdge: function( edge ) {
+      assert && assert( edge instanceof Edge );
+      assert && assert( !_.includes( edge.startVertex.incidentHalfEdges, edge.reversedHalf ), 'Should not already be connected' );
+      assert && assert( !_.includes( edge.endVertex.incidentHalfEdges, edge.forwardHalf ), 'Should not already be connected' );
+
+      this.edges.push( edge );
+      edge.startVertex.incidentHalfEdges.push( edge.reversedHalf );
+      edge.endVertex.incidentHalfEdges.push( edge.forwardHalf );
+    },
+
+    /**
+     * Removes an edge from the graph (and disconnects incident information).
+     * @private
+     *
+     * @param {Edge} edge
+     */
+    removeEdge: function( edge ) {
+      assert && assert( edge instanceof Edge );
+
+      arrayRemove( this.edges, edge );
+      arrayRemove( edge.startVertex.incidentHalfEdges, edge.reversedHalf );
+      arrayRemove( edge.endVertex.incidentHalfEdges, edge.forwardHalf );
+    },
+
+    /**
+     * Replaces a single edge (in loops) with a series of edges (possibly empty).
+     * @private
+     *
+     * @param {Edge} edge
+     * @param {Array.<HalfEdge>} forwardHalfEdges
+     */
+    replaceEdgeInLoops: function( edge, forwardHalfEdges ) {
+      // Compute reversed half-edges
+      var reversedHalfEdges = [];
+      for ( var i = 0; i < forwardHalfEdges.length; i++ ) {
+        reversedHalfEdges.push( forwardHalfEdges[ forwardHalfEdges.length - 1 - i ].getReversed() );
+      }
+
+      for ( i = 0; i < this.loops.length; i++ ) {
+        var loop = this.loops[ i ];
+
+        for ( var j = loop.halfEdges.length - 1; j >= 0; j-- ) {
+          var halfEdge = loop.halfEdges[ j ];
+
+          if ( halfEdge.edge === edge ) {
+            var replacementHalfEdges = halfEdge === edge.forwardHalf ? forwardHalfEdges : reversedHalfEdges;
+            Array.prototype.splice.apply( loop.halfEdges, [ j, 1 ].concat( replacementHalfEdges ) );
+          }
+        }
+      }
     },
 
     collapseAdjacentEdges: function() {
@@ -610,7 +728,7 @@ define( function( require ) {
 
     /**
      * Scan a given vertex for bridges recursively with a depth-first search.
-     * @public
+     * @private
      *
      * Records visit times to each vertex, and back-propagates so that we can efficiently determine if there was another
      * path around to the vertex.
@@ -848,7 +966,7 @@ define( function( require ) {
     /**
      * Computes the differential in winding numbers (forward face winding number minus the reversed face winding number)
      * ("forward face" is the face on the forward half-edge side, etc.)
-     * @public
+     * @private
      *
      * @param {Edge} edge
      * @param {number} shapeId
@@ -873,46 +991,6 @@ define( function( require ) {
         }
       }
       return differential;
-    },
-
-    computeFaceInclusion: function( windingMapFilter ) {
-      for ( var i = 0; i < this.faces.length; i++ ) {
-        var face = this.faces[ i ];
-        face.filled = windingMapFilter( face.windingMap );
-      }
-    },
-
-    createFilledSubGraph: function() {
-      var graph = new Graph();
-
-      var vertexMap = {}; // old id => newVertex
-
-      for ( var i = 0; i < this.edges.length; i++ ) {
-        var edge = this.edges[ i ];
-        if ( edge.forwardHalf.face.filled !== edge.reversedHalf.face.filled ) {
-          if ( !vertexMap[ edge.startVertex.id ] ) {
-            var newStartVertex = Vertex.createFromPool( edge.startVertex.point );
-            graph.vertices.push( newStartVertex );
-            vertexMap[ edge.startVertex.id ] = newStartVertex;
-          }
-          if ( !vertexMap[ edge.endVertex.id ] ) {
-            var newEndVertex = Vertex.createFromPool( edge.endVertex.point );
-            graph.vertices.push( newEndVertex );
-            vertexMap[ edge.endVertex.id ] = newEndVertex;
-          }
-
-          var startVertex = vertexMap[ edge.startVertex.id ];
-          var endVertex = vertexMap[ edge.endVertex.id ];
-          graph.addEdge( Edge.createFromPool( edge.segment, startVertex, endVertex ) );
-        }
-      }
-
-      graph.collapseAdjacentEdges();
-      graph.orderVertexEdges();
-      graph.extractFaces();
-      graph.computeBoundaryGraph();
-
-      return graph;
     },
 
     fillAlternatingFaces: function() {
@@ -944,20 +1022,6 @@ define( function( require ) {
           }
         }
       }
-    },
-
-    facesToShape: function() {
-      var subpaths = [];
-      for ( var i = 0; i < this.faces.length; i++ ) {
-        var face = this.faces[ i ];
-        if ( face.filled ) {
-          subpaths.push( face.boundary.toSubpath() );
-          for ( var j = 0; j < face.holes.length; j++ ) {
-            subpaths.push( face.holes[ j ].toSubpath() );
-          }
-        }
-      }
-      return new kite.Shape( subpaths );
     },
 
     getBoundaryOfHalfEdge: function( halfEdge ) {
@@ -1196,19 +1260,9 @@ define( function( require ) {
     graph.addShape( 0, shapeA );
     graph.addShape( 1, shapeB );
 
-    graph.eliminateOverlap();
-    graph.eliminateSelfIntersection();
-    graph.eliminateIntersection();
-    graph.collapseVertices();
-    graph.removeBridges();
-    graph.removeSingleEdgeVertices();
-    graph.orderVertexEdges();
-    graph.extractFaces();
-    graph.computeBoundaryGraph();
-    graph.computeWindingMap();
+    graph.computeSimplifiedFaces();
     graph.computeFaceInclusion( windingMapFilter );
     var subgraph = graph.createFilledSubGraph();
-    subgraph.fillAlternatingFaces();
     var shape = subgraph.facesToShape();
 
     graph.dispose();

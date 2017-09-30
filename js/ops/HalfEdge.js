@@ -18,6 +18,8 @@ define( function( require ) {
    * @public (kite-internal)
    * @constructor
    *
+   * NOTE: Use HalfEdge.createFromPool for most usage instead of using the constructor directly.
+   *
    * @param {Edge} edge
    * @param {boolean} isReversed
    */
@@ -30,6 +32,15 @@ define( function( require ) {
   kite.register( 'HalfEdge', HalfEdge );
 
   inherit( Object, HalfEdge, {
+    /**
+     * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
+     * support pooling.
+     * @private
+     *
+     * @param {Edge} edge
+     * @param {boolean} isReversed
+     * @returns {HalfEdge} - This reference for chaining
+     */
     initialize: function( edge, isReversed ) {
       assert && assert( edge instanceof kite.Edge );
       assert && assert( typeof isReversed === 'boolean' );
@@ -76,6 +87,7 @@ define( function( require ) {
      *                              not returned by getNext
      */
     getNext: function( filter ) {
+      // Starting at 1, forever incrementing (we will bail out with normal conditions)
       for ( var i = 1;; i++ ) {
         var index = this.endVertex.incidentHalfEdges.indexOf( this ) - i;
         if ( index < 0 ) {
@@ -116,10 +128,22 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Returns the opposite half-edge for the same edge.
+     * @public
+     *
+     * @returns {HalfEdge}
+     */
     getReversed: function() {
       return this.isReversed ? this.edge.forwardHalf : this.edge.reversedHalf;
     },
 
+    /**
+     * Returns a segment that starts at our startVertex and ends at our endVertex (may be reversed to accomplish that).
+     * @public
+     *
+     * @return {Segment}
+     */
     getDirectionalSegment: function() {
       if ( this.isReversed ) {
         return this.edge.segment.reversed();

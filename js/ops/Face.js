@@ -25,6 +25,8 @@ define( function( require ) {
    * @public (kite-internal)
    * @constructor
    *
+   * NOTE: Use Face.createFromPool for most usage instead of using the constructor directly.
+   *
    * @param {Boundary|null} boundary - Null if it's the unbounded face
    */
   function Face( boundary ) {
@@ -39,6 +41,14 @@ define( function( require ) {
   kite.register( 'Face', Face );
 
   inherit( Object, Face, {
+    /**
+     * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
+     * support pooling.
+     * @private
+     *
+     * @param {Boundary} boundary
+     * @returns {Face} - This reference for chaining
+     */
     initialize: function( boundary ) {
       assert && assert( boundary === null || boundary.isInner() );
 
@@ -74,6 +84,12 @@ define( function( require ) {
       this.freeToPool();
     },
 
+    /**
+     * Marks all half-edges on the boundary as belonging to this face.
+     * @public
+     *
+     * @param {Boundary} boundary
+     */
     addBoundaryFaceReferences: function( boundary ) {
       for ( var i = 0; i < boundary.halfEdges.length; i++ ) {
         assert && assert( boundary.halfEdges[ i ].face === null );
@@ -82,6 +98,16 @@ define( function( require ) {
       }
     },
 
+    /**
+     * Processes the boundary-graph for a given outer boundary, and turns it into holes for this face.
+     * @public
+     *
+     * In the graph, every outer boundary in each connected component will be holes for the single inner boundary
+     * (which will be, in this case, our face's boundary). Since it's a tree, we can walk the tree recursively to add
+     * all necessary holes.
+     *
+     * @param {Boundary} boundary
+     */
     recursivelyAddHoles: function( outerBoundary ) {
       assert && assert( !outerBoundary.isInner() );
 
