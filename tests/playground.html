@@ -67,6 +67,103 @@
         console.log( 'ray1: ' + shape.windingIntersection( ray1 ) );
         console.log( 'ray2: ' + shape.windingIntersection( ray2 ) );
       }
+
+      window.debugArcs = function() {
+        var normalCircle = new kite.Arc( dot.v2( 0, 0 ), 40, 0, Math.PI * 2, false );
+        var reversedCircle = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 2, 0, true );
+        var rotatedCircle = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI, 3 * Math.PI, false );
+        var normalArc = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 0.25, Math.PI * 0.75, false );
+        var normalSecondArc = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 0.5, Math.PI * 1, false );
+        var largeArc = new kite.Arc( dot.v2( 0, 0 ), 40, 0, Math.PI * 1.8, false );
+        var largeSecondArc = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 1.6, Math.PI * 2.4, false );
+        var largeMatchingArc = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 1.8, Math.PI * 2.4, false );
+        var offsetCircle = new kite.Arc( dot.v2( 30, 0 ), 40, 0, Math.PI * 2, false );
+        debugArcOverlap( normalCircle, normalArc );
+        debugArcOverlap( normalCircle, reversedCircle );
+        debugArcOverlap( normalArc, normalSecondArc );
+        debugArcOverlap( largeArc, largeSecondArc );
+        debugArcOverlap( largeArc, largeSecondArc.reversed() );
+        debugArcOverlap( largeArc, largeMatchingArc );
+        debugArcOverlap( normalCircle, rotatedCircle );
+        debugArcOverlap( normalCircle, rotatedCircle.reversed() );
+        debugArcOverlap( normalCircle, offsetCircle );
+      };
+
+      window.debugEllipticalArcs = function() {
+        var normalEllipse = new kite.EllipticalArc( dot.v2( 0, 0 ), 40, 20, Math.PI * 0.1, 0, Math.PI * 2, false );
+        var mirrorEllipse = new kite.EllipticalArc( dot.v2( 0, 0 ), 40, 20, Math.PI * 1.1, Math.PI, Math.PI * 3, false );
+        var normalEllipticalArc = new kite.EllipticalArc( dot.v2( 0, 0 ), 40, 20, Math.PI * 0.1, 0, Math.PI / 4, false );
+        debugEllipticalArcOverlap( normalEllipse, normalEllipticalArc );
+        debugEllipticalArcOverlap( normalEllipse, mirrorEllipse );
+      };
+
+      function debugArcOverlap( arc1, arc2 ) {
+        debugOverlap( arc1, arc2, kite.Arc.getOverlaps );
+      }
+
+      function debugEllipticalArcOverlap( arc1, arc2 ) {
+        debugOverlap( arc1, arc2, kite.EllipticalArc.getOverlaps );
+      }
+
+      function debugOverlap( segment1, segment2, overlapFunction ) {
+        var canvas = document.createElement( 'canvas' );
+        canvas.width = 400;
+        canvas.height = 100;
+        document.body.appendChild( canvas );
+
+        var context = canvas.getContext( '2d' );
+
+        context.save();
+        context.translate( 50, 50 );
+        debugSegment( context, segment1, 'red' );
+        context.restore();
+
+        context.save();
+        context.translate( 150, 50 );
+        debugSegment( context, segment2, 'blue' );
+        context.restore();
+
+        var overlaps = overlapFunction( segment1, segment2 );
+
+        function displayOverlap( x, overlap ) {
+          var segment1Slice = segment1.slice( overlap.t0, overlap.t1 );
+          var segment2Slice = segment2.slice( overlap.qt0, overlap.qt1 );
+
+          context.save();
+          context.translate( x, 50 );
+          debugSegment( context, segment1Slice, 'rgba(255,0,0,0.4)' );
+          debugSegment( context, segment2Slice, 'rgba(0,0,255,0.4)' );
+          context.restore();
+        }
+
+        if ( overlaps[ 0 ] ) {
+          displayOverlap( 250, overlaps[ 0 ] );
+        }
+        if ( overlaps[ 1 ] ) {
+          displayOverlap( 350, overlaps[ 1 ] );
+        }
+      };
+
+      function debugSegment( context, segment, color ) {
+        context.beginPath();
+        context.moveTo( segment.start.x, segment.start.y );
+        segment.writeToContext( context );
+
+        var t = 0.8;
+        var t2 = 0.87;
+        var halfPosition = segment.positionAt( t );
+        var morePosition = segment.positionAt( t2 );
+        var ext = halfPosition.distance( morePosition ) * 2 / 3;
+        var halfTangent = segment.tangentAt( t ).normalized();
+        context.moveTo( halfPosition.x - halfTangent.y * ext, halfPosition.y + halfTangent.x * ext );
+        context.lineTo( halfPosition.x + halfTangent.y * ext, halfPosition.y - halfTangent.x * ext );
+        context.lineTo( morePosition.x, morePosition.y );
+        context.closePath();
+
+        context.strokeStyle = color;
+        context.lineWidth = 1;
+        context.stroke();
+      }
     } );
   } );
 </script>

@@ -12,12 +12,14 @@
 define( function( require ) {
   'use strict';
 
+  var Arc = require( 'KITE/segments/Arc' );
   var arrayRemove = require( 'PHET_CORE/arrayRemove' );
   var Boundary = require( 'KITE/ops/Boundary' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var cleanArray = require( 'PHET_CORE/cleanArray' );
   var Cubic = require( 'KITE/segments/Cubic' );
   var Edge = require( 'KITE/ops/Edge' );
+  var EllipticalArc = require( 'KITE/segments/EllipticalArc' );
   var Face = require( 'KITE/ops/Face' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
@@ -434,7 +436,12 @@ define( function( require ) {
             if ( aSegment instanceof Cubic && bSegment instanceof Cubic ) {
               overlapFunction = Cubic.getOverlaps;
             }
-            // TODO: ellipticalarc/arc overlap handling
+            if ( aSegment instanceof Arc && bSegment instanceof Arc ) {
+              overlapFunction = Arc.getOverlaps;
+            }
+            if ( aSegment instanceof EllipticalArc && bSegment instanceof EllipticalArc ) {
+              overlapFunction = EllipticalArc.getOverlaps;
+            }
 
             if ( overlapFunction ) {
               var overlaps = overlapFunction( aSegment, bSegment );

@@ -12,10 +12,15 @@ define( function( require ) {
   var Bounds2 = require( 'DOT/Bounds2' );
   var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
   var inherit = require( 'PHET_CORE/inherit' );
+  var Overlap = require( 'KITE/util/Overlap' );
+  var Util = require( 'DOT/Util' );
   var Vector2 = require( 'DOT/Vector2' );
 
   var kite = require( 'KITE/kite' );
   var Segment = require( 'KITE/segments/Segment' );
+
+  // TODO: See if we should use this more
+  var TWO_PI = Math.PI * 2;
 
   /**
    * Creates a circular arc (or circle if the startAngle/endAngle difference is ~2pi).
@@ -230,41 +235,11 @@ define( function( require ) {
      * Gets the end angle in radians.
      * @public
      *
-     * TODO: Reduce code sharing with EllipticalArc?
-     *
      * @returns {number}
      */
     getActualEndAngle: function() {
       if ( this._actualEndAngle === null ) {
-        // compute an actual end angle so that we can smoothly go from this._startAngle to this._actualEndAngle
-        if ( this._anticlockwise ) {
-          // angle is 'decreasing'
-          // -2pi <= end - start < 2pi
-          if ( this._startAngle > this._endAngle ) {
-            this._actualEndAngle = this._endAngle;
-          }
-          else if ( this._startAngle < this._endAngle ) {
-            this._actualEndAngle = this._endAngle - 2 * Math.PI;
-          }
-          else {
-            // equal
-            this._actualEndAngle = this._startAngle;
-          }
-        }
-        else {
-          // angle is 'increasing'
-          // -2pi < end - start <= 2pi
-          if ( this._startAngle < this._endAngle ) {
-            this._actualEndAngle = this._endAngle;
-          }
-          else if ( this._startAngle > this._endAngle ) {
-            this._actualEndAngle = this._endAngle + Math.PI * 2;
-          }
-          else {
-            // equal
-            this._actualEndAngle = this._startAngle;
-          }
-        }
+        this._actualEndAngle = Arc.computeActualEndAngle( this._startAngle, this._endAngle, this._anticlockwise );
       }
       return this._actualEndAngle;
     },
@@ -286,9 +261,10 @@ define( function( require ) {
 
     /**
      * Returns an angle difference that represents how "much" of the circle our arc covers.
+     * @public
+     *
      * The answer is always greater or equal to zero
      * The answer can exceed two Pi
-     * @public
      *
      * @returns {number}
      */
@@ -389,10 +365,12 @@ define( function( require ) {
     /**
      * Returns the angle for the parametrized t value. The t value should range from 0 to 1 (inclusive).
      * @public
+     *
      * @param {number} t
      * @returns {number}
      */
     angleAt: function( t ) {
+      //TODO: add asserts
       return this._startAngle + ( this.getActualEndAngle() - this._startAngle ) * t;
     },
 
@@ -525,7 +503,7 @@ define( function( require ) {
       _.each( [ 0, Math.PI / 2, Math.PI, 3 * Math.PI / 2 ], function( angle ) {
         if ( self.containsAngle( angle ) ) {
           var t = self.tAtAngle( angle );
-          var epsilon = 0.0000000001; // TODO: general kite epsilon?
+          var epsilon = 0.0000000001; // TODO: general kite epsilon?, also do 1e-Number format
           if ( t > epsilon && t < 1 - epsilon ) {
             result.push( t );
           }
@@ -698,7 +676,134 @@ define( function( require ) {
   } );
 
   /**
+   * Determines the actual end angle (compared to the start angle).
+   * @public
+   *
+   * Normalizes the sign of the angles, so that the sign of ( endAngle - startAngle ) matches whether it is
+   * anticlockwise.
+   *
+   * @param {number} startAngle
+   * @param {number} endAngle
+   * @param {boolean} anticlockwise
+   * @returns {number}
+   */
+  Arc.computeActualEndAngle = function( startAngle, endAngle, anticlockwise ) {
+    if ( anticlockwise ) {
+      // angle is 'decreasing'
+      // -2pi <= end - start < 2pi
+      if ( startAngle > endAngle ) {
+        return endAngle;
+      }
+      else if ( startAngle < endAngle ) {
+        return endAngle - 2 * Math.PI;
+      }
+      else {
+        // equal
+        return startAngle;
+      }
+    }
+    else {
+      // angle is 'increasing'
+      // -2pi < end - start <= 2pi
+      if ( startAngle < endAngle ) {
+        return endAngle;
+      }
+      else if ( startAngle > endAngle ) {
+        return endAngle + Math.PI * 2;
+      }
+      else {
+        // equal
+        return startAngle;
+      }
+    }
+  };
+
+  // TODO: doc
+  Arc.getPartialOverlap = function( end1, start2, end2, tStart2, tEnd2 ) {
+    assert && assert( end1 > 0 && end1 <= TWO_PI + 1e-10 );
+    assert && assert( start2 >= 0 && start2 < TWO_PI + 1e-10 );
+    assert && assert( end2 >= 0 && end2 <= TWO_PI + 1e-10 );
+    assert && assert( tStart2 >= 0 && tStart2 <= 1 );
+    assert && assert( tEnd2 >= 0 && tEnd2 <= 1 );
+
+    var reversed2 = end2 < start2;
+    var min2 = reversed2 ? end2 : start2;
+    var max2 = reversed2 ? start2 : end2;
+
+    var overlapMin = min2;
+    var overlapMax = Math.min( end1, max2 );
+
+    // If there's not a small amount of overlap
+    if ( overlapMax < overlapMin + 1e-8 ) {
+      return [];
+    }
+    else {
+      return [ Overlap.createLinear(
+        // minimum
+        Util.clamp( Util.linear( 0, end1, 0, 1, overlapMin ), 0, 1 ), // arc1 min
+        Util.clamp( Util.linear( start2, end2, tStart2, tEnd2, overlapMin ), 0, 1 ), // arc2 min
+        // maximum
+        Util.clamp( Util.linear( 0, end1, 0, 1, overlapMax ), 0, 1 ), // arc1 max
+        Util.clamp( Util.linear( start2, end2, tStart2, tEnd2, overlapMax ), 0, 1 ) // arc2 max
+      ) ];
+    }
+  };
+
+  /**
+   * Determine whether two Arcs overlap over continuous sections, and if so finds the a,b pairs such that
+   * p( t ) === q( a * t + b ).
+   * @public
+   *
+   * @param {number} startAngle1 - Start angle of arc 1
+   * @param {number} endAngle1 - "Actual" end angle of arc 1
+   * @param {number} startAngle2 - Start angle of arc 2
+   * @param {number} endAngle2 - "Actual" end angle of arc 2
+   * @returns {Array.<Overlap>} - Any overlaps (from 0 to 2)
+   */
+  Arc.getAngularOverlaps = function( startAngle1, endAngle1, startAngle2, endAngle2 ) {
+    // Remap start of arc 1 to 0, and the end to be positive (sign1 )
+    var end1 = endAngle1 - startAngle1;
+    var sign1 = end1 < 0 ? -1 : 1;
+    end1 *= sign1;
+
+    // Remap arc 2 so the start point maps to the [0,2pi) range (and end-point may lie outside that)
+    var start2 = Util.moduloBetweenDown( sign1 * ( startAngle2 - startAngle1 ), 0, TWO_PI );
+    var end2 = sign1 * ( endAngle2 - startAngle2 ) + start2;
+
+    var wrapT;
+    if ( end2 < -1e-10 ) {
+      wrapT = -start2 / ( end2 - start2 );
+      return Arc.getPartialOverlap( end1, start2, 0, 0, wrapT ).concat( Arc.getPartialOverlap( end1, TWO_PI, end2 + TWO_PI, wrapT, 1 ) );
+    }
+    else if ( end2 > TWO_PI + 1e-10 ) {
+      wrapT = ( TWO_PI - start2 ) / ( end2 - start2 );
+      return Arc.getPartialOverlap( end1, start2, TWO_PI, 0, wrapT ).concat( Arc.getPartialOverlap( end1, 0, end2 - TWO_PI, wrapT, 1 ) );
+    }
+    else {
+      return Arc.getPartialOverlap( end1, start2, end2, 0, 1 );
+    }
+  };
+
+  /**
+   * Determine whether two Arcs overlap over continuous sections, and if so finds the a,b pairs such that
+   * p( t ) === q( a * t + b ).
+   * @public
+   *
+   * @param {Arc} arc1
+   * @param {Arc} arc2
+   * @returns {Array.<Overlap>} - Any overlaps (from 0 to 2)
+   */
+  Arc.getOverlaps = function( arc1, arc2 ) {
+    if ( arc1._center.distance( arc2._center ) > 1e-8 || Math.abs( arc1._radius - arc2._radius ) > 1e-8 ) {
+      return [];
+    }
+
+    return Arc.getAngularOverlaps( arc1._startAngle, arc1.getActualEndAngle(), arc2._startAngle, arc2.getActualEndAngle() );
+  };
+
+  /**
    * Add getters and setters
+   * TODO: Expand these out, like with Scenery
    */
   Segment.addInvalidatingGetterSetter( Arc, 'center' );
   Segment.addInvalidatingGetterSetter( Arc, 'radius' );

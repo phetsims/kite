@@ -433,7 +433,7 @@ define( function( require ) {
    *
    * @param {Line} line1
    * @param {Line} line2
-   * @returns {null|{a:number,b:number}} - The solution, if there is one (and only one)
+   * @returns {Array.<Overlap>} - The solution, if there is one (and only one)
    */
   Line.getOverlaps = function( line1, line2 ) {
     assert && assert( line1 instanceof Line, 'first Line is not an instance of Line' );

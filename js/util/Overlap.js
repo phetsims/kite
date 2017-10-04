@@ -99,6 +99,21 @@ define( function( require ) {
     applyInverse: function( t ) {
       return ( t - this.b ) / this.a;
     }
+  }, {
+    /**
+     * Returns a new overlap that should map t values of a0 => b0 and a1 => b1
+     * @public
+     *
+     * @param {number} a0
+     * @param {number} b0
+     * @param {number} a1
+     * @param {number} b1
+     * @returns {Overlap}
+     */
+    createLinear: function( a0, b0, a1, b1 ) {
+      var factor = ( b1 - b0 ) / ( a1 - a0 );
+      return new Overlap( factor, b0 - a0 * factor );
+    }
   } );
 
   return kite.Overlap;

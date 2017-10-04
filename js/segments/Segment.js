@@ -130,6 +130,30 @@ define( function( require ) {
     },
 
     /**
+     * Extracts a slice of a segment, based on the parametric value.
+     * @public
+     *
+     * Given that this segment is represented by the interval [0,1]
+     *
+     * @param {number} t0
+     * @param {number} t1
+     * @returns {Segment}
+     */
+    slice: function( t0, t1 ) {
+      assert && assert( t0 >= 0 && t0 <= 1 && t1 >= 0 && t1 <= 1, 'Parametric value out of range' );
+      assert && assert( t0 < t1 );
+
+      var segment = this; // eslint-disable-line consistent-this
+      if ( t1 < 1 ) {
+        segment = segment.subdivided( t1 )[ 0 ];
+      }
+      if ( t0 > 0 ) {
+        segment = segment.subdivided( DotUtil.linear( 0, t1, 0, 1, t0 ) )[ 1 ];
+      }
+      return segment;
+    },
+
+    /**
      *
      * @param {Array.<number>} tList - list of sorted t values from 0 <= t <= 1
      * @returns {Array}

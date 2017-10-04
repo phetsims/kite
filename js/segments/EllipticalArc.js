@@ -9,6 +9,7 @@
 define( function( require ) {
   'use strict';
 
+  var Arc = require( 'KITE/segments/Arc' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
@@ -210,7 +211,12 @@ define( function( require ) {
     },
 
     /**
-     * // TODO
+     * Computes a transform that maps a unit circle into this ellipse's location.
+     * @public
+     *
+     * Helpful, since we can get the parametric position of our unit circle (at t), and then transform it with this
+     * transform to get the ellipse's parametric position (at t).
+     *
      * @returns {Transform3}
      */
     getUnitTransform: function() {
@@ -223,6 +229,8 @@ define( function( require ) {
 
     /**
      * Gets the start point of this ellipticalArc
+     * @public
+     *
      * @returns {Vector2}
      */
     getStart: function() {
@@ -235,6 +243,8 @@ define( function( require ) {
 
     /**
      * Gets the end point of this ellipticalArc
+     * @public
+     *
      * @returns {Vector2}
      */
     getEnd: function() {
@@ -247,6 +257,8 @@ define( function( require ) {
 
     /**
      * Gets the tangent vector (normalized) to this ellipticalArc at the start, pointing in the direction of motion (from start to end)
+     * @public
+     *
      * @returns {Vector2}
      */
     getStartTangent: function() {
@@ -259,6 +271,8 @@ define( function( require ) {
 
     /**
      * Gets the tangent vector (normalized) to this ellipticalArc at the end point, pointing in the direction of motion (from start to end)
+     * @public
+     *
      * @returns {Vector2}
      */
     getEndTangent: function() {
@@ -271,39 +285,13 @@ define( function( require ) {
 
     /**
      * Gets the end angle in radians
+     * @public
+     *
      * @returns {number}
      */
     getActualEndAngle: function() {
       if ( this._actualEndAngle === null ) {
-        // compute an actual end angle so that we can smoothly go from this._startAngle to this._actualEndAngle
-        if ( this._anticlockwise ) {
-          // angle is 'decreasing'
-          // -2pi <= end - start < 2pi
-          if ( this._startAngle > this._endAngle ) {
-            this._actualEndAngle = this._endAngle;
-          }
-          else if ( this._startAngle < this._endAngle ) {
-            this._actualEndAngle = this._endAngle - 2 * Math.PI;
-          }
-          else {
-            // equal
-            this._actualEndAngle = this._startAngle;
-          }
-        }
-        else {
-          // angle is 'increasing'
-          // -2pi < end - start <= 2pi
-          if ( this._startAngle < this._endAngle ) {
-            this._actualEndAngle = this._endAngle;
-          }
-          else if ( this._startAngle > this._endAngle ) {
-            this._actualEndAngle = this._endAngle + Math.PI * 2;
-          }
-          else {
-            // equal
-            this._actualEndAngle = this._startAngle;
-          }
-        }
+        this._actualEndAngle = Arc.computeActualEndAngle( this._startAngle, this._endAngle, this._anticlockwise );
       }
       return this._actualEndAngle;
     },
@@ -311,6 +299,8 @@ define( function( require ) {
 
     /**
      * Returns a boolean value that indicates if the arc wraps up by more than two Pi
+     * @public
+     *
      * @returns {boolean}
      */
     getIsFullPerimeter: function() {
@@ -323,8 +313,11 @@ define( function( require ) {
 
     /**
      * Returns an angle difference that represents how "much" of the circle our arc covers
+     * @public
+     *
      * The answer is always greater or equal to zero
      * The answer can exceed two Pi
+     *
      * @returns {number}
      */
     getAngleDifference: function() {
@@ -341,7 +334,9 @@ define( function( require ) {
     get angleDifference() { return this.getAngleDifference(); },
 
     /**
-     * a unit arg segment that we can map to our ellipse. useful for hit testing and such.
+     * A unit arg segment that we can map to our ellipse. useful for hit testing and such.
+     * @public
+     *
      * @returns {Arc}
      */
     getUnitArcSegment: function() {
@@ -411,7 +406,12 @@ define( function( require ) {
         return [ this ];
       }
     },
+
     /**
+     * Attempts to expand the private _bounds bounding box to include a point at a specific angle, making sure that
+     * angle is actually included in the arc. This will presumably be called at angles that are at critical points,
+     * where the arc should have maximum/minimum x/y values.
+     * @private
      *
      * @param {number} angle
      */
@@ -423,7 +423,9 @@ define( function( require ) {
     },
 
     /**
-     * maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
+     * Maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
+     * @public
+     *
      * @param {number} angle
      * @returns {number}
      */
@@ -435,15 +437,20 @@ define( function( require ) {
     },
 
     /**
-     * Returns the parametrized value t for a given angle. The value t should range from 0 to 1 (inclusive)
+     * Returns the parametrized value t for a given angle. The value t should range from 0 to 1 (inclusive).
+     * @public
+     *
      * @param {number} angle
      * @returns {number}
      */
     tAtAngle: function( angle ) {
       return ( this.mapAngle( angle ) - this._startAngle ) / ( this.getActualEndAngle() - this._startAngle );
     },
+
     /**
-     * Returns the angle for the parametrized t value. The t value should range from 0 to 1 (inclusive)
+     * Returns the angle for the parametrized t value. The t value should range from 0 to 1 (inclusive).
+     * @public
+     *
      * @param {number} t
      * @returns {number}
      */
@@ -453,6 +460,8 @@ define( function( require ) {
 
     /**
      * Returns the position of this arc at angle.
+     * @public
+     *
      * @param {number} angle
      * @returns {Vector2}
      */
@@ -463,6 +472,8 @@ define( function( require ) {
     /**
      * Returns the normalized tangent of this arc.
      * The tangent points outward (inward) of this arc for clockwise (anticlockwise) direction.
+     * @public
+     *
      * @param {number} angle
      * @returns {Vector2}
      */
@@ -474,7 +485,9 @@ define( function( require ) {
 
     /**
      * Returns an array of straight lines that will draw an offset on the logical left (right) side for reverse false (true)
-     * It discretizes the elliptical arc in 32 segments and returns an offset curve as a list of lineTos
+     * It discretizes the elliptical arc in 32 segments and returns an offset curve as a list of lineTos/
+     * @public
+     *
      * @param {number} r - distance
      * @param {boolean} reverse
      * @returns {Array.<Line>}
@@ -503,7 +516,9 @@ define( function( require ) {
 
     /**
      * Returns a string containing the SVG path. assumes that the start point is already provided,
-     * so anything that calls this needs to put the M calls first
+     * so anything that calls this needs to put the M calls first.
+     * @public
+     *
      * @returns {string}
      */
     getSVGPathFragment: function() {
@@ -550,8 +565,11 @@ define( function( require ) {
       }
       return this._svgPathFragment;
     },
+
     /**
-     * Returns an array of straight lines  that will draw an offset on the logical left side
+     * Returns an array of straight lines  that will draw an offset on the logical left side.
+     * @public
+     *
      * @param {number} lineWidth
      * @returns {Array.<Line>}
      */
@@ -560,7 +578,9 @@ define( function( require ) {
     },
 
     /**
-     * Returns an array of straight lines that will draw an offset curve on the logical right side
+     * Returns an array of straight lines that will draw an offset curve on the logical right side.
+     * @public
+     *
      * @param {number} lineWidth
      * @returns {Array.<Line>}
      */
@@ -570,7 +590,9 @@ define( function( require ) {
 
     /**
      * Returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
-     * Does not include t=0 and t=1
+     * Does not include t=0 and t=1.
+     * @public
+     *
      * @returns {Array.<number>}
      */
     getInteriorExtremaTs: function() {
@@ -615,6 +637,8 @@ define( function( require ) {
 
     /**
      * Returns the resultant winding number of this ray intersecting this arc.
+     * @public
+     *
      * @param {Ray2} ray
      * @returns {number}
      */
@@ -626,6 +650,8 @@ define( function( require ) {
 
     /**
      * Draws this arc to the 2D Canvas context, assuming the context's current location is already at the start point
+     * @public
+     *
      * @param {CanvasRenderingContext2D} context
      */
     writeToContext: function( context ) {
@@ -642,7 +668,8 @@ define( function( require ) {
 
     /**
      * Returns this elliptical arc transformed by a matrix
-     * An immutable method
+     * @public
+     *
      * @param {Matrix3} matrix
      * @returns {EllipticalArc}
      */
@@ -705,6 +732,37 @@ define( function( require ) {
   } );
 
   /**
+   * Determine whether two Arcs overlap over continuous sections, and if so finds the a,b pairs such that
+   * p( t ) === q( a * t + b ).
+   * @public
+   *
+   * @param {EllipticalArc} arc1
+   * @param {EllipticalArc} arc2
+   * @returns {Array.<Overlap>} - Any overlaps (from 0 to 2)
+   */
+  EllipticalArc.getOverlaps = function( arc1, arc2 ) {
+    // Different centers can't overlap continuously
+    if ( arc1._center.distance( arc2._center ) > 1e-8 ) {
+      return [];
+    }
+
+    assert && assert( arc1._radiusX >= arc1._radiusY, 'Assume radiusX is the larger radius' );
+    assert && assert( arc2._radiusX >= arc2._radiusY, 'Assume radiusX is the larger radius' );
+
+    // Since radiusX >= radiusY, we don't need to check for reversals (x1=y2 and y1=x2).
+    if ( Math.abs( arc1._radiusX - arc2._radiusX ) > 1e-8 ||
+         Math.abs( arc1._radiusY - arc2._radiusY ) > 1e-8 ||
+         // Difference between rotations should be an approximate multiple of pi. We add pi/2 before modulo, so the
+         // result of that should be ~pi/2 (don't need to check both endpoints)
+         Math.abs( Util.moduloBetweenDown( arc1._rotation - arc2._rotation + Math.PI / 2, 0, Math.PI ) - Math.PI / 2 ) > 1e-10 ) {
+      return [];
+    }
+
+    return Arc.getAngularOverlaps( arc1._startAngle + arc1._rotation, arc1.getActualEndAngle() + arc1._rotation,
+                                   arc2._startAngle + arc2._rotation, arc2.getActualEndAngle() + arc2._rotation );
+  };
+
+  /**
    * Add getters and setters
    */
   Segment.addInvalidatingGetterSetter( EllipticalArc, 'center' );
@@ -715,9 +773,11 @@ define( function( require ) {
   Segment.addInvalidatingGetterSetter( EllipticalArc, 'endAngle' );
   Segment.addInvalidatingGetterSetter( EllipticalArc, 'anticlockwise' );
 
-  // adapted from http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
-  // transforms the unit circle onto our ellipse
   /**
+   * Transforms the unit circle into our ellipse.
+   * @public
+   *
+   * adapted from http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
    *
    * @param {Vector2} center
    * @param {number} radiusX

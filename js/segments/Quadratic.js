@@ -588,7 +588,7 @@ define( function( require ) {
    *
    * @param {Quadratic} quadratic1
    * @param {Quadratic} quadratic2
-   * @returns {null|{a:number,b:number}} - The solution, if there is one (and only one)
+   * @returns {Array.<Overlap>} - The solution, if there is one (and only one)
    */
   Quadratic.getOverlaps = function( quadratic1, quadratic2 ) {
     assert && assert( quadratic1 instanceof Quadratic, 'first Quadratic is not an instance of Quadratic' );

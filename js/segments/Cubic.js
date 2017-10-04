@@ -876,7 +876,7 @@ define( function( require ) {
    *
    * @param {Cubic} cubic1
    * @param {Cubic} cubic2
-   * @returns {null|{a:number,b:number}} - The solution, if there is one (and only one)
+   * @returns {Array.<Overlap>} - The solution, if there is one (and only one)
    */
   Cubic.getOverlaps = function( cubic1, cubic2 ) {
     assert && assert( cubic1 instanceof Cubic, 'first Cubic is not an instance of Cubic' );
