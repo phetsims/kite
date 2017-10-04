@@ -751,10 +751,19 @@ define( function( require ) {
                 var startMatches = edge.startVertex === aVertex || edge.startVertex === bVertex;
                 var endMatches = edge.endVertex === aVertex || edge.endVertex === bVertex;
 
-                // Outright remove edges that were between A and B.
+                // Outright remove edges that were between A and B that aren't loops
                 if ( startMatches && endMatches ) {
+                  if ( ( edge.segment.bounds.width > 1e-5 || edge.segment.bounds.height > 1e-5 ) &&
+                       ( edge.segment instanceof Cubic || edge.segment instanceof Arc || edge.segment instanceof EllipticalArc ) ) {
+                    // Replace it with a new edge that is from the vertex to itself
+                    var replacementEdge = Edge.createFromPool( edge.segment, newVertex, newVertex );
+                    this.addEdge( replacementEdge );
+                    this.replaceEdgeInLoops( edge, [ replacementEdge.forwardHalf ] );
+                  }
+                  else {
+                    this.replaceEdgeInLoops( edge, [] ); // remove the edge from loops with no replacement
+                  }
                   this.removeEdge( edge );
-                  this.replaceEdgeInLoops( edge, [] ); // remove the edge from loops with no replacement
                   edge.dispose();
                 }
                 else if ( startMatches ) {

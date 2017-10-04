@@ -39,8 +39,12 @@
         window.a = new kite.Shape();
         window.b = new kite.Shape();
 
-        a.circle( 20, 20, 10 );
-        b.circle( 25, 20, 10 );
+
+        // a.arc( 50, 50, 30, 0, Math.PI, false ).close();
+        // b.arc( 50, 50, 30, Math.PI * 0.5, Math.PI * 2, false ).close();
+        // b.rect( 50, 0, 20, 20 );
+        a.arc( 20, 20, 10, 0, Math.PI * 2, false ).close();
+        b.arc( 20, 20, 10, 0, Math.PI * 2, false ).close();
 
         window.graph = new kite.Graph();
         graph.addShape( 0, a );

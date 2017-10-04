@@ -294,4 +294,35 @@
     testUnion( a, b, 1, 'Double circle union' );
     testDifference( a, b, 1, 'Double circle difference' );
   } );
+
+  test( 'Half circle join', function() {
+    var a = new kite.Shape();
+    var b = new kite.Shape();
+
+    a.arc( 50, 50, 30, 0, Math.PI, false ).close();
+    b.arc( 50, 50, 30, Math.PI, Math.PI * 2, false ).close();
+
+    testUnion( a, b, 1, 'Half circle union' );
+  } );
+
+  test( 'Partial circle overlap', function() {
+    var a = new kite.Shape();
+    var b = new kite.Shape();
+
+    a.arc( 50, 50, 30, 0, Math.PI, false ).close();
+    b.arc( 50, 50, 30, Math.PI * 0.5, Math.PI * 2, false ).close();
+
+    testUnion( a, b, 1, 'Partial circle union' );
+  } );
+
+  test( 'Circle overlap', function() {
+    var a = new kite.Shape();
+    var b = new kite.Shape();
+
+    a.circle( 50, 50, 30 );
+    b.circle( 50, 50, 30 );
+
+    testUnion( a, b, 1, 'Circle overlap union' );
+  } );
+
 })();
