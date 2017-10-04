@@ -83,7 +83,15 @@ define( function( require ) {
 
       // Equivalent position: (1 - t)^3*start + 3*(1 - t)^2*t*control1 + 3*(1 - t) t^2*control2 + t^3*end
       var mt = 1 - t;
-      return this._start.times( mt * mt * mt ).plus( this._control1.times( 3 * mt * mt * t ) ).plus( this._control2.times( 3 * mt * t * t ) ).plus( this._end.times( t * t * t ) );
+      var mmm = mt * mt * mt;
+      var mmt = 3 * mt * mt * t;
+      var mtt = 3 * mt * t * t;
+      var ttt = t * t * t;
+
+      return new Vector2(
+        this._start.x * mmm + this._control1.x * mmt + this._control2.x * mtt + this._end.x * ttt,
+        this._start.y * mmm + this._control1.y * mmt + this._control2.y * mtt + this._end.y * ttt
+      );
     },
 
     /**
