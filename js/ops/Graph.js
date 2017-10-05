@@ -3,13 +3,20 @@
 /**
  * A multigraph whose edges are segments.
  *
+ * Supports general shape simplification, overlap/intersection removal and computation. General output would include
+ * Shapes (from CAG - Constructive Area Geometry) and triangulations.
+ *
+ * See Graph.binaryResult for the general procedure for CAG.
+ *
  * TODO: Use https://github.com/mauriciosantos/Buckets-JS for priority queue, implement simple sweep line
  *       with "enters" and "leaves" entries in the queue. When edge removed, remove "leave" from queue.
  *       and add any replacement edges. Applies to overlap and intersection handling.
  *       NOTE: This should impact performance a lot, as we are currently over-scanning and re-scanning a lot.
+ *       Intersection is currently (by far?) the performance bottleneck.
  * TODO: Collapse non-Line adjacent edges together. Similar logic to overlap for each segment time, hopefully can
  *       factor this out.
- * TODO: Consider separating out epsilon values
+ * TODO: Consider separating out epsilon values (may be a general Kite thing rather than just ops)
+ * TODO: Loop-Blinn output and constrained Delaunay triangulation
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
@@ -20,7 +27,6 @@ define( function( require ) {
   var Arc = require( 'KITE/segments/Arc' );
   var arrayRemove = require( 'PHET_CORE/arrayRemove' );
   var Boundary = require( 'KITE/ops/Boundary' );
-  var Bounds2 = require( 'DOT/Bounds2' );
   var cleanArray = require( 'PHET_CORE/cleanArray' );
   var Cubic = require( 'KITE/segments/Cubic' );
   var Edge = require( 'KITE/ops/Edge' );
@@ -1143,202 +1149,6 @@ define( function( require ) {
       }
 
       throw new Error( 'Could not find boundary' );
-    },
-
-    /**
-     * Debugging function used for checking and analyzing output.
-     * @public
-     *
-     * TODO: Can we move the debugging function elsewhere (like just in the playground?)
-     */
-    debug: function() {
-      var self = this;
-
-      var bounds = Bounds2.NOTHING.copy();
-      for ( var i = 0; i < this.edges.length; i++ ) {
-        bounds.includeBounds( this.edges[ i ].segment.getBounds() );
-      }
-
-      var debugSize = 256;
-      var pad = 20;
-      var scale = ( debugSize - pad * 2 ) / Math.max( bounds.width, bounds.height );
-
-      function transformContext( context ) {
-        context.translate( pad, debugSize - pad );
-        context.translate( -bounds.minX, -bounds.minY );
-        context.scale( scale, -scale );
-      }
-
-      function draw( callback ) {
-        var canvas = document.createElement( 'canvas' );
-        canvas.width = debugSize;
-        canvas.height = debugSize;
-        canvas.style.border = '1px solid black';
-        var context = canvas.getContext( '2d' );
-        transformContext( context );
-        callback( context );
-        document.body.appendChild( canvas );
-      }
-
-      function drawHalfEdges( context, halfEdges, color ) {
-        for ( var i = 0; i < halfEdges.length; i++ ) {
-          var segment = halfEdges[ i ].getDirectionalSegment();
-          context.beginPath();
-          context.moveTo( segment.start.x, segment.start.y );
-          segment.writeToContext( context );
-
-          var t = 0.8;
-          var t2 = 0.83;
-          var halfPosition = segment.positionAt( t );
-          var morePosition = segment.positionAt( t2 );
-          var ext = halfPosition.distance( morePosition ) * 2 / 3;
-          var halfTangent = segment.tangentAt( t ).normalized();
-          context.moveTo( halfPosition.x - halfTangent.y * ext, halfPosition.y + halfTangent.x * ext );
-          context.lineTo( halfPosition.x + halfTangent.y * ext, halfPosition.y - halfTangent.x * ext );
-          context.lineTo( morePosition.x, morePosition.y );
-          context.closePath();
-
-          context.strokeStyle = color;
-          context.lineWidth = 2 / scale;
-          context.stroke();
-        }
-      }
-
-      function drawVertices( context ) {
-        for ( var i = 0; i < self.vertices.length; i++ ) {
-          context.beginPath();
-          context.arc( self.vertices[ i ].point.x, self.vertices[ i ].point.y, 3 / scale, 0, Math.PI * 2, false );
-          context.closePath();
-          context.fillStyle = 'rgba(0,0,0,0.4)';
-          context.fill();
-        }
-      }
-
-      function drawEdges( context ) {
-        for ( var i = 0; i < self.edges.length; i++ ) {
-          var edge = self.edges[ i ];
-          context.beginPath();
-          context.moveTo( edge.segment.start.x, edge.segment.start.y );
-          edge.segment.writeToContext( context );
-          context.strokeStyle = 'rgba(0,0,0,0.4)';
-          context.lineWidth = 2 / scale;
-          context.stroke();
-        }
-      }
-
-      function followBoundary( context, boundary ) {
-        var startPoint = boundary.halfEdges[ 0 ].getDirectionalSegment().start;
-        context.moveTo( startPoint.x, startPoint.y );
-        for ( var i = 0; i < boundary.halfEdges.length; i++ ) {
-          var segment = boundary.halfEdges[ i ].getDirectionalSegment();
-          segment.writeToContext( context );
-        }
-        context.closePath();
-      }
-
-      function drawFace( context, face, color ) {
-        context.beginPath();
-        if ( face.boundary === null ) {
-          context.moveTo( 1000, 0 );
-          context.lineTo( 0, 1000 );
-          context.lineTo( -1000, 0 );
-          context.lineTo( 0, -1000 );
-          context.closePath();
-        }
-        else {
-          followBoundary( context, face.boundary );
-        }
-        face.holes.forEach( function( boundary ) {
-          followBoundary( context, boundary );
-        } );
-        context.fillStyle = color;
-        context.fill();
-      }
-
-      draw( function( context ) {
-        drawVertices( context );
-        drawEdges( context );
-      } );
-
-      for ( var j = 0; j < this.loops.length; j++ ) {
-        var loop = this.loops[ j ];
-        draw( function( context ) {
-          drawVertices( context );
-          drawHalfEdges( context, loop.halfEdges, 'rgba(0,0,0,0.4)' );
-        } );
-      }
-      for ( j = 0; j < this.innerBoundaries.length; j++ ) {
-        var innerBoundary = this.innerBoundaries[ j ];
-        draw( function( context ) {
-          drawVertices( context );
-          drawHalfEdges( context, innerBoundary.halfEdges, 'rgba(0,0,255,0.4)' );
-        } );
-      }
-      for ( j = 0; j < this.outerBoundaries.length; j++ ) {
-        var outerBoundary = this.outerBoundaries[ j ];
-        draw( function( context ) {
-          drawVertices( context );
-          drawHalfEdges( context, outerBoundary.halfEdges, 'rgba(255,0,0,0.4)' );
-        } );
-      }
-      for ( j = 0; j < this.faces.length; j++ ) {
-        draw( function( context ) {
-          drawVertices( context );
-          drawEdges( context );
-          drawFace( context, self.faces[ j ], 'rgba(0,255,0,0.4)' );
-        } );
-      }
-      for ( var k = 0; k < this.shapeIds.length; k++ ) {
-        draw( function( context ) {
-          var colorMap = {
-            '-3': 'rgba(255,0,0,0.8)',
-            '-2': 'rgba(255,0,0,0.4)',
-            '-1': 'rgba(127,0,0,0.4)',
-            '0': 'rgba(0,0,0,0.4)',
-            '1': 'rgba(0,0,127,0.4)',
-            '2': 'rgba(0,0,255,0.4)',
-            '3': 'rgba(0,0,255,0.8)'
-          };
-          drawVertices( context );
-          drawEdges( context );
-          for ( j = 0; j < self.faces.length; j++ ) {
-            if ( self.faces[ j ].windingMap ) {
-              drawFace( context, self.faces[ j ], colorMap[ self.faces[ j ].windingMap[ self.shapeIds[ k ] ] ] || 'green' );
-            }
-          }
-        } );
-      }
-      draw( function( context ) {
-        drawVertices( context );
-        drawEdges( context );
-        for ( j = 0; j < self.faces.length; j++ ) {
-          if ( self.faces[ j ].filled ) {
-            drawFace( context, self.faces[ j ], 'rgba(0,0,0,0.4)' );
-          }
-        }
-      } );
-      for ( k = 0; k < this.shapeIds.length; k++ ) {
-        draw( function( context ) {
-          drawVertices( context );
-          drawHalfEdges( context, self.edges.map( function( edge ) { return edge.forwardHalf; } ), 'rgba(0,0,0,0.4)' );
-          for ( j = 0; j < self.edges.length; j++ ) {
-            var edge = self.edges[ j ];
-            var center = edge.segment.start.average( edge.segment.end );
-            context.save();
-            context.translate( center.x, center.y );
-            context.scale( 1, -1 );
-            context.font = '2px serif';
-            context.textBasline = 'middle';
-            context.textAlign = 'center';
-            context.fillStyle = 'red';
-            context.fillText( '' + self.computeDifferential( edge, self.shapeIds[ k ] ), 0, 0 );
-            context.fillStyle = 'blue';
-            context.font = '1px serif';
-            context.fillText( edge.id, 0, 1 );
-            context.restore();
-          }
-        } );
-      }
     }
   } );
 
