@@ -14,6 +14,7 @@ define( function( require ) {
   'use strict';
 
   var Bounds2 = require( 'DOT/Bounds2' );
+  var BoundsIntersection = require( 'KITE/ops/BoundsIntersection' );
   var inherit = require( 'PHET_CORE/inherit' );
   var Matrix3 = require( 'DOT/Matrix3' );
   var Util = require( 'DOT/Util' );
@@ -788,7 +789,7 @@ define( function( require ) {
         for ( var j = i + 1; j < segments.length; j++ ) {
           var bSegment = segments[ j ];
 
-          var intersections = Segment.boundsBasedIntersect( aSegment, bSegment );
+          var intersections = BoundsIntersection.intersect( aSegment, bSegment );
           assert && assert( intersections.length < 2 );
 
           if ( intersections.length ) {

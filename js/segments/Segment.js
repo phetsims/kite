@@ -15,6 +15,7 @@ define( function( require ) {
   var kite = require( 'KITE/kite' );
 
   var Bounds2 = require( 'DOT/Bounds2' );
+  var BoundsIntersection = require( 'KITE/ops/BoundsIntersection' );
   var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
   var Events = require( 'AXON/Events' );
   var inherit = require( 'PHET_CORE/inherit' );
@@ -564,146 +565,8 @@ define( function( require ) {
       }
     }
     else {
-      return Segment.boundsBasedIntersect( a, b );
+      return BoundsIntersection.intersect( a, b );
     }
-  };
-
-  // e.g. no rotation/etc.
-  Segment.simpleSlicesIntersect = function( a, b, atMin, atMax, btMin, btMax ) {
-    var aStart = a.positionAt( atMin );
-    var aEnd = a.positionAt( atMax );
-    var bStart = b.positionAt( btMin );
-    var bEnd = b.positionAt( btMax );
-
-    // e.g. Bounds2.includeBounds
-    var minX = Math.max( Math.min( aStart.x, aEnd.x ), Math.min( bStart.x, bEnd.x ) );
-    var minY = Math.max( Math.min( aStart.y, aEnd.y ), Math.min( bStart.y, bEnd.y ) );
-    var maxX = Math.min( Math.max( aStart.x, aEnd.x ), Math.max( bStart.x, bEnd.x ) );
-    var maxY = Math.min( Math.max( aStart.y, aEnd.y ), Math.max( bStart.y, bEnd.y ) );
-    return ( maxX - minX ) >= 0 && ( maxY - minY >= 0 );
-  };
-
-  Segment.slicesIntersect = function( a, b, atMin, atMax, btMin, btMax ) {
-    return Segment.simpleSlicesIntersect( a, b, atMin, atMax, btMin, btMax );
-  };
-
-  /**
-   * TODO: doc
-   *
-   * NOTE: Assumes segments don't self-intersect
-   *
-   * @param {Segment} a
-   * @param {Segment} b
-   * @returns {Array.<{ ... }>} TODO doc
-   */
-  Segment.boundsBasedIntersect = function( a, b ) {
-    if ( !a.bounds.intersectsBounds( b.bounds ) ) {
-      return [];
-    }
-
-    var aExtrema = a.getInteriorExtremaTs();
-    var bExtrema = b.getInteriorExtremaTs();
-
-    var aInternals = _.zip( [ 0 ].concat( aExtrema ), aExtrema.concat( [ 1 ] ) );
-    var bInternals = _.zip( [ 0 ].concat( bExtrema ), bExtrema.concat( [ 1 ] ) );
-
-    var comparisons = [];
-    for ( var i = 0; i < aInternals.length; i++ ) {
-      for ( var j = 0; j < bInternals.length; j++ ) {
-        if ( Segment.slicesIntersect( a, b, aInternals[ i ][ 0 ], aInternals[ i ][ 1 ], bInternals[ j ][ 0 ], bInternals[ j ][ 1 ] ) ) {
-          comparisons.push( [ aInternals[ i ], bInternals[ j ] ] );
-        }
-      }
-    }
-
-    // TODO: Num iterations?
-    for ( i = 0; i < 50; i++ ) {
-      for ( j = comparisons.length - 1; j >= 0; j-- ) {
-        var comparison = comparisons[ j ]; // TODO: more efficient array ops
-
-        var atMin = comparison[ 0 ][ 0 ];
-        var atMax = comparison[ 0 ][ 1 ];
-        var btMin = comparison[ 1 ][ 0 ];
-        var btMax = comparison[ 1 ][ 1 ];
-        var atMid = ( atMax + atMin ) / 2;
-        var btMid = ( btMax + btMin ) / 2;
-        if ( atMid === atMin || atMid === atMax || btMid === btMin || btMid === btMax ) {
-          continue;
-        }
-        comparisons.splice( j, 1 );
-
-        if ( Segment.slicesIntersect( a, b, atMin, atMid, btMin, btMid ) ) {
-          comparisons.push( [ [ atMin, atMid ], [ btMin, btMid ] ] );
-        }
-        if ( Segment.slicesIntersect( a, b, atMid, atMax, btMin, btMid ) ) {
-          comparisons.push( [ [ atMid, atMax ], [ btMin, btMid ] ] );
-        }
-        if ( Segment.slicesIntersect( a, b, atMin, atMid, btMid, btMax ) ) {
-          comparisons.push( [ [ atMin, atMid ], [ btMid, btMax ] ] );
-        }
-        if ( Segment.slicesIntersect( a, b, atMid, atMax, btMid, btMax ) ) {
-          comparisons.push( [ [ atMid, atMax ], [ btMid, btMax ] ] );
-        }
-      }
-    }
-
-    // TODO: faster way to do this?
-    var groups = [];
-
-    function distSq( compA, compB, index ) {
-      var a = compA[ index ][ 0 ] - compB[ index ][ 0 ];
-      var b = compA[ index ][ 1 ] - compB[ index ][ 1 ];
-      return a * a + b * b;
-    }
-
-    for ( i = 0; i < comparisons.length; i++ ) {
-      comparison = comparisons[ i ];
-      var wasAdded = false;
-      nextComparison:
-      for ( j = 0; j < groups.length; j++ ) {
-        var group = groups[ j ];
-        for ( var k = 0; k < group.length; k++ ) {
-          var otherComparison = group[ k ];
-          var aDistance = distSq( comparison, otherComparison, 0 );
-          var bDistance = distSq( comparison, otherComparison, 1 );
-          if ( aDistance * aDistance + bDistance * bDistance < 1e-13 ) {
-            group.push( comparison );
-            wasAdded = true;
-            break nextComparison;
-          }
-        }
-      }
-      if ( !wasAdded ) {
-        groups.push( [ comparison ] );
-      }
-    }
-
-    var intersections = [];
-
-    for ( i = 0; i < groups.length; i++ ) {
-      group = groups[ i ];
-
-      var aT = 0;
-      var bT = 0;
-      for ( j = 0; j < group.length; j++ ) {
-        aT += group[ j ][ 0 ][ 0 ] + group[ j ][ 0 ][ 1 ];
-        bT += group[ j ][ 1 ][ 0 ] + group[ j ][ 1 ][ 1 ];
-      }
-      aT /= 2 * group.length;
-      bT /= 2 * group.length;
-
-      var positionA = a.positionAt( aT );
-      var positionB = b.positionAt( bT );
-      assert && assert( positionA.distance( positionB ) < 1e-10 );
-
-      intersections.push( {
-        point: positionA.average( positionB ),
-        aT: aT,
-        bT: bT
-      } );
-    }
-
-    return intersections;
   };
 
   return Segment;

@@ -15,6 +15,7 @@ define( [
 
   'KITE/Shape',
   'KITE/ops/Boundary',
+  'KITE/ops/BoundsIntersection',
   'KITE/ops/Edge',
   'KITE/ops/Face',
   'KITE/ops/Graph',

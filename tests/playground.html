@@ -32,19 +32,20 @@
       window.interTest = function() {
         window.a = new kite.Cubic( dot.v2( 0, 0 ), dot.v2( 10, 0 ), dot.v2( 10, 10 ), dot.v2( 20, 10 ) );
         window.b = new kite.Line( dot.v2( 0, -1 ), dot.v2( 20, 11 ) );
-        setTimeout(function(){window.intersections = kite.Segment.boundsBasedIntersect( a, b )});
+        setTimeout(function(){
+          window.intersections = kite.Segment.boundsBasedIntersect( a, b );
+          console.log( window.intersections );
+          window.intersections2 = kite.BoundsIntersection.intersect( a, b );
+          console.log( window.intersections2 );
+        });
       };
 
       window.initTest = function() {
         window.a = new kite.Shape();
         window.b = new kite.Shape();
 
-
-        // a.arc( 50, 50, 30, 0, Math.PI, false ).close();
-        // b.arc( 50, 50, 30, Math.PI * 0.5, Math.PI * 2, false ).close();
-        // b.rect( 50, 0, 20, 20 );
-        a.arc( 20, 20, 10, 0, Math.PI * 2, false ).close();
-        b.arc( 20, 20, 10, 0, Math.PI * 2, false ).close();
+        a.moveTo( 10, 0 ).cubicCurveTo( 30, 10, 0, 10, 20, 0 ).close();
+        b.rect( 0, 0, 5, 5 );
 
         window.graph = new kite.Graph();
         graph.addShape( 0, a );
