@@ -168,15 +168,48 @@ define( function( require ) {
      * @public
      */
     computeSimplifiedFaces: function() {
+      // Before we find any intersections (self-intersection or between edges), we'll want to identify and fix up
+      // any cases where there are an infinite number of intersections between edges (they are continuously
+      // overlapping). For any overlap, we'll split it into one "overlap" edge and any remaining edges. After this
+      // process, there should be no continuous overlaps.
       this.eliminateOverlap();
+
+      // Detects any edge self-intersection, and splits it into multiple edges. This currently happens with cubics only,
+      // but needs to be done before we intersect those cubics with any other edges.
       this.eliminateSelfIntersection();
+
+      // Find inter-edge intersections (that aren't at endpoints). Splits edges involved into the intersection. After
+      // this pass, we should have a well-defined graph where in the planar embedding edges don't intersect or overlap.
       this.eliminateIntersection();
+
+      // From the above process (and input), we may have multiple vertices that occupy essentially the same location.
+      // These vertices get combined into one vertex in the location. If there was a mostly-degenerate edge that was
+      // very small between edges, it will be removed.
       this.collapseVertices();
+
+      // Our graph can end up with edges that would have the same face on both sides (are considered a "bridge" edge).
+      // These need to be removed, so that our face handling logic doesn't have to handle another class of cases.
       this.removeBridges();
+
+      // Vertices can be left over where they have less than 2 incident edges, and they can be safely removed (since
+      // they won't contribute to the area output).
       this.removeLowOrderVertices();
+
+      // Now that the graph has well-defined vertices and edges (2-edge-connected, nonoverlapping), we'll want to know
+      // the order of edges around a vertex (if you rotate around a vertex, what edges are in what order?).
       this.orderVertexEdges();
+
+      // Extracts boundaries and faces, by following each half-edge counter-clockwise, and faces are created for
+      // boundaries that have positive signed area.
       this.extractFaces();
+
+      // We need to determine which boundaries are holes for each face. This creates a "boundary tree" where the nodes
+      // are boundaries. All connected components should be one face and its holes. The holes get stored on the
+      // respective face.
       this.computeBoundaryTree();
+
+      // Compute the winding numbers of each face for each shapeId, to determine whether the input would have that
+      // face "filled". It should then be ready for future processing.
       this.computeWindingMap();
     },
 
