@@ -773,7 +773,8 @@ define( function( require ) {
      * If it exists, returns the point where the cubic curve self-intersects.
      * @public
      *
-     * @returns {Intersection|null} TODO doc
+     * @returns {{point: {Vector2}, aT: {number}, bT: {number}}|null} - If non-null, the intersection point and
+     *          parametric parameters where positionAt( aT ) equals positionAt( bT )
      */
     getSelfIntersection: function() {
       // We split the cubic into monotone sections (which can't self-intersect), then check these for intersections

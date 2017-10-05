@@ -718,7 +718,17 @@ define( function( require ) {
     }
   };
 
-  // TODO: doc
+  /**
+   * Computes the potential overlap between [0,end1] and [start2,end2] (with t-values [0,1] and [tStart2,tEnd2]).
+   * @private
+   *
+   * @param {number} end1 - Relative end angle of the first segment
+   * @param {number} start2 - Relative start angle of the second segment
+   * @param {number} end2 - Relative end angle of the second segment
+   * @param {number} tStart2 - The parametric value of the second segment's start
+   * @param {number} tEnd2 - The parametric value of the second segment's end
+   * @returns {Array.<Overlap>}
+   */
   Arc.getPartialOverlap = function( end1, start2, end2, tStart2, tEnd2 ) {
     assert && assert( end1 > 0 && end1 <= TWO_PI + 1e-10 );
     assert && assert( start2 >= 0 && start2 < TWO_PI + 1e-10 );
