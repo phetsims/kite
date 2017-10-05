@@ -1423,5 +1423,29 @@ define( function( require ) {
     return shape;
   };
 
+  /**
+   * Returns a simplified Shape obtained from running it through the simplification steps with non-zero output.
+   * @public
+   *
+   * @param {Shape} shape
+   * @returns {Shape}
+   */
+  Graph.simplifyNonZero = function( shape ) {
+    var graph = new Graph();
+    graph.addShape( 0, shape );
+
+    graph.computeSimplifiedFaces();
+    graph.computeFaceInclusion( function( map ) {
+      return map[ '0' ] !== 0;
+    } );
+    var subgraph = graph.createFilledSubGraph();
+    var resultShape = subgraph.facesToShape();
+
+    graph.dispose();
+    subgraph.dispose();
+
+    return resultShape;
+  };
+
   return kite.Graph;
 } );

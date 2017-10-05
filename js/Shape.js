@@ -1299,6 +1299,21 @@ define( function( require ) {
     },
 
     /**
+     * Returns a simplified form of this shape.
+     * @public
+     *
+     * Runs it through the normal CAG process, which should combine areas where possible, handles self-intersection,
+     * etc.
+     *
+     * NOTE: Currently (2017-10-04) adjacent segments may get simplified only if they are lines. Not yet complete.
+     *
+     * @returns {Shape}
+     */
+    getSimplifiedAreaShape: function() {
+      return Graph.simplifyNonZero( this );
+    },
+
+    /**
      *
      * @param {Matrix3} matrix
      * @param {LineStyles} [lineStyles]
@@ -1370,6 +1385,19 @@ define( function( require ) {
           return segment.getSignedAreaFragment();
         } ) );
       } ) ) );
+    },
+
+    /**
+     * Returns the area inside of the shape.
+     * @public
+     *
+     * NOTE: This requires running it through a lot of computation to determine a non-overlapping non-self-intersecting
+     *       form first. If the Shape is "simple" enough, getNonoverlappingArea would be preferred.
+     *
+     * @returns {number}
+     */
+    getArea: function() {
+      return this.getSimplifiedAreaShape().getNonoverlappingArea();
     },
 
     /**

@@ -64,6 +64,29 @@
         // return kite.Cubic.getOverlaps( cubic.subdivided( 0.7 )[ 0 ], cubic.subdivided( 0.3 )[ 1 ] );
       };
 
+      window.perfTest = function() {
+        (function step(){
+          requestAnimationFrame( step );
+
+          var a = new kite.Shape();
+          var b = new kite.Shape();
+          var c = new kite.Shape();
+
+          a.moveTo( 0, 2 ).cubicCurveTo( 22, 2, -1, 10, 25, 10 ).lineTo( 25, 16.5 ).lineTo( 0, 16.5 ).close();
+          a.moveTo( 0, 10 ).lineTo( 10, 10 ).lineTo( 10, 25 ).lineTo( 0, 25 ).close();
+          a.moveTo( 13, 25 ).arc( 10, 25, 3, 0, Math.PI * 1.3, false ).close();
+
+          b.moveTo( 0, 0 ).lineTo( 30, 16.5 ).lineTo( 30, 0 ).close();
+          b.moveTo( 15, 2 ).lineTo( 25, 2 ).lineTo( 25, 7 ).quadraticCurveTo( 15, 7, 15, 2 ).close();
+
+          c.rect( 20, 0, 3, 20 );
+
+          var ab = a.shapeUnion( b );
+          var all = ab.shapeDifference( c );
+          window.area = all.getNonoverlappingArea();
+        })();
+      };
+
       window.initLineTest = function() {
         // intersection with one ray returns a different result than another. need to add indeterminate intersection handling
         window.shape = new kite.Shape( 'M -100 -100 L -50 50 L 50 50 L 30 0' );
