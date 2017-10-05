@@ -11,12 +11,12 @@ define( function( require ) {
 
   var Bounds2 = require( 'DOT/Bounds2' );
   var inherit = require( 'PHET_CORE/inherit' );
-  var Util = require( 'DOT/Util' );
-  var Vector2 = require( 'DOT/Vector2' );
-
   var kite = require( 'KITE/kite' );
   var Overlap = require( 'KITE/util/Overlap' );
   var Segment = require( 'KITE/segments/Segment' );
+  var SegmentIntersection = require( 'KITE/util/SegmentIntersection' );
+  var Util = require( 'DOT/Util' );
+  var Vector2 = require( 'DOT/Vector2' );
 
   var scratchVector2 = new Vector2();
 
@@ -493,6 +493,32 @@ define( function( require ) {
     }
 
     return [ new Overlap( a, b ) ];
+  };
+
+  /**
+   * Returns any intersection between the two line segments.
+   *
+   * @param {Segment} a
+   * @param {Segment} b
+   * @returns {Array.<SegmentIntersection>}
+   */
+  Line.intersect = function( a, b ) {
+    assert && assert( a instanceof Line );
+    assert && assert( b instanceof Line );
+
+    var lineSegmentIntersection = Util.lineSegmentIntersection(
+      a.start.x, a.start.y, a.end.x, a.end.y,
+      b.start.x, b.start.y, b.end.x, b.end.y
+    );
+
+    if ( lineSegmentIntersection !== null ) {
+      var aT = a.explicitClosestToPoint( lineSegmentIntersection )[ 0 ].t;
+      var bT = b.explicitClosestToPoint( lineSegmentIntersection )[ 0 ].t;
+      return [ new SegmentIntersection( lineSegmentIntersection, aT, bT ) ];
+    }
+    else {
+      return [];
+    }
   };
 
   return Line;

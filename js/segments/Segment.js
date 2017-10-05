@@ -542,27 +542,16 @@ define( function( require ) {
   };
 
   /**
-   * TODO: doc
+   * Returns all of the distinct (non-endpoint) intersections between the two segments.
+   * @public
    *
    * @param {Segment} a
    * @param {Segment} b
-   * @returns {Array.<{ ... }>} TODO doc
+   * @returns {Array.<SegmentIntersection>}
    */
   Segment.intersect = function( a, b ) {
     if ( kite.Line && a instanceof kite.Line && b instanceof kite.Line ) {
-      var lint = DotUtil.lineSegmentIntersection( a.start.x, a.start.y, a.end.x, a.end.y, b.start.x, b.start.y, b.end.x, b.end.y );
-      if ( lint !== null ) {
-        return [
-          {
-            point: lint,
-            aT: a.explicitClosestToPoint( lint )[ 0 ].t,
-            bT: b.explicitClosestToPoint( lint )[ 0 ].t
-          }
-        ];
-      }
-      else {
-        return [];
-      }
+      return kite.Line.intersect( a, b );
     }
     else {
       return BoundsIntersection.intersect( a, b );

@@ -16,15 +16,14 @@ define( function( require ) {
   var Bounds2 = require( 'DOT/Bounds2' );
   var BoundsIntersection = require( 'KITE/ops/BoundsIntersection' );
   var inherit = require( 'PHET_CORE/inherit' );
+  var kite = require( 'KITE/kite' );
   var Matrix3 = require( 'DOT/Matrix3' );
+  var Overlap = require( 'KITE/util/Overlap' );
+  var Quadratic = require( 'KITE/segments/Quadratic' );
+  var Segment = require( 'KITE/segments/Segment' );
+  var SegmentIntersection = require( 'KITE/util/SegmentIntersection' );
   var Util = require( 'DOT/Util' );
   var Vector2 = require( 'DOT/Vector2' );
-
-  var kite = require( 'KITE/kite' );
-  var Overlap = require( 'KITE/util/Overlap' );
-  var Segment = require( 'KITE/segments/Segment' );
-  require( 'KITE/segments/Quadratic' );
-
 
   var solveQuadraticRootsReal = Util.solveQuadraticRootsReal; // function that returns an array of number
   var solveCubicRootsReal = Util.solveCubicRootsReal; // function that returns an array of number
@@ -453,15 +452,15 @@ define( function( require ) {
         this._quadratics = [];
         var tCusp = this.getTCusp();
         if ( tCusp === 0 ) {
-          this._quadratics.push( new kite.Quadratic( this.start, this.control2, this.end, false ) );
+          this._quadratics.push( new Quadratic( this.start, this.control2, this.end, false ) );
         }
         else if ( tCusp === 1 ) {
-          this._quadratics.push( new kite.Quadratic( this.start, this.control1, this.end, false ) );
+          this._quadratics.push( new Quadratic( this.start, this.control1, this.end, false ) );
         }
         else {
           var subdividedAtCusp = this.subdivided( tCusp );
-          this._quadratics.push( new kite.Quadratic( subdividedAtCusp[ 0 ].start, subdividedAtCusp[ 0 ].control1, subdividedAtCusp[ 0 ].end, false ) );
-          this._quadratics.push( new kite.Quadratic( subdividedAtCusp[ 1 ].start, subdividedAtCusp[ 1 ].control2, subdividedAtCusp[ 1 ].end, false ) );
+          this._quadratics.push( new Quadratic( subdividedAtCusp[ 0 ].start, subdividedAtCusp[ 0 ].control1, subdividedAtCusp[ 0 ].end, false ) );
+          this._quadratics.push( new Quadratic( subdividedAtCusp[ 1 ].start, subdividedAtCusp[ 1 ].control2, subdividedAtCusp[ 1 ].end, false ) );
         }
       }
       else {
@@ -730,7 +729,7 @@ define( function( require ) {
       var controlB = scratchVector2.set( this._control2 ).multiplyScalar( 3 ).subtract( this._end ).divideScalar( 2 );
       var difference = scratchVector3.set( controlA ).subtract( controlB );
       if ( difference.magnitude() <= epsilon ) {
-        return new kite.Quadratic(
+        return new Quadratic(
           this._start,
           controlA.average( controlB ), // average the control points for stability. they should be almost identical
           this._end
@@ -773,8 +772,7 @@ define( function( require ) {
      * If it exists, returns the point where the cubic curve self-intersects.
      * @public
      *
-     * @returns {{point: {Vector2}, aT: {number}, bT: {number}}|null} - If non-null, the intersection point and
-     *          parametric parameters where positionAt( aT ) equals positionAt( bT )
+     * @returns {SegmentIntersection|null} - Null if there is no intersection
      */
     getSelfIntersection: function() {
       // We split the cubic into monotone sections (which can't self-intersect), then check these for intersections
@@ -798,12 +796,10 @@ define( function( require ) {
             // Exclude endpoints overlapping
             if ( intersection.aT > 1e-7 && intersection.aT < ( 1 - 1e-7 ) &&
                  intersection.bT > 1e-7 && intersection.bT < ( 1 - 1e-7 ) ) {
-              return {
-                point: intersection.point,
-                // Remap parametric values from the subdivided segments to the main segment
-                aT: fullExtremes[ i ] + intersection.aT * ( fullExtremes[ i + 1 ] - fullExtremes[ i ] ),
-                bT: fullExtremes[ j ] + intersection.bT * ( fullExtremes[ j + 1 ] - fullExtremes[ j ] )
-              };
+              // Remap parametric values from the subdivided segments to the main segment
+              var aT = fullExtremes[ i ] + intersection.aT * ( fullExtremes[ i + 1 ] - fullExtremes[ i ] );
+              var bT = fullExtremes[ j ] + intersection.bT * ( fullExtremes[ j + 1 ] - fullExtremes[ j ] );
+              return new SegmentIntersection( intersection.point, aT, bT );
             }
           }
 

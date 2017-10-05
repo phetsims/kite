@@ -30,6 +30,7 @@ define( [
   'KITE/segments/Segment',
   'KITE/util/LineStyles',
   'KITE/util/Overlap',
+  'KITE/util/SegmentIntersection',
   'KITE/util/Subpath',
 
   'KITE/parser/svgPath'

@@ -15,6 +15,7 @@ define( function( require ) {
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Poolable = require( 'PHET_CORE/Poolable' );
+  var SegmentIntersection = require( 'KITE/util/SegmentIntersection' );
   var Vector2 = require( 'DOT/Vector2' );
 
   /**
@@ -164,7 +165,7 @@ define( function( require ) {
      *
      * @param {number} a
      * @param {number} b
-     * @returns {Array.<{point: {Vector2}, aT: {number}, bT: {number}}>} - Point and parametric parameters
+     * @returns {Array.<SegmentIntersection>}
      */
     intersect: function( a, b ) {
       if ( !a.bounds.intersectsBounds( b.bounds ) ) {
@@ -218,11 +219,7 @@ define( function( require ) {
         var positionB = b.positionAt( bT );
         assert && assert( positionA.distance( positionB ) < 1e-10 );
 
-        results.push( {
-          point: positionA.average( positionB ),
-          aT: aT,
-          bT: bT
-        } );
+        results.push( new SegmentIntersection( positionA.average( positionB ), aT, bT ) );
       }
 
       // Clean up
