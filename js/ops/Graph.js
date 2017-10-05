@@ -3,7 +3,12 @@
 /**
  * A multigraph whose edges are segments.
  *
- * TODO: Performance checks
+ * TODO: Use https://github.com/mauriciosantos/Buckets-JS for priority queue, implement simple sweep line
+ *       with "enters" and "leaves" entries in the queue. When edge removed, remove "leave" from queue.
+ *       and add any replacement edges. Applies to overlap and intersection handling.
+ *       NOTE: This should impact performance a lot, as we are currently over-scanning and re-scanning a lot.
+ * TODO: Collapse non-Line adjacent edges together. Similar logic to overlap for each segment time, hopefully can
+ *       factor this out.
  * TODO: Consider separating out epsilon values
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
@@ -361,8 +366,6 @@ define( function( require ) {
      * This helps to combine things like collinear lines, where there's a vertex that can basically be removed.
      */
     collapseAdjacentEdges: function() {
-      //TODO: Do something like "overlap" analysis for other types?
-
       var needsLoop = true;
       while ( needsLoop ) {
         needsLoop = false;
@@ -586,7 +589,7 @@ define( function( require ) {
         var segment = edge.segment;
 
         if ( segment instanceof Cubic ) {
-          // TODO: This might not properly handle when it only one endpoint is
+          // TODO: This might not properly handle when it only one endpoint is on the curve
           var selfIntersection = segment.getSelfIntersection();
 
           if ( selfIntersection ) {
@@ -620,9 +623,6 @@ define( function( require ) {
      * @private
      */
     eliminateIntersection: function() {
-      // TODO: ideally initially scan to determine potential "intersection" pairs based on bounds overlap
-      // TODO: Then iterate (potentially adding pairs when intersections split things) until no pairs exist
-
       var needsLoop = true;
       while ( needsLoop ) {
         needsLoop = false;
