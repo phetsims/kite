@@ -15,6 +15,8 @@
  *       Intersection is currently (by far?) the performance bottleneck.
  * TODO: Collapse non-Line adjacent edges together. Similar logic to overlap for each segment time, hopefully can
  *       factor this out.
+ * TODO: Properly handle sorting edges around a vertex when two edges have the same tangent out. We'll need to use
+ *       curvature, or do tricks to follow both curves by an 'epsilon' and sort based on that.
  * TODO: Consider separating out epsilon values (may be a general Kite thing rather than just ops)
  * TODO: Loop-Blinn output and constrained Delaunay triangulation
  *
@@ -282,6 +284,9 @@ define( function( require ) {
         }
       }
 
+      // Run some more "simplified" processing on this graph to determine which faces are filled (after simplification).
+      // We don't need the intersection or other processing steps, since this was accomplished (presumably) already
+      // for the given graph.
       graph.collapseAdjacentEdges();
       graph.orderVertexEdges();
       graph.extractFaces();
@@ -431,6 +436,7 @@ define( function( require ) {
             }
 
             if ( aSegment instanceof Line && bSegment instanceof Line ) {
+              // See if the lines are collinear, so that we can combine them into one edge
               if ( aSegment.tangentAt( 0 ).normalized().distance( bSegment.tangentAt( 0 ).normalized() ) < 1e-6 ) {
                 this.removeEdge( aEdge );
                 this.removeEdge( bEdge );
@@ -532,6 +538,7 @@ define( function( require ) {
       if ( qt0 < 1e-5 ) { qt0 = 0; }
       if ( qt1 > 1 - 1e-5 ) { qt1 = 1; }
 
+      // Whether there will be remaining edges on each side.
       var aBefore = t0 > 0 ? aSegment.subdivided( t0 )[ 0 ] : null;
       var bBefore = qt0 > 0 ? bSegment.subdivided( qt0 )[ 0 ] : null;
       var aAfter = t1 < 1 ? aSegment.subdivided( t1 )[ 1 ] : null;
@@ -577,6 +584,7 @@ define( function( require ) {
       var bBeforeEdge;
       var bAfterEdge;
 
+      // Add "leftover" edges
       if ( aBefore ) {
         aBeforeEdge = Edge.createFromPool( aBefore, aEdge.startVertex, beforeVertex );
         this.addEdge( aBeforeEdge );
@@ -594,6 +602,7 @@ define( function( require ) {
         this.addEdge( bAfterEdge );
       }
 
+      // Collect "replacement" edges
       var aEdges = ( aBefore ? [ aBeforeEdge ] : [] ).concat( [ middleEdge ] ).concat( aAfter ? [ aAfterEdge ] : [] );
       var bEdges = ( bBefore ? [ bBeforeEdge ] : [] ).concat( [ middleEdge ] ).concat( bAfter ? [ bAfterEdge ] : [] );
 
@@ -609,6 +618,7 @@ define( function( require ) {
         bForwardHalfEdges.push( isForward ? bEdges[ i ].forwardHalf : bEdges[ i ].reversedHalf );
       }
 
+      // Replace edges in the loops
       this.replaceEdgeInLoops( aEdge, aForwardHalfEdges );
       this.replaceEdgeInLoops( bEdge, bForwardHalfEdges );
 
@@ -991,6 +1001,9 @@ define( function( require ) {
       // TODO: detect "indeterminate" for robustness (and try new angles?)
       var unboundedHoles = []; // {Array.<Boundary>}
 
+      // We'll want to compute a ray for each outer boundary that starts at an extreme point for that direction and
+      // continues outwards. The next boundary it intersects will be linked together in the tree.
+      // We have a mostly-arbitrary angle here that hopefully won't be used.
       var transform = new Transform3( Matrix3.rotation2( 1.5729657 ) );
 
       for ( var i = 0; i < this.outerBoundaries.length; i++ ) {
@@ -1038,7 +1051,7 @@ define( function( require ) {
     },
 
     /**
-     * Computes the winding map for each face, starting with 0 on the unbounded face.
+     * Computes the winding map for each face, starting with 0 on the unbounded face (for each shapeId).
      * @private
      */
     computeWindingMap: function() {
@@ -1051,6 +1064,9 @@ define( function( require ) {
       }
       this.unboundedFace.windingMap = outsideMap;
 
+      // We have "solved" the unbounded face, and then iteratively go over the edges looking for a case where we have
+      // solved one of the faces that is adjacent to that edge. We can then compute the difference between winding
+      // numbers between the two faces, and thus determine the (absolute) winding numbers for the unsolved face.
       while ( edges.length ) {
         for ( var j = edges.length - 1; j >= 0; j-- ) {
           var edge = edges[ j ];
