@@ -13,6 +13,8 @@ define( function( require ) {
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Overlap = require( 'KITE/util/Overlap' );
+  var Ray2 = require( 'DOT/Ray2' );
+  var RayIntersection = require( 'KITE/util/RayIntersection' );
   var Segment = require( 'KITE/segments/Segment' );
   var SegmentIntersection = require( 'KITE/util/SegmentIntersection' );
   var Util = require( 'DOT/Util' );
@@ -250,8 +252,10 @@ define( function( require ) {
 
     /**
      * In general, this method returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
-     * Since lines are already monotone, it returns an empty array
-     * @returns {Array}
+     * Since lines are already monotone, it returns an empty array.
+     * @public
+     *
+     * @returns {Array.<number>}
      */
     getInteriorExtremaTs: function() { return []; },
 
@@ -261,7 +265,7 @@ define( function( require ) {
      * @public
      *
      * @param {Ray2} ray
-     * @returns {Array.<Intersection>} - See Segment.js for details
+     * @returns {Array.<RayIntersection>}
      */
     intersection: function( ray ) {
       // We solve for the parametric line-line intersection, and then ensure the parameters are within both
@@ -303,18 +307,18 @@ define( function( require ) {
 
       // return the proper winding direction depending on what way our line intersection is "pointed"
       var perp = diff.perpendicular();
-      result.push( {
-        distance: s,
-        point: start.plus( diff.times( t ) ),
-        normal: perp.dot( ray.direction ) > 0 ? perp.negated() : perp,
-        wind: ray.direction.perpendicular().dot( diff ) < 0 ? 1 : -1,
-        segment: this
-      } );
+
+      var intersectionPoint = start.plus( diff.times( t ) );
+      var normal = ( perp.dot( ray.direction ) > 0 ? perp.negated() : perp ).normalized();
+      var wind = ray.direction.perpendicular().dot( diff ) < 0 ? 1 : -1;
+      result.push( new RayIntersection( s, intersectionPoint, normal, wind, t ) );
       return result;
     },
 
     /**
      * Returns the resultant winding number of a ray intersecting this line.
+     * @public
+     *
      * @param {Ray2} ray
      * @returns {number}
      */
@@ -519,6 +523,41 @@ define( function( require ) {
     else {
       return [];
     }
+  };
+
+  /**
+   * Returns any intersections between a line segment and another type of segment.
+   * @public
+   *
+   * This should be more optimized than the general intersection routine of arbitrary segments.
+   *
+   * @param {Segment} a
+   * @param {Segment} b
+   * @returns {Array.<SegmentIntersection>}
+   */
+  Line.intersectOther = function( line, other ) {
+    assert && assert( line instanceof Line );
+    assert && assert( other instanceof Segment );
+
+    // Set up a ray
+    var delta = line.start.minus( line.end );
+    var length = delta.magnitude();
+    var ray = new Ray2( line.start, delta.normalize() );
+
+    // Find the other segment's intersections with the ray
+    var rayIntersections = other.intersection( ray );
+
+    var results = [];
+    for ( var i = 0; i < rayIntersections.length; i++ ) {
+      var rayIntersection = rayIntersections[ i ];
+      var lineT = rayIntersection.distance / length;
+
+      // Exclude intersections that are outside of our line segment (or right on the boundary)
+      if ( lineT > 1e-8 && lineT < 1 - 1e-8 ) {
+        results.push( new SegmentIntersection( rayIntersection.point, lineT, rayIntersection.t ) );
+      }
+    }
+    return results;
   };
 
   return Line;

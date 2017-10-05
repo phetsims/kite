@@ -69,18 +69,7 @@ define( function( require ) {
    *   getInteriorExtremaTs     - returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on
    *                              these will result in monotonic segments
    *   intersection( ray )      - returns a list of intersections between the segment and the ray. Intersections will be
-   *                              of the given format:
-   *                              {
-   *                                distance: {number} - Distance from the ray's origin to the intersection
-   *                                point: {Vector2} - The location of the intersection
-   *                                normal: {Vector2} - The normal (unit vector perpendicular to the segment at the
-   *                                                    location) at the intersection, such that the dot product between
-   *                                                    the normal and ray direction is <= 0
-   *                                wind: {number} - The winding number for the intersection. Either 1 or -1, depending
-   *                                                 on the direction the segment goes relative to the ray (to the left
-   *                                                 or right). Used for computing Shape intersection via the non-zero
-   *                                                 fill rule.
-   *                              }
+   *                              of the {RayIntersection} type (see documentation there for details)
    *   getBounds() : {Bounds2} - Returns a {Bounds2} representing the bounding box for the segment.
    *   getSignedAreaFragment(): {number} - Returns signed area contribution for this segment using Green's Theorem
    *   getNondegenerateSegments() : {Array.<Segment>} - Returns a list of non-degenerate segments that are equivalent to
@@ -541,6 +530,10 @@ define( function( require ) {
 
   };
 
+  // function swapSegmentIntersection( segmentIntersection ) {
+  //   return segmentIntersection.getSwapped();
+  // }
+
   /**
    * Returns all of the distinct (non-endpoint) intersections between the two segments.
    * @public
@@ -553,6 +546,14 @@ define( function( require ) {
     if ( kite.Line && a instanceof kite.Line && b instanceof kite.Line ) {
       return kite.Line.intersect( a, b );
     }
+    // TODO: Why were there problems here? Investigate
+    // else if ( kite.Line && a instanceof kite.Line ) {
+    //   return kite.Line.intersectOther( a, b );
+    // }
+    // else if ( kite.Line && b instanceof kite.Line ) {
+    //   // need to swap our intersections, since 'b' is the line
+    //   return kite.Line.intersectOther( b, a ).map( swapSegmentIntersection );
+    // }
     else {
       return BoundsIntersection.intersect( a, b );
     }

@@ -12,12 +12,12 @@ define( function( require ) {
   var Bounds2 = require( 'DOT/Bounds2' );
   var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
   var inherit = require( 'PHET_CORE/inherit' );
+  var kite = require( 'KITE/kite' );
   var Overlap = require( 'KITE/util/Overlap' );
+  var RayIntersection = require( 'KITE/util/RayIntersection' );
+  var Segment = require( 'KITE/segments/Segment' );
   var Util = require( 'DOT/Util' );
   var Vector2 = require( 'DOT/Vector2' );
-
-  var kite = require( 'KITE/kite' );
-  var Segment = require( 'KITE/segments/Segment' );
 
   // TODO: See if we should use this more
   var TWO_PI = Math.PI * 2;
@@ -345,6 +345,12 @@ define( function( require ) {
      * @returns {number}
      */
     mapAngle: function( angle ) {
+      if ( Math.abs( DotUtil.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
+        return this._startAngle;
+      }
+      if ( Math.abs( DotUtil.moduloBetweenDown( angle - this.getActualEndAngle(), -Math.PI, Math.PI ) ) < 1e-8 ) {
+        return this.getActualEndAngle();
+      }
       // consider an assert that we contain that angle?
       return ( this._startAngle > this.getActualEndAngle() ) ?
              DotUtil.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
@@ -359,7 +365,11 @@ define( function( require ) {
      * @returns {number}
      */
     tAtAngle: function( angle ) {
-      return ( this.mapAngle( angle ) - this._startAngle ) / ( this.getActualEndAngle() - this._startAngle );
+      var t = ( this.mapAngle( angle ) - this._startAngle ) / ( this.getActualEndAngle() - this._startAngle );
+
+      assert && assert( t >= 0 && t <= 1, 'tAtAngle out of range: ' + t );
+
+      return t;
     },
 
     /**
@@ -518,7 +528,7 @@ define( function( require ) {
      * @public
      *
      * @param {Ray2} ray
-     * @returns {Array.<Intersection>} - See Segment.js for details
+     * @returns {Array.<RayIntersection>} - See Segment.js for details
      */
     intersection: function( ray ) {
       var result = []; // hits in order
@@ -549,38 +559,27 @@ define( function( require ) {
 
       var pointB = ray.pointAtDistance( tb );
       var normalB = pointB.minus( this._center ).normalized();
+      var normalBAngle = normalB.angle();
 
       if ( ta < epsilon ) {
         // we are inside the circle, so only one intersection is possible
-        if ( this.containsAngle( normalB.angle() ) ) {
-          result.push( {
-            distance: tb,
-            point: pointB,
-            normal: normalB.negated(), // normal is towards the ray
-            wind: this._anticlockwise ? -1 : 1 // since we are inside, wind this way
-          } );
+        if ( this.containsAngle( normalBAngle ) ) {
+          // normal is towards the ray, so we negate it. also winds opposite way
+          result.push( new RayIntersection( tb, pointB, normalB.negated(), this._anticlockwise ? -1 : 1, this.tAtAngle( normalBAngle ) ) );
         }
       }
       else {
         // two possible hits (outside circle)
         var pointA = ray.pointAtDistance( ta );
         var normalA = pointA.minus( this._center ).normalized();
+        var normalAAngle = normalA.angle();
 
-        if ( this.containsAngle( normalA.angle() ) ) {
-          result.push( {
-            distance: ta,
-            point: pointA,
-            normal: normalA,
-            wind: this._anticlockwise ? 1 : -1 // hit from outside
-          } );
+        if ( this.containsAngle( normalAAngle ) ) {
+          // hit from outside
+          result.push( new RayIntersection( ta, pointA, normalA, this._anticlockwise ? 1 : -1, this.tAtAngle( normalAAngle ) ) );
         }
-        if ( this.containsAngle( normalB.angle() ) ) {
-          result.push( {
-            distance: tb,
-            point: pointB,
-            normal: normalB.negated(),
-            wind: this._anticlockwise ? -1 : 1 // this is the far hit, which winds the opposite way
-          } );
+        if ( this.containsAngle( normalBAngle ) ) {
+          result.push( new RayIntersection( tb, pointB, normalB.negated(), this._anticlockwise ? -1 : 1, this.tAtAngle( normalBAngle ) ) );
         }
       }
 

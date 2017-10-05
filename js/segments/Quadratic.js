@@ -16,6 +16,7 @@ define( function( require ) {
   var kite = require( 'KITE/kite' );
   var Matrix3 = require( 'DOT/Matrix3' );
   var Overlap = require( 'KITE/util/Overlap' );
+  var RayIntersection = require( 'KITE/util/RayIntersection' );
   var Segment = require( 'KITE/segments/Segment' );
   var Util = require( 'DOT/Util' );
 
@@ -439,7 +440,7 @@ define( function( require ) {
      * @public
      *
      * @param {Ray2} ray
-     * @returns {Array.<Intersection>} - See Segment.js for details
+     * @returns {Array.<RayIntersection>}
      */
     intersection: function( ray ) {
       var self = this;
@@ -468,12 +469,9 @@ define( function( require ) {
 
           // make sure it's not behind the ray
           if ( toHit.dot( ray.direction ) > 0 ) {
-            result.push( {
-              distance: toHit.magnitude(),
-              point: hitPoint,
-              normal: perp.dot( ray.direction ) > 0 ? perp.negated() : perp,
-              wind: ray.direction.perpendicular().dot( unitTangent ) < 0 ? 1 : -1
-            } );
+            var normal = perp.dot( ray.direction ) > 0 ? perp.negated() : perp;
+            var wind = ray.direction.perpendicular().dot( unitTangent ) < 0 ? 1 : -1;
+            result.push( new RayIntersection( toHit.magnitude(), hitPoint, normal, wind, t ) );
           }
         }
       } );

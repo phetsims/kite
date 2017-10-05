@@ -14,6 +14,7 @@ define( function( require ) {
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Matrix3 = require( 'DOT/Matrix3' );
+  var RayIntersection = require( 'KITE/util/RayIntersection' );
   var Segment = require( 'KITE/segments/Segment' );
   var Transform3 = require( 'DOT/Transform3' );
   var Util = require( 'DOT/Util' );
@@ -426,10 +427,18 @@ define( function( require ) {
      * Maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
      * @public
      *
+     * TODO: remove duplication with Arc
+     *
      * @param {number} angle
      * @returns {number}
      */
     mapAngle: function( angle ) {
+      if ( Math.abs( Util.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
+        return this._startAngle;
+      }
+      if ( Math.abs( Util.moduloBetweenDown( angle - this.getActualEndAngle(), -Math.PI, Math.PI ) ) < 1e-8 ) {
+        return this.getActualEndAngle();
+      }
       // consider an assert that we contain that angle?
       return ( this._startAngle > this.getActualEndAngle() ) ?
              Util.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
@@ -439,6 +448,8 @@ define( function( require ) {
     /**
      * Returns the parametrized value t for a given angle. The value t should range from 0 to 1 (inclusive).
      * @public
+     *
+     * TODO: remove duplication with Arc
      *
      * @param {number} angle
      * @returns {number}
@@ -616,7 +627,7 @@ define( function( require ) {
      * @public
      *
      * @param {Ray2} ray
-     * @returns {Array.<Intersection>} - See Segment.js for details
+     * @returns {Array.<RayIntersection>}
      */
     intersection: function( ray ) {
       // be lazy. transform it into the space of a non-elliptical arc.
@@ -626,12 +637,9 @@ define( function( require ) {
 
       return _.map( hits, function( hit ) {
         var transformedPoint = unitTransform.transformPosition2( hit.point );
-        return {
-          distance: ray.position.distance( transformedPoint ),
-          point: transformedPoint,
-          normal: unitTransform.inverseNormal2( hit.normal ),
-          wind: hit.wind
-        };
+        var distance = ray.position.distance( transformedPoint );
+        var normal = unitTransform.inverseNormal2( hit.normal );
+        return new RayIntersection( distance, transformedPoint, normal, hit.wind, hit.t );
       } );
     },
 

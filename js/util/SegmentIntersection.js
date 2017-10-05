@@ -11,6 +11,8 @@ define( function( require ) {
 
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
+  var Util = require( 'DOT/Util' );
+  var Vector2 = require( 'DOT/Vector2' );
 
   /**
    * @public
@@ -21,12 +23,16 @@ define( function( require ) {
    * @param {number} bT - The parametric value for the second segment at the location of the intersection
    */
   function SegmentIntersection( point, aT, bT ) {
+    assert && assert( point instanceof Vector2, 'invalid point' );
+    assert && assert( typeof aT === 'number' && aT >= -1e-10 && aT <= 1 + 1e-10, 'aT out of range' );
+    assert && assert( typeof bT === 'number' && bT >= -1e-10 && bT <= 1 + 1e-10, 'bT out of range' );
+
     // @public {Vector2}
     this.point = point;
 
-    // @public {number}
-    this.aT = aT;
-    this.bT = bT;
+    // @public {number} - Clamped in case it's slightly out-of-range
+    this.aT = Util.clamp( aT, 0, 1 );
+    this.bT = Util.clamp( bT, 0, 1 );
   }
 
   kite.register( 'SegmentIntersection', SegmentIntersection );
