@@ -19,6 +19,7 @@ define( function( require ) {
   var RayIntersection = require( 'KITE/util/RayIntersection' );
   var Segment = require( 'KITE/segments/Segment' );
   var Util = require( 'DOT/Util' );
+  var Vector2 = require( 'DOT/Vector2' );
 
   // constants
   var solveQuadraticRootsReal = Util.solveQuadraticRootsReal;
@@ -554,6 +555,24 @@ define( function( require ) {
      */
     reversed: function() {
       return new kite.Quadratic( this._end, this._control, this._start );
+    },
+
+    /**
+     * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+     * @public
+     *
+     * @returns {Object}
+     */
+    serialize: function() {
+      return {
+        type: 'Quadratic',
+        startX: this._start.x,
+        startY: this._start.y,
+        controlX: this._control.x,
+        controlY: this._control.y,
+        endX: this._end.x,
+        endY: this._end.y
+      };
     }
   } );
 
@@ -563,6 +582,19 @@ define( function( require ) {
   Segment.addInvalidatingGetterSetter( Quadratic, 'start' );
   Segment.addInvalidatingGetterSetter( Quadratic, 'control' );
   Segment.addInvalidatingGetterSetter( Quadratic, 'end' );
+
+  /**
+   * Returns a Quadratic from the serialized representation.
+   * @public
+   *
+   * @param {Object} obj
+   * @returns {Quadratic}
+   */
+  Quadratic.deserialize = function( obj ) {
+    assert && assert( obj.type === 'Quadratic' );
+
+    return new Quadratic( new Vector2( obj.startX, obj.startY ), new Vector2( obj.controlX, obj.controlY ), new Vector2( obj.endX, obj.endY ) );
+  };
 
   // one-dimensional solution to extrema
   Quadratic.extremaT = function( start, control, end ) {

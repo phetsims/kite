@@ -559,5 +559,18 @@ define( function( require ) {
     }
   };
 
+  /**
+   * Returns a Segment from the serialized representation.
+   * @public
+   *
+   * @param {Object} obj
+   * @returns {Segment}
+   */
+  Segment.deserialize = function( obj ) {
+    assert && assert( obj.type && kite[ obj.type ] && kite[ obj.type ].deserialize );
+
+    return kite[ obj.type ].deserialize( obj );
+  };
+
   return Segment;
 } );

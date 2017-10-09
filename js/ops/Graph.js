@@ -1283,6 +1283,68 @@ define( function( require ) {
   };
 
   /**
+   * Returns the union of an array of shapes.
+   * @public
+   *
+   * @param {Array.<Shape>}
+   * @returns {Shape}
+   */
+  Graph.unionNonZero = function( shapes ) {
+    var graph = new Graph();
+    for ( var i = 0; i < shapes.length; i++ ) {
+      graph.addShape( i, shapes[ i ] );
+    }
+
+    graph.computeSimplifiedFaces();
+    graph.computeFaceInclusion( function( windingMap ) {
+      for ( var j = 0; j < shapes.length; j++ ) {
+        if ( windingMap[ j ] !== 0 ) {
+          return true;
+        }
+      }
+      return false;
+    } );
+    var subgraph = graph.createFilledSubGraph();
+    var shape = subgraph.facesToShape();
+
+    graph.dispose();
+    subgraph.dispose();
+
+    return shape;
+  };
+
+  /**
+   * Returns the intersection of an array of shapes.
+   * @public
+   *
+   * @param {Array.<Shape>}
+   * @returns {Shape}
+   */
+  Graph.intersectionNonZero = function( shapes ) {
+    var graph = new Graph();
+    for ( var i = 0; i < shapes.length; i++ ) {
+      graph.addShape( i, shapes[ i ] );
+    }
+
+    graph.computeSimplifiedFaces();
+    graph.computeFaceInclusion( function( windingMap ) {
+      for ( var j = 0; j < shapes.length; j++ ) {
+        if ( windingMap[ j ] === 0 ) {
+          return false;
+        }
+      }
+      return true;
+    } );
+    var subgraph = graph.createFilledSubGraph();
+    var shape = subgraph.facesToShape();
+
+    graph.dispose();
+    subgraph.dispose();
+
+    return shape;
+  };
+
+  /**
    * Returns a simplified Shape obtained from running it through the simplification steps with non-zero output.
    * @public
    *

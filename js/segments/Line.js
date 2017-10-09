@@ -421,8 +421,37 @@ define( function( require ) {
       else {
         return this.toPiecewiseLinearSegments( options );
       }
+    },
+
+    /**
+     * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+     * @public
+     *
+     * @returns {Object}
+     */
+    serialize: function() {
+      return {
+        type: 'Line',
+        startX: this._start.x,
+        startY: this._start.y,
+        endX: this._end.x,
+        endY: this._end.y
+      };
     }
   } );
+
+  /**
+   * Returns a Line from the serialized representation.
+   * @public
+   *
+   * @param {Object} obj
+   * @returns {Line}
+   */
+  Line.deserialize = function( obj ) {
+    assert && assert( obj.type === 'Line' );
+
+    return new Line( new Vector2( obj.startX, obj.startY ), new Vector2( obj.endX, obj.endY ) );
+  };
 
   /**
    * Add getters and setters

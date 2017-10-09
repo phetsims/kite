@@ -736,8 +736,41 @@ define( function( require ) {
      */
     reversed: function() {
       return new kite.EllipticalArc( this._center, this._radiusX, this._radiusY, this._rotation, this._endAngle, this._startAngle, !this._anticlockwise );
+    },
+
+    /**
+     * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+     * @public
+     *
+     * @returns {Object}
+     */
+    serialize: function() {
+      return {
+        type: 'EllipticalArc',
+        centerX: this._center.x,
+        centerY: this._center.y,
+        radiusX: this._radiusX,
+        radiusY: this._radiusY,
+        rotation: this._rotation,
+        startAngle: this._startAngle,
+        endAngle: this._endAngle,
+        anticlockwise: this._anticlockwise
+      };
     }
   } );
+
+  /**
+   * Returns an EllipticalArc from the serialized representation.
+   * @public
+   *
+   * @param {Object} obj
+   * @returns {EllipticalArc}
+   */
+  EllipticalArc.deserialize = function( obj ) {
+    assert && assert( obj.type === 'EllipticalArc' );
+
+    return new EllipticalArc( new Vector2( obj.centerX, obj.centerY ), obj.radiusX, obj.radiusY, obj.rotation, obj.startAngle, obj.endAngle, obj.anticlockwise );
+  };
 
   /**
    * Determine whether two Arcs overlap over continuous sections, and if so finds the a,b pairs such that

@@ -805,6 +805,26 @@ define( function( require ) {
       }
 
       return null;
+    },
+
+    /**
+     * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+     * @public
+     *
+     * @returns {Object}
+     */
+    serialize: function() {
+      return {
+        type: 'Cubic',
+        startX: this._start.x,
+        startY: this._start.y,
+        control1X: this._control1.x,
+        control1Y: this._control1.y,
+        control2X: this._control2.x,
+        control2Y: this._control2.y,
+        endX: this._end.x,
+        endY: this._end.y
+      };
     }
 
     // returns the resultant winding number of this ray intersecting this segment.
@@ -842,12 +862,25 @@ define( function( require ) {
 
   /**
    * Add getters and setters
+   * TODO: wrap these back into the type, like Scenery (somewhat verbose)
    */
   Segment.addInvalidatingGetterSetter( Cubic, 'start' );
   Segment.addInvalidatingGetterSetter( Cubic, 'control1' );
   Segment.addInvalidatingGetterSetter( Cubic, 'control2' );
   Segment.addInvalidatingGetterSetter( Cubic, 'end' );
 
+  /**
+   * Returns a Cubic from the serialized representation.
+   * @public
+   *
+   * @param {Object} obj
+   * @returns {Cubic}
+   */
+  Cubic.deserialize = function( obj ) {
+    assert && assert( obj.type === 'Cubic' );
+
+    return new Cubic( new Vector2( obj.startX, obj.startY ), new Vector2( obj.control1X, obj.control1Y ), new Vector2( obj.control2X, obj.control2Y ), new Vector2( obj.endX, obj.endY ) );
+  };
 
   /**
    * finds what t values the cubic extrema are at (if any). This is just the 1-dimensional case, used for multiple purposes

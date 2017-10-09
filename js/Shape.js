@@ -1642,8 +1642,36 @@ define( function( require ) {
      */
     shapeXor: function( shape ) {
       return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_XOR );
+    },
+
+    /**
+     * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+     * @public
+     *
+     * @returns {Object}
+     */
+    serialize: function() {
+      return {
+        type: 'Shape',
+        subpaths: this.subpaths.map( function( subpath ) {
+          return subpath.serialize();
+        } )
+      };
     }
   } );
+
+  /**
+   * Returns a Shape from the serialized representation.
+   * @public
+   *
+   * @param {Object} obj
+   * @returns {Shape}
+   */
+  Shape.deserialize = function( obj ) {
+    assert && assert( obj.type === 'Shape' );
+
+    return new Shape( obj.subpaths.map( Subpath.deserialize ) );
+  };
 
   /*---------------------------------------------------------------------------*
    * Shape shortcuts
@@ -1874,6 +1902,28 @@ define( function( require ) {
    */
   Shape.arc = function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) {
     return new Shape().arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise );
+  };
+
+  /**
+   * Returns the union of an array of shapes.
+   * @public
+   *
+   * @param {Array.<Shape>}
+   * @returns {Shape}
+   */
+  Shape.union = function( shapes ) {
+    return Graph.unionNonZero( shapes );
+  };
+
+  /**
+   * Returns the intersection of an array of shapes.
+   * @public
+   *
+   * @param {Array.<Shape>}
+   * @returns {Shape}
+   */
+  Shape.intersection = function( shapes ) {
+    return Graph.intersectionNonZero( shapes );
   };
 
   return Shape;

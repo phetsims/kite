@@ -671,8 +671,39 @@ define( function( require ) {
      */
     reversed: function() {
       return new kite.Arc( this._center, this._radius, this._endAngle, this._startAngle, !this._anticlockwise );
+    },
+
+    /**
+     * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+     * @public
+     *
+     * @returns {Object}
+     */
+    serialize: function() {
+      return {
+        type: 'Arc',
+        centerX: this._center.x,
+        centerY: this._center.y,
+        radius: this._radius,
+        startAngle: this._startAngle,
+        endAngle: this._endAngle,
+        anticlockwise: this._anticlockwise
+      };
     }
   } );
+
+  /**
+   * Returns an Arc from the serialized representation.
+   * @public
+   *
+   * @param {Object} obj
+   * @returns {Arc}
+   */
+  Arc.deserialize = function( obj ) {
+    assert && assert( obj.type === 'Arc' );
+
+    return new Arc( new Vector2( obj.centerX, obj.centerY ), obj.radius, obj.startAngle, obj.endAngle, obj.anticlockwise );
+  };
 
   /**
    * Determines the actual end angle (compared to the start angle).

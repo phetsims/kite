@@ -12,15 +12,15 @@
 define( function( require ) {
   'use strict';
 
+  var Arc = require( 'KITE/segments/Arc' );
   var Bounds2 = require( 'DOT/Bounds2' );
   var Events = require( 'AXON/Events' );
   var inherit = require( 'PHET_CORE/inherit' );
-
   var kite = require( 'KITE/kite' );
-
-  var Arc = require( 'KITE/segments/Arc' );
   var Line = require( 'KITE/segments/Line' );
   var LineStyles = require( 'KITE/util/LineStyles' );
+  var Segment = require( 'KITE/segments/Segment' );
+  var Vector2 = require( 'DOT/Vector2' );
 
   /**
    * all arguments optional (they are for the copy() method)
@@ -487,8 +487,45 @@ define( function( require ) {
       this._strokedStyles = new LineStyles( lineStyles ); // shallow copy, since we consider linestyles to be mutable
 
       return subpaths;
+    },
+
+    /**
+     * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+     * @public
+     *
+     * @returns {Object}
+     */
+    serialize: function() {
+      return {
+        type: 'Subpath',
+        segments: this.segments.map( function( segment ) {
+          return segment.serialize();
+        } ),
+        points: this.points.map( function( point ) {
+          return {
+            x: point.x,
+            y: point.y
+          };
+        } ),
+        closed: this.closed
+      };
     }
   } );
 
-  return kite.Subpath;
+  /**
+   * Returns a Subpath from the serialized representation.
+   * @public
+   *
+   * @param {Object} obj
+   * @returns {Subpath}
+   */
+  Subpath.deserialize = function( obj ) {
+    assert && assert( obj.type === 'Subpath' );
+
+    return new Subpath( obj.segments.map( Segment.deserialize ), obj.points.map( function( pt ) {
+      return new Vector2( pt.x, pt.y );
+    } ), obj.closed );
+  };
+
+  return Subpath;
 } );
