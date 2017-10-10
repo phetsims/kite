@@ -188,7 +188,7 @@
     equal( kite.Arc.getCircleIntersectionPoint( dot.v2( 0, 0 ), 10, dot.v2( 1, 0 ), 5 ).length, 0, 'inner offset' );
     equal( kite.Arc.getCircleIntersectionPoint( dot.v2( 0, 0 ), 10, dot.v2( 5, 0 ), 5 ).length, 1, 'inner touching' );
     function r() {
-      return Math.ceil( Math.random() * 40 - 20 );
+      return Math.ceil( Math.random() * 20 );
     }
     for ( var i = 0; i < 200; i++ ) {
       kite.Arc.getCircleIntersectionPoint( dot.v2( r(), r() ), r(), dot.v2( r(), r() ), r() );

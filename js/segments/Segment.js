@@ -553,6 +553,9 @@ define( function( require ) {
       // need to swap our intersections, since 'b' is the line
       return kite.Line.intersectOther( b, a ).map( swapSegmentIntersection );
     }
+    else if ( kite.Arc && a instanceof kite.Arc && b instanceof kite.Arc ) {
+      return kite.Arc.intersect( a, b );
+    }
     else {
       return BoundsIntersection.intersect( a, b );
     }

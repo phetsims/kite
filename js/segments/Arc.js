@@ -16,6 +16,7 @@ define( function( require ) {
   var Overlap = require( 'KITE/util/Overlap' );
   var RayIntersection = require( 'KITE/util/RayIntersection' );
   var Segment = require( 'KITE/segments/Segment' );
+  var SegmentIntersection = require( 'KITE/util/SegmentIntersection' );
   var Util = require( 'DOT/Util' );
   var Vector2 = require( 'DOT/Vector2' );
 
@@ -801,6 +802,11 @@ define( function( require ) {
    * @returns {Array.<Overlap>} - Any overlaps (from 0 to 2)
    */
   Arc.getAngularOverlaps = function( startAngle1, endAngle1, startAngle2, endAngle2 ) {
+    assert && assert( typeof startAngle1 === 'number' && isFinite( startAngle1 ) );
+    assert && assert( typeof endAngle1 === 'number' && isFinite( endAngle1 ) );
+    assert && assert( typeof startAngle2 === 'number' && isFinite( startAngle2 ) );
+    assert && assert( typeof endAngle2 === 'number' && isFinite( endAngle2 ) );
+
     // Remap start of arc 1 to 0, and the end to be positive (sign1 )
     var end1 = endAngle1 - startAngle1;
     var sign1 = end1 < 0 ? -1 : 1;
@@ -834,6 +840,9 @@ define( function( require ) {
    * @returns {Array.<Overlap>} - Any overlaps (from 0 to 2)
    */
   Arc.getOverlaps = function( arc1, arc2 ) {
+    assert && assert( arc1 instanceof Arc );
+    assert && assert( arc2 instanceof Arc );
+
     if ( arc1._center.distance( arc2._center ) > 1e-8 || Math.abs( arc1._radius - arc2._radius ) > 1e-8 ) {
       return [];
     }
@@ -851,10 +860,15 @@ define( function( require ) {
    * @param {number} radius2 - Radius of the second circle
    */
   Arc.getCircleIntersectionPoint = function( center1, radius1, center2, radius2 ) {
+    assert && assert( center1 instanceof Vector2 );
+    assert && assert( typeof radius1 === 'number' && isFinite( radius1 ) && radius1 >= 0 );
+    assert && assert( center2 instanceof Vector2 );
+    assert && assert( typeof radius2 === 'number' && isFinite( radius2 ) && radius2 >= 0 );
+
     var delta = center2.minus( center1 );
     var d = delta.magnitude();
     var results = [];
-    if ( d > radius1 + radius2 + 1e-10 ) {
+    if ( d < 1e-10 || d > radius1 + radius2 + 1e-10 ) {
       // No intersections
     }
     else if ( d > radius1 + radius2 - 1e-10 ) {
@@ -885,6 +899,33 @@ define( function( require ) {
         assert( Math.abs( result.distance( center2 ) - radius2 ) < 1e-8 );
       } );
     }
+    return results;
+  };
+
+  /**
+   * Returns any intersection between the two line segments.
+   *
+   * @param {Arc} a
+   * @param {Arc} b
+   * @returns {Array.<SegmentIntersection>}
+   */
+  Arc.intersect = function( a, b ) {
+    assert && assert( a instanceof Arc );
+    assert && assert( b instanceof Arc );
+
+    var points = Arc.getCircleIntersectionPoint( a._center, a._radius, b._center, b._radius );
+    var results = [];
+
+    for ( var i = 0; i < points.length; i++ ) {
+      var point = points[ i ];
+      var angleA = point.minus( a._center ).angle();
+      var angleB = point.minus( b._center ).angle();
+
+      if ( a.containsAngle( angleA ) && b.containsAngle( angleB ) ) {
+        results.push( new SegmentIntersection( point, a.tAtAngle( angleA ), b.tAtAngle( angleB ) ) );
+      }
+    }
+
     return results;
   };
 
