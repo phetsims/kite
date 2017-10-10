@@ -530,9 +530,9 @@ define( function( require ) {
 
   };
 
-  // function swapSegmentIntersection( segmentIntersection ) {
-  //   return segmentIntersection.getSwapped();
-  // }
+  function swapSegmentIntersection( segmentIntersection ) {
+    return segmentIntersection.getSwapped();
+  }
 
   /**
    * Returns all of the distinct (non-endpoint) intersections between the two segments.
@@ -546,14 +546,13 @@ define( function( require ) {
     if ( kite.Line && a instanceof kite.Line && b instanceof kite.Line ) {
       return kite.Line.intersect( a, b );
     }
-    // TODO: Why were there problems here? Investigate
-    // else if ( kite.Line && a instanceof kite.Line ) {
-    //   return kite.Line.intersectOther( a, b );
-    // }
-    // else if ( kite.Line && b instanceof kite.Line ) {
-    //   // need to swap our intersections, since 'b' is the line
-    //   return kite.Line.intersectOther( b, a ).map( swapSegmentIntersection );
-    // }
+    else if ( kite.Line && a instanceof kite.Line ) {
+      return kite.Line.intersectOther( a, b );
+    }
+    else if ( kite.Line && b instanceof kite.Line ) {
+      // need to swap our intersections, since 'b' is the line
+      return kite.Line.intersectOther( b, a ).map( swapSegmentIntersection );
+    }
     else {
       return BoundsIntersection.intersect( a, b );
     }

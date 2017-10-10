@@ -569,7 +569,7 @@ define( function( require ) {
     assert && assert( other instanceof Segment );
 
     // Set up a ray
-    var delta = line.start.minus( line.end );
+    var delta = line.end.minus( line.start );
     var length = delta.magnitude();
     var ray = new Ray2( line.start, delta.normalize() );
 
