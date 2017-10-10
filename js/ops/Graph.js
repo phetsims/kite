@@ -1345,6 +1345,40 @@ define( function( require ) {
   };
 
   /**
+   * Returns the xor of an array of shapes.
+   * @public
+   *
+   * TODO: reduce code duplication?
+   *
+   * @param {Array.<Shape>}
+   * @returns {Shape}
+   */
+  Graph.xorNonZero = function( shapes ) {
+    var graph = new Graph();
+    for ( var i = 0; i < shapes.length; i++ ) {
+      graph.addShape( i, shapes[ i ] );
+    }
+
+    graph.computeSimplifiedFaces();
+    graph.computeFaceInclusion( function( windingMap ) {
+      var included = false;
+      for ( var j = 0; j < shapes.length; j++ ) {
+        if ( windingMap[ j ] !== 0 ) {
+          included = !included;
+        }
+      }
+      return included;
+    } );
+    var subgraph = graph.createFilledSubGraph();
+    var shape = subgraph.facesToShape();
+
+    graph.dispose();
+    subgraph.dispose();
+
+    return shape;
+  };
+
+  /**
    * Returns a simplified Shape obtained from running it through the simplification steps with non-zero output.
    * @public
    *

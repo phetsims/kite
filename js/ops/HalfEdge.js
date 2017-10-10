@@ -129,6 +129,21 @@ define( function( require ) {
     },
 
     /**
+     * Returns the curvature of the edge at the end vertex.
+     * @public
+     *
+     * @returns {number}
+     */
+    getEndCurvature: function() {
+      if ( this.isReversed ) {
+        return -this.edge.segment.curvatureAt( 0 );
+      }
+      else {
+        return this.edge.segment.curvatureAt( 1 );
+      }
+    },
+
+    /**
      * Returns the opposite half-edge for the same edge.
      * @public
      *

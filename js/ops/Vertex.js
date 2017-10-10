@@ -36,7 +36,14 @@ define( function( require ) {
       return angleA < angleB ? -1 : 1;
     }
     else {
-      throw new Error( 'TODO: Need to implement curvature (2nd derivative) detection' );
+      var curvatureA = halfEdgeA.getEndCurvature();
+      var curvatureB = halfEdgeB.getEndCurvature();
+      if ( Math.abs( curvatureA - curvatureB ) > 1e-4 ) {
+        return curvatureA < curvatureB ? 1 : -1;
+      }
+      else {
+        throw new Error( 'TODO: Need to implement more advanced disambiguation ' );
+      }
     }
   }
 

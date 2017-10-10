@@ -325,4 +325,21 @@
     testUnion( a, b, 1, 'Circle overlap union' );
   } );
 
+  test( 'Circle adjacent', function() {
+    var a = new kite.Shape();
+    var b = new kite.Shape();
+
+    a.circle( 10, 10, 5 );
+    b.arc( 20, 10, 5, Math.PI, 3 * Math.PI, false ).close();
+
+    testUnion( a, b, 1, 'Circle adjacent union' );
+  } );
+
+  test( '4 adjacent circles', function() {
+    var a = new kite.Shape().circle( -5, 0, 5 ).circle( 5, 0, 5 );
+    var b = new kite.Shape().circle( 0, -5, 5 ).circle( 0, 5, 5 );
+
+    testUnion( a, b, 1, '4 adjacent circles union' );
+  } );
+
 })();

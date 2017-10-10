@@ -1926,5 +1926,16 @@ define( function( require ) {
     return Graph.intersectionNonZero( shapes );
   };
 
+  /**
+   * Returns the xor of an array of shapes.
+   * @public
+   *
+   * @param {Array.<Shape>}
+   * @returns {Shape}
+   */
+  Shape.xor = function( shapes ) {
+    return Graph.xorNonZero( shapes );
+  };
+
   return Shape;
 } );
