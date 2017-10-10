@@ -177,4 +177,22 @@
     ok( Shape.regularPolygon( 6, 10 ).subpaths[ 0 ].closed, 'regularPolygon should result in a closed subpath' );
   } );
 
+  test( 'Circle-circle intersection', function() {
+    // Accuracy assertions are contained in the intersection function
+
+    equal( kite.Arc.getCircleIntersectionPoint( dot.v2( 0, 0 ), 10, dot.v2( 20, 0 ), 10 ).length, 1, 'two 10-radii adjacent' );
+    equal( kite.Arc.getCircleIntersectionPoint( dot.v2( 0, 0 ), 10, dot.v2( 21, 0 ), 10 ).length, 0, 'two 10-radii separated' );
+    equal( kite.Arc.getCircleIntersectionPoint( dot.v2( 0, 0 ), 10, dot.v2( 30, 0 ), 20 ).length, 1, 'two 20-radii adjacent' );
+    equal( kite.Arc.getCircleIntersectionPoint( dot.v2( 0, 0 ), 10, dot.v2( 31, 0 ), 20 ).length, 0, 'two 20-radii separated' );
+    equal( kite.Arc.getCircleIntersectionPoint( dot.v2( 0, 0 ), 10, dot.v2( 0, 0 ), 8 ).length, 0, 'inner center' );
+    equal( kite.Arc.getCircleIntersectionPoint( dot.v2( 0, 0 ), 10, dot.v2( 1, 0 ), 5 ).length, 0, 'inner offset' );
+    equal( kite.Arc.getCircleIntersectionPoint( dot.v2( 0, 0 ), 10, dot.v2( 5, 0 ), 5 ).length, 1, 'inner touching' );
+    function r() {
+      return Math.ceil( Math.random() * 40 - 20 );
+    }
+    for ( var i = 0; i < 200; i++ ) {
+      kite.Arc.getCircleIntersectionPoint( dot.v2( r(), r() ), r(), dot.v2( r(), r() ), r() );
+    }
+  } );
+
 })();

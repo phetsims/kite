@@ -41,17 +41,15 @@
       };
 
       window.initTest = function() {
-        window.a = kite.Shape.deserialize( {"type":"Shape","subpaths":[{"type":"Subpath","segments":[{"type":"Line","startX":327.2132034355964,"startY":272.7867965644035,"endX":447.21320343559637,"endY":272.7867965644035},{"type":"Line","startX":447.21320343559637,"startY":272.7867965644035,"endX":404.7867965644035,"endY":315.2132034355964},{"type":"Line","startX":404.7867965644035,"startY":315.2132034355964,"endX":284.7867965644036,"endY":315.2132034355964}],"points":[{"x":327.2132034355964,"y":272.7867965644035},{"x":447.21320343559637,"y":272.7867965644035},{"x":404.7867965644035,"y":315.2132034355964},{"x":284.7867965644036,"y":315.2132034355964}],"closed":true},{"type":"Subpath","segments":[],"points":[{"x":327.2132034355964,"y":272.7867965644035}],"closed":false}]} );
-        window.b = kite.Shape.deserialize( {"type":"Shape","subpaths":[{"type":"Subpath","segments":[{"type":"Line","startX":284.7867965644036,"startY":315.2132034355964,"endX":404.7867965644035,"endY":315.2132034355964},{"type":"Line","startX":404.7867965644035,"startY":315.2132034355964,"endX":404.7867965644035,"endY":321.2132034355964},{"type":"Line","startX":404.7867965644035,"startY":321.2132034355964,"endX":284.7867965644036,"endY":321.2132034355964}],"points":[{"x":284.7867965644036,"y":315.2132034355964},{"x":404.7867965644035,"y":315.2132034355964},{"x":404.7867965644035,"y":321.2132034355964},{"x":284.7867965644036,"y":321.2132034355964}],"closed":true},{"type":"Subpath","segments":[],"points":[{"x":284.7867965644036,"y":315.2132034355964}],"closed":false}]} );
-        window.c = kite.Shape.deserialize( {"type":"Shape","subpaths":[{"type":"Subpath","segments":[{"type":"Line","startX":404.7867965644035,"startY":315.2132034355964,"endX":447.21320343559637,"endY":272.7867965644035},{"type":"Line","startX":447.21320343559637,"startY":272.7867965644035,"endX":447.21320343559637,"endY":278.7867965644035},{"type":"Line","startX":447.21320343559637,"startY":278.7867965644035,"endX":404.7867965644035,"endY":321.2132034355964}],"points":[{"x":404.7867965644035,"y":315.2132034355964},{"x":447.21320343559637,"y":272.7867965644035},{"x":447.21320343559637,"y":278.7867965644035},{"x":404.7867965644035,"y":321.2132034355964}],"closed":true},{"type":"Subpath","segments":[],"points":[{"x":404.7867965644035,"y":315.2132034355964}],"closed":false}]} );
+        window.a = new kite.Shape().circle( 10, 10, 5 );
+        window.b = new kite.Shape().arc( 20, 10, 5, Math.PI, 3 * Math.PI, false ).close();
 
         window.graph = new kite.Graph();
         graph.addShape( 0, a );
         graph.addShape( 1, b );
-        graph.addShape( 2, c );
         graph.computeSimplifiedFaces();
         graph.computeFaceInclusion( function( windingMap ) {
-          return ( windingMap[ '0' ] !== 0 || windingMap[ '1' ] !== 0 || windingMap[ '2' ] !== 0 ); // non-zero for first entry
+          return ( windingMap[ '0' ] !== 0 || windingMap[ '1' ] !== 0 ); // non-zero for first entry
         } );
         debugGraph( graph );
         window.subgraph = graph.createFilledSubGraph();

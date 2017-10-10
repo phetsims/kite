@@ -842,6 +842,53 @@ define( function( require ) {
   };
 
   /**
+   * Returns the points of intersections between two circles.
+   * @public
+   *
+   * @param {Vector2} center1 - Center of the first circle
+   * @param {number} radius1 - Radius of the first circle
+   * @param {Vector2} center2 - Center of the second circle
+   * @param {number} radius2 - Radius of the second circle
+   */
+  Arc.getCircleIntersectionPoint = function( center1, radius1, center2, radius2 ) {
+    var delta = center2.minus( center1 );
+    var d = delta.magnitude();
+    var results = [];
+    if ( d > radius1 + radius2 + 1e-10 ) {
+      // No intersections
+    }
+    else if ( d > radius1 + radius2 - 1e-10 ) {
+      results = [
+        center1.blend( center2, radius1 / d )
+      ];
+    }
+    else {
+      var xPrime = 0.5 * ( d * d  - radius2 * radius2 + radius1 * radius1 ) / d;
+      var bit = d * d - radius2 * radius2 + radius1 * radius1;
+      var discriminant = 4 * d * d * radius1 * radius1 - bit * bit;
+      var base = center1.blend( center2, xPrime / d );
+      if ( discriminant >= 1e-10 ) {
+        var yPrime = Math.sqrt( discriminant ) / d / 2;
+        var perpendicular = delta.perpendicular().setMagnitude( yPrime );
+        results = [
+          base.plus( perpendicular ),
+          base.minus( perpendicular )
+        ];
+      }
+      else if ( discriminant > -1e-10 ) {
+        results = [ base ];
+      }
+    }
+    if ( assert ) {
+      results.forEach( function( result ) {
+        assert( Math.abs( result.distance( center1 ) - radius1 ) < 1e-8 );
+        assert( Math.abs( result.distance( center2 ) - radius2 ) < 1e-8 );
+      } );
+    }
+    return results;
+  };
+
+  /**
    * Add getters and setters
    * TODO: Expand these out, like with Scenery
    */
