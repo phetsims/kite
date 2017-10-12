@@ -55,6 +55,214 @@ define( function( require ) {
   kite.register( 'EllipticalArc', EllipticalArc );
 
   inherit( Segment, EllipticalArc, {
+    /**
+     * Sets the center of the EllipticalArc.
+     * @public
+     *
+     * @param {Vector2} center
+     * @returns {EllipticalArc}
+     */
+    setCenter: function( center ) {
+      assert && assert( center instanceof Vector2, 'EllipticalArc center should be a Vector2: ' + center );
+      assert && assert( center.isFinite(), 'EllipticalArc center should be finite: ' + center.toString() );
+
+      if ( !this._center.equals( center ) ) {
+        this._center = center;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set center( value ) { this.setCenter( value ); },
+
+    /**
+     * Returns the center of this EllipticalArc.
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    getCenter: function() {
+      return this._center;
+    },
+    get center() { return this.getCenter(); },
+
+    /**
+     * Sets the semi-major radius of the EllipticalArc.
+     * @public
+     *
+     * @param {number} radiusX
+     * @returns {EllipticalArc}
+     */
+    setRadiusX: function( radiusX ) {
+      assert && assert( typeof radiusX === 'number', 'EllipticalArc radiusX should be a number: ' + radiusX );
+      assert && assert( isFinite( radiusX ), 'EllipticalArc radiusX should be a finite number: ' + radiusX );
+
+      if ( this._radiusX !== radiusX ) {
+        this._radiusX = radiusX;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set radiusX( value ) { this.setRadiusX( value ); },
+
+    /**
+     * Returns the semi-major radius of this EllipticalArc.
+     * @public
+     *
+     * @returns {number}
+     */
+    getRadiusX: function() {
+      return this._radiusX;
+    },
+    get radiusX() { return this.getRadiusX(); },
+
+    /**
+     * Sets the semi-minor radius of the EllipticalArc.
+     * @public
+     *
+     * @param {number} radiusY
+     * @returns {EllipticalArc}
+     */
+    setRadiusY: function( radiusY ) {
+      assert && assert( typeof radiusY === 'number', 'EllipticalArc radiusY should be a number: ' + radiusY );
+      assert && assert( isFinite( radiusY ), 'EllipticalArc radiusY should be a finite number: ' + radiusY );
+
+      if ( this._radiusY !== radiusY ) {
+        this._radiusY = radiusY;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set radiusY( value ) { this.setRadiusY( value ); },
+
+    /**
+     * Returns the semi-minor radius of this EllipticalArc.
+     * @public
+     *
+     * @returns {number}
+     */
+    getRadiusY: function() {
+      return this._radiusY;
+    },
+    get radiusY() { return this.getRadiusY(); },
+
+    /**
+     * Sets the rotation of the EllipticalArc.
+     * @public
+     *
+     * @param {number} rotation
+     * @returns {EllipticalArc}
+     */
+    setRotation: function( rotation ) {
+      assert && assert( typeof rotation === 'number', 'EllipticalArc rotation should be a number: ' + rotation );
+      assert && assert( isFinite( rotation ), 'EllipticalArc rotation should be a finite number: ' + rotation );
+
+      if ( this._rotation !== rotation ) {
+        this._rotation = rotation;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set rotation( value ) { this.setRotation( value ); },
+
+    /**
+     * Returns the rotation of this EllipticalArc.
+     * @public
+     *
+     * @returns {number}
+     */
+    getRotation: function() {
+      return this._rotation;
+    },
+    get rotation() { return this.getRotation(); },
+
+    /**
+     * Sets the startAngle of the EllipticalArc.
+     * @public
+     *
+     * @param {number} startAngle
+     * @returns {EllipticalArc}
+     */
+    setStartAngle: function( startAngle ) {
+      assert && assert( typeof startAngle === 'number', 'EllipticalArc startAngle should be a number: ' + startAngle );
+      assert && assert( isFinite( startAngle ), 'EllipticalArc startAngle should be a finite number: ' + startAngle );
+
+      if ( this._startAngle !== startAngle ) {
+        this._startAngle = startAngle;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set startAngle( value ) { this.setStartAngle( value ); },
+
+    /**
+     * Returns the startAngle of this EllipticalArc.
+     * @public
+     *
+     * @returns {number}
+     */
+    getStartAngle: function() {
+      return this._startAngle;
+    },
+    get startAngle() { return this.getStartAngle(); },
+
+    /**
+     * Sets the endAngle of the EllipticalArc.
+     * @public
+     *
+     * @param {number} endAngle
+     * @returns {EllipticalArc}
+     */
+    setEndAngle: function( endAngle ) {
+      assert && assert( typeof endAngle === 'number', 'EllipticalArc endAngle should be a number: ' + endAngle );
+      assert && assert( isFinite( endAngle ), 'EllipticalArc endAngle should be a finite number: ' + endAngle );
+
+      if ( this._endAngle !== endAngle ) {
+        this._endAngle = endAngle;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set endAngle( value ) { this.setEndAngle( value ); },
+
+    /**
+     * Returns the endAngle of this EllipticalArc.
+     * @public
+     *
+     * @returns {number}
+     */
+    getEndAngle: function() {
+      return this._endAngle;
+    },
+    get endAngle() { return this.getEndAngle(); },
+
+    /**
+     * Sets the anticlockwise of the EllipticalArc.
+     * @public
+     *
+     * @param {boolean} anticlockwise
+     * @returns {EllipticalArc}
+     */
+    setAnticlockwise: function( anticlockwise ) {
+      assert && assert( typeof anticlockwise === 'boolean', 'EllipticalArc anticlockwise should be a boolean: ' + anticlockwise );
+
+      if ( this._anticlockwise !== anticlockwise ) {
+        this._anticlockwise = anticlockwise;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set anticlockwise( value ) { this.setAnticlockwise( value ); },
+
+    /**
+     * Returns the anticlockwise of this EllipticalArc.
+     * @public
+     *
+     * @returns {boolean}
+     */
+    getAnticlockwise: function() {
+      return this._anticlockwise;
+    },
+    get anticlockwise() { return this.getAnticlockwise(); },
 
     /**
      * Returns the position parametrically, with 0 <= t <= 1.
@@ -155,6 +363,21 @@ define( function( require ) {
      * @public
      */
     invalidate: function() {
+
+      assert && assert( this._center instanceof Vector2, 'Arc center should be a Vector2' );
+      assert && assert( this._center.isFinite(), 'Arc center should be finite (not NaN or infinite)' );
+      assert && assert( typeof this._radiusX === 'number', 'Arc radiusX should be a number: ' + this._radiusX );
+      assert && assert( isFinite( this._radiusX ), 'Arc radiusX should be a finite number: ' + this._radiusX );
+      assert && assert( typeof this._radiusY === 'number', 'Arc radiusY should be a number: ' + this._radiusY );
+      assert && assert( isFinite( this._radiusY ), 'Arc radiusY should be a finite number: ' + this._radiusY );
+      assert && assert( typeof this._rotation === 'number', 'Arc rotation should be a number: ' + this._rotation );
+      assert && assert( isFinite( this._rotation ), 'Arc rotation should be a finite number: ' + this._rotation );
+      assert && assert( typeof this._startAngle === 'number', 'Arc startAngle should be a number: ' + this._startAngle );
+      assert && assert( isFinite( this._startAngle ), 'Arc startAngle should be a finite number: ' + this._startAngle );
+      assert && assert( typeof this._endAngle === 'number', 'Arc endAngle should be a number: ' + this._endAngle );
+      assert && assert( isFinite( this._endAngle ), 'Arc endAngle should be a finite number: ' + this._endAngle );
+      assert && assert( typeof this._anticlockwise === 'boolean', 'Arc anticlockwise should be a boolean: ' + this._anticlockwise );
+
       // Lazily-computed derived information
       this._unitTransform = null; // {Transform3|null} - Mapping between our ellipse and a unit circle
       this._start = null; // {Vector2|null}
@@ -802,17 +1025,6 @@ define( function( require ) {
     return Arc.getAngularOverlaps( arc1._startAngle + arc1._rotation, arc1.getActualEndAngle() + arc1._rotation,
                                    arc2._startAngle + arc2._rotation, arc2.getActualEndAngle() + arc2._rotation );
   };
-
-  /**
-   * Add getters and setters
-   */
-  Segment.addInvalidatingGetterSetter( EllipticalArc, 'center' );
-  Segment.addInvalidatingGetterSetter( EllipticalArc, 'radiusX' );
-  Segment.addInvalidatingGetterSetter( EllipticalArc, 'radiusY' );
-  Segment.addInvalidatingGetterSetter( EllipticalArc, 'rotation' );
-  Segment.addInvalidatingGetterSetter( EllipticalArc, 'startAngle' );
-  Segment.addInvalidatingGetterSetter( EllipticalArc, 'endAngle' );
-  Segment.addInvalidatingGetterSetter( EllipticalArc, 'anticlockwise' );
 
   /**
    * Transforms the unit circle into our ellipse.

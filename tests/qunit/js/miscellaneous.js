@@ -97,8 +97,8 @@
   } );
 
   test( 'Cubic overlap', function() {
-    var cubic = new kite.Cubic( dot.v2( 0, 0 ), dot.v2( 0, 3 ), dot.v2( 10, 7 ), dot.v3( 10, 9 ) );
-    var otherCubic = new kite.Cubic( dot.v2( 10, 0 ), dot.v2( 0, 3 ), dot.v2( 10, 7 ), dot.v3( 10, 9 ) );
+    var cubic = new kite.Cubic( dot.v2( 0, 0 ), dot.v2( 0, 3 ), dot.v2( 10, 7 ), dot.v2( 10, 9 ) );
+    var otherCubic = new kite.Cubic( dot.v2( 10, 0 ), dot.v2( 0, 3 ), dot.v2( 10, 7 ), dot.v2( 10, 9 ) );
 
     var selfTest = kite.Cubic.getOverlaps( cubic, cubic )[ 0 ];
     equal( selfTest.a, 1, 'selfTest.a' );
@@ -121,8 +121,8 @@
   } );
 
   test( 'Quadratic overlap', function() {
-    var quadratic = new kite.Quadratic( dot.v2( 0, 0 ), dot.v2( 0, 3 ), dot.v3( 10, 9 ) );
-    var otherQuadratic = new kite.Quadratic( dot.v2( 10, 0 ), dot.v2( 0, 3 ), dot.v3( 10, 9 ) );
+    var quadratic = new kite.Quadratic( dot.v2( 0, 0 ), dot.v2( 0, 3 ), dot.v2( 10, 9 ) );
+    var otherQuadratic = new kite.Quadratic( dot.v2( 10, 0 ), dot.v2( 0, 3 ), dot.v2( 10, 9 ) );
 
     var selfTest = kite.Quadratic.getOverlaps( quadratic, quadratic )[ 0 ];
     equal( selfTest.a, 1, 'selfTest.a' );
@@ -145,8 +145,8 @@
   } );
 
   test( 'Linear overlap', function() {
-    var line = new kite.Line( dot.v2( 0, 0 ), dot.v3( 10, 9 ) );
-    var otherLine = new kite.Line( dot.v2( 10, 0 ), dot.v3( 10, 9 ) );
+    var line = new kite.Line( dot.v2( 0, 0 ), dot.v2( 10, 9 ) );
+    var otherLine = new kite.Line( dot.v2( 10, 0 ), dot.v2( 10, 9 ) );
 
     var selfTest = kite.Line.getOverlaps( line, line )[ 0 ];
     equal( selfTest.a, 1, 'selfTest.a' );

@@ -42,6 +42,66 @@ define( function( require ) {
   inherit( Segment, Line, {
 
     /**
+     * Sets the start point of the Line.
+     * @public
+     *
+     * @param {Vector2} start
+     * @returns {Line}
+     */
+    setStart: function( start ) {
+      assert && assert( start instanceof Vector2, 'Line start should be a Vector2: ' + start );
+      assert && assert( start.isFinite(), 'Line start should be finite: ' + start.toString() );
+
+      if ( !this._start.equals( start ) ) {
+        this._start = start;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set start( value ) { this.setStart( value ); },
+
+    /**
+     * Returns the start of this Line.
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    getStart: function() {
+      return this._start;
+    },
+    get start() { return this.getStart(); },
+
+    /**
+     * Sets the end point of the Line.
+     * @public
+     *
+     * @param {Vector2} end
+     * @returns {Line}
+     */
+    setEnd: function( end ) {
+      assert && assert( end instanceof Vector2, 'Line end should be a Vector2: ' + end );
+      assert && assert( end.isFinite(), 'Line end should be finite: ' + end.toString() );
+
+      if ( !this._end.equals( end ) ) {
+        this._end = end;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set end( value ) { this.setEnd( value ); },
+
+    /**
+     * Returns the end of this Line.
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    getEnd: function() {
+      return this._end;
+    },
+    get end() { return this.getEnd(); },
+
+    /**
      * Returns the position parametrically, with 0 <= t <= 1.
      * @public
      *
@@ -133,6 +193,11 @@ define( function( require ) {
      * @public
      */
     invalidate: function() {
+      assert && assert( this._start instanceof Vector2, 'Line start should be a Vector2: ' + this._start );
+      assert && assert( this._start.isFinite(), 'Line start should be finite: ' + this._start.toString() );
+      assert && assert( this._end instanceof Vector2, 'Line end should be a Vector2: ' + this._end );
+      assert && assert( this._end.isFinite(), 'Line end should be finite: ' + this._end.toString() );
+
       // Lazily-computed derived information
       this._tangent = null; // {Vector2|null}
       this._bounds = null; // {Bounds2|null}
@@ -452,12 +517,6 @@ define( function( require ) {
 
     return new Line( new Vector2( obj.startX, obj.startY ), new Vector2( obj.endX, obj.endY ) );
   };
-
-  /**
-   * Add getters and setters
-   */
-  Segment.addInvalidatingGetterSetter( Line, 'start' );
-  Segment.addInvalidatingGetterSetter( Line, 'end' );
 
   /**
    * Determine whether two lines overlap over a continuous section, and if so finds the a,b pair such that

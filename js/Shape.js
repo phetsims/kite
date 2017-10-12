@@ -472,6 +472,9 @@ define( function( require ) {
      **/
     arcPoint: function( center, radius, startAngle, endAngle, anticlockwise ) {
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
+      if ( anticlockwise === undefined ) {
+        anticlockwise = false;
+      }
 
       var arc = new Arc( center, radius, startAngle, endAngle, anticlockwise );
 
@@ -529,6 +532,9 @@ define( function( require ) {
      */
     ellipticalArcPoint: function( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
+      if ( anticlockwise === undefined ) {
+        anticlockwise = false;
+      }
 
       var ellipticalArc = new EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
 

@@ -67,6 +67,126 @@ define( function( require ) {
     degree: 3, // degree of this polynomial (cubic)
 
     /**
+     * Sets the start point of the Cubic.
+     * @public
+     *
+     * @param {Vector2} start
+     * @returns {Cubic}
+     */
+    setStart: function( start ) {
+      assert && assert( start instanceof Vector2, 'Cubic start should be a Vector2: ' + start );
+      assert && assert( start.isFinite(), 'Cubic start should be finite: ' + start.toString() );
+
+      if ( !this._start.equals( start ) ) {
+        this._start = start;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set start( value ) { this.setStart( value ); },
+
+    /**
+     * Returns the start of this Cubic.
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    getStart: function() {
+      return this._start;
+    },
+    get start() { return this.getStart(); },
+
+    /**
+     * Sets the first control point of the Cubic.
+     * @public
+     *
+     * @param {Vector2} control1
+     * @returns {Cubic}
+     */
+    setControl1: function( control1 ) {
+      assert && assert( control1 instanceof Vector2, 'Cubic control1 should be a Vector2: ' + control1 );
+      assert && assert( control1.isFinite(), 'Cubic control1 should be finite: ' + control1.toString() );
+
+      if ( !this._control1.equals( control1 ) ) {
+        this._control1 = control1;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set control1( value ) { this.setControl1( value ); },
+
+    /**
+     * Returns the first control point of this Cubic.
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    getControl1: function() {
+      return this._control1;
+    },
+    get control1() { return this.getControl1(); },
+
+    /**
+     * Sets the second control point of the Cubic.
+     * @public
+     *
+     * @param {Vector2} control2
+     * @returns {Cubic}
+     */
+    setControl2: function( control2 ) {
+      assert && assert( control2 instanceof Vector2, 'Cubic control2 should be a Vector2: ' + control2 );
+      assert && assert( control2.isFinite(), 'Cubic control2 should be finite: ' + control2.toString() );
+
+      if ( !this._control2.equals( control2 ) ) {
+        this._control2 = control2;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set control2( value ) { this.setControl2( value ); },
+
+    /**
+     * Returns the second control point of this Cubic.
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    getControl2: function() {
+      return this._control2;
+    },
+    get control2() { return this.getControl2(); },
+
+    /**
+     * Sets the end point of the Cubic.
+     * @public
+     *
+     * @param {Vector2} end
+     * @returns {Cubic}
+     */
+    setEnd: function( end ) {
+      assert && assert( end instanceof Vector2, 'Cubic end should be a Vector2: ' + end );
+      assert && assert( end.isFinite(), 'Cubic end should be finite: ' + end.toString() );
+
+      if ( !this._end.equals( end ) ) {
+        this._end = end;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set end( value ) { this.setEnd( value ); },
+
+    /**
+     * Returns the end of this Cubic.
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    getEnd: function() {
+      return this._end;
+    },
+    get end() { return this.getEnd(); },
+
+    /**
      * Returns the position parametrically, with 0 <= t <= 1.
      * @public
      *
@@ -195,6 +315,15 @@ define( function( require ) {
      * @public
      */
     invalidate: function() {
+      assert && assert( this._start instanceof Vector2, 'Cubic start should be a Vector2: ' + this._start );
+      assert && assert( this._start.isFinite(), 'Cubic start should be finite: ' + this._start.toString() );
+      assert && assert( this._control1 instanceof Vector2, 'Cubic control1 should be a Vector2: ' + this._control1 );
+      assert && assert( this._control1.isFinite(), 'Cubic control1 should be finite: ' + this._control1.toString() );
+      assert && assert( this._control2 instanceof Vector2, 'Cubic control2 should be a Vector2: ' + this._control2 );
+      assert && assert( this._control2.isFinite(), 'Cubic control2 should be finite: ' + this._control2.toString() );
+      assert && assert( this._end instanceof Vector2, 'Cubic end should be a Vector2: ' + this._end );
+      assert && assert( this._end.isFinite(), 'Cubic end should be finite: ' + this._end.toString() );
+
       // Lazily-computed derived information
       this._startTangent = null; // {Vector2|null}
       this._endTangent = null; // {Vector2|null}
@@ -859,15 +988,6 @@ define( function( require ) {
     //   return result;
     // }
   } );
-
-  /**
-   * Add getters and setters
-   * TODO: wrap these back into the type, like Scenery (somewhat verbose)
-   */
-  Segment.addInvalidatingGetterSetter( Cubic, 'start' );
-  Segment.addInvalidatingGetterSetter( Cubic, 'control1' );
-  Segment.addInvalidatingGetterSetter( Cubic, 'control2' );
-  Segment.addInvalidatingGetterSetter( Cubic, 'end' );
 
   /**
    * Returns a Cubic from the serialized representation.

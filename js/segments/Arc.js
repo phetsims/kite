@@ -38,11 +38,20 @@ define( function( require ) {
   function Arc( center, radius, startAngle, endAngle, anticlockwise ) {
     Segment.call( this );
 
-    this._center = center; // @private {Vector2}
-    this._radius = radius; // @private {number}
-    this._startAngle = startAngle; // @private {number}
-    this._endAngle = endAngle; // @private {number}
-    this._anticlockwise = anticlockwise; // @private {boolean}
+    // @private {Vector2}
+    this._center = center;
+
+    // @private {number}
+    this._radius = radius;
+
+    // @private {number}
+    this._startAngle = startAngle;
+
+    // @private {number}
+    this._endAngle = endAngle;
+
+    // @private {boolean}
+    this._anticlockwise = anticlockwise;
 
     this.invalidate();
   }
@@ -50,6 +59,154 @@ define( function( require ) {
   kite.register( 'Arc', Arc );
 
   inherit( Segment, Arc, {
+    /**
+     * Sets the center of the Arc.
+     * @public
+     *
+     * @param {Vector2} center
+     * @returns {Arc}
+     */
+    setCenter: function( center ) {
+      assert && assert( center instanceof Vector2, 'Arc center should be a Vector2: ' + center );
+      assert && assert( center.isFinite(), 'Arc center should be finite: ' + center.toString() );
+
+      if ( !this._center.equals( center ) ) {
+        this._center = center;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set center( value ) { this.setCenter( value ); },
+
+    /**
+     * Returns the center of this Arc.
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    getCenter: function() {
+      return this._center;
+    },
+    get center() { return this.getCenter(); },
+
+    /**
+     * Sets the radius of the Arc.
+     * @public
+     *
+     * @param {number} radius
+     * @returns {Arc}
+     */
+    setRadius: function( radius ) {
+      assert && assert( typeof radius === 'number', 'Arc radius should be a number: ' + radius );
+      assert && assert( isFinite( radius ), 'Arc radius should be a finite number: ' + radius );
+
+      if ( this._radius !== radius ) {
+        this._radius = radius;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set radius( value ) { this.setRadius( value ); },
+
+    /**
+     * Returns the radius of this Arc.
+     * @public
+     *
+     * @returns {number}
+     */
+    getRadius: function() {
+      return this._radius;
+    },
+    get radius() { return this.getRadius(); },
+
+    /**
+     * Sets the startAngle of the Arc.
+     * @public
+     *
+     * @param {number} startAngle
+     * @returns {Arc}
+     */
+    setStartAngle: function( startAngle ) {
+      assert && assert( typeof startAngle === 'number', 'Arc startAngle should be a number: ' + startAngle );
+      assert && assert( isFinite( startAngle ), 'Arc startAngle should be a finite number: ' + startAngle );
+
+      if ( this._startAngle !== startAngle ) {
+        this._startAngle = startAngle;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set startAngle( value ) { this.setStartAngle( value ); },
+
+    /**
+     * Returns the startAngle of this Arc.
+     * @public
+     *
+     * @returns {number}
+     */
+    getStartAngle: function() {
+      return this._startAngle;
+    },
+    get startAngle() { return this.getStartAngle(); },
+
+    /**
+     * Sets the endAngle of the Arc.
+     * @public
+     *
+     * @param {number} endAngle
+     * @returns {Arc}
+     */
+    setEndAngle: function( endAngle ) {
+      assert && assert( typeof endAngle === 'number', 'Arc endAngle should be a number: ' + endAngle );
+      assert && assert( isFinite( endAngle ), 'Arc endAngle should be a finite number: ' + endAngle );
+
+      if ( this._endAngle !== endAngle ) {
+        this._endAngle = endAngle;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set endAngle( value ) { this.setEndAngle( value ); },
+
+    /**
+     * Returns the endAngle of this Arc.
+     * @public
+     *
+     * @returns {number}
+     */
+    getEndAngle: function() {
+      return this._endAngle;
+    },
+    get endAngle() { return this.getEndAngle(); },
+
+    /**
+     * Sets the anticlockwise of the Arc.
+     * @public
+     *
+     * @param {boolean} anticlockwise
+     * @returns {Arc}
+     */
+    setAnticlockwise: function( anticlockwise ) {
+      assert && assert( typeof anticlockwise === 'boolean', 'Arc anticlockwise should be a boolean: ' + anticlockwise );
+
+      if ( this._anticlockwise !== anticlockwise ) {
+        this._anticlockwise = anticlockwise;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set anticlockwise( value ) { this.setAnticlockwise( value ); },
+
+    /**
+     * Returns the anticlockwise of this Arc.
+     * @public
+     *
+     * @returns {boolean}
+     */
+    getAnticlockwise: function() {
+      return this._anticlockwise;
+    },
+    get anticlockwise() { return this.getAnticlockwise(); },
 
     /**
      * Returns the position parametrically, with 0 <= t <= 1.
@@ -156,6 +313,16 @@ define( function( require ) {
       this._angleDifference = null; // {number|null}
       this._bounds = null; // {Bounds2|null}
       this._svgPathFragment = null; // {string|null}
+
+      assert && assert( this._center instanceof Vector2, 'Arc center should be a Vector2' );
+      assert && assert( this._center.isFinite(), 'Arc center should be finite (not NaN or infinite)' );
+      assert && assert( typeof this._radius === 'number', 'Arc radius should be a number: ' + this._radius );
+      assert && assert( isFinite( this._radius ), 'Arc radius should be a finite number: ' + this._radius );
+      assert && assert( typeof this._startAngle === 'number', 'Arc startAngle should be a number: ' + this._startAngle );
+      assert && assert( isFinite( this._startAngle ), 'Arc startAngle should be a finite number: ' + this._startAngle );
+      assert && assert( typeof this._endAngle === 'number', 'Arc endAngle should be a number: ' + this._endAngle );
+      assert && assert( isFinite( this._endAngle ), 'Arc endAngle should be a finite number: ' + this._endAngle );
+      assert && assert( typeof this._anticlockwise === 'boolean', 'Arc anticlockwise should be a boolean: ' + this._anticlockwise );
 
       // Remap negative radius to a positive radius
       if ( this._radius < 0 ) {
@@ -928,16 +1095,6 @@ define( function( require ) {
 
     return results;
   };
-
-  /**
-   * Add getters and setters
-   * TODO: Expand these out, like with Scenery
-   */
-  Segment.addInvalidatingGetterSetter( Arc, 'center' );
-  Segment.addInvalidatingGetterSetter( Arc, 'radius' );
-  Segment.addInvalidatingGetterSetter( Arc, 'startAngle' );
-  Segment.addInvalidatingGetterSetter( Arc, 'endAngle' );
-  Segment.addInvalidatingGetterSetter( Arc, 'anticlockwise' );
 
   return Arc;
 } );

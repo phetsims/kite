@@ -87,6 +87,7 @@ define( function( require ) {
       var vectors = []; // x coordinate will be "angle", y coordinate will be curvature
       for ( var i = 0; i < this.incidentHalfEdges.length; i++ ) {
         var halfEdge = this.incidentHalfEdges[ i ];
+        // NOTE: If it is expensive to precompute curvature, we could save it until edgeComparison needs it.
         vectors.push( halfEdge.sortVector.setXY( halfEdge.getEndTangent().angle(), halfEdge.getEndCurvature() ) );
       }
 
@@ -132,7 +133,6 @@ define( function( require ) {
         return angleA < angleB ? -1 : 1;
       }
       else {
-        // TODO: look into if precomputing curvature is too expensive.
         var curvatureA = halfEdgeA.sortVector.y;
         var curvatureB = halfEdgeB.sortVector.y;
         if ( Math.abs( curvatureA - curvatureB ) > 1e-4 ) {

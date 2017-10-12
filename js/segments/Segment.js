@@ -230,43 +230,6 @@ define( function( require ) {
   } );
 
   /**
-   * Adds getter/setter function pairs and ES5 pairs, e.g. addInvalidatingGetterSetter( Arc, 'radius' ) would add:
-   * - segment.getRadius()
-   * - segment.setRadius( value )
-   * - segment.radius // getter and setter
-   *
-   * It assumes the following is the internal name: '_' + name
-   *
-   * @param {Function} type - Should be the constructor of the type. We will modify its prototype
-   * @param {string} name - Name of the attribute
-   */
-  Segment.addInvalidatingGetterSetter = function( type, name ) {
-    var internalName = '_' + name;
-    var capitalizedName = name.charAt( 0 ).toUpperCase() + name.slice( 1 );
-    var getterName = 'get' + capitalizedName;
-    var setterName = 'set' + capitalizedName;
-
-    // e.g. getRadius()
-    type.prototype[ getterName ] = function() {
-      return this[ internalName ];
-    };
-
-    // e.g. setRadius( value )
-    type.prototype[ setterName ] = function( value ) {
-      if ( this[ internalName ] !== value ) {
-        this[ internalName ] = value;
-        this.invalidate();
-      }
-      return this; // allow chaining
-    };
-
-    Object.defineProperty( type.prototype, name, {
-      set: type.prototype[ setterName ],
-      get: type.prototype[ getterName ]
-    } );
-  };
-
-  /**
    * list of { segment: ..., t: ..., closestPoint: ..., distanceSquared: ... } (since there can be duplicates), threshold is used for subdivision,
    * where it will exit if all of the segments are shorter than the threshold
    *  TODO: solve segments to determine this analytically!

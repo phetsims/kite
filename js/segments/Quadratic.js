@@ -49,6 +49,96 @@ define( function( require ) {
     degree: 2, // degree of the polynomial (quadratic)
 
     /**
+     * Sets the start point of the Quadratic.
+     * @public
+     *
+     * @param {Vector2} start
+     * @returns {Quadratic}
+     */
+    setStart: function( start ) {
+      assert && assert( start instanceof Vector2, 'Quadratic start should be a Vector2: ' + start );
+      assert && assert( start.isFinite(), 'Quadratic start should be finite: ' + start.toString() );
+
+      if ( !this._start.equals( start ) ) {
+        this._start = start;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set start( value ) { this.setStart( value ); },
+
+    /**
+     * Returns the start of this Quadratic.
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    getStart: function() {
+      return this._start;
+    },
+    get start() { return this.getStart(); },
+
+    /**
+     * Sets the control point of the Quadratic.
+     * @public
+     *
+     * @param {Vector2} control
+     * @returns {Quadratic}
+     */
+    setControl: function( control ) {
+      assert && assert( control instanceof Vector2, 'Quadratic control should be a Vector2: ' + control );
+      assert && assert( control.isFinite(), 'Quadratic control should be finite: ' + control.toString() );
+
+      if ( !this._control.equals( control ) ) {
+        this._control = control;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set control( value ) { this.setControl( value ); },
+
+    /**
+     * Returns the control point of this Quadratic.
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    getControl: function() {
+      return this._control;
+    },
+    get control() { return this.getControl(); },
+
+    /**
+     * Sets the end point of the Quadratic.
+     * @public
+     *
+     * @param {Vector2} end
+     * @returns {Quadratic}
+     */
+    setEnd: function( end ) {
+      assert && assert( end instanceof Vector2, 'Quadratic end should be a Vector2: ' + end );
+      assert && assert( end.isFinite(), 'Quadratic end should be finite: ' + end.toString() );
+
+      if ( !this._end.equals( end ) ) {
+        this._end = end;
+        this.invalidate();
+      }
+      return this; // allow chaining
+    },
+    set end( value ) { this.setEnd( value ); },
+
+    /**
+     * Returns the end of this Quadratic.
+     * @public
+     *
+     * @returns {Vector2}
+     */
+    getEnd: function() {
+      return this._end;
+    },
+    get end() { return this.getEnd(); },
+
+    /**
      * Returns the position parametrically, with 0 <= t <= 1.
      * @public
      *
@@ -161,6 +251,13 @@ define( function( require ) {
      * @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
      */
     invalidate: function() {
+      assert && assert( this._start instanceof Vector2, 'Quadratic start should be a Vector2: ' + this._start );
+      assert && assert( this._start.isFinite(), 'Quadratic start should be finite: ' + this._start.toString() );
+      assert && assert( this._control instanceof Vector2, 'Quadratic control should be a Vector2: ' + this._control );
+      assert && assert( this._control.isFinite(), 'Quadratic control should be finite: ' + this._control.toString() );
+      assert && assert( this._end instanceof Vector2, 'Quadratic end should be a Vector2: ' + this._end );
+      assert && assert( this._end.isFinite(), 'Quadratic end should be finite: ' + this._end.toString() );
+
       // Lazily-computed derived information
       this._startTangent = null; // {Vector2|null}
       this._endTangent = null; // {Vector2|null}
@@ -575,13 +672,6 @@ define( function( require ) {
       };
     }
   } );
-
-  /**
-   * Add getters and setters
-   */
-  Segment.addInvalidatingGetterSetter( Quadratic, 'start' );
-  Segment.addInvalidatingGetterSetter( Quadratic, 'control' );
-  Segment.addInvalidatingGetterSetter( Quadratic, 'end' );
 
   /**
    * Returns a Quadratic from the serialized representation.
