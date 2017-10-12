@@ -495,6 +495,17 @@ define( function( require ) {
     },
 
     /**
+     * Returns the arc length of the segment.
+     * @public
+     * @override (ignores parameters)
+     *
+     * @returns {number}
+     */
+    getArcLength: function() {
+      return this.start.distance( this.end );
+    },
+
+    /**
      * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
      * @public
      *

@@ -174,6 +174,56 @@ define( function( require ) {
     },
 
     /**
+     * Determines if the segment is sufficiently flat (given certain epsilon values)
+     * @public
+     *
+     * @param {number} distanceEpsilon - controls level of subdivision by attempting to ensure a maximum (squared)
+     *                                   deviation from the curve
+     * @param {number} curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
+     *                                between segments
+     * @returns {boolean}
+     */
+    isSufficientlyFlat: function( distanceEpsilon, curveEpsilon ) {
+      var start = this.start;
+      var middle = this.positionAt( 0.5 );
+      var end = this.end;
+
+      // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
+      if ( Util.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) > curveEpsilon ) {
+        return false;
+      }
+      // deviation criterion
+      if ( Util.distToSegmentSquared( middle, start, end ) > distanceEpsilon ) {
+        return false;
+      }
+      return true;
+    },
+
+    /**
+     * Returns the (sometimes approximate) arc length of the segment.
+     * @public
+     *
+     * @param {number} [distanceEpsilon]
+     * @param {number} [curveEpsilon]
+     * @param {number} [maxLevels]
+     * @returns {number}
+     */
+    getArcLength: function( distanceEpsilon, curveEpsilon, maxLevels ) {
+      distanceEpsilon = distanceEpsilon === undefined ? 1e-10 : distanceEpsilon;
+      curveEpsilon = curveEpsilon === undefined ? 1e-8 : curveEpsilon;
+      maxLevels = maxLevels === undefined ? 15 : maxLevels;
+
+      if ( maxLevels <= 0 || this.isSufficientlyFlat( distanceEpsilon, curveEpsilon ) ) {
+        return this.start.distance( this.end );
+      }
+      else {
+        var subdivided = this.subdivided( 0.5 );
+        return subdivided[ 0 ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels - 1 ) +
+               subdivided[ 1 ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels - 1 );
+      }
+    },
+
+    /**
      *
      * @param {Object} [options] -           with the following options provided:
      *  - minLevels:                       how many levels to force subdivisions
@@ -210,10 +260,10 @@ define( function( require ) {
       // i.e. we will have finished = maxLevels === 0 || ( minLevels <= 0 && epsilonConstraints ), just didn't want to one-line it
       var finished = maxLevels === 0; // bail out once we reach our maximum number of subdivision levels
       if ( !finished && minLevels <= 0 ) { // force subdivision if minLevels hasn't been reached
-        // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
-        finished = ( options.curveEpsilon === null || ( Util.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) < options.curveEpsilon ) ) &&
-                   // deviation criterion
-                   ( options.distanceEpsilon === null || ( Util.distToSegmentSquared( middle, start, end ) < options.distanceEpsilon ) );
+        finished = this.isSufficientlyFlat(
+          options.distanceEpsilon === null ? Number.POSITIVE_INFINITY : options.distanceEpsilon,
+          options.curveEpsilon === null ? Number.POSITIVE_INFINITY : options.curveEpsilon
+        );
       }
 
       if ( finished ) {
