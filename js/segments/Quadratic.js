@@ -26,15 +26,16 @@ define( function( require ) {
   var arePointsCollinear = Util.arePointsCollinear;
 
   /**
-   *
-   * @param {Vector2} start
-   * @param {Vector2} control
-   * @param {Vector2} end
    * @constructor
+   *
+   * @param {Vector2} start - Start point of the quadratic bezier
+   * @param {Vector2} control - Control point (curve usually doesn't go through here)
+   * @param {Vector2} end - End point of the quadratic bezier
    */
   function Quadratic( start, control, end ) {
     Segment.call( this );
 
+    // @private {Vector2}
     this._start = start;
     this._control = control;
     this._end = end;

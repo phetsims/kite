@@ -24,6 +24,9 @@ define( function( require ) {
    * - first( t0 ) === second( qt0 )
    * - first( t1 ) === second( qt1 )
    * - All of those t values are in the range [0,1]
+   *
+   * @param {number} a
+   * @param {number} b
    */
   function Overlap( a, b ) {
     assert && assert( typeof a === 'number' && isFinite( a ) && a !== 0,

@@ -1,7 +1,12 @@
 // Copyright 2013-2015, University of Colorado Boulder
 
 /**
- * Elliptical arc segment
+ * An elliptical arc (a continuous sub-part of an ellipse).
+ *
+ * Additional helpful notes:
+ * - http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
+ * - http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
+ *   (note: context.ellipse was removed from the Canvas spec)
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
@@ -23,30 +28,33 @@ define( function( require ) {
   // constants
   var toDegrees = Util.toDegrees;
 
-  // TODO: notes at http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
-  // Canvas notes were at http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
-  // context.ellipse was removed from the Canvas spec
-
   /**
-   *
-   * @param {Vector2} center
-   * @param {number} radiusX
-   * @param {number} radiusY
-   * @param {number} rotation
-   * @param {number} startAngle
-   * @param {number} endAngle
-   * @param {boolean} anticlockwise
    * @constructor
+   *
+   * If the startAngle/endAngle difference is ~2pi, this will be a full ellipse
+   *
+   * @param {Vector2} center - Center of the ellipse
+   * @param {number} radiusX - Semi-major radius
+   * @param {number} radiusY - Semi-minor radius
+   * @param {number} rotation - Rotation of the semi-major axis
+   * @param {number} startAngle - Angle (radians) of the start of the arc
+   * @param {number} endAngle - Angle (radians) of the end of the arc
+   * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
    */
   function EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
     Segment.call( this );
 
+    // @private {Vector2}
     this._center = center;
+
+    // @private {number}
     this._radiusX = radiusX;
     this._radiusY = radiusY;
     this._rotation = rotation;
     this._startAngle = startAngle;
     this._endAngle = endAngle;
+
+    // @private {boolean}
     this._anticlockwise = anticlockwise;
 
     this.invalidate();

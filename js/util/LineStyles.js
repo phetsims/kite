@@ -1,7 +1,9 @@
 // Copyright 2013-2015, University of Colorado Boulder
 
 /**
- * Styles needed to determine a stroked line shape.
+ * Styles needed to determine a stroked line shape. Generally immutable.
+ *
+ * Mirrors much of what is done with SVG/Canvas, see https://svgwg.org/svg2-draft/painting.html for details.
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
@@ -9,12 +11,11 @@
 define( function( require ) {
   'use strict';
 
+  var Arc = require( 'KITE/segments/Arc' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
-  var Util = require( 'DOT/Util' );
-
-  var Arc = require( 'KITE/segments/Arc' );
   var Line = require( 'KITE/segments/Line' );
+  var Util = require( 'DOT/Util' );
 
   // constants
   var lineLineIntersection = Util.lineLineIntersection;
@@ -23,36 +24,72 @@ define( function( require ) {
     lineWidth: 1,
     lineCap: 'butt',
     lineJoin: 'miter',
+    lineDash: [],
     lineDashOffset: 0,
     miterLimit: 10
   };
 
   /**
-   *
-   * @param {Object} [args]
+   * @public
    * @constructor
+   *
+   * @param {Object} [options]
    */
-  function LineStyles( args ) {
-    if ( args === undefined ) {
-      args = {};
-    }
-    this.lineWidth = args.lineWidth !== undefined ? args.lineWidth : DEFAULT_OPTIONS.lineWidth;
-    this.lineCap = args.lineCap !== undefined ? args.lineCap : DEFAULT_OPTIONS.lineCap; // butt, round, square
-    this.lineJoin = args.lineJoin !== undefined ? args.lineJoin : DEFAULT_OPTIONS.lineJoin; // miter, round, bevel
-    this.lineDash = args.lineDash ? args.lineDash : []; // [] is default, otherwise an array of numbers
-    this.lineDashOffset = args.lineDashOffset !== undefined ? args.lineDashOffset : DEFAULT_OPTIONS.lineDashOffset; // 0 default, any number
-    this.miterLimit = args.miterLimit !== undefined ? args.miterLimit : DEFAULT_OPTIONS.miterLimit; // see https://svgwg.org/svg2-draft/painting.html for miterLimit computations
+  function LineStyles( options ) {
+    options = _.extend( {}, DEFAULT_OPTIONS, options );
 
-    assert && assert( Array.isArray( this.lineDash ) );
+    // @public {number} - The width of the line (will be offset to each side by lineWidth/2)
+    this.lineWidth = options.lineWidth;
+
+    // @public {string} - 'butt', 'round' or 'square' - Controls appearance at endpoints for non-closed subpaths.
+    // - butt: straight-line at end point, going through the endpoint (perpendicular to the tangent)
+    // - round: circular border with radius lineWidth/2 around endpoints
+    // - square: straight-line past the end point (by lineWidth/2)
+    // See: https://svgwg.org/svg2-draft/painting.html#LineCaps
+    this.lineCap = options.lineCap;
+
+    // @public {string} - 'miter', 'round' or 'bevel' - Controls appearance at joints between segments (at the point)
+    // - miter: Use sharp corners (which aren't too sharp, see miterLimit). Extends edges until they meed.
+    // - round: circular border with radius lineWidth/2 around joints
+    // - bevel: directly joins the gap with a line segment.
+    // See: https://svgwg.org/svg2-draft/painting.html#LineJoin
+    this.lineJoin = options.lineJoin;
+
+    // @public {Array.<number>} - Even values in the array are the "dash" length, odd values are the "gap" length.
+    // NOTE: If there is an odd number of entries, it behaves like lineDash.concat( lineDash ).
+    // See: https://svgwg.org/svg2-draft/painting.html#StrokeDashing
+    this.lineDash = options.lineDash;
+
+    // @public {number} - Offset from the start of the subpath where the start of the line-dash array starts.
+    this.lineDashOffset = options.lineDashOffset;
+
+    // @public {number} - When to cut off lineJoin:miter to look like lineJoin:bevel. See https://svgwg.org/svg2-draft/painting.html
+    this.miterLimit = options.miterLimit;
+
+    assert && assert( typeof this.lineWidth === 'number', 'lineWidth should be a number: ' + this.lineWidth );
+    assert && assert( isFinite( this.lineWidth ), 'lineWidth should be a finite number: ' + this.lineWidth );
+    assert && assert( this.lineWidth >= 0, 'lineWidth should be non-negative: ' + this.lineWidth );
+    assert && assert( this.lineCap === 'butt' || this.lineCap === 'round' || this.lineCap === 'square',
+      'Invalid lineCap: ' + this.lineCap );
+    assert && assert( this.lineJoin === 'miter' || this.lineJoin === 'round' || this.lineJoin === 'bevel',
+      'Invalid lineJoin: ' + this.lineJoin );
+    assert && assert( Array.isArray( this.lineDash ), 'lineDash should be an array: ' + this.lineDash );
+    assert && assert( _.every( this.lineDash, function( dash ) { return ( typeof dash === 'number' ) && isFinite( dash ) && dash >= 0; } ),
+      'Every lineDash should be a non-negative finite number: ' + this.lineDash );
+    assert && assert( typeof this.lineDashOffset === 'number', 'lineDashOffset should be a number: ' + this.lineDashOffset );
+    assert && assert( isFinite( this.lineDashOffset ), 'lineDashOffset should be a finite number: ' + this.lineDashOffset );
+    assert && assert( typeof this.miterLimit === 'number', 'miterLimit should be a number: ' + this.miterLimit );
+    assert && assert( isFinite( this.miterLimit ), 'miterLimit should be a finite number: ' + this.miterLimit );
   }
 
   kite.register( 'LineStyles', LineStyles );
 
   inherit( Object, LineStyles, {
-
     /**
      * Determines of this lineStyles is equal to the other LineStyles
-     * @param {Object} other - arguments of LineStyles
+     * @public
+     *
+     * @param {LineStyles} other
      * @returns {boolean}
      */
     equals: function( other ) {
@@ -82,6 +119,7 @@ define( function( require ) {
 
     /**
      * Creates an array of Segments that make up a line join, to the left side.
+     * @public
      *
      * Joins two segments together on the logical "left" side, at 'center' (where they meet), and un-normalized tangent
      * vectors in the direction of the stroking. To join on the "right" side, switch the tangent order and negate them.
@@ -89,7 +127,7 @@ define( function( require ) {
      * @param {Vector2} center
      * @param {Vector2} fromTangent
      * @param {Vector2} toTangent
-     * @returns {Array.<Line>|null}
+     * @returns {Array.<Line>}
      */
     leftJoin: function( center, fromTangent, toTangent ) {
       fromTangent = fromTangent.normalized();
@@ -137,13 +175,14 @@ define( function( require ) {
 
     /**
      * Creates an array of Segments that make up a line join, to the right side.
+     * @public
      *
      * Joins two segments together on the logical "right" side, at 'center' (where they meet), and normalized tangent
      * vectors in the direction of the stroking. To join on the "left" side, switch the tangent order and negate them.
      * @param {Vector2} center
      * @param {Vector2} fromTangent
      * @param {Vector2} toTangent
-     * @returns {Array.<Line>|null}
+     * @returns {Array.<Line>}
      */
     rightJoin: function( center, fromTangent, toTangent ) {
       return this.leftJoin( center, toTangent.negated(), fromTangent.negated() );
@@ -151,10 +190,11 @@ define( function( require ) {
 
     /**
      * Creates an array of Segments that make up a line cap from the endpoint 'center' in the direction of the tangent
+     * @public
      *
      * @param {Vector2} center
      * @param {Vector2} tangent
-     * @returns {Array.<Arc>|Array.<Line>}
+     * @returns {Array.<Segment>}
      */
     cap: function( center, tangent ) {
       tangent = tangent.normalized();

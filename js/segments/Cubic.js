@@ -41,21 +41,21 @@ define( function( require ) {
   }
 
   /**
-   * Creates a cubic bezier curve
    * @constructor
    *
    * @param {Vector2} start - Start point of the cubic bezier
-   * @param {Vector2} control1 - First control point
-   * @param {Vector2} control2 - Second control point
+   * @param {Vector2} control1 - First control point (curve usually doesn't go through here)
+   * @param {Vector2} control2 - Second control point (curve usually doesn't go through here)
    * @param {Vector2} end - End point of the cubic bezier
    */
   function Cubic( start, control1, control2, end ) {
     Segment.call( this );
 
-    this._start = start; //  @private {Vector2}
-    this._control1 = control1; // @private {Vector2}
-    this._control2 = control2; // @private {Vector2}
-    this._end = end; // @private {Vector2}
+    // @private {Vector2}
+    this._start = start;
+    this._control1 = control1;
+    this._control2 = control2;
+    this._end = end;
 
     this.invalidate();
   }

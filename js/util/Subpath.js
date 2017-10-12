@@ -23,32 +23,45 @@ define( function( require ) {
   var Vector2 = require( 'DOT/Vector2' );
 
   /**
-   * all arguments optional (they are for the copy() method)
+   * @public
+   * @constructor
+   *
+   * NOTE: No arguments required (they are usually used for copy() usage or creation with new segments)
+   *
    * @param {Array.<Segment>} [segments]
    * @param {Array.<Vector2>} [points]
    * @param {boolean} [closed]
-   * @constructor
    */
   function Subpath( segments, points, closed ) {
     Events.call( this );
 
     var self = this;
 
+    // @public {Array.<Segment>}
     this.segments = [];
 
-    // recombine points if necessary, based off of start points of segments + the end point of the last segment
-    this.points = points || ( ( segments && segments.length ) ? _.map( segments, function( segment ) { return segment.start; } ).concat( segments[ segments.length - 1 ].end ) : [] );
+    // @public {Array.<Vector2>} recombine points if necessary, based off of start points of segments + the end point
+    // of the last segment
+    this.points = points || ( ( segments && segments.length ) ? _.map( segments, function( segment ) {
+      return segment.start;
+    } ).concat( segments[ segments.length - 1 ].end ) : [] );
+
+    // @public {boolean}
     this.closed = !!closed;
 
     // cached stroked shape (so hit testing can be done quickly on stroked shapes)
-    this._strokedSubpaths = null;
-    this._strokedSubpathsComputed = false;
-    this._strokedStyles = null;
+    this._strokedSubpaths = null; // @private {Array.<Subpath>|null}
+    this._strokedSubpathsComputed = false; // @private {boolean}
+    this._strokedStyles = null; // @private {LineStyles|null}
 
-    this._bounds = null; // {Bounds2 | null} - If non-null, the bounds of the subpath
+    // {Bounds2|null} - If non-null, the bounds of the subpath
+    this._bounds = null;
 
+    // @private {function} - Invalidation listener
     this._invalidateListener = this.invalidate.bind( this );
-    this._invalidatingPoints = false; // So we can invalidate all of the points without firing invalidation tons of times
+
+    // @private {boolean} - So we can invalidate all of the points without firing invalidation tons of times
+    this._invalidatingPoints = false;
 
     // Add all segments directly (hooks up invalidation listeners properly)
     if ( segments ) {
@@ -84,12 +97,18 @@ define( function( require ) {
 
     /**
      * Returns an immutable copy of this subpath
+     * @public
+     *
      * @returns {Subpath}
      */
     copy: function() {
       return new Subpath( this.segments.slice( 0 ), this.points.slice( 0 ), this.closed );
     },
 
+    /**
+     * Invalidates all segments (then ourself), since some points in segments may have been changed.
+     * @public
+     */
     invalidatePoints: function() {
       this._invalidatingPoints = true;
 
@@ -102,6 +121,10 @@ define( function( require ) {
       this.invalidate();
     },
 
+    /**
+     * Trigger invalidation (usually for our Shape)
+     * @public (kite-internal)
+     */
     invalidate: function() {
       if ( !this._invalidatingPoints ) {
         this._bounds = null;
@@ -112,6 +135,8 @@ define( function( require ) {
 
     /**
      * Adds a point to this subpath
+     * @public
+     *
      * @param {Vector2} point
      * @returns {Subpath}
      */
@@ -122,7 +147,9 @@ define( function( require ) {
     },
 
     /**
+     * Adds a segment directly
      * @private - REALLY! Make sure we invalidate() after this is called
+     *
      * @param {Segment} segment
      * @returns {Subpath}
      */
@@ -143,6 +170,8 @@ define( function( require ) {
 
     /**
      * Adds a segment to this subpath
+     * @public
+     *
      * @param {Segment} segment
      * @returns {Subpath}
      */
@@ -160,6 +189,7 @@ define( function( require ) {
     /**
      * Adds a line segment from the start to end (if non-zero length) and marks the subpath as closed.
      * NOTE: normally you just want to mark the subpath as closed, and not generate the closing segment this way?
+     * @public
      */
     addClosingSegment: function() {
       if ( this.hasClosingSegment() ) {
@@ -171,9 +201,11 @@ define( function( require ) {
       }
     },
 
-    // TODO: consider always adding a closing segment into our segments list for easier processing!! see addClosingSegment()
     /**
      * Sets this subpath to be a closed path
+     * @public
+     *
+     * TODO: consider always adding a closing segment into our segments list for easier processing!! see addClosingSegment()
      */
     close: function() {
       this.closed = true;
@@ -181,6 +213,8 @@ define( function( require ) {
 
     /**
      * Returns the numbers of points in this subpath
+     * @public
+     *
      * @returns {number}
      */
     getLength: function() {
@@ -189,6 +223,8 @@ define( function( require ) {
 
     /**
      * Returns the first point of this subpath
+     * @public
+     *
      * @returns {Vector2}
      */
     getFirstPoint: function() {
@@ -197,6 +233,8 @@ define( function( require ) {
 
     /**
      * Returns the last point of this subpath
+     * @public
+     *
      * @returns {Vector2}
      */
     getLastPoint: function() {
@@ -205,6 +243,8 @@ define( function( require ) {
 
     /**
      * Returns the first segment of this subpath
+     * @public
+     *
      * @returns {Segment}
      */
     getFirstSegment: function() {
@@ -213,6 +253,8 @@ define( function( require ) {
 
     /**
      * Returns the last segment of this subpath
+     * @public
+     *
      * @returns {Segment}
      */
     getLastSegment: function() {
@@ -221,6 +263,8 @@ define( function( require ) {
 
     /**
      * Determines if this subpath is drawable, i.e. if it contains asny segments
+     * @public
+     *
      * @returns {boolean}
      */
     isDrawable: function() {
@@ -229,6 +273,8 @@ define( function( require ) {
 
     /**
      * Determines if this subpath is a closed path, i.e. if the flag is set to closed
+     * @public
+     *
      * @returns {boolean}
      */
     isClosed: function() {
@@ -237,6 +283,8 @@ define( function( require ) {
 
     /**
      * Determines if this subpath is a closed path, i.e. if it has a closed segment
+     * @public
+     *
      * @returns {boolean}
      */
     hasClosingSegment: function() {
@@ -245,6 +293,8 @@ define( function( require ) {
 
     /**
      * Returns a line that would closed this subpath
+     * @public
+     *
      * @returns {Line}
      */
     getClosingSegment: function() {
@@ -254,6 +304,8 @@ define( function( require ) {
 
     /**
      * Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
+     * @public
+     *
      * @param {CanvasRenderingContext2D} context
      */
     writeToContext: function( context ) {
@@ -273,6 +325,9 @@ define( function( require ) {
     },
 
     /**
+     * Converts this subpath to a new subpath made of many line segments (approximating the current subpath)
+     * @public
+     *
      * @param {Object} [options] -           with the following options provided:
      *  - minLevels:                       how many levels to force subdivisions
      *  - maxLevels:                       prevent subdivision past this level
@@ -291,6 +346,8 @@ define( function( require ) {
     },
 
     /**
+     * Returns a copy of this Subpath transformed with the given matrix.
+     * @public
      *
      * @param {Matrix3} matrix
      * @returns {Subpath}
@@ -304,6 +361,9 @@ define( function( require ) {
     },
 
     /**
+     * Converts this subpath to a new subpath made of many line segments (approximating the current subpath) with the
+     * transformation applied.
+     * @public
      *
      * @param {Object} [options] -           with the following options provided:
      *  - minLevels:                       how many levels to force subdivisions
@@ -334,8 +394,9 @@ define( function( require ) {
     },
 
     /**
-     * Returns the bounds of this subpath when transform by a matrix
-     * An immutable method
+     * Returns the bounds of this subpath when transform by a matrix.
+     * @public
+     *
      * @param {Matrix3} matrix
      * @returns {bounds}
      */
@@ -350,7 +411,10 @@ define( function( require ) {
 
     /**
      * Returns a subpath that is offset from this subpath by a distance
-     * {experimental} returns a subpath
+     * @public
+     *
+     * TODO: Resolve the bug with the inside-line-join overlap. We have the intersection handling now (potentially)
+     *
      * @param {number} distance
      * @returns {Subpath}
      */
@@ -395,6 +459,8 @@ define( function( require ) {
 
     /**
      * Returns an array of subpaths (one if open, two if closed) that represent a stroked copy of this subpath.
+     * @public
+     *
      * @param {LineStyles} lineStyles
      * @returns {Array.<Subpath>}
      */

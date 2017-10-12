@@ -1,7 +1,7 @@
 // Copyright 2013-2015, University of Colorado Boulder
 
 /**
- * Arc segment
+ * A circular arc (a continuous sub-part of a circle).
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
@@ -10,7 +10,6 @@ define( function( require ) {
   'use strict';
 
   var Bounds2 = require( 'DOT/Bounds2' );
-  var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Overlap = require( 'KITE/util/Overlap' );
@@ -24,8 +23,9 @@ define( function( require ) {
   var TWO_PI = Math.PI * 2;
 
   /**
-   * Creates a circular arc (or circle if the startAngle/endAngle difference is ~2pi).
    * @constructor
+   *
+   * If the startAngle/endAngle difference is ~2pi, this will be a full circle
    *
    * See http://www.w3.org/TR/2dcontext/#dom-context-2d-arc for detailed information on the parameters.
    *
@@ -43,11 +43,7 @@ define( function( require ) {
 
     // @private {number}
     this._radius = radius;
-
-    // @private {number}
     this._startAngle = startAngle;
-
-    // @private {number}
     this._endAngle = endAngle;
 
     // @private {boolean}
@@ -513,16 +509,16 @@ define( function( require ) {
      * @returns {number}
      */
     mapAngle: function( angle ) {
-      if ( Math.abs( DotUtil.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
+      if ( Math.abs( Util.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
         return this._startAngle;
       }
-      if ( Math.abs( DotUtil.moduloBetweenDown( angle - this.getActualEndAngle(), -Math.PI, Math.PI ) ) < 1e-8 ) {
+      if ( Math.abs( Util.moduloBetweenDown( angle - this.getActualEndAngle(), -Math.PI, Math.PI ) ) < 1e-8 ) {
         return this.getActualEndAngle();
       }
       // consider an assert that we contain that angle?
       return ( this._startAngle > this.getActualEndAngle() ) ?
-             DotUtil.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
-             DotUtil.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
+             Util.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
+             Util.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
     },
 
     /**
@@ -591,7 +587,7 @@ define( function( require ) {
       var normalizedAngle = this._anticlockwise ? angle - this._endAngle : angle - this._startAngle;
 
       // get the angle between 0 and 2pi
-      var positiveMinAngle = DotUtil.moduloBetweenDown( normalizedAngle, 0, Math.PI * 2 );
+      var positiveMinAngle = Util.moduloBetweenDown( normalizedAngle, 0, Math.PI * 2 );
 
       return positiveMinAngle <= this.angleDifference;
     },

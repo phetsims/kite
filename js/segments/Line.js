@@ -1,7 +1,7 @@
 // Copyright 2013-2015, University of Colorado Boulder
 
 /**
- * Linear segment
+ * A line segment (all points directly between the start and end point)
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
@@ -23,16 +23,17 @@ define( function( require ) {
   var scratchVector2 = new Vector2();
 
   /**
-   *
-   * @param {Vector2} start
-   * @param {Vector2} end
    * @constructor
+   *
+   * @param {Vector2} start - Start point
+   * @param {Vector2} end - End point
    */
   function Line( start, end ) {
     Segment.call( this );
 
-    this._start = start; // @private {Vector2}
-    this._end = end; // @private  {Vector2}
+    // @private {Vector2}
+    this._start = start;
+    this._end = end;
 
     this.invalidate();
   }
@@ -448,6 +449,8 @@ define( function( require ) {
 
     /**
      * Given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
+     * @public
+     *
      * @param {number} a
      * @param {number} b
      * @returns {Line}
@@ -469,9 +472,12 @@ define( function( require ) {
     /**
      * Convert a line in the $(theta,r)$ plane of the form $(\theta_1,r_1)$ to $(\theta_2,r_2)$ and
      * converts to the the cartesian coordinate system
+     * @public
+     *
      * E.g. a polar line (0,1) to (2 Pi,1) would be mapped to a circle of radius 1
-     * @param {Object} options
-     * @returns {Array.<Line>|Array.<Arc>|Array.<Segment>}
+     *
+     * @param {Object} [options]
+     * @returns {Array.<Segment>}
      */
     polarToCartesian: function( options ) {
       // x represent an angle whereas y represent a radius

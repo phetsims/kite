@@ -12,13 +12,12 @@
 define( function( require ) {
   'use strict';
 
-  var kite = require( 'KITE/kite' );
-
   var Bounds2 = require( 'DOT/Bounds2' );
   var BoundsIntersection = require( 'KITE/ops/BoundsIntersection' );
-  var DotUtil = require( 'DOT/Util' ); // eslint-disable-line require-statement-match
   var Events = require( 'AXON/Events' );
   var inherit = require( 'PHET_CORE/inherit' );
+  var kite = require( 'KITE/kite' );
+  var Util = require( 'DOT/Util' );
 
   /**
    * @constructor
@@ -138,7 +137,7 @@ define( function( require ) {
         segment = segment.subdivided( t1 )[ 0 ];
       }
       if ( t0 > 0 ) {
-        segment = segment.subdivided( DotUtil.linear( 0, t1, 0, 1, t0 ) )[ 1 ];
+        segment = segment.subdivided( Util.linear( 0, t1, 0, 1, t0 ) )[ 1 ];
       }
       return segment;
     },
@@ -162,7 +161,7 @@ define( function( require ) {
 
         // scale up the remaining t values
         for ( var j = i + 1; j < tList.length; j++ ) {
-          tList[ j ] = DotUtil.linear( t, 1, 0, 1, tList[ j ] );
+          tList[ j ] = Util.linear( t, 1, 0, 1, tList[ j ] );
         }
       }
       result.push( right );
@@ -212,9 +211,9 @@ define( function( require ) {
       var finished = maxLevels === 0; // bail out once we reach our maximum number of subdivision levels
       if ( !finished && minLevels <= 0 ) { // force subdivision if minLevels hasn't been reached
         // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
-        finished = ( options.curveEpsilon === null || ( DotUtil.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) < options.curveEpsilon ) ) &&
+        finished = ( options.curveEpsilon === null || ( Util.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) < options.curveEpsilon ) ) &&
                    // deviation criterion
-                   ( options.distanceEpsilon === null || ( DotUtil.distToSegmentSquared( middle, start, end ) < options.distanceEpsilon ) );
+                   ( options.distanceEpsilon === null || ( Util.distToSegmentSquared( middle, start, end ) < options.distanceEpsilon ) );
       }
 
       if ( finished ) {
