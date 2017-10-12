@@ -1770,6 +1770,23 @@ define( function( require ) {
     },
 
     /**
+     * Returns the (sometimes approximate) arc length of all of the shape's subpaths combined.
+     * @public
+     *
+     * @param {number} [distanceEpsilon]
+     * @param {number} [curveEpsilon]
+     * @param {number} [maxLevels]
+     * @returns {number}
+     */
+    getArcLength: function( distanceEpsilon, curveEpsilon, maxLevels ) {
+      var length = 0;
+      for ( var i = 0; i < this.subpaths.length; i++ ) {
+        length += this.subpaths[ i ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels );
+      }
+      return length;
+    },
+
+    /**
      * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
      * @public
      *

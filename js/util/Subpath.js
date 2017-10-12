@@ -96,6 +96,26 @@ define( function( require ) {
     get bounds() { return this.getBounds(); },
 
     /**
+     * Returns the (sometimes approximate) arc length of the subpath.
+     * @public
+     *
+     * @param {number} [distanceEpsilon]
+     * @param {number} [curveEpsilon]
+     * @param {number} [maxLevels]
+     * @returns {number}
+     */
+    getArcLength: function( distanceEpsilon, curveEpsilon, maxLevels ) {
+      var length = 0;
+      for ( var i = 0; i < this.segments.length; i++ ) {
+        length += this.segments[ i ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels );
+      }
+      if ( this.closed && this.hasClosingSegment() ) {
+        length += this.getClosingSegment().getArcLength( distanceEpsilon, curveEpsilon, maxLevels );
+      }
+      return length;
+    },
+
+    /**
      * Returns an immutable copy of this subpath
      * @public
      *
