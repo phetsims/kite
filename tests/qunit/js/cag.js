@@ -342,4 +342,12 @@
     testUnion( a, b, 1, '4 adjacent circles union' );
   } );
 
+  test( 'stroked line 1', function() {
+
+    var a = kite.Shape.deserialize( {"type":"Shape","subpaths":[{"type":"Subpath","segments":[{"type":"Line","startX":580,"startY":372,"endX":580,"endY":155.69419920487314},{"type":"Arc","centerX":570,"centerY":155.69419920487314,"radius":10,"startAngle":0,"endAngle":-3.141592653589793,"anticlockwise":true},{"type":"Line","startX":560,"startY":155.69419920487314,"endX":560,"endY":372},{"type":"Arc","centerX":570,"centerY":372,"radius":10,"startAngle":3.141592653589793,"endAngle":0,"anticlockwise":true}],"points":[{"x":580,"y":372},{"x":580,"y":155.69419920487314},{"x":560,"y":155.69419920487314},{"x":560,"y":372},{"x":580,"y":372}],"closed":true}]} );
+    var b = kite.Shape.deserialize( {"type":"Shape","subpaths":[{"type":"Subpath","segments":[{"type":"Line","startX":570,"startY":145.69419920487314,"endX":348.3058007951268,"endY":145.69419920487314},{"type":"Arc","centerX":348.3058007951268,"centerY":155.69419920487314,"radius":10,"startAngle":4.71238898038469,"endAngle":1.5707963267948966,"anticlockwise":true},{"type":"Line","startX":348.3058007951268,"startY":165.69419920487314,"endX":570,"endY":165.69419920487314},{"type":"Arc","centerX":570,"centerY":155.69419920487314,"radius":10,"startAngle":1.5707963267948966,"endAngle":-1.5707963267948966,"anticlockwise":true}],"points":[{"x":570,"y":145.69419920487314},{"x":348.3058007951268,"y":145.69419920487314},{"x":348.3058007951268,"y":165.69419920487314},{"x":570,"y":165.69419920487314},{"x":570,"y":145.69419920487314}],"closed":true}]} );
+
+    testUnion( a, b, 1, 'stroked line 1 union' );
+  } );
+
 })();

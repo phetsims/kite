@@ -13,6 +13,7 @@ define( function( require ) {
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Poolable = require( 'PHET_CORE/Poolable' );
+  var Vector2 = require( 'DOT/Vector2' );
 
   /**
    * @public (kite-internal)
@@ -60,6 +61,10 @@ define( function( require ) {
       // @public {Vertex|null}
       this.startVertex = null;
       this.endVertex = null;
+
+      // @public {Vector2} - Used for vertex sorting in Vertex.js. X is angle of end tangent (shifted),
+      // Y is curvature at end. See Vertex edge sort for more information.
+      this.sortVector = this.sortVector || new Vector2( 0, 0 );
 
       this.updateReferences(); // Initializes vertex references
 

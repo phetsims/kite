@@ -41,8 +41,12 @@
       };
 
       window.initTest = function() {
-        window.a = new kite.Shape().circle( 10, 10, 5 );
-        window.b = new kite.Shape().arc( 20, 10, 5, Math.PI, 3 * Math.PI, false ).close();
+
+        window.a = kite.Shape.deserialize( {"type":"Shape","subpaths":[{"type":"Subpath","segments":[{"type":"Line","startX":580,"startY":372,"endX":580,"endY":155.69419920487314},{"type":"Arc","centerX":570,"centerY":155.69419920487314,"radius":10,"startAngle":0,"endAngle":-3.141592653589793,"anticlockwise":true},{"type":"Line","startX":560,"startY":155.69419920487314,"endX":560,"endY":372},{"type":"Arc","centerX":570,"centerY":372,"radius":10,"startAngle":3.141592653589793,"endAngle":0,"anticlockwise":true}],"points":[{"x":580,"y":372},{"x":580,"y":155.69419920487314},{"x":560,"y":155.69419920487314},{"x":560,"y":372},{"x":580,"y":372}],"closed":true}]} );
+        window.b = kite.Shape.deserialize( {"type":"Shape","subpaths":[{"type":"Subpath","segments":[{"type":"Line","startX":570,"startY":145.69419920487314,"endX":348.3058007951268,"endY":145.69419920487314},{"type":"Arc","centerX":348.3058007951268,"centerY":155.69419920487314,"radius":10,"startAngle":4.71238898038469,"endAngle":1.5707963267948966,"anticlockwise":true},{"type":"Line","startX":348.3058007951268,"startY":165.69419920487314,"endX":570,"endY":165.69419920487314},{"type":"Arc","centerX":570,"centerY":155.69419920487314,"radius":10,"startAngle":1.5707963267948966,"endAngle":-1.5707963267948966,"anticlockwise":true}],"points":[{"x":570,"y":145.69419920487314},{"x":348.3058007951268,"y":145.69419920487314},{"x":348.3058007951268,"y":165.69419920487314},{"x":570,"y":165.69419920487314},{"x":570,"y":145.69419920487314}],"closed":true}]} );
+
+        // window.a = kite.Shape.rect( 0, 0, 20, 20 );
+        // window.b = kite.Shape.rect( 10, 10, 20, 20 );
 
         window.graph = new kite.Graph();
         graph.addShape( 0, a );
@@ -316,6 +320,30 @@
           draw( function( context ) {
             drawVertices( context );
             drawHalfEdges( context, outerBoundary.halfEdges, 'rgba(255,0,0,0.4)' );
+          } );
+        }
+        for ( j = 0; j < graph.outerBoundaries.length; j++ ) {
+          var outerBoundary = graph.outerBoundaries[ j ];
+          draw( function( context ) {
+            context.save();
+            context.setTransform( 1, 0, 0, 1, 0, 0 );
+            context.fillStyle = 'black';
+            context.fillRect( 0, 0, debugSize, debugSize );
+            context.restore();
+            // drawVertices( context );
+            for ( var m = 0; m < graph.vertices.length; m++ ) {
+              var vertex = graph.vertices[ m ];
+              for ( var n = 0; n < vertex.incidentHalfEdges.length; n++ ) {
+                var halfEdge = vertex.incidentHalfEdges[ n ];
+                var segment = halfEdge.getDirectionalSegment().slice( 0.5, 1 );
+                context.beginPath();
+                context.moveTo( segment.start.x, segment.start.y );
+                segment.writeToContext( context );
+                context.strokeStyle = 'hsl(' + Math.floor( 120 * n / vertex.incidentHalfEdges.length ) + ',100%,50%)';
+                context.lineWidth = 2 / scale;
+                context.stroke();
+              }
+            }
           } );
         }
         for ( j = 0; j < graph.faces.length; j++ ) {

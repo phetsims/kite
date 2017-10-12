@@ -20,34 +20,6 @@ define( function( require ) {
   var globaId = 0;
 
   /**
-   * Comparse two edges for sortEdges.
-   *
-   * TODO: For sorting, don't require multiple computation of the angles
-   *
-   * @param {Edge} halfEdgeA
-   * @param {Edge} halfEdgeB
-   * @returns {number}
-   */
-  function edgeComparison( halfEdgeA, halfEdgeB ) {
-    var angleA = halfEdgeA.getEndTangent().angle();
-    var angleB = halfEdgeB.getEndTangent().angle();
-
-    if ( Math.abs( angleA - angleB ) > 1e-4 ) {
-      return angleA < angleB ? -1 : 1;
-    }
-    else {
-      var curvatureA = halfEdgeA.getEndCurvature();
-      var curvatureB = halfEdgeB.getEndCurvature();
-      if ( Math.abs( curvatureA - curvatureB ) > 1e-4 ) {
-        return curvatureA < curvatureB ? 1 : -1;
-      }
-      else {
-        throw new Error( 'TODO: Need to implement more advanced disambiguation ' );
-      }
-    }
-  }
-
-  /**
    * @public (kite-internal)
    * @constructor
    *
@@ -112,7 +84,64 @@ define( function( require ) {
      * @public
      */
     sortEdges: function() {
-      this.incidentHalfEdges.sort( edgeComparison );
+      var vectors = []; // x coordinate will be "angle", y coordinate will be curvature
+      for ( var i = 0; i < this.incidentHalfEdges.length; i++ ) {
+        var halfEdge = this.incidentHalfEdges[ i ];
+        vectors.push( halfEdge.sortVector.setXY( halfEdge.getEndTangent().angle(), halfEdge.getEndCurvature() ) );
+      }
+
+      // "Rotate" the angles until we are sure that our "cut" (where -pi goes to pi around the circle) is at a place
+      // not near any angle. This should prevent ambiguity in sorting (which can lead to bugs in the order)
+      var cutoff = -Math.PI + 1e-4;
+      var atCutAngle = false;
+      while ( !atCutAngle ) {
+        atCutAngle = true;
+        for ( i = 0; i < vectors.length; i++ ) {
+          if ( vectors[ i ].x < cutoff ) {
+            atCutAngle = false;
+          }
+        }
+        if ( !atCutAngle ) {
+          for ( i = 0; i < vectors.length; i++ ) {
+            var vector = vectors[ i ];
+            vector.x -= 1.62594024516; // Definitely not choosing random digits by typing! (shouldn't matter)
+            if ( vector.x < -Math.PI - 1e-4 ) {
+              vector.x += Math.PI * 2;
+            }
+          }
+        }
+      }
+
+      this.incidentHalfEdges.sort( Vertex.edgeComparison );
+    }
+  }, {
+    /**
+     * Comparse two edges for sortEdges. Should have executed that first, as it relies on information looked up in that
+     * process.
+     *
+     * @param {Edge} halfEdgeA
+     * @param {Edge} halfEdgeB
+     * @returns {number}
+     */
+    edgeComparison: function( halfEdgeA, halfEdgeB ) {
+      var angleA = halfEdgeA.sortVector.x;
+      var angleB = halfEdgeB.sortVector.x;
+
+      // Don't allow angleA=-pi, angleB=pi (they are equivalent)
+      if ( Math.abs( angleA - angleB ) > 1e-4 ) {
+        return angleA < angleB ? -1 : 1;
+      }
+      else {
+        // TODO: look into if precomputing curvature is too expensive.
+        var curvatureA = halfEdgeA.sortVector.y;
+        var curvatureB = halfEdgeB.sortVector.y;
+        if ( Math.abs( curvatureA - curvatureB ) > 1e-4 ) {
+          return curvatureA < curvatureB ? 1 : -1;
+        }
+        else {
+          throw new Error( 'TODO: Need to implement more advanced disambiguation ' );
+        }
+      }
     }
   } );
 
