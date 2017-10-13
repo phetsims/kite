@@ -188,15 +188,7 @@ define( function( require ) {
       var middle = this.positionAt( 0.5 );
       var end = this.end;
 
-      // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
-      if ( Util.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) > curveEpsilon ) {
-        return false;
-      }
-      // deviation criterion
-      if ( Util.distToSegmentSquared( middle, start, end ) > distanceEpsilon ) {
-        return false;
-      }
-      return true;
+      return Segment.isSufficientlyFlat( distanceEpsilon, curveEpsilon, start, middle, end );
     },
 
     /**
@@ -221,6 +213,101 @@ define( function( require ) {
         return subdivided[ 0 ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels - 1 ) +
                subdivided[ 1 ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels - 1 );
       }
+    },
+
+    /**
+     * Returns information about the line dash parametric offsets for a given segment.
+     * @public
+     *
+     * As always, this is fairly approximate depending on the type of segment.
+     *
+     * @param {Array.<number>} lineDash
+     * @param {number} lineDashOffset
+     * @param {number} distanceEpsilon - controls level of subdivision by attempting to ensure a maximum (squared)
+     *                                   deviation from the curve
+     * @param {number} curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
+     *                                between segments
+     * @returns {Array.<Object>} - See implementation for details: {t: {number}, wasInside: {boolean}}
+     */
+    getDashValues: function( lineDash, lineDashOffset, distanceEpsilon, curveEpsilon ) {
+      var self = this;
+
+      var results = [];
+
+      // If no dashes, return nothing
+      if ( lineDash.length === 0 ) {
+        return results;
+      }
+
+      // Do the offset modulo the sum, so that we don't have to cycle for a long time
+      var lineDashSum = _.sum( lineDash );
+      lineDashOffset = lineDashOffset % lineDashSum;
+
+      // Ensure the lineDashOffset is positive
+      if ( lineDashOffset < 0 ) {
+        lineDashOffset += lineDashSum;
+      }
+
+      // The current section of lineDash that we are in
+      var dashIndex = 0;
+      var dashOffset = 0;
+      var isInside = true;
+      function nextDashIndex() {
+        dashIndex = ( dashIndex + 1 ) % lineDash.length;
+        isInside = !isInside;
+      }
+
+      // Burn off initial lineDashOffset
+      while ( lineDashOffset > 0 ) {
+        if ( lineDashOffset >= lineDash[ dashIndex ] ) {
+          lineDashOffset -= lineDash[ dashIndex ];
+          nextDashIndex();
+        }
+        else {
+          dashOffset = lineDashOffset;
+          lineDashOffset = 0;
+        }
+      }
+
+      // Recursively progress through until we have mostly-linear segments.
+      (function recur( t0, t1, p0, p1, depth ) {
+        // Compute the t/position at the midpoint t value
+        var tMid = ( t0 + t1 ) / 2;
+        var pMid = self.positionAt( tMid );
+
+        // If it's flat enough (or we hit our recursion limit), process it
+        if ( depth > 14 || Segment.isSufficientlyFlat( distanceEpsilon, curveEpsilon, p0, pMid, p1 ) ) {
+          // Estimate length
+          var totalLength = p0.distance( pMid ) + pMid.distance( p1 );
+
+          // While we are longer than the remaining amount for the next dash change.
+          var lengthLeft = totalLength;
+          while ( dashOffset + lengthLeft >= lineDash[ dashIndex ] ) {
+            // Compute the t (for now, based on the total length for ease)
+            var t = Util.linear( 0, totalLength, t0, t1, totalLength - lengthLeft + lineDash[ dashIndex ] - dashOffset );
+
+            // Record the dash change
+            results.push( {
+              t: t,
+              wasInside: isInside
+            } );
+
+            // Remove amount added from our lengthLeft (move to the dash)
+            lengthLeft -= lineDash[ dashIndex ] - dashOffset;
+            dashOffset = 0; // at the dash, we'll have 0 offset
+            nextDashIndex();
+          }
+
+          // Spill-over, just add it
+          dashOffset = dashOffset + lengthLeft;
+        }
+        else {
+          recur( t0, tMid, p0, pMid, depth + 1 );
+          recur( tMid, t1, pMid, p1, depth + 1 );
+        }
+      })( 0, 1, this.start, this.end, 0 );
+
+      return results;
     },
 
     /**
@@ -584,6 +671,32 @@ define( function( require ) {
     assert && assert( obj.type && kite[ obj.type ] && kite[ obj.type ].deserialize );
 
     return kite[ obj.type ].deserialize( obj );
+  };
+
+  /**
+   * Determines if the start/middle/end points are representative of a sufficiently flat segment
+   * (given certain epsilon values)
+   * @public
+   *
+   * @param {Vector2} start
+   * @param {Vector2} middle
+   * @param {Vector2} end
+   * @param {number} distanceEpsilon - controls level of subdivision by attempting to ensure a maximum (squared)
+   *                                   deviation from the curve
+   * @param {number} curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
+   *                                between segments
+   * @returns {boolean}
+   */
+  Segment.isSufficientlyFlat = function( distanceEpsilon, curveEpsilon, start, middle, end ) {
+    // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
+    if ( Util.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) > curveEpsilon ) {
+      return false;
+    }
+    // deviation criterion
+    if ( Util.distToSegmentSquared( middle, start, end ) > distanceEpsilon ) {
+      return false;
+    }
+    return true;
   };
 
   return Segment;
