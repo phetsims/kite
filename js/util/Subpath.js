@@ -579,6 +579,99 @@ define( function( require ) {
     },
 
     /**
+     * Returns a copy of this subpath with the dash "holes" removed (has many subpaths usually).
+     * @public
+     *
+     * @param {Array.<number>} lineDash
+     * @param {number} lineDashOffset
+     * @param {number} distanceEpsilon - controls level of subdivision by attempting to ensure a maximum (squared)
+     *                                   deviation from the curve
+     * @param {number} curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
+     *                                between segments
+     * @returns {Array.<Subpath>}
+     */
+    dashed: function( lineDash, lineDashOffset, distanceEpsilon, curveEpsilon ) {
+      // Combine segment arrays (collapsing the two-most-adjacent arrays into one, with concatenation)
+      function combineSegmentArrays( left, right ) {
+        var combined = left[ left.length - 1 ].concat( right[ 0 ] );
+        var result = left.slice( 0, left.length - 1 ).concat( [ combined ] ).concat( right.slice( 1 ) );
+        assert && assert( result.length === left.length + right.length - 1 );
+        return result;
+      }
+
+      // Whether two dash items (return type from getDashValues()) can be combined together to have their end segments
+      // combined with combineSegmentArrays.
+      function canBeCombined( leftItem, rightItem ) {
+        if ( !leftItem.hasRightFilled || !rightItem.hasLeftFilled ) {
+          return false;
+        }
+        var leftSegment = _.last( _.last( leftItem.segmentArrays ) );
+        var rightSegment = rightItem.segmentArrays[ 0 ][ 0 ];
+        return leftSegment.end.distance( rightSegment.start ) < 1e-5;
+      }
+
+      // Compute all of the dashes
+      var dashItems = [];
+      for ( var i = 0; i < this.segments.length; i++ ) {
+        var segment = this.segments[ i ];
+        var dashItem = segment.getDashValues( lineDash, lineDashOffset, distanceEpsilon, curveEpsilon );
+        dashItems.push( dashItem );
+
+        // We moved forward in the offset by this much
+        lineDashOffset += dashItem.arcLength;
+
+        var values = [ 0 ].concat( dashItem.values ).concat( [ 1 ] );
+        var initiallyInside = dashItem.initiallyInside;
+
+        // Mark whether the ends are filled, so adjacent filled ends can be combined
+        dashItem.hasLeftFilled = initiallyInside;
+        dashItem.hasRightFilled = ( values.length % 2 === 0 ) ? initiallyInside : !initiallyInside;
+
+        // {Array.<Array.<Segment>>}, where each contained array will be turned into a subpath at the end.
+        dashItem.segmentArrays = [];
+        for ( var j = ( initiallyInside ? 0 : 1 ); j < values.length - 1; j += 2 ) {
+          if ( values[ j ] !== values[ j + 1 ] ) {
+            dashItem.segmentArrays.push( [ segment.slice( values[ j ], values[ j + 1 ] ) ] );
+          }
+        }
+      }
+
+      // Combine adjacent which both are filled on the middle
+      for ( i = dashItems.length - 1; i >= 1; i-- ) {
+        var leftItem = dashItems[ i - 1 ];
+        var rightItem = dashItems[ i ];
+        if ( canBeCombined( leftItem, rightItem ) ) {
+          dashItems.splice( i - 1, 2, {
+            segmentArrays: combineSegmentArrays( leftItem.segmentArrays, rightItem.segmentArrays ),
+            hasLeftFilled: leftItem.hasLeftFilled,
+            hasRightFilled: rightItem.hasRightFilled
+          } );
+        }
+      }
+
+      // Combine adjacent start/end if applicable
+      if ( dashItems.length > 1 && canBeCombined( dashItems[ dashItems.length - 1 ], dashItems[ 0 ] ) ) {
+        leftItem = dashItems.pop();
+        rightItem = dashItems.shift();
+        dashItems.push( {
+          segmentArrays: combineSegmentArrays( leftItem.segmentArrays, rightItem.segmentArrays ),
+          hasLeftFilled: leftItem.hasLeftFilled,
+          hasRightFilled: rightItem.hasRightFilled
+        } );
+      }
+
+      // Determine if we are closed (have only one subpath)
+      if ( this.closed && dashItems.length === 1 && dashItems[ 0 ].segmentArrays.length === 1 && dashItems[ 0 ].hasLeftFilled && dashItems[ 0 ].hasRightFilled ) {
+        return [ new Subpath( dashItems[ 0 ].segmentArrays[ 0 ], null, true ) ];
+      }
+
+      // Convert to subpaths
+      return _.flatten( dashItems.map( function( dashItem ) { return dashItem.segmentArrays; } ) ).map( function( segments ) {
+        return new Subpath( segments );
+      } );
+    },
+
+    /**
      * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
      * @public
      *

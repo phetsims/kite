@@ -227,17 +227,19 @@ define( function( require ) {
      *                                   deviation from the curve
      * @param {number} curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
      *                                between segments
-     * @returns {Array.<Object>} - See implementation for details: {t: {number}, wasInside: {boolean}}
+     * @returns {Object} - Of the form: {
+     *   values: {Array.<number>} - Parametric (t) values for where dash boundaries exist
+     *   arcLength: {number} - Total arc length for this segment
+     *   initiallyInside: {boolean} - Whether the start of the segment is inside a dash (instead of a gap)
+     * }
      */
     getDashValues: function( lineDash, lineDashOffset, distanceEpsilon, curveEpsilon ) {
+      assert && assert( lineDash.length > 0, 'Do not call with an empty dash array' );
+
       var self = this;
 
-      var results = [];
-
-      // If no dashes, return nothing
-      if ( lineDash.length === 0 ) {
-        return results;
-      }
+      var values = [];
+      var arcLength = 0;
 
       // Do the offset modulo the sum, so that we don't have to cycle for a long time
       var lineDashSum = _.sum( lineDash );
@@ -269,6 +271,8 @@ define( function( require ) {
         }
       }
 
+      var initiallyInside = isInside;
+
       // Recursively progress through until we have mostly-linear segments.
       (function recur( t0, t1, p0, p1, depth ) {
         // Compute the t/position at the midpoint t value
@@ -279,6 +283,7 @@ define( function( require ) {
         if ( depth > 14 || Segment.isSufficientlyFlat( distanceEpsilon, curveEpsilon, p0, pMid, p1 ) ) {
           // Estimate length
           var totalLength = p0.distance( pMid ) + pMid.distance( p1 );
+          arcLength += totalLength;
 
           // While we are longer than the remaining amount for the next dash change.
           var lengthLeft = totalLength;
@@ -287,10 +292,7 @@ define( function( require ) {
             var t = Util.linear( 0, totalLength, t0, t1, totalLength - lengthLeft + lineDash[ dashIndex ] - dashOffset );
 
             // Record the dash change
-            results.push( {
-              t: t,
-              wasInside: isInside
-            } );
+            values.push( t );
 
             // Remove amount added from our lengthLeft (move to the dash)
             lengthLeft -= lineDash[ dashIndex ] - dashOffset;
@@ -307,7 +309,11 @@ define( function( require ) {
         }
       })( 0, 1, this.start, this.end, 0 );
 
-      return results;
+      return {
+        values: values,
+        arcLength: arcLength,
+        initiallyInside: initiallyInside
+      };
     },
 
     /**

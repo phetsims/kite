@@ -1351,6 +1351,29 @@ define( function( require ) {
     },
 
     /**
+     * Returns a copy of this subpath with the dash "holes" removed (has many subpaths usually).
+     * @public
+     *
+     * @param {Array.<number>} lineDash
+     * @param {number} lineDashOffset
+     * @param {number} [distanceEpsilon] - controls level of subdivision by attempting to ensure a maximum (squared)
+     *                                   deviation from the curve
+     * @param {number} [curveEpsilon] - controls level of subdivision by attempting to ensure a maximum curvature change
+     *                                between segments
+     * @returns {Array.<Subpath>}
+     */
+    getDashedShape: function( lineDash, lineDashOffset, options ) {
+      options = _.extend( {
+        distanceEpsilon: 1e-10,
+        curveEpsilon: 1e-8
+      }, options );
+
+      return new Shape( _.flatten( this.subpaths.map( function( subpath ) {
+        return subpath.dashed( lineDash, lineDashOffset, options.distanceEpsilon, options.curveEpsilon );
+      } ) ) );
+    },
+
+    /**
      * Returns the bounds of this shape. It is the bounding-box union of the bounds of each subpath contained.
      * @public
      *
