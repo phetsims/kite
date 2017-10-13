@@ -116,13 +116,7 @@ define( function( require ) {
         return;
       }
 
-      // Workaround for current Subpath handling of closing segments. This ensures that we get segments as if the
-      // subpath is closed (even if it is not closed).
-      var segments = subpath.segments.slice();
-      if ( subpath.hasClosingSegment() ) {
-        segments.push( subpath.getClosingSegment() );
-      }
-
+      var segments = subpath.getFillSegments();
       var index;
 
       // Collects all of the vertices

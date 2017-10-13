@@ -1488,11 +1488,7 @@ define( function( require ) {
     getNonoverlappingArea: function() {
       // Only absolute-value the final value.
       return Math.abs( _.sum( this.subpaths.map( function( subpath ) {
-        var segments = subpath.segments.slice();
-        if ( subpath.hasClosingSegment() ) {
-          segments.push( subpath.getClosingSegment() );
-        }
-        return _.sum( segments.map( function( segment ) {
+        return _.sum( subpath.getFillSegments().map( function( segment ) {
           return segment.getSignedAreaFragment();
         } ) );
       } ) ) );

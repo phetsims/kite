@@ -109,9 +109,6 @@ define( function( require ) {
       for ( var i = 0; i < this.segments.length; i++ ) {
         length += this.segments[ i ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels );
       }
-      if ( this.closed && this.hasClosingSegment() ) {
-        length += this.getClosingSegment().getArcLength( distanceEpsilon, curveEpsilon, maxLevels );
-      }
       return length;
     },
 
@@ -224,11 +221,12 @@ define( function( require ) {
     /**
      * Sets this subpath to be a closed path
      * @public
-     *
-     * TODO: consider always adding a closing segment into our segments list for easier processing!! see addClosingSegment()
      */
     close: function() {
       this.closed = true;
+
+      // If needed, add a connecting "closing" segment
+      this.addClosingSegment();
     },
 
     /**
@@ -279,6 +277,20 @@ define( function( require ) {
      */
     getLastSegment: function() {
       return _.last( this.segments );
+    },
+
+    /**
+     * Returns segments that include the "filled" area, which may include an extra closing segment if necessary.
+     * @public
+     *
+     * @returns {Array.<Segment>}
+     */
+    getFillSegments: function() {
+      var segments = this.segments.slice();
+      if ( this.hasClosingSegment() ) {
+        segments.push( this.getClosingSegment() );
+      }
+      return segments;
     },
 
     /**
@@ -396,12 +408,6 @@ define( function( require ) {
      * @returns {Subpath}
      */
     nonlinearTransformed: function( options ) {
-      // specify an actual closing segment, so it can be mapped properly by any non-linear transforms
-      // TODO: always create and add the closing segments when the subpath is closed!!!
-      if ( this.closed && this.hasClosingSegment() ) {
-        this.addClosingSegment();
-      }
-
       return new Subpath( _.flatten( _.map( this.segments, function( segment ) {
         // check for this segment's support for the specific transform or discretization being applied
         if ( options.methodName && segment[ options.methodName ] ) {
@@ -449,9 +455,6 @@ define( function( require ) {
       var i;
 
       var regularSegments = this.segments.slice();
-      if ( this.closed && this.hasClosingSegment() ) {
-        regularSegments.push( this.getClosingSegment() );
-      }
       var offsets = [];
 
       for ( i = 0; i < regularSegments.length; i++ ) {
