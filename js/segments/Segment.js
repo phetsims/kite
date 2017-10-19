@@ -368,6 +368,89 @@ define( function( require ) {
         subdividedSegments[ 1 ].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, middle, end );
       }
       return segments;
+    },
+
+    /**
+     * Returns a list of Line and/or Arc segments that approximates this segment.
+     * @public
+     *
+     * @param {Object} [options]
+     * @returns {Array.<Segment>}
+     */
+    toPiecewiseLinearOrArcSegments: function( options ) {
+      options = _.extend( {
+        minLevels: 2,
+        maxLevels: 7,
+        curvatureThreshold: 0.02,
+        errorThreshold: 10,
+        errorPoints: [ 0.25, 0.75 ],
+      }, options );
+
+      var segments = [];
+      this.toPiecewiseLinearOrArcRecursion( options, options.minLevels, options.maxLevels, segments,
+        0, 1,
+        this.positionAt( 0 ), this.positionAt( 1 ),
+        this.curvatureAt( 0 ), this.curvatureAt( 1 ) );
+      return segments;
+    },
+
+    /**
+     * Helper function for toPiecewiseLinearOrArcSegments.
+     * @private
+     *
+     * @param {Object} options
+     * @param {number} minLevels
+     * @param {number} maxLevels
+     * @param {Array.<Segment>} segments - We will push resulting segments to here
+     * @param {number} startT
+     * @param {number} endT
+     * @param {Vector2} startPoint
+     * @param {Vector2} endPoint
+     * @param {number} startCurvature
+     * @param {number} endCurvature
+     */
+    toPiecewiseLinearOrArcRecursion: function( options, minLevels, maxLevels, segments, startT, endT, startPoint, endPoint, startCurvature, endCurvature ) {
+      var middleT = ( startT + endT ) / 2;
+      var middlePoint = this.positionAt( middleT );
+      var middleCurvature = this.curvatureAt( middleT );
+
+      if ( maxLevels <= 0 || ( minLevels <= 0 && Math.abs( startCurvature - middleCurvature ) + Math.abs( middleCurvature - endCurvature ) < options.curvatureThreshold * 2 ) ) {
+        var segment = kite.Arc.createFromPoints( startPoint, middlePoint, endPoint );
+        var needsSplit = false;
+        if ( segment instanceof kite.Arc ) {
+          var radiusSquared = segment.radius * segment.radius;
+          for ( var i = 0; i < options.errorPoints.length; i++ ) {
+            var t = options.errorPoints[ i ];
+            var point = this.positionAt( startT * ( 1 - t ) + endT * t );
+            if ( Math.abs( point.distanceSquared( segment.center ) - radiusSquared ) > options.errorThreshold ) {
+              needsSplit = true;
+              break;
+            }
+          }
+        }
+        if ( !needsSplit ) {
+          segments.push( segment );
+          return;
+        }
+      }
+      this.toPiecewiseLinearOrArcRecursion( options, minLevels - 1, maxLevels - 1, segments,
+        startT, middleT,
+        startPoint, middlePoint,
+        startCurvature, middleCurvature );
+      this.toPiecewiseLinearOrArcRecursion( options, minLevels - 1, maxLevels - 1, segments,
+        middleT, endT,
+        middlePoint, endPoint,
+        middleCurvature, endCurvature );
+    },
+
+    /**
+     * Returns a Shape containing just this one segment.
+     * @public
+     *
+     * @returns {Shape}
+     */
+    toShape: function() {
+      return new kite.Shape( [ new kite.Subpath( [ this ] ) ] );
     }
   } );
 

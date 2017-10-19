@@ -12,6 +12,7 @@ define( function( require ) {
   var Bounds2 = require( 'DOT/Bounds2' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
+  var Line = require( 'KITE/segments/Line' );
   var Overlap = require( 'KITE/util/Overlap' );
   var RayIntersection = require( 'KITE/util/RayIntersection' );
   var Segment = require( 'KITE/segments/Segment' );
@@ -849,6 +850,16 @@ define( function( require ) {
     },
 
     /**
+     * We can handle this simply by returning ourselves.
+     * @override
+     *
+     * @returns {Array.<Segment>}
+     */
+    toPiecewiseLinearOrArcSegments: function() {
+      return [ this ];
+    },
+
+    /**
      * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
      * @public
      *
@@ -1101,6 +1112,44 @@ define( function( require ) {
     }
 
     return results;
+  };
+
+  /**
+   * Creates an Arc (or if straight enough a Line) segment that goes from the startPoint to the endPoint, touching
+   * the middlePoint somewhere between the two.
+   * @public
+   *
+   * @param {Vector2} startPoint
+   * @param {Vector2} middlePoint
+   * @param {Vector2} endPoint
+   * @returns {Segment}
+   */
+  Arc.createFromPoints = function( startPoint, middlePoint, endPoint ) {
+    var center = Util.circleCenterFromPoints( startPoint, middlePoint, endPoint );
+
+    // Close enough
+    if ( center === null ) {
+      return new Line( startPoint, endPoint );
+    }
+    else {
+      var startDiff = startPoint.minus( center );
+      var middleDiff = middlePoint.minus( center );
+      var endDiff = endPoint.minus( center );
+      var startAngle = startDiff.angle();
+      var middleAngle = middleDiff.angle();
+      var endAngle = endDiff.angle();
+
+      var radius = ( startDiff.magnitude() + middleDiff.magnitude() + endDiff.magnitude() ) / 3;
+
+      // Try anticlockwise first. TODO: Don't require creation of extra Arcs
+      var arc = new Arc( center, radius, startAngle, endAngle, false );
+      if ( arc.containsAngle( middleAngle ) ) {
+        return arc;
+      }
+      else {
+        return new Arc( center, radius, startAngle, endAngle, true );
+      }
+    }
   };
 
   return Arc;

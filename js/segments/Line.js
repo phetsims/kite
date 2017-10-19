@@ -506,6 +506,16 @@ define( function( require ) {
     },
 
     /**
+     * We can handle this simply by returning ourselves.
+     * @override
+     *
+     * @returns {Array.<Segment>}
+     */
+    toPiecewiseLinearOrArcSegments: function() {
+      return [ this ];
+    },
+
+    /**
      * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
      * @public
      *
