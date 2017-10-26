@@ -75,7 +75,7 @@ define( function( require ) {
     }
   } );
 
-  Poolable.mixin( Loop, {
+  Poolable.mixInto( Loop, {
     constructorDuplicateFactory: function( pool ) {
       return function( shapeId ) {
         if ( pool.length ) {

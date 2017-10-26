@@ -145,7 +145,7 @@ define( function( require ) {
     }
   } );
 
-  Poolable.mixin( Vertex, {
+  Poolable.mixInto( Vertex, {
     constructorDuplicateFactory: function( pool ) {
       return function( point ) {
         if ( pool.length ) {

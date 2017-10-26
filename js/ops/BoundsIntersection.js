@@ -318,7 +318,7 @@ define( function( require ) {
     }
   } );
 
-  Poolable.mixin( BoundsIntersection, {
+  Poolable.mixInto( BoundsIntersection, {
     constructorDuplicateFactory: function( pool ) {
       return function( a, b, atMin, atMax, btMin, btMax, aMin, aMax, bMin, bMax ) {
         if ( pool.length ) {

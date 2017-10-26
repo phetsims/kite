@@ -119,7 +119,7 @@ define( function( require ) {
     }
   } );
 
-  Poolable.mixin( Edge, {
+  Poolable.mixInto( Edge, {
     constructorDuplicateFactory: function( pool ) {
       return function( segment, startVertex, endVertex ) {
         if ( pool.length ) {

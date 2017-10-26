@@ -174,7 +174,7 @@ define( function( require ) {
     }
   } );
 
-  Poolable.mixin( HalfEdge, {
+  Poolable.mixInto( HalfEdge, {
     constructorDuplicateFactory: function( pool ) {
       return function( edge, isReversed ) {
         if ( pool.length ) {

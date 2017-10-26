@@ -119,7 +119,7 @@ define( function( require ) {
     }
   } );
 
-  Poolable.mixin( Face, {
+  Poolable.mixInto( Face, {
     constructorDuplicateFactory: function( pool ) {
       return function( boundary ) {
         if ( pool.length ) {

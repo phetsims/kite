@@ -229,7 +229,7 @@ define( function( require ) {
     }
   } );
 
-  Poolable.mixin( Boundary, {
+  Poolable.mixInto( Boundary, {
     constructorDuplicateFactory: function( pool ) {
       return function( halfEdges ) {
         if ( pool.length ) {
