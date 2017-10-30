@@ -11,6 +11,7 @@
     "pegjs": "0.7.0"
   },
   "phet": {
+    "requirejsNamespace": "KITE",
     "isJSOnly": true,
     "requiresLodash": true,
     "assignGlobals": {
