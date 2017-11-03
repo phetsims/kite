@@ -691,9 +691,7 @@ define( function( require ) {
               // TODO: In the future, handle multiple intersections (instead of re-running)
               var intersection = intersections[ 0 ];
 
-              this.simpleSplit( aEdge, bEdge, intersection.aT, intersection.bT, intersection.point );
-
-              needsLoop = true;
+              needsLoop = this.simpleSplit( aEdge, bEdge, intersection.aT, intersection.bT, intersection.point );
               break intersect;
             }
           }
@@ -710,8 +708,12 @@ define( function( require ) {
      * @param {number} aT - Parametric t value of the intersection for aEdge
      * @param {number} bT - Parametric t value of the intersection for bEdge
      * @param {Vector2} point - Location of the intersection
+     *
+     * @returns {boolean} - true if something was split.
      */
     simpleSplit: function( aEdge, bEdge, aT, bT, point ) {
+      var changed = false;
+
       var aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
       var bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
 
@@ -727,12 +729,16 @@ define( function( require ) {
         this.vertices.push( vertex );
       }
 
-      if ( aInternal ) {
+      if ( aInternal && vertex !== aEdge.startVertex && vertex !== aEdge.endVertex ) {
         this.splitEdge( aEdge, aT, vertex );
+        changed = true;
       }
-      if ( bInternal ) {
+      if ( bInternal && vertex !== bEdge.startVertex && vertex !== bEdge.endVertex ) {
         this.splitEdge( bEdge, bT, vertex );
+        changed = true;
       }
+
+      return changed;
     },
 
     /**
@@ -745,6 +751,8 @@ define( function( require ) {
      */
     splitEdge: function( edge, t, vertex ) {
       assert && assert( this.boundaries.length === 0, 'Only handles simpler level primitive splitting right now' );
+      assert && assert( edge.startVertex !== vertex );
+      assert && assert( edge.endVertex !== vertex );
 
       var segments = edge.segment.subdivided( t );
       assert && assert( segments.length === 2 );

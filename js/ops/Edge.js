@@ -11,6 +11,7 @@ define( function( require ) {
 
   var HalfEdge = require( 'KITE/ops/HalfEdge' );
   var inherit = require( 'PHET_CORE/inherit' );
+  var Line = require( 'KITE/segments/Line' );
   var kite = require( 'KITE/kite' );
   var Poolable = require( 'PHET_CORE/Poolable' );
   var Segment = require( 'KITE/segments/Segment' );
@@ -116,6 +117,9 @@ define( function( require ) {
     updateReferences: function() {
       this.forwardHalf.updateReferences();
       this.reversedHalf.updateReferences();
+
+      assert && assert( !( this.segment instanceof Line ) || this.startVertex !== this.endVertex,
+        'No line segments for same vertices' );
     }
   } );
 
