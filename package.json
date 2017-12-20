@@ -12,6 +12,7 @@
   },
   "phet": {
     "requirejsNamespace": "KITE",
+    "buildStandalone": true,
     "isJSOnly": true,
     "requiresLodash": true,
     "assignGlobals": {
