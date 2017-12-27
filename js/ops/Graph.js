@@ -409,45 +409,45 @@ define( function( require ) {
         needsLoop = false;
 
         collapsed:
-        for ( var i = 0; i < this.vertices.length; i++ ) {
-          var vertex = this.vertices[ i ];
-          if ( vertex.incidentHalfEdges.length === 2 ) {
-            var aEdge = vertex.incidentHalfEdges[ 0 ].edge;
-            var bEdge = vertex.incidentHalfEdges[ 1 ].edge;
-            var aSegment = aEdge.segment;
-            var bSegment = bEdge.segment;
-            var aVertex = aEdge.getOtherVertex( vertex );
-            var bVertex = bEdge.getOtherVertex( vertex );
+          for ( var i = 0; i < this.vertices.length; i++ ) {
+            var vertex = this.vertices[ i ];
+            if ( vertex.incidentHalfEdges.length === 2 ) {
+              var aEdge = vertex.incidentHalfEdges[ 0 ].edge;
+              var bEdge = vertex.incidentHalfEdges[ 1 ].edge;
+              var aSegment = aEdge.segment;
+              var bSegment = bEdge.segment;
+              var aVertex = aEdge.getOtherVertex( vertex );
+              var bVertex = bEdge.getOtherVertex( vertex );
 
-            assert && assert( this.loops.length === 0 );
+              assert && assert( this.loops.length === 0 );
 
-            // TODO: Can we avoid this in the inner loop?
-            if ( aEdge.startVertex === vertex ) {
-              aSegment = aSegment.reversed();
-            }
-            if ( bEdge.endVertex === vertex ) {
-              bSegment = bSegment.reversed();
-            }
+              // TODO: Can we avoid this in the inner loop?
+              if ( aEdge.startVertex === vertex ) {
+                aSegment = aSegment.reversed();
+              }
+              if ( bEdge.endVertex === vertex ) {
+                bSegment = bSegment.reversed();
+              }
 
-            if ( aSegment instanceof Line && bSegment instanceof Line ) {
-              // See if the lines are collinear, so that we can combine them into one edge
-              if ( aSegment.tangentAt( 0 ).normalized().distance( bSegment.tangentAt( 0 ).normalized() ) < 1e-6 ) {
-                this.removeEdge( aEdge );
-                this.removeEdge( bEdge );
-                aEdge.dispose();
-                bEdge.dispose();
-                arrayRemove( this.vertices, vertex );
-                vertex.dispose();
+              if ( aSegment instanceof Line && bSegment instanceof Line ) {
+                // See if the lines are collinear, so that we can combine them into one edge
+                if ( aSegment.tangentAt( 0 ).normalized().distance( bSegment.tangentAt( 0 ).normalized() ) < 1e-6 ) {
+                  this.removeEdge( aEdge );
+                  this.removeEdge( bEdge );
+                  aEdge.dispose();
+                  bEdge.dispose();
+                  arrayRemove( this.vertices, vertex );
+                  vertex.dispose();
 
-                var newSegment = new Line( aVertex.point, bVertex.point );
-                this.addEdge( new Edge( newSegment, aVertex, bVertex ) );
+                  var newSegment = new Line( aVertex.point, bVertex.point );
+                  this.addEdge( new Edge( newSegment, aVertex, bVertex ) );
 
-                needsLoop = true;
-                break collapsed;
+                  needsLoop = true;
+                  break collapsed;
+                }
               }
             }
           }
-        }
       }
     },
 
@@ -461,47 +461,47 @@ define( function( require ) {
         needsLoop = false;
 
         overlap:
-        for ( var i = 0; i < this.edges.length; i++ ) {
-          var aEdge = this.edges[ i ];
-          var aSegment = aEdge.segment;
-          for ( var j = i + 1; j < this.edges.length; j++ ) {
-            var bEdge = this.edges[ j ];
-            var bSegment = bEdge.segment;
+          for ( var i = 0; i < this.edges.length; i++ ) {
+            var aEdge = this.edges[ i ];
+            var aSegment = aEdge.segment;
+            for ( var j = i + 1; j < this.edges.length; j++ ) {
+              var bEdge = this.edges[ j ];
+              var bSegment = bEdge.segment;
 
-            var overlapFunction = null;
-            if ( aSegment instanceof Line && bSegment instanceof Line ) {
-              overlapFunction = Line.getOverlaps;
-            }
-            if ( aSegment instanceof Quadratic && bSegment instanceof Quadratic ) {
-              overlapFunction = Quadratic.getOverlaps;
-            }
-            if ( aSegment instanceof Cubic && bSegment instanceof Cubic ) {
-              overlapFunction = Cubic.getOverlaps;
-            }
-            if ( aSegment instanceof Arc && bSegment instanceof Arc ) {
-              overlapFunction = Arc.getOverlaps;
-            }
-            if ( aSegment instanceof EllipticalArc && bSegment instanceof EllipticalArc ) {
-              overlapFunction = EllipticalArc.getOverlaps;
-            }
+              var overlapFunction = null;
+              if ( aSegment instanceof Line && bSegment instanceof Line ) {
+                overlapFunction = Line.getOverlaps;
+              }
+              if ( aSegment instanceof Quadratic && bSegment instanceof Quadratic ) {
+                overlapFunction = Quadratic.getOverlaps;
+              }
+              if ( aSegment instanceof Cubic && bSegment instanceof Cubic ) {
+                overlapFunction = Cubic.getOverlaps;
+              }
+              if ( aSegment instanceof Arc && bSegment instanceof Arc ) {
+                overlapFunction = Arc.getOverlaps;
+              }
+              if ( aSegment instanceof EllipticalArc && bSegment instanceof EllipticalArc ) {
+                overlapFunction = EllipticalArc.getOverlaps;
+              }
 
-            if ( overlapFunction ) {
-              var overlaps = overlapFunction( aSegment, bSegment );
-              if ( overlaps.length ) {
-                for ( var k = 0; k < overlaps.length; k++ ) {
-                  var overlap = overlaps[ k ];
-                  if ( Math.abs( overlap.t1 - overlap.t0 ) > 1e-5 &&
-                       Math.abs( overlap.qt1 - overlap.qt0 ) > 1e-5 ) {
-                    this.splitOverlap( aEdge, bEdge, overlap );
+              if ( overlapFunction ) {
+                var overlaps = overlapFunction( aSegment, bSegment );
+                if ( overlaps.length ) {
+                  for ( var k = 0; k < overlaps.length; k++ ) {
+                    var overlap = overlaps[ k ];
+                    if ( Math.abs( overlap.t1 - overlap.t0 ) > 1e-5 &&
+                         Math.abs( overlap.qt1 - overlap.qt0 ) > 1e-5 ) {
+                      this.splitOverlap( aEdge, bEdge, overlap );
 
-                    needsLoop = true;
-                    break overlap;
+                      needsLoop = true;
+                      break overlap;
+                    }
                   }
                 }
               }
             }
           }
-        }
       }
     },
 
@@ -671,31 +671,31 @@ define( function( require ) {
         needsLoop = false;
 
         intersect:
-        for ( var i = 0; i < this.edges.length; i++ ) {
-          var aEdge = this.edges[ i ];
-          var aSegment = aEdge.segment;
-          for ( var j = i + 1; j < this.edges.length; j++ ) {
-            var bEdge = this.edges[ j ];
-            var bSegment = bEdge.segment;
+          for ( var i = 0; i < this.edges.length; i++ ) {
+            var aEdge = this.edges[ i ];
+            var aSegment = aEdge.segment;
+            for ( var j = i + 1; j < this.edges.length; j++ ) {
+              var bEdge = this.edges[ j ];
+              var bSegment = bEdge.segment;
 
-            var intersections = Segment.intersect( aSegment, bSegment );
-            intersections = intersections.filter( function( intersection ) {
-              var aT = intersection.aT;
-              var bT = intersection.bT;
-              var aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
-              var bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
-              return aInternal || bInternal;
-            } );
-            if ( intersections.length ) {
+              var intersections = Segment.intersect( aSegment, bSegment );
+              intersections = intersections.filter( function( intersection ) {
+                var aT = intersection.aT;
+                var bT = intersection.bT;
+                var aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
+                var bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
+                return aInternal || bInternal;
+              } );
+              if ( intersections.length ) {
 
-              // TODO: In the future, handle multiple intersections (instead of re-running)
-              var intersection = intersections[ 0 ];
+                // TODO: In the future, handle multiple intersections (instead of re-running)
+                var intersection = intersections[ 0 ];
 
-              needsLoop = this.simpleSplit( aEdge, bEdge, intersection.aT, intersection.bT, intersection.point );
-              break intersect;
+                needsLoop = this.simpleSplit( aEdge, bEdge, intersection.aT, intersection.bT, intersection.point );
+                break intersect;
+              }
             }
           }
-        }
       }
     },
 
@@ -785,58 +785,58 @@ define( function( require ) {
       while ( needsLoop ) {
         needsLoop = false;
         nextLoop:
-        for ( var i = 0; i < this.vertices.length; i++ ) {
-          var aVertex = this.vertices[ i ];
-          for ( var j = i + 1; j < this.vertices.length; j++ ) {
-            var bVertex = this.vertices[ j ];
+          for ( var i = 0; i < this.vertices.length; i++ ) {
+            var aVertex = this.vertices[ i ];
+            for ( var j = i + 1; j < this.vertices.length; j++ ) {
+              var bVertex = this.vertices[ j ];
 
-            var distance = aVertex.point.distance( bVertex.point );
-            if ( distance < 1e-5 ) {
-              var newVertex = Vertex.createFromPool( distance === 0 ? aVertex.point : aVertex.point.average( bVertex.point ) );
-              this.vertices.push( newVertex );
+              var distance = aVertex.point.distance( bVertex.point );
+              if ( distance < 1e-5 ) {
+                var newVertex = Vertex.createFromPool( distance === 0 ? aVertex.point : aVertex.point.average( bVertex.point ) );
+                this.vertices.push( newVertex );
 
-              arrayRemove( this.vertices, aVertex );
-              arrayRemove( this.vertices, bVertex );
-              for ( var k = this.edges.length - 1; k >= 0; k-- ) {
-                var edge = this.edges[ k ];
-                var startMatches = edge.startVertex === aVertex || edge.startVertex === bVertex;
-                var endMatches = edge.endVertex === aVertex || edge.endVertex === bVertex;
+                arrayRemove( this.vertices, aVertex );
+                arrayRemove( this.vertices, bVertex );
+                for ( var k = this.edges.length - 1; k >= 0; k-- ) {
+                  var edge = this.edges[ k ];
+                  var startMatches = edge.startVertex === aVertex || edge.startVertex === bVertex;
+                  var endMatches = edge.endVertex === aVertex || edge.endVertex === bVertex;
 
-                // Outright remove edges that were between A and B that aren't loops
-                if ( startMatches && endMatches ) {
-                  if ( ( edge.segment.bounds.width > 1e-5 || edge.segment.bounds.height > 1e-5 ) &&
-                       ( edge.segment instanceof Cubic || edge.segment instanceof Arc || edge.segment instanceof EllipticalArc ) ) {
-                    // Replace it with a new edge that is from the vertex to itself
-                    var replacementEdge = Edge.createFromPool( edge.segment, newVertex, newVertex );
-                    this.addEdge( replacementEdge );
-                    this.replaceEdgeInLoops( edge, [ replacementEdge.forwardHalf ] );
+                  // Outright remove edges that were between A and B that aren't loops
+                  if ( startMatches && endMatches ) {
+                    if ( ( edge.segment.bounds.width > 1e-5 || edge.segment.bounds.height > 1e-5 ) &&
+                         ( edge.segment instanceof Cubic || edge.segment instanceof Arc || edge.segment instanceof EllipticalArc ) ) {
+                      // Replace it with a new edge that is from the vertex to itself
+                      var replacementEdge = Edge.createFromPool( edge.segment, newVertex, newVertex );
+                      this.addEdge( replacementEdge );
+                      this.replaceEdgeInLoops( edge, [ replacementEdge.forwardHalf ] );
+                    }
+                    else {
+                      this.replaceEdgeInLoops( edge, [] ); // remove the edge from loops with no replacement
+                    }
+                    this.removeEdge( edge );
+                    edge.dispose();
                   }
-                  else {
-                    this.replaceEdgeInLoops( edge, [] ); // remove the edge from loops with no replacement
+                  else if ( startMatches ) {
+                    edge.startVertex = newVertex;
+                    newVertex.incidentHalfEdges.push( edge.reversedHalf );
+                    edge.updateReferences();
                   }
-                  this.removeEdge( edge );
-                  edge.dispose();
+                  else if ( endMatches ) {
+                    edge.endVertex = newVertex;
+                    newVertex.incidentHalfEdges.push( edge.forwardHalf );
+                    edge.updateReferences();
+                  }
                 }
-                else if ( startMatches ) {
-                  edge.startVertex = newVertex;
-                  newVertex.incidentHalfEdges.push( edge.reversedHalf );
-                  edge.updateReferences();
-                }
-                else if ( endMatches ) {
-                  edge.endVertex = newVertex;
-                  newVertex.incidentHalfEdges.push( edge.forwardHalf );
-                  edge.updateReferences();
-                }
+
+                aVertex.dispose();
+                bVertex.dispose();
+
+                needsLoop = true;
+                break nextLoop;
               }
-
-              aVertex.dispose();
-              bVertex.dispose();
-
-              needsLoop = true;
-              break nextLoop;
             }
           }
-        }
       }
 
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
@@ -924,26 +924,26 @@ define( function( require ) {
         needsLoop = false;
 
         nextVertexLoop:
-        for ( var i = this.vertices.length - 1; i >= 0; i-- ) {
-          var vertex = this.vertices[ i ];
+          for ( var i = this.vertices.length - 1; i >= 0; i-- ) {
+            var vertex = this.vertices[ i ];
 
-          if ( vertex.incidentHalfEdges.length < 2 ) {
-            // Disconnect any existing edges
-            for ( var j = 0; j < vertex.incidentHalfEdges.length; j++ ) {
-              var edge = vertex.incidentHalfEdges[ j ].edge;
-              this.removeEdge( edge );
-              this.replaceEdgeInLoops( edge, [] ); // remove the edge from the loops
-              edge.dispose();
+            if ( vertex.incidentHalfEdges.length < 2 ) {
+              // Disconnect any existing edges
+              for ( var j = 0; j < vertex.incidentHalfEdges.length; j++ ) {
+                var edge = vertex.incidentHalfEdges[ j ].edge;
+                this.removeEdge( edge );
+                this.replaceEdgeInLoops( edge, [] ); // remove the edge from the loops
+                edge.dispose();
+              }
+
+              // Remove the vertex
+              this.vertices.splice( i, 1 );
+              vertex.dispose();
+
+              needsLoop = true;
+              break nextVertexLoop;
             }
-
-            // Remove the vertex
-            this.vertices.splice( i, 1 );
-            vertex.dispose();
-
-            needsLoop = true;
-            break nextVertexLoop;
           }
-        }
       }
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
