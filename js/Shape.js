@@ -646,6 +646,25 @@ define( function( require ) {
     },
 
     /**
+     * Moves to the next subpath, but without adding any points to it (like a moveTo would do).
+     * @public
+     *
+     * This is particularly helpful for cases where you don't want to have to compute the explicit starting point of
+     * the next subpath. For instance, if you want three disconnected circles:
+     * - shape.circle( 50, 50, 20 ).newSubpath().circle( 100, 100, 20 ).newSubpath().circle( 150, 50, 20 )
+     *
+     * See https://github.com/phetsims/kite/issues/72 for more info.
+     *
+     * @returns {Shape}
+     */
+    newSubpath: function() {
+      this.addSubpath( new Subpath() );
+      this.resetControlPoints();
+
+      return this; // for chaining
+    },
+
+    /**
      * Makes this Shape immutable, so that attempts to further change the Shape will fail. This allows clients to avoid
      * adding change listeners to this Shape.
      * @public
