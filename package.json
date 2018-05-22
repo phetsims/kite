@@ -11,6 +11,7 @@
     "pegjs": "0.7.0"
   },
   "phet": {
+    "generatedUnitTests": true,
     "requirejsNamespace": "KITE",
     "buildStandalone": true,
     "isJSOnly": true,
