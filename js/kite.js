@@ -15,7 +15,7 @@ define( function( require ) {
 
   var Namespace = require( 'PHET_CORE/Namespace' );
 
-  // object allocation tracking
+  // Object allocation tracking - Set here so we can use a global reference that gets stripped out by uglify.
   window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
 
   var kite = new Namespace( 'kite' );
