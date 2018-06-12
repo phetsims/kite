@@ -383,7 +383,7 @@ define( function( require ) {
         maxLevels: 7,
         curvatureThreshold: 0.02,
         errorThreshold: 10,
-        errorPoints: [ 0.25, 0.75 ],
+        errorPoints: [ 0.25, 0.75 ]
       }, options );
 
       var segments = [];

@@ -159,7 +159,7 @@ define( function( require ) {
 
           // Grab parametric t-values for where our segment has extreme points, and adds the end points (which are
           // candidates). One of the points at these values should be our minimal point.
-          var tValues = [ 0, 1, ].concat( segment.getInteriorExtremaTs() );
+          var tValues = [ 0, 1 ].concat( segment.getInteriorExtremaTs() );
           for ( var j = 0; j < tValues.length; j++ ) {
             var point = segment.positionAt( tValues[ j ] );
             if ( point.y < minimalPoint.y ) {
