@@ -12,9 +12,9 @@
 define( function( require ) {
   'use strict';
 
+  var ExperimentalPoolable = require( 'PHET_CORE/ExperimentalPoolable' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
   var SegmentIntersection = require( 'KITE/util/SegmentIntersection' );
   var Vector2 = require( 'DOT/Vector2' );
 
@@ -318,17 +318,8 @@ define( function( require ) {
     }
   } );
 
-  Poolable.mixInto( BoundsIntersection, {
-    constructorDuplicateFactory: function( pool ) {
-      return function( a, b, atMin, atMax, btMin, btMax, aMin, aMax, bMin, bMax ) {
-        if ( pool.length ) {
-          return pool.pop().initialize( a, b, atMin, atMax, btMin, btMax, aMin, aMax, bMin, bMax );
-        }
-        else {
-          return new BoundsIntersection( a, b, atMin, atMax, btMin, btMax, aMin, aMax, bMin, bMax );
-        }
-      };
-    }
+  ExperimentalPoolable.mixInto( BoundsIntersection, {
+    initialize: BoundsIntersection.prototype.initialize
   } );
 
   return BoundsIntersection;

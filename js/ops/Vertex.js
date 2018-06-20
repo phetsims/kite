@@ -12,9 +12,9 @@ define( function( require ) {
   'use strict';
 
   var cleanArray = require( 'PHET_CORE/cleanArray' );
+  var ExperimentalPoolable = require( 'PHET_CORE/ExperimentalPoolable' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
   var Vector2 = require( 'DOT/Vector2' );
 
   var globaId = 0;
@@ -145,17 +145,8 @@ define( function( require ) {
     }
   } );
 
-  Poolable.mixInto( Vertex, {
-    constructorDuplicateFactory: function( pool ) {
-      return function( point ) {
-        if ( pool.length ) {
-          return pool.pop().initialize( point );
-        }
-        else {
-          return new Vertex( point );
-        }
-      };
-    }
+  ExperimentalPoolable.mixInto( Vertex, {
+    initialize: Vertex.prototype.initialize
   } );
 
   return kite.Vertex;

@@ -12,9 +12,9 @@ define( function( require ) {
 
   var Bounds2 = require( 'DOT/Bounds2' );
   var cleanArray = require( 'PHET_CORE/cleanArray' );
+  var ExperimentalPoolable = require( 'PHET_CORE/ExperimentalPoolable' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
   var Ray2 = require( 'DOT/Ray2' );
   var Subpath = require( 'KITE/util/Subpath' );
   var Vector2 = require( 'DOT/Vector2' );
@@ -229,17 +229,8 @@ define( function( require ) {
     }
   } );
 
-  Poolable.mixInto( Boundary, {
-    constructorDuplicateFactory: function( pool ) {
-      return function( halfEdges ) {
-        if ( pool.length ) {
-          return pool.pop().initialize( halfEdges );
-        }
-        else {
-          return new Boundary( halfEdges );
-        }
-      };
-    }
+  ExperimentalPoolable.mixInto( Boundary, {
+    initialize: Boundary.prototype.initialize
   } );
 
   return kite.Boundary;

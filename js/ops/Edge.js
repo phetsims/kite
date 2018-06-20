@@ -9,11 +9,11 @@
 define( function( require ) {
   'use strict';
 
+  var ExperimentalPoolable = require( 'PHET_CORE/ExperimentalPoolable' );
   var HalfEdge = require( 'KITE/ops/HalfEdge' );
   var inherit = require( 'PHET_CORE/inherit' );
   var Line = require( 'KITE/segments/Line' );
   var kite = require( 'KITE/kite' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
   var Segment = require( 'KITE/segments/Segment' );
   var Vertex = require( 'KITE/ops/Vertex' );
 
@@ -123,17 +123,8 @@ define( function( require ) {
     }
   } );
 
-  Poolable.mixInto( Edge, {
-    constructorDuplicateFactory: function( pool ) {
-      return function( segment, startVertex, endVertex ) {
-        if ( pool.length ) {
-          return pool.pop().initialize( segment, startVertex, endVertex );
-        }
-        else {
-          return new Edge( segment, startVertex, endVertex );
-        }
-      };
-    }
+  ExperimentalPoolable.mixInto( Edge, {
+    initialize: Edge.prototype.initialize
   } );
 
   return kite.Edge;
