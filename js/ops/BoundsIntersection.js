@@ -12,9 +12,9 @@
 define( function( require ) {
   'use strict';
 
-  var ExperimentalPoolable = require( 'PHET_CORE/ExperimentalPoolable' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
+  var Poolable = require( 'PHET_CORE/Poolable' );
   var SegmentIntersection = require( 'KITE/util/SegmentIntersection' );
   var Vector2 = require( 'DOT/Vector2' );
 
@@ -318,7 +318,7 @@ define( function( require ) {
     }
   } );
 
-  ExperimentalPoolable.mixInto( BoundsIntersection, {
+  Poolable.mixInto( BoundsIntersection, {
     initialize: BoundsIntersection.prototype.initialize
   } );
 
