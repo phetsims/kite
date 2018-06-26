@@ -1444,7 +1444,14 @@ define( function( require ) {
         return this.bounds.dilated( lineStyles.lineWidth / 2 );
       }
       else {
-        return this.bounds.union( this.getStrokedShape( lineStyles ).bounds );
+        var bounds = this.bounds.copy();
+        for ( i = 0; i < this.subpaths.length; i++ ) {
+          var subpaths = this.subpaths[ i ].stroked( lineStyles );
+          for ( j = 0; j < subpaths.length; j++ ) {
+            bounds.includeBounds( subpaths[ j ].bounds );
+          }
+        }
+        return bounds;
       }
     },
 
