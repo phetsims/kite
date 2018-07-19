@@ -54,6 +54,38 @@
         // {"type":"Cubic","startX":536.4,"startY":385.79999999999995,"control1X":531.864,"control1Y":381.69599999999997,"control2X":528.84,"control2Y":380.328,"endX":528.84,"endY":372.12}
       };
 
+      window.strokeFailure = function() {
+        setTimeout( function() {
+          var NODE_HEIGHT = 22.0;
+          var NODE_WIDTH = NODE_HEIGHT * 1.13;
+
+          // constants for drawing speaker
+          var SPEAKER_HEIGHT = NODE_HEIGHT * 0.77;
+          var SPEAKER_WIDTH = SPEAKER_HEIGHT * 0.58;
+          var SPEAKER_BACK_WIDTH = SPEAKER_WIDTH * 0.46;
+          var SPEAKER_BACK_HEIGHT = SPEAKER_HEIGHT * 0.35;
+          var SPEAKER_BACK_Y_SPACE = ( SPEAKER_HEIGHT - SPEAKER_BACK_HEIGHT ) / 2.0;
+          var CORNER_RADIUS = 1.0;
+
+          window.shape = new kite.Shape()
+            .moveTo( SPEAKER_WIDTH, 0 )
+            .lineTo( SPEAKER_BACK_WIDTH, SPEAKER_BACK_Y_SPACE )
+            .lineTo( CORNER_RADIUS, SPEAKER_BACK_Y_SPACE)
+            .arc( CORNER_RADIUS, SPEAKER_BACK_Y_SPACE + CORNER_RADIUS, CORNER_RADIUS, Math.PI * 1.5, Math.PI, true )
+            .lineToRelative( 0, SPEAKER_BACK_HEIGHT - ( 2 * CORNER_RADIUS ) )
+            .arc( CORNER_RADIUS, SPEAKER_BACK_Y_SPACE + SPEAKER_BACK_HEIGHT - CORNER_RADIUS, CORNER_RADIUS, Math.PI, Math.PI * 0.5, true )
+            .lineToRelative( SPEAKER_BACK_WIDTH - CORNER_RADIUS, 0 )
+            .lineTo( SPEAKER_WIDTH, SPEAKER_HEIGHT )
+            .lineTo( SPEAKER_WIDTH, 0 )
+            .close();
+
+          window.strokedShape = shape.getStrokedShape( new kite.LineStyles( {
+            lineWidth: 1.5,
+            lineJoin: 'round'
+          } ) );
+        } );
+      };
+
       window.initTest = function() {
 
         window.a = kite.Shape.deserialize( {
