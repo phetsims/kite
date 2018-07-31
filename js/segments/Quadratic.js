@@ -742,10 +742,24 @@ define( function( require ) {
     var q1y = -2 * quadratic2._start.y + 2 * quadratic2._control.y;
     var q2y = quadratic2._start.y - 2 * quadratic2._control.y + quadratic2._end.y;
 
-    // Determine the candidate overlap
+    // Determine the candidate overlap (preferring the dimension with the largest variation)
+    var xSpread = Math.abs( Math.max( quadratic1._start.x, quadratic1._control.x, quadratic1._end.x,
+                                      quadratic2._start.x, quadratic2._control.x, quadratic2._end.x ) -
+                            Math.min( quadratic1._start.x, quadratic1._control.x, quadratic1._end.x,
+                                      quadratic2._start.x, quadratic2._control.x, quadratic2._end.x ) );
+    var ySpread = Math.abs( Math.max( quadratic1._start.y, quadratic1._control.y, quadratic1._end.y,
+                                      quadratic2._start.y, quadratic2._control.y, quadratic2._end.y ) -
+                            Math.min( quadratic1._start.y, quadratic1._control.y, quadratic1._end.y,
+                                      quadratic2._start.y, quadratic2._control.y, quadratic2._end.y ) );
     var xOverlap = Segment.polynomialGetOverlapQuadratic( p0x, p1x, p2x, q0x, q1x, q2x );
     var yOverlap = Segment.polynomialGetOverlapQuadratic( p0y, p1y, p2y, q0y, q1y, q2y );
-    var overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
+    var overlap;
+    if ( xSpread > ySpread ) {
+      overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
+    }
+    else {
+      overlap = ( yOverlap === null || yOverlap === true ) ? xOverlap : yOverlap;
+    }
     if ( overlap === null || overlap === true ) {
       return noOverlap; // No way to pin down an overlap
     }

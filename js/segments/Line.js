@@ -580,10 +580,20 @@ define( function( require ) {
     var q0y = line2._start.y;
     var q1y = -1 * line2._start.y + line2._end.y;
 
-    // Determine the candidate overlap
+    // Determine the candidate overlap (preferring the dimension with the largest variation)
+    var xSpread = Math.abs( Math.max( line1._start.x, line1._end.x, line2._start.x, line2._end.x ) -
+                            Math.min( line1._start.x, line1._end.x, line2._start.x, line2._end.x ) );
+    var ySpread = Math.abs( Math.max( line1._start.y, line1._end.y, line2._start.y, line2._end.y ) -
+                            Math.min( line1._start.y, line1._end.y, line2._start.y, line2._end.y ) );
     var xOverlap = Segment.polynomialGetOverlapLinear( p0x, p1x, q0x, q1x );
     var yOverlap = Segment.polynomialGetOverlapLinear( p0y, p1y, q0y, q1y );
-    var overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
+    var overlap;
+    if ( xSpread > ySpread ) {
+      overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
+    }
+    else {
+      overlap = ( yOverlap === null || yOverlap === true ) ? xOverlap : yOverlap;
+    }
     if ( overlap === null || overlap === true ) {
       return noOverlap; // No way to pin down an overlap
     }

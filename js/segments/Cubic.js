@@ -1096,10 +1096,24 @@ define( function( require ) {
     var q2y = 3 * cubic2._start.y - 6 * cubic2._control1.y + 3 * cubic2._control2.y;
     var q3y = -1 * cubic2._start.y + 3 * cubic2._control1.y - 3 * cubic2._control2.y + cubic2._end.y;
 
-    // Determine the candidate overlap
+    // Determine the candidate overlap (preferring the dimension with the largest variation)
+    var xSpread = Math.abs( Math.max( cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x,
+                                      cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x ) -
+                            Math.min( cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x,
+                                      cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x ) );
+    var ySpread = Math.abs( Math.max( cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y,
+                                      cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y ) -
+                            Math.min( cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y,
+                                      cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y ) );
     var xOverlap = Segment.polynomialGetOverlapCubic( p0x, p1x, p2x, p3x, q0x, q1x, q2x, q3x );
     var yOverlap = Segment.polynomialGetOverlapCubic( p0y, p1y, p2y, p3y, q0y, q1y, q2y, q3y );
-    var overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
+    var overlap;
+    if ( xSpread > ySpread ) {
+      overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
+    }
+    else {
+      overlap = ( yOverlap === null || yOverlap === true ) ? xOverlap : yOverlap;
+    }
     if ( overlap === null || overlap === true ) {
       return noOverlap; // No way to pin down an overlap
     }

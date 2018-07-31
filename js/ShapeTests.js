@@ -749,4 +749,11 @@ define( function( require ) {
       Arc.getCircleIntersectionPoint( new Vector2( r(), r() ), r(), new Vector2( r(), r() ), r() );
     }
   } );
+
+  QUnit.test( 'Close linear overlap', function( assert ) {
+    var a = new Line( new Vector2( 0, 0 ), new Vector2( 6.123233995736766e-16, -10 ) );
+    var b = new Line( new Vector2( -1.8369701987210296e-15, -10 ), new Vector2( 0, 0 ) );
+
+    assert.ok( Line.getOverlaps( a, b ).length === 1, 'Should find one continuous overlap' );
+  } );
 } );
