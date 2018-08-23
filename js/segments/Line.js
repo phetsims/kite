@@ -471,7 +471,7 @@ define( function( require ) {
 
     /**
      * Convert a line in the $(theta,r)$ plane of the form $(\theta_1,r_1)$ to $(\theta_2,r_2)$ and
-     * converts to the the cartesian coordinate system
+     * converts to the cartesian coordinate system
      * @public
      *
      * E.g. a polar line (0,1) to (2 Pi,1) would be mapped to a circle of radius 1
