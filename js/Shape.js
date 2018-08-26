@@ -119,8 +119,6 @@ define( function( require ) {
 
     // defines _bounds if not already defined (among other things)
     this.invalidate();
-
-    phetAllocation && phetAllocation( 'Shape' );
   }
 
   kite.register( 'Shape', Shape );

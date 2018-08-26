@@ -15,9 +15,6 @@ define( function( require ) {
 
   var Namespace = require( 'PHET_CORE/Namespace' );
 
-  // Object allocation tracking - Set here so we can use a global reference that gets stripped out by uglify.
-  window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
-
   var kite = new Namespace( 'kite' );
 
   // Since SVG doesn't support parsing scientific notation (e.g. 7e5), we need to output fixed decimal-point strings.
