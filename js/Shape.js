@@ -30,6 +30,7 @@ define( function( require ) {
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Line = require( 'KITE/segments/Line' );
+  var LineStyles = require( 'KITE/util/LineStyles' );
   var Quadratic = require( 'KITE/segments/Quadratic' );
   var Ray2 = require( 'DOT/Ray2' );
   var Subpath = require( 'KITE/util/Subpath' );
@@ -1417,6 +1418,8 @@ define( function( require ) {
      * @returns {Bounds2}
      */
     getStrokedBounds: function( lineStyles ) {
+      assert && assert( lineStyles instanceof LineStyles );
+
       // Check if all of our segments end vertically or horizontally AND our drawable subpaths are all closed. If so,
       // we can apply a bounds dilation.
       var areStrokedBoundsDilated = true;
@@ -1476,11 +1479,6 @@ define( function( require ) {
      * @returns {Bounds2}
      */
     getBoundsWithTransform: function( matrix, lineStyles ) {
-      // if we don't need to handle rotation/shear, don't use the extra effort!
-      if ( matrix.isAxisAligned() ) {
-        return this.getStrokedBounds( lineStyles );
-      }
-
       var bounds = Bounds2.NOTHING.copy();
 
       var numSubpaths = this.subpaths.length;
