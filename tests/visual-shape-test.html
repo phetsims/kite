@@ -9,10 +9,14 @@
 
   <title>Visual Shape Test</title>
 
-  <script src="../../assert/js/assert.js"></script>
-  <script src="../../sherpa/lib/lodash-2.4.1.min.js"></script>
+  <!-- Before loading other things (that might error), create hooks to report errors/loads for continuous testing -->
+  <script src="../../aqua/js/pageload-connector.js"></script>
 
-  <script data-main="../js/config.js" src="../../sherpa/lib/require-2.1.11.js"></script>
+  <script src="../../assert/js/assert.js"></script>
+  <script src="../../tandem/js/PhetioIDUtils.js"></script>
+  <script src="../../sherpa/lib/lodash-4.17.4.min.js"></script>
+
+  <script data-main="../js/kite-config.js" src="../../sherpa/lib/require-2.1.11.js"></script>
 
   <style>
     html, body {
@@ -133,7 +137,7 @@
 </div>
 
 <script>
-  require( [ 'config' ], function() {
+  require( [ 'kite-config' ], function() {
     require( [ 'main', 'DOT/main' ], function( kite, dot ) {
       window.kite = kite;
       window.dot = dot;

@@ -131,8 +131,8 @@ smoothQuadraticBezierCurvetoArgumentSequence
     / a:coordinatePair { return [a]; }
 
 ellipticalArc
-  = 'A' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { return { cmd: 'ellipticalArcTo', args: arg } } ); }
-    / 'a' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { return { cmd: 'ellipticalArcToRelative', args: arg } } ); }
+  = 'A' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { arg[2] *= Math.PI / 180; return { cmd: 'ellipticalArcTo', args: arg } } ); }
+    / 'a' wsp* args:ellipticalArcArgumentSequence { return args.map( function( arg ) { arg[2] *= Math.PI / 180; return { cmd: 'ellipticalArcToRelative', args: arg } } ); }
 
 ellipticalArcArgumentSequence
   = a:ellipticalArcArgument commaWsp? list:ellipticalArcArgumentSequence { return [a].concat( list ); }
@@ -149,11 +149,11 @@ coordinate
   = number
 
 nonnegativeNumber
-  = number:floatingPointConstant { return parseFloat( number, 10 ); }
+  = number:floatingPointConstant { return parseFloat( number ); }
     / number:integerConstant { return parseInt( number, 10 ); }
 
 number
-  = ( sign:sign? number:floatingPointConstant ) { return parseFloat( sign + number, 10 ); }
+  = ( sign:sign? number:floatingPointConstant ) { return parseFloat( sign + number ); }
     / ( sign:sign? number:integerConstant ) { return parseInt( sign + number, 10 ); }
 
 flag

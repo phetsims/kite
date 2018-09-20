@@ -10,6 +10,9 @@
   <link rel="stylesheet" href="../../sherpa/lib/bootstrap-2.2.2.css">
   <link rel="stylesheet" href="../../sherpa/lib/bootstrap-responsive-2.2.2.css">
 
+  <!-- Before loading other things (that might error), create hooks to report errors/loads for continuous testing -->
+  <script src="../../aqua/js/pageload-connector.js"></script>
+
   <!-- jQuery and LoDash are dependencies -->
   <script src="../../sherpa/lib/jquery-2.1.0.min.js"></script>
 
@@ -54,7 +57,7 @@
     </div>
 
     <div class="test">
-      Unit tests for <a href="qunit/unit-tests.html">dynamic development</a> or <a href="qunit/compiled-unit-tests.html">production</a>.
+      Unit tests for <a href="qunit/unit-tests.html">dynamic development</a> or <a href="qunit/compiled-unit-tests.html">production</a> (production tests require building first).
     </div>
 
     <div class="test">

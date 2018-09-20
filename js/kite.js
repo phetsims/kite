@@ -15,9 +15,6 @@ define( function( require ) {
 
   var Namespace = require( 'PHET_CORE/Namespace' );
 
-  // object allocation tracking
-  window.phetAllocation = require( 'PHET_CORE/phetAllocation' );
-
   var kite = new Namespace( 'kite' );
 
   // Since SVG doesn't support parsing scientific notation (e.g. 7e5), we need to output fixed decimal-point strings.

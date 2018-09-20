@@ -1,5 +1,7 @@
-// NOTE: Generated from svgPath.pegjs using PEG.js, with added kite namespace and require.js compatibility.
-// See svgPath.pegjs for more documentation, or run "grunt generate-svgPath-parser" to regenerate.
+/*
+ * NOTE: Generated from svgPath.pegjs using PEG.js, with added kite namespace and require.js compatibility.
+ * See svgPath.pegjs for more documentation, or run 'grunt generate-svgPath-parser' to regenerate.
+ */
 
 define( function( require ) {
   var kite = require( 'KITE/kite' );
@@ -22,14 +24,14 @@ define( function( require ) {
      * because JSHint does not like the first and IE the second.
      */
     return '"' + s
-        .replace( /\\/g, '\\\\' )  // backslash
-        .replace( /"/g, '\\"' )    // closing quote character
-        .replace( /\x08/g, '\\b' ) // backspace
-        .replace( /\t/g, '\\t' )   // horizontal tab
-        .replace( /\n/g, '\\n' )   // line feed
-        .replace( /\f/g, '\\f' )   // form feed
-        .replace( /\r/g, '\\r' )   // carriage return
-        .replace( /[\x00-\x07\x0B\x0E-\x1F\x80-\uFFFF]/g, escape )
+                 .replace( /\\/g, '\\\\' )  // backslash
+                 .replace( /"/g, '\\"' )    // closing quote character
+                 .replace( /\x08/g, '\\b' ) // backspace
+                 .replace( /\t/g, '\\t' )   // horizontal tab
+                 .replace( /\n/g, '\\n' )   // line feed
+                 .replace( /\f/g, '\\f' )   // form feed
+                 .replace( /\r/g, '\\r' )   // carriage return
+                 .replace( /[\x00-\x07\x0B\x0E-\x1F\x80-\uFFFF]/g, escape )
            + '"';
   }
 
@@ -1834,10 +1836,8 @@ define( function( require ) {
         if ( result0 !== null ) {
           result0 = (function( offset, args ) {
             return args.map( function( arg ) {
-              return {
-                cmd: 'ellipticalArcTo',
-                args: arg
-              }
+              arg[ 2 ] *= Math.PI / 180;
+              return { cmd: 'ellipticalArcTo', args: arg }
             } );
           })( pos0, result0[ 2 ] );
         }
@@ -1886,10 +1886,8 @@ define( function( require ) {
           if ( result0 !== null ) {
             result0 = (function( offset, args ) {
               return args.map( function( arg ) {
-                return {
-                  cmd: 'ellipticalArcToRelative',
-                  args: arg
-                }
+                arg[ 2 ] *= Math.PI / 180;
+                return { cmd: 'ellipticalArcToRelative', args: arg }
               } );
             })( pos0, result0[ 2 ] );
           }
@@ -2090,7 +2088,7 @@ define( function( require ) {
         pos0 = pos;
         result0 = parse_floatingPointConstant();
         if ( result0 !== null ) {
-          result0 = (function( offset, number ) { return parseFloat( number, 10 ); })( pos0, result0 );
+          result0 = (function( offset, number ) { return parseFloat( number ); })( pos0, result0 );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -2131,7 +2129,7 @@ define( function( require ) {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = (function( offset, sign, number ) { return parseFloat( sign + number, 10 ); })( pos0, result0[ 0 ], result0[ 1 ] );
+          result0 = (function( offset, sign, number ) { return parseFloat( sign + number ); })( pos0, result0[ 0 ], result0[ 1 ] );
         }
         if ( result0 === null ) {
           pos = pos0;

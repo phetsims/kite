@@ -9,10 +9,14 @@
 
   <title>Kite Playground</title>
 
-  <script src="../../assert/js/assert.js"></script>
-  <script src="../../sherpa/lib/lodash-2.4.1.min.js"></script>
+  <!-- Before loading other things (that might error), create hooks to report errors/loads for continuous testing -->
+  <script src="../../aqua/js/pageload-connector.js"></script>
 
-  <script data-main="../js/config.js" src="../../sherpa/lib/require-2.1.11.js"></script>
+  <script src="../../assert/js/assert.js"></script>
+  <script src="../../tandem/js/PhetioIDUtils.js"></script>
+  <script src="../../sherpa/lib/lodash-4.17.4.min.js"></script>
+
+  <script data-main="../js/kite-config.js" src="../../sherpa/lib/require-2.1.11.js"></script>
 
 </head>
 <body>
@@ -20,7 +24,7 @@
   window.assertions.enableAssert();
   window.assertions.enableAssertSlow();
 
-  require( [ 'config' ], function() {
+  require( [ 'kite-config' ], function() {
     require( [ 'main', 'AXON/main', 'DOT/main', 'PHET_CORE/main' ], function( kite, axon, dot, phetCore ) {
       window.kite = kite;
       window.axon = axon;
@@ -29,6 +33,176 @@
 
       console.log( 'loaded' );
 
+      window.interTest = function() {
+        window.a = new kite.Cubic( dot.v2( 0, 0 ), dot.v2( 10, 0 ), dot.v2( 10, 10 ), dot.v2( 20, 10 ) );
+        window.b = new kite.Line( dot.v2( 0, -1 ), dot.v2( 20, 11 ) );
+        setTimeout(function(){
+          window.intersections = kite.Segment.boundsBasedIntersect( a, b );
+          console.log( window.intersections );
+          window.intersections2 = kite.BoundsIntersection.intersect( a, b );
+          console.log( window.intersections2 );
+        });
+      };
+
+      window.cubicIssue = function() {
+        setTimeout(function(){
+          debugger;
+          window.result = kite.Segment.polynomialGetOverlapCubic( 528.84, 0, 9.072000000000116, -1.5120000000002847, 536.4, -13.60799999999972, 4.5359999999996035, 1.5120000000000573 );
+        });
+
+        // {"type":"Cubic","startX":528.84,"startY":372.12,"control1X":528.84,"control1Y":363.912,"control2X":531.864,"control2Y":362.544,"endX":536.4,"endY":358.44}
+        // {"type":"Cubic","startX":536.4,"startY":385.79999999999995,"control1X":531.864,"control1Y":381.69599999999997,"control2X":528.84,"control2Y":380.328,"endX":528.84,"endY":372.12}
+      };
+
+      window.strokeFailure = function() {
+        setTimeout( function() {
+          var NODE_HEIGHT = 22.0;
+          var NODE_WIDTH = NODE_HEIGHT * 1.13;
+
+          // constants for drawing speaker
+          var SPEAKER_HEIGHT = NODE_HEIGHT * 0.77;
+          var SPEAKER_WIDTH = SPEAKER_HEIGHT * 0.58;
+          var SPEAKER_BACK_WIDTH = SPEAKER_WIDTH * 0.46;
+          var SPEAKER_BACK_HEIGHT = SPEAKER_HEIGHT * 0.35;
+          var SPEAKER_BACK_Y_SPACE = ( SPEAKER_HEIGHT - SPEAKER_BACK_HEIGHT ) / 2.0;
+          var CORNER_RADIUS = 1.0;
+
+          window.shape = new kite.Shape()
+            .moveTo( SPEAKER_WIDTH, 0 )
+            .lineTo( SPEAKER_BACK_WIDTH, SPEAKER_BACK_Y_SPACE )
+            .lineTo( CORNER_RADIUS, SPEAKER_BACK_Y_SPACE)
+            .arc( CORNER_RADIUS, SPEAKER_BACK_Y_SPACE + CORNER_RADIUS, CORNER_RADIUS, Math.PI * 1.5, Math.PI, true )
+            .lineToRelative( 0, SPEAKER_BACK_HEIGHT - ( 2 * CORNER_RADIUS ) )
+            .arc( CORNER_RADIUS, SPEAKER_BACK_Y_SPACE + SPEAKER_BACK_HEIGHT - CORNER_RADIUS, CORNER_RADIUS, Math.PI, Math.PI * 0.5, true )
+            .lineToRelative( SPEAKER_BACK_WIDTH - CORNER_RADIUS, 0 )
+            .lineTo( SPEAKER_WIDTH, SPEAKER_HEIGHT )
+            .lineTo( SPEAKER_WIDTH, 0 )
+            .close();
+
+          window.strokedShape = shape.getStrokedShape( new kite.LineStyles( {
+            lineWidth: 1.5,
+            lineJoin: 'round'
+          } ) );
+        } );
+      };
+
+      window.overlapTest = function() {
+        debugger;
+
+        window.a = new kite.Line( new dot.Vector2( 0, 0 ), new dot.Vector2( 6.123233995736766e-16, -10 ) );
+        window.b = new kite.Line( new dot.Vector2( -1.8369701987210296e-15, -10 ), new dot.Vector2( 0, 0 ) );
+
+        console.log( kite.Line.getOverlaps( a, b ) );
+      }
+
+      window.initTest = function() {
+
+        window.shapes = _.range( 0, 5 ).map( i => kite.Shape.polygon( [
+          dot.Vector2.ZERO,
+          dot.Vector2.createPolar( 10, 2 * Math.PI * i / 5 - Math.PI / 2 ),
+          dot.Vector2.createPolar( 10, 2 * Math.PI * ( i + 1 ) / 5 - Math.PI / 2 )
+        ] ) );
+
+        window.graph = new kite.Graph();
+        for ( var i = 0; i < shapes.length; i++ ) {
+          graph.addShape( i, shapes[ i ] );
+        }
+        graph.eliminateOverlap();
+        debugger;
+        graph.eliminateSelfIntersection();
+        graph.eliminateIntersection();
+        graph.collapseVertices();
+        debugGraph( graph );
+        // edges[0] id 1, edges[6] id 15
+        // 16 => 4          4 => 16
+        /*
+1 Vector2(0, 0)
+2 Vector2(6.123233995736766e-16, -10)
+3 Vector2(9.510565162951535, -3.090169943749474)
+4 Vector2(0, 0)
+5 Vector2(9.510565162951535, -3.090169943749474)
+6 Vector2(5.877852522924732, 8.090169943749475)
+7 Vector2(0, 0)
+8 Vector2(5.877852522924732, 8.090169943749475)
+9 Vector2(-5.87785252292473, 8.090169943749475)
+10 Vector2(0, 0)
+11 Vector2(-5.87785252292473, 8.090169943749475)
+12 Vector2(-9.510565162951536, -3.0901699437494727)
+13 Vector2(0, 0)
+14 Vector2(-9.510565162951536, -3.0901699437494727)
+15 Vector2(-1.8369701987210296e-15, -10)
+
+edge 1:  (1) => (2)
+edge 15: (15) => (13)
+
+collapsing 1 4
+new id 16
+  edge 1:  (16) => (2)
+  edge 15: (15) => (13)
+collapsing 2 15
+new id 4
+  edge 1:  (16) => (4)
+  edge 15: (4) => (13)
+collapsing 3 5
+new id 15
+collapsing 6 8
+new id 5
+collapsing 7 10
+new id 8
+collapsing 9 11
+new id 10
+collapsing 12 14
+new id 11
+collapsing 13 16
+new id 14 <-- should have combined
+  edge 1:  (14) => (4)
+  edge 15: (4) => (14)
+collapsing 8 14
+new id 16
+  edge 1:  (16) => (4)
+  edge 15: (4) => (16)
+*/
+
+        graph.removeBridges();
+        graph.removeLowOrderVertices();
+
+        graph.computeSimplifiedFaces();
+        graph.computeFaceInclusion( function( windingMap ) {
+          return ( windingMap[ '0' ] !== 0 || windingMap[ '1' ] !== 0 ); // non-zero for first entry
+        } );
+        debugGraph( graph );
+        window.subgraph = graph.createFilledSubGraph();
+        debugGraph( subgraph );
+        window.shape = subgraph.facesToShape();
+        console.log( shape.getSVGPath() );
+
+        // window.cubic = new kite.Cubic( dot.v2( 0 ,0 ), dot.v2( 0, 3 ), dot.v2( 10, 7 ), dot.v3( 10, 9 ) );
+        // return kite.Cubic.getOverlaps( cubic.subdivided( 0.7 )[ 0 ], cubic.subdivided( 0.3 )[ 1 ] );
+      };
+
+      window.perfTest = function() {
+        (function step(){
+          requestAnimationFrame( step );
+
+          var a = new kite.Shape();
+          var b = new kite.Shape();
+          var c = new kite.Shape();
+
+          a.moveTo( 0, 2 ).cubicCurveTo( 22, 2, -1, 10, 25, 10 ).lineTo( 25, 16.5 ).lineTo( 0, 16.5 ).close();
+          a.moveTo( 0, 10 ).lineTo( 10, 10 ).lineTo( 10, 25 ).lineTo( 0, 25 ).close();
+          a.moveTo( 13, 25 ).arc( 10, 25, 3, 0, Math.PI * 1.3, false ).close();
+
+          b.moveTo( 0, 0 ).lineTo( 30, 16.5 ).lineTo( 30, 0 ).close();
+          b.moveTo( 15, 2 ).lineTo( 25, 2 ).lineTo( 25, 7 ).quadraticCurveTo( 15, 7, 15, 2 ).close();
+
+          c.rect( 20, 0, 3, 20 );
+
+          var ab = a.shapeUnion( b );
+          var all = ab.shapeDifference( c );
+          window.area = all.getNonoverlappingArea();
+        })();
+      };
+
       window.initLineTest = function() {
         // intersection with one ray returns a different result than another. need to add indeterminate intersection handling
         window.shape = new kite.Shape( 'M -100 -100 L -50 50 L 50 50 L 30 0' );
@@ -36,6 +210,315 @@
         window.ray2 = new dot.Ray2( dot.v2( 50, 267 ), dot.v2( 1, 0 ) );
         console.log( 'ray1: ' + shape.windingIntersection( ray1 ) );
         console.log( 'ray2: ' + shape.windingIntersection( ray2 ) );
+      }
+
+      window.debugArcs = function() {
+        var normalCircle = new kite.Arc( dot.v2( 0, 0 ), 40, 0, Math.PI * 2, false );
+        var reversedCircle = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 2, 0, true );
+        var rotatedCircle = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI, 3 * Math.PI, false );
+        var normalArc = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 0.25, Math.PI * 0.75, false );
+        var normalSecondArc = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 0.5, Math.PI * 1, false );
+        var largeArc = new kite.Arc( dot.v2( 0, 0 ), 40, 0, Math.PI * 1.8, false );
+        var largeSecondArc = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 1.6, Math.PI * 2.4, false );
+        var largeMatchingArc = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 1.8, Math.PI * 2.4, false );
+        var offsetCircle = new kite.Arc( dot.v2( 30, 0 ), 40, 0, Math.PI * 2, false );
+        debugArcOverlap( normalCircle, normalArc );
+        debugArcOverlap( normalCircle, reversedCircle );
+        debugArcOverlap( normalArc, normalSecondArc );
+        debugArcOverlap( largeArc, largeSecondArc );
+        debugArcOverlap( largeArc, largeSecondArc.reversed() );
+        debugArcOverlap( largeArc, largeMatchingArc );
+        debugArcOverlap( normalCircle, rotatedCircle );
+        debugArcOverlap( normalCircle, rotatedCircle.reversed() );
+        debugArcOverlap( normalCircle, offsetCircle );
+      };
+
+      window.debugEllipticalArcs = function() {
+        var normalEllipse = new kite.EllipticalArc( dot.v2( 0, 0 ), 40, 20, Math.PI * 0.1, 0, Math.PI * 2, false );
+        var mirrorEllipse = new kite.EllipticalArc( dot.v2( 0, 0 ), 40, 20, Math.PI * 1.1, Math.PI, Math.PI * 3, false );
+        var normalEllipticalArc = new kite.EllipticalArc( dot.v2( 0, 0 ), 40, 20, Math.PI * 0.1, 0, Math.PI / 4, false );
+        debugEllipticalArcOverlap( normalEllipse, normalEllipticalArc );
+        debugEllipticalArcOverlap( normalEllipse, mirrorEllipse );
+      };
+
+      function debugArcOverlap( arc1, arc2 ) {
+        debugOverlap( arc1, arc2, kite.Arc.getOverlaps );
+      }
+
+      function debugEllipticalArcOverlap( arc1, arc2 ) {
+        debugOverlap( arc1, arc2, kite.EllipticalArc.getOverlaps );
+      }
+
+      function debugOverlap( segment1, segment2, overlapFunction ) {
+        var canvas = document.createElement( 'canvas' );
+        canvas.width = 400;
+        canvas.height = 100;
+        document.body.appendChild( canvas );
+
+        var context = canvas.getContext( '2d' );
+
+        context.save();
+        context.translate( 50, 50 );
+        debugSegment( context, segment1, 'red' );
+        context.restore();
+
+        context.save();
+        context.translate( 150, 50 );
+        debugSegment( context, segment2, 'blue' );
+        context.restore();
+
+        var overlaps = overlapFunction( segment1, segment2 );
+
+        function displayOverlap( x, overlap ) {
+          var segment1Slice = segment1.slice( overlap.t0, overlap.t1 );
+          var segment2Slice = segment2.slice( overlap.qt0, overlap.qt1 );
+
+          context.save();
+          context.translate( x, 50 );
+          debugSegment( context, segment1Slice, 'rgba(255,0,0,0.4)' );
+          debugSegment( context, segment2Slice, 'rgba(0,0,255,0.4)' );
+          context.restore();
+        }
+
+        if ( overlaps[ 0 ] ) {
+          displayOverlap( 250, overlaps[ 0 ] );
+        }
+        if ( overlaps[ 1 ] ) {
+          displayOverlap( 350, overlaps[ 1 ] );
+        }
+      };
+
+      function debugSegment( context, segment, color ) {
+        context.beginPath();
+        context.moveTo( segment.start.x, segment.start.y );
+        segment.writeToContext( context );
+
+        var t = 0.8;
+        var t2 = 0.87;
+        var halfPosition = segment.positionAt( t );
+        var morePosition = segment.positionAt( t2 );
+        var ext = halfPosition.distance( morePosition ) * 2 / 3;
+        var halfTangent = segment.tangentAt( t ).normalized();
+        context.moveTo( halfPosition.x - halfTangent.y * ext, halfPosition.y + halfTangent.x * ext );
+        context.lineTo( halfPosition.x + halfTangent.y * ext, halfPosition.y - halfTangent.x * ext );
+        context.lineTo( morePosition.x, morePosition.y );
+        context.closePath();
+
+        context.strokeStyle = color;
+        context.lineWidth = 1;
+        context.stroke();
+      }
+
+      window.debugGraph = function( graph ) {
+        var bounds = dot.Bounds2.NOTHING.copy();
+        for ( var i = 0; i < graph.edges.length; i++ ) {
+          bounds.includeBounds( graph.edges[ i ].segment.getBounds() );
+        }
+
+        var debugSize = 512;
+        var pad = 20;
+        var scale = ( debugSize - pad * 2 ) / Math.max( bounds.width, bounds.height );
+
+        function transformContext( context ) {
+          context.translate( pad, pad );
+          context.scale( scale, -scale );
+          context.translate( -bounds.minX, -bounds.minY - bounds.height );
+        }
+
+        function draw( callback ) {
+          var canvas = document.createElement( 'canvas' );
+          canvas.width = debugSize;
+          canvas.height = debugSize;
+          canvas.style.border = '1px solid black';
+          var context = canvas.getContext( '2d' );
+          transformContext( context );
+          callback( context );
+          document.body.appendChild( canvas );
+        }
+
+        function drawHalfEdges( context, halfEdges, color ) {
+          for ( var i = 0; i < halfEdges.length; i++ ) {
+            var segment = halfEdges[ i ].getDirectionalSegment();
+            context.beginPath();
+            context.moveTo( segment.start.x, segment.start.y );
+            segment.writeToContext( context );
+
+            var t = 0.8;
+            var t2 = 0.83;
+            var halfPosition = segment.positionAt( t );
+            var morePosition = segment.positionAt( t2 );
+            var ext = halfPosition.distance( morePosition ) * 2 / 3;
+            var halfTangent = segment.tangentAt( t ).normalized();
+            context.moveTo( halfPosition.x - halfTangent.y * ext, halfPosition.y + halfTangent.x * ext );
+            context.lineTo( halfPosition.x + halfTangent.y * ext, halfPosition.y - halfTangent.x * ext );
+            context.lineTo( morePosition.x, morePosition.y );
+            context.closePath();
+
+            context.strokeStyle = color;
+            context.lineWidth = 2 / scale;
+            context.stroke();
+          }
+        }
+
+        function drawVertices( context ) {
+          for ( var i = 0; i < graph.vertices.length; i++ ) {
+            context.beginPath();
+            context.arc( graph.vertices[ i ].point.x, graph.vertices[ i ].point.y, 3 / scale, 0, Math.PI * 2, false );
+            context.closePath();
+            context.fillStyle = 'rgba(0,0,0,0.4)';
+            context.fill();
+          }
+        }
+
+        function drawEdges( context ) {
+          for ( var i = 0; i < graph.edges.length; i++ ) {
+            var edge = graph.edges[ i ];
+            context.beginPath();
+            context.moveTo( edge.segment.start.x, edge.segment.start.y );
+            edge.segment.writeToContext( context );
+            context.strokeStyle = 'rgba(0,0,0,0.4)';
+            context.lineWidth = 2 / scale;
+            context.stroke();
+          }
+        }
+
+        function followBoundary( context, boundary ) {
+          var startPoint = boundary.halfEdges[ 0 ].getDirectionalSegment().start;
+          context.moveTo( startPoint.x, startPoint.y );
+          for ( var i = 0; i < boundary.halfEdges.length; i++ ) {
+            var segment = boundary.halfEdges[ i ].getDirectionalSegment();
+            segment.writeToContext( context );
+          }
+          context.closePath();
+        }
+
+        function drawFace( context, face, color ) {
+          context.beginPath();
+          if ( face.boundary === null ) {
+            context.moveTo( 1000, 0 );
+            context.lineTo( 0, 1000 );
+            context.lineTo( -1000, 0 );
+            context.lineTo( 0, -1000 );
+            context.closePath();
+          }
+          else {
+            followBoundary( context, face.boundary );
+          }
+          face.holes.forEach( function( boundary ) {
+            followBoundary( context, boundary );
+          } );
+          context.fillStyle = color;
+          context.fill();
+        }
+
+        draw( function( context ) {
+          drawVertices( context );
+          drawEdges( context );
+        } );
+
+        for ( var j = 0; j < graph.loops.length; j++ ) {
+          var loop = graph.loops[ j ];
+          draw( function( context ) {
+            drawVertices( context );
+            drawHalfEdges( context, loop.halfEdges, 'rgba(0,0,0,0.4)' );
+          } );
+        }
+        for ( j = 0; j < graph.innerBoundaries.length; j++ ) {
+          var innerBoundary = graph.innerBoundaries[ j ];
+          draw( function( context ) {
+            drawVertices( context );
+            drawHalfEdges( context, innerBoundary.halfEdges, 'rgba(0,0,255,0.4)' );
+          } );
+        }
+        for ( j = 0; j < graph.outerBoundaries.length; j++ ) {
+          var outerBoundary = graph.outerBoundaries[ j ];
+          draw( function( context ) {
+            drawVertices( context );
+            drawHalfEdges( context, outerBoundary.halfEdges, 'rgba(255,0,0,0.4)' );
+          } );
+        }
+        for ( j = 0; j < graph.outerBoundaries.length; j++ ) {
+          var outerBoundary = graph.outerBoundaries[ j ];
+          draw( function( context ) {
+            context.save();
+            context.setTransform( 1, 0, 0, 1, 0, 0 );
+            context.fillStyle = 'black';
+            context.fillRect( 0, 0, debugSize, debugSize );
+            context.restore();
+            // drawVertices( context );
+            for ( var m = 0; m < graph.vertices.length; m++ ) {
+              var vertex = graph.vertices[ m ];
+              for ( var n = 0; n < vertex.incidentHalfEdges.length; n++ ) {
+                var halfEdge = vertex.incidentHalfEdges[ n ];
+                var segment = halfEdge.getDirectionalSegment().slice( 0.5, 1 );
+                context.beginPath();
+                context.moveTo( segment.start.x, segment.start.y );
+                segment.writeToContext( context );
+                context.strokeStyle = 'hsl(' + Math.floor( 120 * n / vertex.incidentHalfEdges.length ) + ',100%,50%)';
+                context.lineWidth = 2 / scale;
+                context.stroke();
+              }
+            }
+          } );
+        }
+        for ( j = 0; j < graph.faces.length; j++ ) {
+          draw( function( context ) {
+            drawVertices( context );
+            drawEdges( context );
+            drawFace( context, graph.faces[ j ], 'rgba(0,255,0,0.4)' );
+          } );
+        }
+        for ( var k = 0; k < graph.shapeIds.length; k++ ) {
+          draw( function( context ) {
+            var colorMap = {
+              '-3': 'rgba(255,0,0,0.8)',
+              '-2': 'rgba(255,0,0,0.4)',
+              '-1': 'rgba(127,0,0,0.4)',
+              '0': 'rgba(0,0,0,0.4)',
+              '1': 'rgba(0,0,127,0.4)',
+              '2': 'rgba(0,0,255,0.4)',
+              '3': 'rgba(0,0,255,0.8)'
+            };
+            drawVertices( context );
+            drawEdges( context );
+            for ( j = 0; j < graph.faces.length; j++ ) {
+              if ( graph.faces[ j ].windingMap ) {
+                drawFace( context, graph.faces[ j ], colorMap[ graph.faces[ j ].windingMap[ graph.shapeIds[ k ] ] ] || 'green' );
+              }
+            }
+          } );
+        }
+        draw( function( context ) {
+          drawVertices( context );
+          drawEdges( context );
+          for ( j = 0; j < graph.faces.length; j++ ) {
+            if ( graph.faces[ j ].filled ) {
+              drawFace( context, graph.faces[ j ], 'rgba(0,0,0,0.4)' );
+            }
+          }
+        } );
+        for ( k = 0; k < graph.shapeIds.length; k++ ) {
+          draw( function( context ) {
+            drawVertices( context );
+            drawHalfEdges( context, graph.edges.map( function( edge ) { return edge.forwardHalf; } ), 'rgba(0,0,0,0.4)' );
+            for ( j = 0; j < graph.edges.length; j++ ) {
+              var edge = graph.edges[ j ];
+              var center = edge.segment.start.average( edge.segment.end );
+              context.save();
+              context.translate( center.x, center.y );
+              context.scale( 1, -1 );
+              context.font = '2px serif';
+              context.textBasline = 'middle';
+              context.textAlign = 'center';
+              context.fillStyle = 'red';
+              context.fillText( '' + graph.computeDifferential( edge, graph.shapeIds[ k ] ), 0, 0 );
+              context.fillStyle = 'blue';
+              context.font = '1px serif';
+              context.fillText( edge.id, 0, 1 );
+              context.restore();
+            }
+          } );
+        }
       }
     } );
   } );
