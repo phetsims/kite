@@ -140,7 +140,9 @@ define( function( require ) {
       var bevel = ( fromPoint.equals( toPoint ) ? [] : [ new Line( fromPoint, toPoint ) ] );
 
       // only insert a join on the non-acute-angle side
-      if ( fromTangent.perpendicular().dot( toTangent ) > 0 ) {
+      // epsilon present for https://github.com/phetsims/kite/issues/73, where we don't want to join barely-existing
+      // joins.
+      if ( fromTangent.perpendicular().dot( toTangent ) > 1e-12 ) {
         switch( this.lineJoin ) {
           case 'round':
             var fromAngle = fromTangent.angle() + Math.PI / 2;
