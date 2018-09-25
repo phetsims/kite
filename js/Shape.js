@@ -2129,5 +2129,23 @@ define( function( require ) {
     return Graph.xorNonZero( shapes );
   };
 
+  /**
+   * Returns a new Shape constructed by appending a list of segments together.
+   * @public
+   *
+   * @param {Array.<Segment>} segments
+   * @param {boolean} [closed]
+   * @returns {Shape}
+   */
+  Shape.segments = function( segments, closed ) {
+    if ( assert ) {
+      for ( var i = 1; i < segments.length; i++ ) {
+        assert( segments[ i - 1 ].end.equalsEpsilon( segments[ i ].start, 1e-6 ), 'Mismatched start/end' );
+      }
+    }
+
+    return new Shape( [ new Subpath( segments, undefined, !!closed ) ] );
+  };
+
   return Shape;
 } );
