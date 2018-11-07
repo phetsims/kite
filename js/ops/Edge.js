@@ -75,6 +75,9 @@ define( function( require ) {
       // @public {boolean} - Used for depth-first search
       this.visited = false;
 
+      // @public {*} - Available for arbitrary client usage.
+      this.data = null;
+
       return this;
     },
 
@@ -93,6 +96,8 @@ define( function( require ) {
 
       this.forwardHalf = null;
       this.reversedHalf = null;
+
+      this.data = null;
 
       this.freeToPool();
     },

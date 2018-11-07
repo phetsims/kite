@@ -66,6 +66,9 @@ define( function( require ) {
       // Y is curvature at end. See Vertex edge sort for more information.
       this.sortVector = this.sortVector || new Vector2( 0, 0 );
 
+      // @public {*} - Available for arbitrary client usage.
+      this.data = null;
+
       this.updateReferences(); // Initializes vertex references
 
       return this;
@@ -81,6 +84,7 @@ define( function( require ) {
       this.face = null;
       this.startVertex = null;
       this.endVertex = null;
+      this.data = null;
       this.freeToPool();
     },
 

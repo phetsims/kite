@@ -21,6 +21,7 @@ define( function( require ) {
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Poolable = require( 'PHET_CORE/Poolable' );
+  var Subpath = require( 'KITE/util/Subpath' );
 
   var globaId = 0;
 
@@ -31,14 +32,15 @@ define( function( require ) {
    * NOTE: Use Loop.createFromPool for most usage instead of using the constructor directly.
    *
    * @param {number} shapeId
+   * @param {boolean} closed
    */
-  function Loop( shapeId ) {
+  function Loop( shapeId, closed ) {
     // @public {number}
     this.id = ++globaId;
 
     // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
     // definitions.
-    this.initialize( shapeId );
+    this.initialize( shapeId, closed );
   }
 
   kite.register( 'Loop', Loop );
@@ -50,18 +52,37 @@ define( function( require ) {
      * @private
      *
      * @param {number} shapeId
+     * @param {boolean} closed
      * @returns {Loop} - This reference for chaining
      */
-    initialize: function( shapeId ) {
+    initialize: function( shapeId, closed ) {
       assert && assert( typeof shapeId === 'number' );
+      assert && assert( typeof closed === 'boolean' );
 
       // @public {number}
       this.shapeId = shapeId;
+
+      // @public {boolean}
+      this.closed = closed;
 
       // @public {Array.<HalfEdge>}
       this.halfEdges = cleanArray( this.halfEdges );
 
       return this;
+    },
+
+    /**
+     * Returns a Subpath equivalent to this loop.
+     * @public
+     *
+     * @returns {Subpath}
+     */
+    toSubpath: function() {
+      var segments = [];
+      for ( var i = 0; i < this.halfEdges.length; i++ ) {
+        segments.push( this.halfEdges[ i ].getDirectionalSegment() );
+      }
+      return new Subpath( segments, undefined, this.closed );
     },
 
     /**

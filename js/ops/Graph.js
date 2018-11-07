@@ -89,10 +89,11 @@ define( function( require ) {
      *                           respect to the winding number of faces. For CAG, independent shapes should be given
      *                           different IDs (so they have separate winding numbers recorded).
      * @param {Shape} shape
+     * @param {Object} [options] - See addSubpath
      */
-    addShape: function( shapeId, shape ) {
+    addShape: function( shapeId, shape, options ) {
       for ( var i = 0; i < shape.subpaths.length; i++ ) {
-        this.addSubpath( shapeId, shape.subpaths[ i ] );
+        this.addSubpath( shapeId, shape.subpaths[ i ], options );
       }
     },
 
@@ -102,10 +103,15 @@ define( function( require ) {
      *
      * @param {number} shapeId - See addShape() documentation
      * @param {Subpath} subpath
+     * @param {Object} [options]
      */
-    addSubpath: function( shapeId, subpath ) {
+    addSubpath: function( shapeId, subpath, options ) {
       assert && assert( typeof shapeId === 'number' );
       assert && assert( subpath instanceof Subpath );
+
+      options = _.extend( {
+        ensureClosed: true
+      }, options );
 
       // Ensure the shapeId is recorded
       if ( this.shapeIds.indexOf( shapeId ) < 0 ) {
@@ -116,7 +122,8 @@ define( function( require ) {
         return;
       }
 
-      var segments = subpath.getFillSegments();
+      var closed = subpath.closed || options.ensureClosed;
+      var segments = options.ensureClosed ? subpath.getFillSegments() : subpath.segments;
       var index;
 
       // Collects all of the vertices
@@ -132,6 +139,11 @@ define( function( require ) {
         var end = segments[ previousIndex ].end;
         var start = segments[ index ].start;
 
+        // If we are creating an open "loop", don't interpolate the start/end of the entire subpath together.
+        if ( !closed && index === 0 ) {
+          end = start;
+        }
+
         // If they are exactly equal, don't take a chance on floating-point arithmetic
         if ( start.equals( end ) ) {
           vertices.push( Vertex.createFromPool( start ) );
@@ -141,12 +153,16 @@ define( function( require ) {
           vertices.push( Vertex.createFromPool( start.average( end ) ) );
         }
       }
+      if ( !closed ) {
+        // If we aren't closed, create an "end" vertex since it may be different from the "start"
+        vertices.push( Vertex.createFromPool( segments[ segments.length - 1 ].end ) );
+      }
 
       // Create the loop object from the vertices, filling in edges
-      var loop = Loop.createFromPool( shapeId );
+      var loop = Loop.createFromPool( shapeId, closed );
       for ( index = 0; index < segments.length; index++ ) {
         var nextIndex = index + 1;
-        if ( nextIndex === segments.length ) {
+        if ( closed && nextIndex === segments.length ) {
           nextIndex = 0;
         }
 
@@ -1125,6 +1141,7 @@ define( function( require ) {
       var differential = 0; // forward face - reversed face
       for ( var m = 0; m < this.loops.length; m++ ) {
         var loop = this.loops[ m ];
+        assert && assert( loop.closed, 'This is only defined to work for closed loops' );
         if ( loop.shapeId !== shapeId ) {
           continue;
         }
@@ -1402,6 +1419,88 @@ define( function( require ) {
     subgraph.dispose();
 
     return resultShape;
+  };
+
+  /**
+   * Returns a clipped version of `shape` that contains only the parts that are within the area defined by
+   * `clipAreaShape`
+   * @public
+   *
+   * @param {Shape} clipAreaShape
+   * @param {Shape} shape
+   * @param {Object} [options]
+   * @returns {Shape}
+   */
+  Graph.clipShape = function( clipAreaShape, shape, options ) {
+    var i;
+    var j;
+    var loop;
+
+    var SHAPE_ID = 0;
+    var CLIP_SHAPE_ID = 1;
+
+    options = _.extend( {
+      // {boolean} - Respectively whether segments should be in the returned shape if they are in the exterior of the
+      // clipAreaShape (outside), on the boundary, or in the interior.
+      includeExterior: false,
+      includeBoundary: true,
+      includeInterior: true
+    }, options );
+
+    var simplifiedClipAreaShape = Graph.simplifyNonZero( clipAreaShape );
+
+    var graph = new Graph();
+    graph.addShape( SHAPE_ID, shape, {
+      ensureClosed: false // don't add closing segments, since we'll be recreating subpaths/etc.
+    } );
+    graph.addShape( CLIP_SHAPE_ID, simplifiedClipAreaShape );
+
+    // A subset of simplifications (we want to keep low-order vertices, etc.)
+    graph.eliminateOverlap();
+    graph.eliminateSelfIntersection();
+    graph.eliminateIntersection();
+    graph.collapseVertices();
+
+    // Mark clip edges with data=true
+    for ( i = 0; i < graph.loops.length; i++ ) {
+      loop = graph.loops[ i ];
+      if ( loop.shapeId === CLIP_SHAPE_ID ) {
+        for ( j = 0; j < loop.halfEdges.length; j++ ) {
+          loop.halfEdges[ j ].edge.data = true;
+        }
+      }
+    }
+
+    var subpaths = [];
+    for ( i = 0; i < graph.loops.length; i++ ) {
+      loop = graph.loops[ i ];
+      if ( loop.shapeId === SHAPE_ID ) {
+        var segments = [];
+        for ( j = 0; j < loop.halfEdges.length; j++ ) {
+          var halfEdge = loop.halfEdges[ j ];
+
+          var included = halfEdge.edge.data ? options.includeBoundary : (
+            simplifiedClipAreaShape.containsPoint( halfEdge.edge.segment.positionAt( 0.5 ) ) ? options.includeInterior : options.includeExterior
+          );
+          if ( included ) {
+            segments.push( halfEdge.getDirectionalSegment() );
+          }
+          // If we have an excluded segment in-between included segments, we'll need to split into more subpaths to handle
+          // the gap.
+          else if ( segments.length ) {
+            subpaths.push( new Subpath( segments, undefined, loop.closed ) );
+            segments = [];
+          }
+        }
+        if ( segments.length ) {
+          subpaths.push( new Subpath( segments, undefined, loop.closed ) );
+        }
+      }
+    }
+
+    graph.dispose();
+
+    return new kite.Shape( subpaths );
   };
 
   return kite.Graph;

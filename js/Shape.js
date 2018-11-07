@@ -1811,6 +1811,18 @@ define( function( require ) {
     },
 
     /**
+     * Returns a new shape that only contains portions of segments that are within the passed-in shape's area.
+     * @public
+     *
+     * @param {Shape} shape
+     * @param {Object} [options] - See Graph.clipShape options
+     * @returns {Shape}
+     */
+    shapeClip: function( shape, options ) {
+      return Graph.clipShape( shape, this, options );
+    },
+
+    /**
      * Returns the (sometimes approximate) arc length of all of the shape's subpaths combined.
      * @public
      *
