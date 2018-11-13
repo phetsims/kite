@@ -55,8 +55,8 @@ define( function( require ) {
       assert && assert( segment instanceof Segment );
       assert && assert( startVertex instanceof Vertex );
       assert && assert( endVertex instanceof Vertex );
-      assert && assert( segment.start.distance( startVertex.point ) < 1e-5 );
-      assert && assert( segment.end.distance( endVertex.point ) < 1e-5 );
+      assert && assert( segment.start.distance( startVertex.point ) < 1e-3 );
+      assert && assert( segment.end.distance( endVertex.point ) < 1e-3 );
 
       // @public {Segment|null} - Null when disposed (in pool)
       this.segment = segment;

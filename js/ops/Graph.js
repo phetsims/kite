@@ -730,8 +730,8 @@ define( function( require ) {
     simpleSplit: function( aEdge, bEdge, aT, bT, point ) {
       var changed = false;
 
-      var aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
-      var bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
+      var aInternal = aT > 1e-6 && aT < ( 1 - 1e-6 );
+      var bInternal = bT > 1e-6 && bT < ( 1 - 1e-6 );
 
       var vertex = null;
       if ( !aInternal ) {

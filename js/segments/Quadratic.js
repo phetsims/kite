@@ -768,7 +768,7 @@ define( function( require ) {
     var approxEpsilon = ( Math.abs( p0x ) + Math.abs( p1x ) + Math.abs( p2x ) +
                           Math.abs( p0y ) + Math.abs( p1y ) + Math.abs( p2y ) +
                           Math.abs( q0x ) + Math.abs( q1x ) + Math.abs( q2x ) +
-                          Math.abs( q0y ) + Math.abs( q1y ) + Math.abs( q2y ) ) * 1e-6;
+                          Math.abs( q0y ) + Math.abs( q1y ) + Math.abs( q2y ) ) * 1e-8;
 
     var a = overlap.a;
     var b = overlap.b;
