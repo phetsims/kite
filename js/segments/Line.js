@@ -552,9 +552,11 @@ define( function( require ) {
    *
    * @param {Line} line1
    * @param {Line} line2
+   * @param {number} [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more
+   *                             in one component.
    * @returns {Array.<Overlap>} - The solution, if there is one (and only one)
    */
-  Line.getOverlaps = function( line1, line2 ) {
+  Line.getOverlaps = function( line1, line2, epsilon = 1e-6 ) {
     assert && assert( line1 instanceof Line, 'first Line is not an instance of Line' );
     assert && assert( line2 instanceof Line, 'second Line is not an instance of Line' );
 
@@ -598,20 +600,25 @@ define( function( require ) {
       return noOverlap; // No way to pin down an overlap
     }
 
-    // Grab an approximate value to use as epsilon (that is scale-independent)
-    var approxEpsilon = ( Math.abs( p0x ) + Math.abs( p1x ) +
-                          Math.abs( p0y ) + Math.abs( p1y ) +
-                          Math.abs( q0x ) + Math.abs( q1x ) +
-                          Math.abs( q0y ) + Math.abs( q1y ) ) * 1e-8;
-
     var a = overlap.a;
     var b = overlap.b;
 
-    // Check that the formula is satisfied (2 equations per x and y each)
-    if ( Math.abs( q0x + b * q1x - p0x ) > approxEpsilon ) { return noOverlap; }
-    if ( Math.abs( a * q1x - p1x ) > approxEpsilon ) { return noOverlap; }
-    if ( Math.abs( q0y + b * q1y - p0y ) > approxEpsilon ) { return noOverlap; }
-    if ( Math.abs( a * q1y - p1y ) > approxEpsilon ) { return noOverlap; }
+    // Compute linear coefficients for the difference between p(t) and q(a*t+b)
+    var d0x = q0x + b * q1x - p0x;
+    var d1x = a * q1x - p1x;
+    var d0y = q0y + b * q1y - p0y;
+    var d1y = a * q1y - p1y;
+
+    // Examine the single-coordinate distances between the "overlaps" at each extreme T value. If the distance is larger
+    // than our epsilon, then the "overlap" would not be valid.
+    if ( Math.abs( d0x ) > epsilon ||
+         Math.abs( d1x + d0x ) > epsilon ||
+         Math.abs( d0y ) > epsilon ||
+         Math.abs( d1y + d0y ) > epsilon ) {
+      // We're able to efficiently hardcode these for the line-line case, since there are no extreme t values that are
+      // not t=0 or t=1.
+      return noOverlap;
+    }
 
     var qt0 = b;
     var qt1 = a + b;

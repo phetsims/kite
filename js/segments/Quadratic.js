@@ -25,6 +25,11 @@ define( function( require ) {
   var solveQuadraticRootsReal = Util.solveQuadraticRootsReal;
   var arePointsCollinear = Util.arePointsCollinear;
 
+  // Used in multiple filters
+  function isBetween0And1( t ) {
+    return t >= 0 && t <= 1;
+  }
+
   /**
    * @constructor
    *
@@ -709,9 +714,11 @@ define( function( require ) {
    *
    * @param {Quadratic} quadratic1
    * @param {Quadratic} quadratic2
+   * @param {number} [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more
+   *                             in one component.
    * @returns {Array.<Overlap>} - The solution, if there is one (and only one)
    */
-  Quadratic.getOverlaps = function( quadratic1, quadratic2 ) {
+  Quadratic.getOverlaps = function( quadratic1, quadratic2, epsilon = 1e-6 ) {
     assert && assert( quadratic1 instanceof Quadratic, 'first Quadratic is not an instance of Quadratic' );
     assert && assert( quadratic2 instanceof Quadratic, 'second Quadratic is not an instance of Quadratic' );
 
@@ -764,12 +771,6 @@ define( function( require ) {
       return noOverlap; // No way to pin down an overlap
     }
 
-    // Grab an approximate value to use as epsilon (that is scale-independent)
-    var approxEpsilon = ( Math.abs( p0x ) + Math.abs( p1x ) + Math.abs( p2x ) +
-                          Math.abs( p0y ) + Math.abs( p1y ) + Math.abs( p2y ) +
-                          Math.abs( q0x ) + Math.abs( q1x ) + Math.abs( q2x ) +
-                          Math.abs( q0y ) + Math.abs( q1y ) + Math.abs( q2y ) ) * 1e-8;
-
     var a = overlap.a;
     var b = overlap.b;
 
@@ -777,13 +778,35 @@ define( function( require ) {
     var bb = b * b;
     var ab2 = 2 * a * b;
 
-    // Check that the formula is satisfied (3 equations per x and y each)
-    if ( Math.abs( q0x + b * q1x + bb * q2x - p0x ) > approxEpsilon ) { return noOverlap; }
-    if ( Math.abs( a * q1x + ab2 * q2x - p1x ) > approxEpsilon ) { return noOverlap; }
-    if ( Math.abs( aa * q2x - p2x ) > approxEpsilon ) { return noOverlap; }
-    if ( Math.abs( q0y + b * q1y + bb * q2y - p0y ) > approxEpsilon ) { return noOverlap; }
-    if ( Math.abs( a * q1y + ab2 * q2y - p1y ) > approxEpsilon ) { return noOverlap; }
-    if ( Math.abs( aa * q2y - p2y ) > approxEpsilon ) { return noOverlap; }
+    // Compute quadratic coefficients for the difference between p(t) and q(a*t+b)
+    var d0x = q0x + b * q1x + bb * q2x - p0x;
+    var d1x = a * q1x + ab2 * q2x - p1x;
+    var d2x = aa * q2x - p2x;
+    var d0y = q0y + b * q1y + bb * q2y - p0y;
+    var d1y = a * q1y + ab2 * q2y - p1y;
+    var d2y = aa * q2y - p2y;
+
+    // Find the t values where extremes lie in the [0,1] range for each 1-dimensional quadratic. We do this by
+    // differentiating the quadratic and finding the roots of the resulting line.
+    var xRoots = Util.solveLinearRootsReal( 2 * d2x, d1x );
+    var yRoots = Util.solveLinearRootsReal( 2 * d2y, d1y );
+    var xExtremeTs = _.uniq( [ 0, 1 ].concat( xRoots ? xRoots.filter( isBetween0And1 ) : [] ) );
+    var yExtremeTs = _.uniq( [ 0, 1 ].concat( yRoots ? yRoots.filter( isBetween0And1 ) : [] ) );
+
+    // Examine the single-coordinate distances between the "overlaps" at each extreme T value. If the distance is larger
+    // than our epsilon, then the "overlap" would not be valid.
+    for ( let i = 0; i < xExtremeTs.length; i++ ) {
+      let t = xExtremeTs[ i ];
+      if ( Math.abs( ( d2x * t + d1x ) * t + d0x ) > epsilon ) {
+        return noOverlap;
+      }
+    }
+    for ( let i = 0; i < yExtremeTs.length; i++ ) {
+      let t = yExtremeTs[ i ];
+      if ( Math.abs( ( d2y * t + d1y ) * t + d0y ) > epsilon ) {
+        return noOverlap;
+      }
+    }
 
     var qt0 = b;
     var qt1 = a + b;
