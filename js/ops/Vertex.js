@@ -14,6 +14,7 @@ define( function( require ) {
   var cleanArray = require( 'PHET_CORE/cleanArray' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
+  var Line = require( 'KITE/segments/Line' );
   var Poolable = require( 'PHET_CORE/Poolable' );
   var Vector2 = require( 'DOT/Vector2' );
 
@@ -129,13 +130,16 @@ define( function( require ) {
       var angleB = halfEdgeB.sortVector.x;
 
       // Don't allow angleA=-pi, angleB=pi (they are equivalent)
-      if ( Math.abs( angleA - angleB ) > 1e-4 ) {
+      // If our angle is very small, we need to accept it still if we have two lines (since they will have the same
+      // curvature).
+      if ( Math.abs( angleA - angleB ) > 1e-5 ||
+           ( angleA !== angleB && ( halfEdgeA.edge.segment instanceof Line ) && ( halfEdgeB.edge.segment instanceof Line ) ) ) {
         return angleA < angleB ? -1 : 1;
       }
       else {
         var curvatureA = halfEdgeA.sortVector.y;
         var curvatureB = halfEdgeB.sortVector.y;
-        if ( Math.abs( curvatureA - curvatureB ) > 1e-4 ) {
+        if ( Math.abs( curvatureA - curvatureB ) > 1e-5 ) {
           return curvatureA < curvatureB ? 1 : -1;
         }
         else {
