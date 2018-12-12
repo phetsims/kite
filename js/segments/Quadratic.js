@@ -796,13 +796,13 @@ define( function( require ) {
     // Examine the single-coordinate distances between the "overlaps" at each extreme T value. If the distance is larger
     // than our epsilon, then the "overlap" would not be valid.
     for ( let i = 0; i < xExtremeTs.length; i++ ) {
-      let t = xExtremeTs[ i ];
+      const t = xExtremeTs[ i ];
       if ( Math.abs( ( d2x * t + d1x ) * t + d0x ) > epsilon ) {
         return noOverlap;
       }
     }
     for ( let i = 0; i < yExtremeTs.length; i++ ) {
-      let t = yExtremeTs[ i ];
+      const t = yExtremeTs[ i ];
       if ( Math.abs( ( d2y * t + d1y ) * t + d0y ) > epsilon ) {
         return noOverlap;
       }
