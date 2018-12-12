@@ -1992,6 +1992,20 @@ define( function( require ) {
   };
 
   /**
+   * Returns a Shape from a bounds, offset by certain amounts, and with certain corner radii.
+   * @public
+   *
+   * @param {Bounds2} bounds
+   * @param {Object} offsets - { left, top, right, bottom }, all numbers. Determines how to expand the bounds
+   * @param {Object} radii - See Shape.roundedRectangleWithRadii
+   * @returns {Shape}
+   */
+  Shape.boundsOffsetWithRadii = function( bounds, offsets, radii ) {
+    const offsetBounds = bounds.withOffsets( offsets.left, offsets.top, offsets.right, offsets.bottom );
+    return Shape.roundedRectangleWithRadii( offsetBounds.minX, offsetBounds.minY, offsetBounds.width, offsetBounds.height, radii );
+  };
+
+  /**
    * Creates a closed polygon from an array of vertices by connecting them by a series of lines.
    * The lines are joining the adjacent vertices in the array.
    * @public
