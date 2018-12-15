@@ -22,5 +22,8 @@
       "axon": "AXON/main",
       "phetCore": "PHET_CORE/main"
     }
+  },
+  "eslintConfig": {
+    "extends": "../chipper/eslint/.eslintrc.js"
   }
 }
