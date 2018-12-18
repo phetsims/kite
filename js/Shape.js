@@ -1322,7 +1322,8 @@ define( function( require ) {
     },
 
     /**
-     * Returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be nested (doesn't do intersection computations yet)
+     * Returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be
+     * nested (doesn't do intersection computations yet)
      * @public
      *
      * TODO: rename stroked( lineStyles )?
