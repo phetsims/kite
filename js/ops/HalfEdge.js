@@ -166,7 +166,7 @@ define( function( require ) {
      * Returns a segment that starts at our startVertex and ends at our endVertex (may be reversed to accomplish that).
      * @public
      *
-     * @return {Segment}
+     * @returns {Segment}
      */
     getDirectionalSegment: function() {
       if ( this.isReversed ) {
