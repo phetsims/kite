@@ -37,6 +37,8 @@ define( function( require ) {
   var svgPath = require( 'KITE/parser/svgPath' );
   var Vector2 = require( 'DOT/Vector2' );
 
+  const randomSource = Math.random; // eslint-disable-line bad-sim-text (We can't get joist's random reference here)
+
   /**
    * Convenience function that returns a Vector2
    * used throughout this file as an abbreviation for a displacement, a position or a point.
@@ -1514,8 +1516,8 @@ define( function( require ) {
       var count = 0;
       var point = new Vector2();
       for ( var i = 0; i < numSamples; i++ ) {
-        point.x = x + Math.random() * width;
-        point.y = y + Math.random() * height;
+        point.x = x + randomSource() * width;
+        point.y = y + randomSource() * height;
         if ( this.containsPoint( point ) ) {
           count++;
         }
@@ -1571,8 +1573,8 @@ define( function( require ) {
       var sum = new Vector2();
       var point = new Vector2();
       for ( var i = 0; i < numSamples; i++ ) {
-        point.x = x + Math.random() * width;
-        point.y = y + Math.random() * height;
+        point.x = x + randomSource() * width;
+        point.y = y + randomSource() * height;
         if ( this.containsPoint( point ) ) {
           sum.add( point );
           count++;

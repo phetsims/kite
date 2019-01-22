@@ -742,7 +742,8 @@ define( function( require ) {
     assert.equal( Arc.getCircleIntersectionPoint( new Vector2( 0, 0 ), 10, new Vector2( 5, 0 ), 5 ).length, 1, 'inner touching' );
 
     function r() {
-      return Math.ceil( Math.random() * 20 );
+      const randomSource = Math.random; // (We can't get joist's random reference here)
+      return Math.ceil( randomSource() * 20 );
     }
 
     for ( var i = 0; i < 200; i++ ) {
