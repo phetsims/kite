@@ -171,6 +171,8 @@ define( function( require ) {
      * @returns {Shape}
      */
     moveTo: function( x, y ) {
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.moveToPoint( v( x, y ) );
     },
 
@@ -183,6 +185,8 @@ define( function( require ) {
      * @returns {Shape}
      */
     moveToRelative: function( x, y ) {
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.moveToPointRelative( v( x, y ) );
     },
 
@@ -220,6 +224,8 @@ define( function( require ) {
      * @returns {Shape}
      */
     lineTo: function( x, y ) {
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.lineToPoint( v( x, y ) );
     },
 
@@ -232,6 +238,8 @@ define( function( require ) {
      * @returns {Shape}
      */
     lineToRelative: function( x, y ) {
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.lineToPointRelative( v( x, y ) );
     },
 
@@ -267,7 +275,7 @@ define( function( require ) {
       }
       this.resetControlPoints();
 
-     return this;  // for chaining
+      return this;  // for chaining
     },
 
     /**
@@ -327,6 +335,10 @@ define( function( require ) {
      * @returns {Shape}
      */
     quadraticCurveTo: function( cpx, cpy, x, y ) {
+      assert && assert( typeof cpx === 'number' && isFinite( cpx ), 'cpx must be a finite number: ' + cpx );
+      assert && assert( typeof cpy === 'number' && isFinite( cpy ), 'cpy must be a finite number: ' + cpy );
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.quadraticCurveToPoint( v( cpx, cpy ), v( x, y ) );
     },
 
@@ -342,6 +354,10 @@ define( function( require ) {
      * @returns {Shape}
      */
     quadraticCurveToRelative: function( cpx, cpy, x, y ) {
+      assert && assert( typeof cpx === 'number' && isFinite( cpx ), 'cpx must be a finite number: ' + cpx );
+      assert && assert( typeof cpy === 'number' && isFinite( cpy ), 'cpy must be a finite number: ' + cpy );
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.quadraticCurveToPointRelative( v( cpx, cpy ), v( x, y ) );
     },
 
@@ -371,6 +387,8 @@ define( function( require ) {
      * @returns {Shape}
      */
     smoothQuadraticCurveTo: function( x, y ) {
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ) );
     },
 
@@ -384,6 +402,8 @@ define( function( require ) {
      * @returns {Shape}
      */
     smoothQuadraticCurveToRelative: function( x, y ) {
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ).plus( this.getRelativePoint() ) );
     },
 
@@ -410,7 +430,7 @@ define( function( require ) {
       } );
       this.setQuadraticControlPoint( controlPoint );
 
-     return this;  // for chaining
+      return this;  // for chaining
     },
 
     /**
@@ -426,6 +446,12 @@ define( function( require ) {
      * @returns {Shape}
      */
     cubicCurveTo: function( cp1x, cp1y, cp2x, cp2y, x, y ) {
+      assert && assert( typeof cp1x === 'number' && isFinite( cp1x ), 'cp1x must be a finite number: ' + cp1x );
+      assert && assert( typeof cp1y === 'number' && isFinite( cp1y ), 'cp1y must be a finite number: ' + cp1y );
+      assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), 'cp2x must be a finite number: ' + cp2x );
+      assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), 'cp2y must be a finite number: ' + cp2y );
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.cubicCurveToPoint( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) );
     },
 
@@ -441,6 +467,12 @@ define( function( require ) {
      * @returns {Shape}
      */
     cubicCurveToRelative: function( cp1x, cp1y, cp2x, cp2y, x, y ) {
+      assert && assert( typeof cp1x === 'number' && isFinite( cp1x ), 'cp1x must be a finite number: ' + cp1x );
+      assert && assert( typeof cp1y === 'number' && isFinite( cp1y ), 'cp1y must be a finite number: ' + cp1y );
+      assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), 'cp2x must be a finite number: ' + cp2x );
+      assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), 'cp2y must be a finite number: ' + cp2y );
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.cubicCurveToPointRelative( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) );
     },
 
@@ -467,6 +499,10 @@ define( function( require ) {
      * @returns {Shape}
      */
     smoothCubicCurveTo: function( cp2x, cp2y, x, y ) {
+      assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), 'cp2x must be a finite number: ' + cp2x );
+      assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), 'cp2y must be a finite number: ' + cp2y );
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ), v( x, y ) );
     },
 
@@ -480,6 +516,10 @@ define( function( require ) {
      * @returns {Shape}
      */
     smoothCubicCurveToRelative: function( cp2x, cp2y, x, y ) {
+      assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), 'cp2x must be a finite number: ' + cp2x );
+      assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), 'cp2y must be a finite number: ' + cp2y );
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ).plus( this.getRelativePoint() ), v( x, y ).plus( this.getRelativePoint() ) );
     },
 
@@ -506,7 +546,7 @@ define( function( require ) {
 
       this.setCubicControlPoint( control2 );
 
-     return this;  // for chaining
+      return this;  // for chaining
     },
 
     /**
@@ -521,6 +561,8 @@ define( function( require ) {
      * @returns {Shape}
      */
     arc: function( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) {
+      assert && assert( typeof centerX === 'number' && isFinite( centerX ), 'centerX must be a finite number: ' + centerX );
+      assert && assert( typeof centerY === 'number' && isFinite( centerY ), 'centerY must be a finite number: ' + centerY );
       return this.arcPoint( v( centerX, centerY ), radius, startAngle, endAngle, anticlockwise );
     },
 
@@ -562,7 +604,7 @@ define( function( require ) {
       this.addSegmentAndBounds( arc );
       this.resetControlPoints();
 
-     return this;  // for chaining
+      return this;  // for chaining
     },
 
     /**
@@ -580,6 +622,8 @@ define( function( require ) {
      * @returns {Shape}
      */
     ellipticalArc: function( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
+      assert && assert( typeof centerX === 'number' && isFinite( centerX ), 'centerX must be a finite number: ' + centerX );
+      assert && assert( typeof centerY === 'number' && isFinite( centerY ), 'centerY must be a finite number: ' + centerY );
       return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
     },
 
@@ -624,7 +668,7 @@ define( function( require ) {
       this.addSegmentAndBounds( ellipticalArc );
       this.resetControlPoints();
 
-     return this;  // for chaining
+      return this;  // for chaining
     },
 
     /**
@@ -643,7 +687,7 @@ define( function( require ) {
         nextPath.addPoint( previousPath.getFirstPoint() );
       }
       this.resetControlPoints();
-     return this;  // for chaining
+      return this;  // for chaining
     },
 
     /**
@@ -769,10 +813,12 @@ define( function( require ) {
         centerPrime.multiplyScalar( -1 );
       }
       var center = startPoint.blend( endPoint, 0.5 ).plus( centerPrime.rotated( rotation ) );
+
       function signedAngle( u, v ) {
         // From spec: where the ± sign appearing here is the sign of ux vy − uy vx.
         return ( ( u.x * v.y - u.y * v.x ) > 0 ? 1 : -1 ) * u.angleBetween( v );
       }
+
       var victor = new Vector2( ( prime.x - centerPrime.x ) / radiusX, ( prime.y - centerPrime.y ) / radiusY );
       var ross = new Vector2( ( -prime.x - centerPrime.x ) / radiusX, ( -prime.y - centerPrime.y ) / radiusY );
       var startAngle = signedAngle( Vector2.X_UNIT, victor );
@@ -798,7 +844,7 @@ define( function( require ) {
       return this;
     },
 
-     /**
+    /**
      * Draws a circle using the arc() call with the following parameters:
      * circle( center, radius ) // center is a Vector2
      * circle( centerX, centerY, radius )
@@ -817,6 +863,9 @@ define( function( require ) {
         return this.arcPoint( center, radius, 0, Math.PI * 2, false ).close();
       }
       else {
+        assert && assert( typeof centerX === 'number' && isFinite( centerX ), 'centerX must be a finite number: ' + centerX );
+        assert && assert( typeof centerY === 'number' && isFinite( centerY ), 'centerY must be a finite number: ' + centerY );
+
         // circle( centerX, centerY, radius )
         return this.arcPoint( v( centerX, centerY ), radius, 0, Math.PI * 2, false ).close();
       }
@@ -849,6 +898,9 @@ define( function( require ) {
         return this.ellipticalArcPoint( center, radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false ).close();
       }
       else {
+        assert && assert( typeof centerX === 'number' && isFinite( centerX ), 'centerX must be a finite number: ' + centerX );
+        assert && assert( typeof centerY === 'number' && isFinite( centerY ), 'centerY must be a finite number: ' + centerY );
+
         // ellipse( centerX, centerY, radiusX, radiusY, rotation )
         return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false ).close();
       }
@@ -865,6 +917,11 @@ define( function( require ) {
      * @returns {Shape}
      */
     rect: function( x, y, width, height ) {
+      assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
+      assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+      assert && assert( typeof width === 'number' && isFinite( width ), 'width must be a finite number: ' + width );
+      assert && assert( typeof height === 'number' && isFinite( height ), 'height must be a finite number: ' + height );
+
       var subpath = new Subpath();
       this.addSubpath( subpath );
       subpath.addPoint( v( x, y ) );
@@ -982,7 +1039,7 @@ define( function( require ) {
             positions[ 1 ],
             positions[ 2 ] ];
         }
-        else if ( (i === segmentNumber - 1) && !options.isClosedLineSegments ) {
+        else if ( ( i === segmentNumber - 1 ) && !options.isClosedLineSegments ) {
           cardinalPoints = [
             positions[ i - 1 ],
             positions[ i ],
