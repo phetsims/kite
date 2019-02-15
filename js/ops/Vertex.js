@@ -89,7 +89,7 @@ define( function( require ) {
       for ( var i = 0; i < this.incidentHalfEdges.length; i++ ) {
         var halfEdge = this.incidentHalfEdges[ i ];
         // NOTE: If it is expensive to precompute curvature, we could save it until edgeComparison needs it.
-        vectors.push( halfEdge.sortVector.setXY( halfEdge.getEndTangent().angle(), halfEdge.getEndCurvature() ) );
+        vectors.push( halfEdge.sortVector.setXY( halfEdge.getEndTangent().angle, halfEdge.getEndCurvature() ) );
       }
 
       // "Rotate" the angles until we are sure that our "cut" (where -pi goes to pi around the circle) is at a place

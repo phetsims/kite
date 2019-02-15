@@ -724,7 +724,7 @@ define( function( require ) {
 
       var pointB = ray.pointAtDistance( tb );
       var normalB = pointB.minus( this._center ).normalized();
-      var normalBAngle = normalB.angle();
+      var normalBAngle = normalB.angle;
 
       if ( ta < epsilon ) {
         // we are inside the circle, so only one intersection is possible
@@ -737,7 +737,7 @@ define( function( require ) {
         // two possible hits (outside circle)
         var pointA = ray.pointAtDistance( ta );
         var normalA = pointA.minus( this._center ).normalized();
-        var normalAAngle = normalA.angle();
+        var normalAAngle = normalA.angle;
 
         if ( this.containsAngle( normalAAngle ) ) {
           // hit from outside
@@ -788,8 +788,8 @@ define( function( require ) {
      */
     transformed: function( matrix ) {
       // so we can handle reflections in the transform, we do the general case handling for start/end angles
-      var startAngle = matrix.timesVector2( Vector2.createPolar( 1, this._startAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle();
-      var endAngle = matrix.timesVector2( Vector2.createPolar( 1, this._endAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle();
+      var startAngle = matrix.timesVector2( Vector2.createPolar( 1, this._startAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle;
+      var endAngle = matrix.timesVector2( Vector2.createPolar( 1, this._endAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle;
 
       // reverse the 'clockwiseness' if our transform includes a reflection
       var anticlockwise = matrix.getDeterminant() >= 0 ? this._anticlockwise : !this._anticlockwise;
@@ -1103,8 +1103,8 @@ define( function( require ) {
 
     for ( var i = 0; i < points.length; i++ ) {
       var point = points[ i ];
-      var angleA = point.minus( a._center ).angle();
-      var angleB = point.minus( b._center ).angle();
+      var angleA = point.minus( a._center ).angle;
+      var angleB = point.minus( b._center ).angle;
 
       if ( a.containsAngle( angleA ) && b.containsAngle( angleB ) ) {
         results.push( new SegmentIntersection( point, a.tAtAngle( angleA ), b.tAtAngle( angleB ) ) );
@@ -1135,9 +1135,9 @@ define( function( require ) {
       var startDiff = startPoint.minus( center );
       var middleDiff = middlePoint.minus( center );
       var endDiff = endPoint.minus( center );
-      var startAngle = startDiff.angle();
-      var middleAngle = middleDiff.angle();
-      var endAngle = endDiff.angle();
+      var startAngle = startDiff.angle;
+      var middleAngle = middleDiff.angle;
+      var endAngle = endDiff.angle;
 
       var radius = ( startDiff.magnitude() + middleDiff.magnitude() + endDiff.magnitude() ) / 3;
 

@@ -915,7 +915,7 @@ define( function( require ) {
     transformed: function( matrix ) {
       var transformedSemiMajorAxis = matrix.timesVector2( Vector2.createPolar( this._radiusX, this._rotation ) ).minus( matrix.timesVector2( Vector2.ZERO ) );
       var transformedSemiMinorAxis = matrix.timesVector2( Vector2.createPolar( this._radiusY, this._rotation + Math.PI / 2 ) ).minus( matrix.timesVector2( Vector2.ZERO ) );
-      var rotation = transformedSemiMajorAxis.angle();
+      var rotation = transformedSemiMajorAxis.angle;
       var radiusX = transformedSemiMajorAxis.magnitude();
       var radiusY = transformedSemiMinorAxis.magnitude();
 

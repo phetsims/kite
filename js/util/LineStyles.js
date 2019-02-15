@@ -145,8 +145,8 @@ define( function( require ) {
       if ( fromTangent.perpendicular().dot( toTangent ) > 1e-12 ) {
         switch( this.lineJoin ) {
           case 'round':
-            var fromAngle = fromTangent.angle() + Math.PI / 2;
-            var toAngle = toTangent.angle() + Math.PI / 2;
+            var fromAngle = fromTangent.angle + Math.PI / 2;
+            var toAngle = toTangent.angle + Math.PI / 2;
             return [ new Arc( center, this.lineWidth / 2, fromAngle, toAngle, true ) ];
           case 'miter':
             var theta = fromTangent.angleBetween( toTangent.negated() );
@@ -208,7 +208,7 @@ define( function( require ) {
         case 'butt':
           return [ new Line( fromPoint, toPoint ) ];
         case 'round':
-          var tangentAngle = tangent.angle();
+          var tangentAngle = tangent.angle;
           return [ new Arc( center, this.lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true ) ];
         case 'square':
           var toLeft = tangent.perpendicular().negated().times( this.lineWidth / 2 );

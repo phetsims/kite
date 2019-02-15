@@ -469,8 +469,8 @@ define( function( require ) {
           var fromTangent = regularSegments[ previousI ].endTangent;
           var toTangent = regularSegments[ i ].startTangent;
 
-          var startAngle = fromTangent.perpendicular().negated().times( distance ).angle();
-          var endAngle = toTangent.perpendicular().negated().times( distance ).angle();
+          var startAngle = fromTangent.perpendicular().negated().times( distance ).angle;
+          var endAngle = toTangent.perpendicular().negated().times( distance ).angle;
           var anticlockwise = fromTangent.perpendicular().dot( toTangent ) > 0;
           segments.push( new Arc( center, Math.abs( distance ), startAngle, endAngle, anticlockwise ) );
         }

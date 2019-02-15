@@ -551,7 +551,7 @@ define( function( require ) {
       var result = [];
 
       // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
-      var inverseMatrix = Matrix3.rotation2( -ray.direction.angle() ).timesMatrix( Matrix3.translation( -ray.position.x, -ray.position.y ) );
+      var inverseMatrix = Matrix3.rotation2( -ray.direction.angle ).timesMatrix( Matrix3.translation( -ray.position.x, -ray.position.y ) );
 
       var p0 = inverseMatrix.timesVector2( this._start );
       var p1 = inverseMatrix.timesVector2( this._control );
