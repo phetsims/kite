@@ -1571,7 +1571,7 @@ define( function( require ) {
 
       var rectangleArea = width * height;
       var count = 0;
-      var point = new Vector2();
+      var point = new Vector2( 0, 0 );
       for ( var i = 0; i < numSamples; i++ ) {
         point.x = x + randomSource() * width;
         point.y = y + randomSource() * height;
@@ -1627,8 +1627,8 @@ define( function( require ) {
       var height = this.bounds.height;
 
       var count = 0;
-      var sum = new Vector2();
-      var point = new Vector2();
+      var sum = new Vector2( 0, 0 );
+      var point = new Vector2( 0, 0 );
       for ( var i = 0; i < numSamples; i++ ) {
         point.x = x + randomSource() * width;
         point.y = y + randomSource() * height;

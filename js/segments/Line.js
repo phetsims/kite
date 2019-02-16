@@ -20,7 +20,7 @@ define( function( require ) {
   var Util = require( 'DOT/Util' );
   var Vector2 = require( 'DOT/Vector2' );
 
-  var scratchVector2 = new Vector2();
+  var scratchVector2 = new Vector2( 0, 0 );
 
   /**
    * @constructor

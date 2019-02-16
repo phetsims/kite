@@ -31,9 +31,9 @@ define( function( require ) {
   var arePointsCollinear = Util.arePointsCollinear; // function that returns a boolean
 
   // convenience variables use to reduce the number of vector allocations
-  var scratchVector1 = new Vector2();
-  var scratchVector2 = new Vector2();
-  var scratchVector3 = new Vector2();
+  var scratchVector1 = new Vector2( 0, 0 );
+  var scratchVector2 = new Vector2( 0, 0 );
+  var scratchVector3 = new Vector2( 0, 0 );
 
   // Used in multiple filters
   function isBetween0And1( t ) {
@@ -233,7 +233,7 @@ define( function( require ) {
 
       // derivative: -3 p0 (1 - t)^2 + 3 p1 (1 - t)^2 - 6 p1 (1 - t) t + 6 p2 (1 - t) t - 3 p2 t^2 + 3 p3 t^2
       var mt = 1 - t;
-      var result = new Vector2();
+      var result = new Vector2( 0, 0 );
       return result.set( this._start ).multiplyScalar( -3 * mt * mt )
         .add( scratchVector1.set( this._control1 ).multiplyScalar( 3 * mt * mt - 6 * mt * t ) )
         .add( scratchVector1.set( this._control2 ).multiplyScalar( 6 * mt * t - 3 * t * t ) )
