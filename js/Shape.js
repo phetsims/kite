@@ -1283,7 +1283,7 @@ define( function( require ) {
 
       // TODO: if an issue, we can reduce this allocation to a scratch variable local in the Shape.js scope.
       var delta = endPoint.minus( startPoint );
-      var length = delta.magnitude();
+      var length = delta.magnitude;
 
       if ( length === 0 ) {
         return false;

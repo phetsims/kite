@@ -1051,7 +1051,7 @@ define( function( require ) {
     assert && assert( typeof radius2 === 'number' && isFinite( radius2 ) && radius2 >= 0 );
 
     var delta = center2.minus( center1 );
-    var d = delta.magnitude();
+    var d = delta.magnitude;
     var results = [];
     if ( d < 1e-10 || d > radius1 + radius2 + 1e-10 ) {
       // No intersections
@@ -1139,7 +1139,7 @@ define( function( require ) {
       var middleAngle = middleDiff.angle;
       var endAngle = endDiff.angle;
 
-      var radius = ( startDiff.magnitude() + middleDiff.magnitude() + endDiff.magnitude() ) / 3;
+      var radius = ( startDiff.magnitude + middleDiff.magnitude + endDiff.magnitude ) / 3;
 
       // Try anticlockwise first. TODO: Don't require creation of extra Arcs
       var arc = new Arc( center, radius, startAngle, endAngle, false );

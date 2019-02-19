@@ -673,7 +673,7 @@ define( function( require ) {
 
     // Set up a ray
     var delta = line.end.minus( line.start );
-    var length = delta.magnitude();
+    var length = delta.magnitude;
     var ray = new Ray2( line.start, delta.normalize() );
 
     // Find the other segment's intersections with the ray

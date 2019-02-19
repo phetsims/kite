@@ -215,7 +215,7 @@ define( function( require ) {
         var p1 = this._control;
         var p2 = isZero ? this._end : this._start;
         var d10 = p1.minus( p0 );
-        var a = d10.magnitude();
+        var a = d10.magnitude;
         var h = ( isZero ? -1 : 1 ) * d10.perpendicular().normalized().dot( p2.minus( p1 ) );
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
       }
@@ -372,7 +372,7 @@ define( function( require ) {
         }
         // now control point must be unique. we check to see if our rendered path will be outside of the start->end line segment
         var delta = end.minus( start );
-        var p1d = control.minus( start ).dot( delta.normalized ) / delta.magnitude();
+        var p1d = control.minus( start ).dot( delta.normalized ) / delta.magnitude;
         var t = Quadratic.extremaT( 0, p1d, 1 );
         if ( !isNaN( t ) && t > 0 && t < 1 ) {
           // we have a local max inside the range, indicating that our extrema point is outside of start->end
@@ -575,7 +575,7 @@ define( function( require ) {
           if ( toHit.dot( ray.direction ) > 0 ) {
             var normal = perp.dot( ray.direction ) > 0 ? perp.negated() : perp;
             var wind = ray.direction.perpendicular().dot( unitTangent ) < 0 ? 1 : -1;
-            result.push( new RayIntersection( toHit.magnitude(), hitPoint, normal, wind, t ) );
+            result.push( new RayIntersection( toHit.magnitude, hitPoint, normal, wind, t ) );
           }
         }
       } );

@@ -268,7 +268,7 @@ define( function( require ) {
         var p1 = isZero ? this._control1 : this._control2;
         var p2 = isZero ? this._control2 : this._control1;
         var d10 = p1.minus( p0 );
-        var a = d10.magnitude();
+        var a = d10.magnitude;
         var h = ( isZero ? -1 : 1 ) * d10.perpendicular().normalized().dot( p2.minus( p1 ) );
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
       }
@@ -662,7 +662,7 @@ define( function( require ) {
       var tCusp = this.getTCusp();
 
       var epsilon = 1e-7; // TODO: make this available to change?
-      return tCusp >= 0 && tCusp <= 1 && this.tangentAt( tCusp ).magnitude() < epsilon;
+      return tCusp >= 0 && tCusp <= 1 && this.tangentAt( tCusp ).magnitude < epsilon;
     },
 
     /**
@@ -806,7 +806,7 @@ define( function( require ) {
           if ( toHit.dot( ray.direction ) > 0 ) {
             var normal = perp.dot( ray.direction ) > 0 ? perp.negated() : perp;
             var wind = ray.direction.perpendicular().dot( unitTangent ) < 0 ? 1 : -1;
-            result.push( new RayIntersection( toHit.magnitude(), hitPoint, normal, wind, t ) );
+            result.push( new RayIntersection( toHit.magnitude, hitPoint, normal, wind, t ) );
           }
         }
       } );
@@ -855,7 +855,7 @@ define( function( require ) {
       var controlA = scratchVector1.set( this._control1 ).multiplyScalar( 3 ).subtract( this._start ).divideScalar( 2 );
       var controlB = scratchVector2.set( this._control2 ).multiplyScalar( 3 ).subtract( this._end ).divideScalar( 2 );
       var difference = scratchVector3.set( controlA ).subtract( controlB );
-      if ( difference.magnitude() <= epsilon ) {
+      if ( difference.magnitude <= epsilon ) {
         return new Quadratic(
           this._start,
           controlA.average( controlB ), // average the control points for stability. they should be almost identical

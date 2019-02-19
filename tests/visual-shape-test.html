@@ -303,7 +303,7 @@
 
             var p = segment.positionAt( point );
             var t = segment.tangentAt( point );
-            if ( t.magnitude() === 0 ) { return; } // bail out if we are at a cusp or undefined tangent
+            if ( t.magnitude === 0 ) { return; } // bail out if we are at a cusp or undefined tangent
             var tn = t.normalized();
             var c = segment.curvatureAt( point );
 
