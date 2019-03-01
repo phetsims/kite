@@ -269,7 +269,7 @@ define( function( require ) {
         var p2 = isZero ? this._control2 : this._control1;
         var d10 = p1.minus( p0 );
         var a = d10.magnitude;
-        var h = ( isZero ? -1 : 1 ) * d10.perpendicular().normalized().dot( p2.minus( p1 ) );
+        var h = ( isZero ? -1 : 1 ) * d10.perpendicular.normalized().dot( p2.minus( p1 ) );
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
       }
       else {
@@ -399,7 +399,7 @@ define( function( require ) {
     getS: function() {
       // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
       if ( this._s === null ) {
-        this._s = this.getR().perpendicular();
+        this._s = this.getR().perpendicular;
       }
       return this._s;
     },
@@ -553,8 +553,8 @@ define( function( require ) {
       var b = this._start.times( 3 ).plus( this._control1.times( -6 ) ).plus( this._control2.times( 3 ) );
       var c = this._start.times( -3 ).plus( this._control1.times( 3 ) );
 
-      var aPerp = a.perpendicular(); // {Vector2}
-      var bPerp = b.perpendicular(); // {Vector2}
+      var aPerp = a.perpendicular; // {Vector2}
+      var bPerp = b.perpendicular; // {Vector2}
       var aPerpDotB = aPerp.dot( b ); // {number}
 
       this._tCusp = -0.5 * ( aPerp.dot( c ) / aPerpDotB ); // {number}
@@ -696,7 +696,7 @@ define( function( require ) {
           t = 1 - t;
         }
 
-        points.push( this.positionAt( t ).plus( this.tangentAt( t ).perpendicular().normalized().times( r ) ) );
+        points.push( this.positionAt( t ).plus( this.tangentAt( t ).perpendicular.normalized().times( r ) ) );
         if ( i > 0 ) {
           result.push( new kite.Line( points[ i - 1 ], points[ i ] ) );
         }
@@ -799,13 +799,13 @@ define( function( require ) {
         if ( t >= 0 && t <= 1 ) {
           var hitPoint = self.positionAt( t );
           var unitTangent = self.tangentAt( t ).normalized();
-          var perp = unitTangent.perpendicular();
+          var perp = unitTangent.perpendicular;
           var toHit = hitPoint.minus( ray.position );
 
           // make sure it's not behind the ray
           if ( toHit.dot( ray.direction ) > 0 ) {
             var normal = perp.dot( ray.direction ) > 0 ? perp.negated() : perp;
-            var wind = ray.direction.perpendicular().dot( unitTangent ) < 0 ? 1 : -1;
+            var wind = ray.direction.perpendicular.dot( unitTangent ) < 0 ? 1 : -1;
             result.push( new RayIntersection( toHit.magnitude, hitPoint, normal, wind, t ) );
           }
         }
@@ -981,7 +981,7 @@ define( function( require ) {
     //   // for each hit
     //   _.each( ts, function( t ) {
     //     if ( t >= 0 && t <= 1 ) {
-    //       result += ray.direction.perpendicular().dot( this.tangentAt( t ) ) < 0 ? 1 : -1;
+    //       result += ray.direction.perpendicular.dot( this.tangentAt( t ) ) < 0 ? 1 : -1;
     //     }
     //   } );
 

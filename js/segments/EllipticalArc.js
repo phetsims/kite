@@ -722,7 +722,7 @@ define( function( require ) {
     tangentAtAngle: function( angle ) {
       var normal = this.getUnitTransform().transformNormal2( Vector2.createPolar( 1, angle ) );
 
-      return this._anticlockwise ? normal.perpendicular() : normal.perpendicular().negated();
+      return this._anticlockwise ? normal.perpendicular : normal.perpendicular.negated();
     },
 
     /**
@@ -747,7 +747,7 @@ define( function( require ) {
         }
         var angle = this.angleAt( ratio );
 
-        points.push( this.positionAtAngle( angle ).plus( this.tangentAtAngle( angle ).perpendicular().normalized().times( r ) ) );
+        points.push( this.positionAtAngle( angle ).plus( this.tangentAtAngle( angle ).perpendicular.normalized().times( r ) ) );
         if ( i > 0 ) {
           result.push( new kite.Line( points[ i - 1 ], points[ i ] ) );
         }

@@ -134,15 +134,15 @@ define( function( require ) {
       toTangent = toTangent.normalized();
 
       // where our join path starts and ends
-      var fromPoint = center.plus( fromTangent.perpendicular().negated().times( this.lineWidth / 2 ) );
-      var toPoint = center.plus( toTangent.perpendicular().negated().times( this.lineWidth / 2 ) );
+      var fromPoint = center.plus( fromTangent.perpendicular.negated().times( this.lineWidth / 2 ) );
+      var toPoint = center.plus( toTangent.perpendicular.negated().times( this.lineWidth / 2 ) );
 
       var bevel = ( fromPoint.equals( toPoint ) ? [] : [ new Line( fromPoint, toPoint ) ] );
 
       // only insert a join on the non-acute-angle side
       // epsilon present for https://github.com/phetsims/kite/issues/73, where we don't want to join barely-existing
       // joins.
-      if ( fromTangent.perpendicular().dot( toTangent ) > 1e-12 ) {
+      if ( fromTangent.perpendicular.dot( toTangent ) > 1e-12 ) {
         switch( this.lineJoin ) {
           case 'round':
             var fromAngle = fromTangent.angle + Math.PI / 2;
@@ -201,8 +201,8 @@ define( function( require ) {
     cap: function( center, tangent ) {
       tangent = tangent.normalized();
 
-      var fromPoint = center.plus( tangent.perpendicular().times( -this.lineWidth / 2 ) );
-      var toPoint = center.plus( tangent.perpendicular().times( this.lineWidth / 2 ) );
+      var fromPoint = center.plus( tangent.perpendicular.times( -this.lineWidth / 2 ) );
+      var toPoint = center.plus( tangent.perpendicular.times( this.lineWidth / 2 ) );
 
       switch( this.lineCap ) {
         case 'butt':
@@ -211,8 +211,8 @@ define( function( require ) {
           var tangentAngle = tangent.angle;
           return [ new Arc( center, this.lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true ) ];
         case 'square':
-          var toLeft = tangent.perpendicular().negated().times( this.lineWidth / 2 );
-          var toRight = tangent.perpendicular().times( this.lineWidth / 2 );
+          var toLeft = tangent.perpendicular.negated().times( this.lineWidth / 2 );
+          var toRight = tangent.perpendicular.times( this.lineWidth / 2 );
           var toFront = tangent.times( this.lineWidth / 2 );
 
           var left = center.plus( toLeft ).plus( toFront );

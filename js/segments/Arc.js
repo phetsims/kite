@@ -571,7 +571,7 @@ define( function( require ) {
     tangentAtAngle: function( angle ) {
       var normal = Vector2.createPolar( 1, angle );
 
-      return this._anticlockwise ? normal.perpendicular() : normal.perpendicular().negated();
+      return this._anticlockwise ? normal.perpendicular : normal.perpendicular.negated();
     },
 
     /**
@@ -1068,7 +1068,7 @@ define( function( require ) {
       var base = center1.blend( center2, xPrime / d );
       if ( discriminant >= 1e-10 ) {
         var yPrime = Math.sqrt( discriminant ) / d / 2;
-        var perpendicular = delta.perpendicular().setMagnitude( yPrime );
+        var perpendicular = delta.perpendicular.setMagnitude( yPrime );
         results = [
           base.plus( perpendicular ),
           base.minus( perpendicular )

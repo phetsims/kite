@@ -303,7 +303,7 @@ define( function( require ) {
      * @returns {Array.<Line>}
      */
     strokeLeft: function( lineWidth ) {
-      var offset = this.getEndTangent().perpendicular().negated().times( lineWidth / 2 );
+      var offset = this.getEndTangent().perpendicular.negated().times( lineWidth / 2 );
       return [ new kite.Line( this._start.plus( offset ), this._end.plus( offset ) ) ];
     },
     /**
@@ -312,7 +312,7 @@ define( function( require ) {
      * @returns {Array.<Line>}
      */
     strokeRight: function( lineWidth ) {
-      var offset = this.getStartTangent().perpendicular().times( lineWidth / 2 );
+      var offset = this.getStartTangent().perpendicular.times( lineWidth / 2 );
       return [ new kite.Line( this._end.plus( offset ), this._start.plus( offset ) ) ];
     },
 
@@ -372,11 +372,11 @@ define( function( require ) {
       }
 
       // return the proper winding direction depending on what way our line intersection is "pointed"
-      var perp = diff.perpendicular();
+      var perp = diff.perpendicular;
 
       var intersectionPoint = start.plus( diff.times( t ) );
       var normal = ( perp.dot( ray.direction ) > 0 ? perp.negated() : perp ).normalized();
-      var wind = ray.direction.perpendicular().dot( diff ) < 0 ? 1 : -1;
+      var wind = ray.direction.perpendicular.dot( diff ) < 0 ? 1 : -1;
       result.push( new RayIntersection( s, intersectionPoint, normal, wind, t ) );
       return result;
     },

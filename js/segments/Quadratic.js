@@ -216,7 +216,7 @@ define( function( require ) {
         var p2 = isZero ? this._end : this._start;
         var d10 = p1.minus( p0 );
         var a = d10.magnitude;
-        var h = ( isZero ? -1 : 1 ) * d10.perpendicular().normalized().dot( p2.minus( p1 ) );
+        var h = ( isZero ? -1 : 1 ) * d10.perpendicular.normalized().dot( p2.minus( p1 ) );
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
       }
       else {
@@ -472,9 +472,9 @@ define( function( require ) {
      */
     approximateOffset: function( r ) {
       return new kite.Quadratic(
-        this._start.plus( ( this._start.equals( this._control ) ? this._end.minus( this._start ) : this._control.minus( this._start ) ).perpendicular().normalized().times( r ) ),
-        this._control.plus( this._end.minus( this._start ).perpendicular().normalized().times( r ) ),
-        this._end.plus( ( this._end.equals( this._control ) ? this._end.minus( this._start ) : this._end.minus( this._control ) ).perpendicular().normalized().times( r ) )
+        this._start.plus( ( this._start.equals( this._control ) ? this._end.minus( this._start ) : this._control.minus( this._start ) ).perpendicular.normalized().times( r ) ),
+        this._control.plus( this._end.minus( this._start ).perpendicular.normalized().times( r ) ),
+        this._end.plus( ( this._end.equals( this._control ) ? this._end.minus( this._start ) : this._end.minus( this._control ) ).perpendicular.normalized().times( r ) )
       );
     },
 
@@ -568,13 +568,13 @@ define( function( require ) {
         if ( t >= 0 && t <= 1 ) {
           var hitPoint = self.positionAt( t );
           var unitTangent = self.tangentAt( t ).normalized();
-          var perp = unitTangent.perpendicular();
+          var perp = unitTangent.perpendicular;
           var toHit = hitPoint.minus( ray.position );
 
           // make sure it's not behind the ray
           if ( toHit.dot( ray.direction ) > 0 ) {
             var normal = perp.dot( ray.direction ) > 0 ? perp.negated() : perp;
-            var wind = ray.direction.perpendicular().dot( unitTangent ) < 0 ? 1 : -1;
+            var wind = ray.direction.perpendicular.dot( unitTangent ) < 0 ? 1 : -1;
             result.push( new RayIntersection( toHit.magnitude, hitPoint, normal, wind, t ) );
           }
         }
