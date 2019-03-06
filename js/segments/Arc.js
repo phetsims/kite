@@ -706,7 +706,7 @@ define( function( require ) {
       // Then we check whether the angle at each possible hit point is in our arc.
       var centerToRay = ray.position.minus( this._center );
       var tmp = ray.direction.dot( centerToRay );
-      var centerToRayDistSq = centerToRay.magnitudeSquared();
+      var centerToRayDistSq = centerToRay.magnitudeSquared;
       var discriminant = 4 * tmp * tmp - 4 * ( centerToRayDistSq - this._radius * this._radius );
       if ( discriminant < epsilon ) {
         // ray misses circle entirely

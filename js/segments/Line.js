@@ -344,7 +344,7 @@ define( function( require ) {
 
       var diff = end.minus( start );
 
-      if ( diff.magnitudeSquared() === 0 ) {
+      if ( diff.magnitudeSquared === 0 ) {
         return result;
       }
 
@@ -422,7 +422,7 @@ define( function( require ) {
      */
     explicitClosestToPoint: function( point ) {
       var diff = this._end.minus( this._start );
-      var t = point.minus( this._start ).dot( diff ) / diff.magnitudeSquared();
+      var t = point.minus( this._start ).dot( diff ) / diff.magnitudeSquared;
       t = Util.clamp( t, 0, 1 );
       var closestPoint = this.positionAt( t );
       return [
