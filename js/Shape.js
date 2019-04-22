@@ -347,14 +347,14 @@ define( function( require ) {
      */
     zigZagToPoint: function( endPoint, amplitude, numberZigZags ) {
       this.ensure( endPoint );
-      const start = this.getLastPoint();
-      const delta = endPoint.minus( start );
+      const startPoint = this.getLastPoint();
+      const delta = endPoint.minus( startPoint );
       const directionUnitVector = delta.normalized();
       const amplitudeNormalVector = directionUnitVector.perpendicular.times( amplitude );
       const wavelength = delta.magnitude / numberZigZags;
 
       for ( let i = 0; i < numberZigZags; i++ ) {
-        const waveOrigin = directionUnitVector.times( i * wavelength ).plus( start );
+        const waveOrigin = directionUnitVector.times( i * wavelength ).plus( startPoint );
         const topPoint = waveOrigin.plus( directionUnitVector.times( wavelength / 4 ) ).plus( amplitudeNormalVector );
         const bottomPoint = waveOrigin.plus( directionUnitVector.times( 3 * wavelength / 4 ) ).minus( amplitudeNormalVector );
         this.lineToPoint( topPoint );
