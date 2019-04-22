@@ -323,6 +323,47 @@ define( function( require ) {
     },
 
     /**
+     * Zig-zags between the current point and the specified point
+     * @public
+     *
+     * @param {number} endX - the end of the shape
+     * @param {number} endY - the end of the shape
+     * @param {number} amplitude - the vertical amplitude of the zig zag wave
+     * @param {number} numberZigZags - the number of oscillations
+     */
+    zigZagTo: function( endX, endY, amplitude, numberZigZags ) {
+      return this.zigZagToPoint( new Vector2( endX, endY ), amplitude, numberZigZags );
+    },
+
+    /**
+     * Zig-zags between the current point and the specified point.
+     * Implementation moved from circuit-construction-kit-common on April 22, 2019.
+     * @public
+     *
+     * @param {Vector2} endPoint - the end of the shape
+     * @param {number} amplitude - the vertical amplitude of the zig zag wave, signed to choose initial direction
+     * @param {number} numberZigZags - the number of complete oscillations
+     * @public
+     */
+    zigZagToPoint: function( endPoint, amplitude, numberZigZags ) {
+      this.ensure( endPoint );
+      const start = this.getLastPoint();
+      const delta = endPoint.minus( start );
+      const directionUnitVector = delta.normalized();
+      const amplitudeNormalVector = directionUnitVector.perpendicular.times( amplitude );
+      const wavelength = delta.magnitude / numberZigZags;
+
+      for ( let i = 0; i < numberZigZags; i++ ) {
+        const waveOrigin = directionUnitVector.times( i * wavelength ).plus( start );
+        const topPoint = waveOrigin.plus( directionUnitVector.times( wavelength / 4 ) ).plus( amplitudeNormalVector );
+        const bottomPoint = waveOrigin.plus( directionUnitVector.times( 3 * wavelength / 4 ) ).minus( amplitudeNormalVector );
+        this.lineToPoint( topPoint );
+        this.lineToPoint( bottomPoint );
+      }
+      return this.lineToPoint( endPoint );
+    },
+
+    /**
      * Adds a quadratic curve to this shape
      * @public
      *
