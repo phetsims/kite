@@ -330,9 +330,10 @@ define( function( require ) {
      * @param {number} endY - the end of the shape
      * @param {number} amplitude - the vertical amplitude of the zig zag wave
      * @param {number} numberZigZags - the number of oscillations
+     * @param {boolean} symmetrical - flag for drawing a symmetrical zig zag
      */
-    zigZagTo: function( endX, endY, amplitude, numberZigZags ) {
-      return this.zigZagToPoint( new Vector2( endX, endY ), amplitude, numberZigZags );
+    zigZagTo: function( endX, endY, amplitude, numberZigZags, symmetrical ) {
+      return this.zigZagToPoint( new Vector2( endX, endY ), amplitude, numberZigZags, symmetrical );
     },
 
     /**
@@ -343,9 +344,10 @@ define( function( require ) {
      * @param {Vector2} endPoint - the end of the shape
      * @param {number} amplitude - the vertical amplitude of the zig zag wave, signed to choose initial direction
      * @param {number} numberZigZags - the number of complete oscillations
+     * @param {boolean} symmetrical - flag for drawing a symmetrical zig zag
      * @public
      */
-    zigZagToPoint: function( endPoint, amplitude, numberZigZags ) {
+    zigZagToPoint: function( endPoint, amplitude, numberZigZags, symmetrical ) {
       this.ensure( endPoint );
       const startPoint = this.getLastPoint();
       const delta = endPoint.minus( startPoint );
@@ -353,12 +355,28 @@ define( function( require ) {
       const amplitudeNormalVector = directionUnitVector.perpendicular.times( amplitude );
       const wavelength = delta.magnitude / numberZigZags;
 
-      for ( let i = 0; i < numberZigZags; i++ ) {
-        const waveOrigin = directionUnitVector.times( i * wavelength ).plus( startPoint );
-        const topPoint = waveOrigin.plus( directionUnitVector.times( wavelength / 4 ) ).plus( amplitudeNormalVector );
-        const bottomPoint = waveOrigin.plus( directionUnitVector.times( 3 * wavelength / 4 ) ).minus( amplitudeNormalVector );
-        this.lineToPoint( topPoint );
-        this.lineToPoint( bottomPoint );
+      // Handles cases where zig zag symmetry is required.
+      if ( symmetrical ) {
+        for ( let i = 0; i < numberZigZags - 1; i++ ) {
+          const yPos = startPoint.y + ( endPoint.y - startPoint.y ) / numberZigZags * ( i + 1 );
+          if ( i % 2 === 0 ) {
+            // zig
+            this.lineTo( startPoint.x + amplitude, yPos );
+          }
+          else {
+            // zag
+            this.lineTo( startPoint.x, yPos );
+          }
+        }
+      }
+      else {
+        for ( let i = 0; i < numberZigZags; i++ ) {
+          const waveOrigin = directionUnitVector.times( i * wavelength ).plus( startPoint );
+          const topPoint = waveOrigin.plus( directionUnitVector.times( wavelength / 4 ) ).plus( amplitudeNormalVector );
+          const bottomPoint = waveOrigin.plus( directionUnitVector.times( 3 * wavelength / 4 ) ).minus( amplitudeNormalVector );
+          this.lineToPoint( topPoint );
+          this.lineToPoint( bottomPoint );
+        }
       }
       return this.lineToPoint( endPoint );
     },
