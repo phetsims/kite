@@ -35,6 +35,7 @@ define( function( require ) {
   var Ray2 = require( 'DOT/Ray2' );
   var Subpath = require( 'KITE/util/Subpath' );
   var svgPath = require( 'KITE/parser/svgPath' );
+  var Util = require( 'DOT/Util' );
   var Vector2 = require( 'DOT/Vector2' );
 
   const randomSource = Math.random; // eslint-disable-line bad-sim-text (We can't get joist's random reference here)
@@ -348,36 +349,39 @@ define( function( require ) {
      * @public
      */
     zigZagToPoint: function( endPoint, amplitude, numberZigZags, symmetrical ) {
+
+      assert && assert( Util.isInteger( numberZigZags ), 'numberZigZags must be an integer: ' + numberZigZags );
+
       this.ensure( endPoint );
       const startPoint = this.getLastPoint();
       const delta = endPoint.minus( startPoint );
       const directionUnitVector = delta.normalized();
       const amplitudeNormalVector = directionUnitVector.perpendicular.times( amplitude );
-      const wavelength = delta.magnitude / numberZigZags;
 
-      // Handles cases where zig zag symmetry is required.
+      var wavelength;
       if ( symmetrical ) {
-        for ( let i = 0; i < numberZigZags - 1; i++ ) {
-          const yPos = startPoint.y + ( endPoint.y - startPoint.y ) / numberZigZags * ( i + 1 );
-          if ( i % 2 === 0 ) {
-            // zig
-            this.lineTo( startPoint.x + amplitude, yPos );
-          }
-          else {
-            // zag
-            this.lineTo( startPoint.x, yPos );
-          }
-        }
+        // the wavelength is shorter to add half a wave.
+        wavelength = delta.magnitude / ( numberZigZags + 0.5 );
       }
       else {
-        for ( let i = 0; i < numberZigZags; i++ ) {
-          const waveOrigin = directionUnitVector.times( i * wavelength ).plus( startPoint );
-          const topPoint = waveOrigin.plus( directionUnitVector.times( wavelength / 4 ) ).plus( amplitudeNormalVector );
-          const bottomPoint = waveOrigin.plus( directionUnitVector.times( 3 * wavelength / 4 ) ).minus( amplitudeNormalVector );
-          this.lineToPoint( topPoint );
-          this.lineToPoint( bottomPoint );
-        }
+        wavelength = delta.magnitude / numberZigZags;
       }
+
+      for ( let i = 0; i < numberZigZags; i++ ) {
+        const waveOrigin = directionUnitVector.times( i * wavelength ).plus( startPoint );
+        const topPoint = waveOrigin.plus( directionUnitVector.times( wavelength / 4 ) ).plus( amplitudeNormalVector );
+        const bottomPoint = waveOrigin.plus( directionUnitVector.times( 3 * wavelength / 4 ) ).minus( amplitudeNormalVector );
+        this.lineToPoint( topPoint );
+        this.lineToPoint( bottomPoint );
+      }
+
+      // add last half of the wavelength
+      if ( symmetrical ) {
+        const waveOrigin = directionUnitVector.times( numberZigZags * wavelength ).plus( startPoint );
+        const topPoint = waveOrigin.plus( directionUnitVector.times( wavelength / 4 ) ).plus( amplitudeNormalVector );
+        this.lineToPoint( topPoint );
+      }
+
       return this.lineToPoint( endPoint );
     },
 
@@ -1526,7 +1530,8 @@ define( function( require ) {
       }
       return this._bounds;
     },
-    get bounds() { return this.getBounds(); },
+    get bounds() { return this.getBounds(); }
+    ,
 
     /**
      * Returns the bounds for a stroked version of this shape. The input lineStyles are used to determine the size and
@@ -2293,4 +2298,5 @@ define( function( require ) {
   };
 
   return Shape;
-} );
+} )
+;
