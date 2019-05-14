@@ -403,8 +403,7 @@ define( function( require ) {
       assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
       assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.quadraticCurveToPoint( v( cpx, cpy ), v( x, y ) );
-    }
-    ,
+    },
 
     /**
      * Adds a quadratic curve to this shape. The control and final points are specified as displacment from the last
@@ -423,8 +422,7 @@ define( function( require ) {
       assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
       assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.quadraticCurveToPointRelative( v( cpx, cpy ), v( x, y ) );
-    }
-    ,
+    },
 
     /**
      * Adds a quadratic curve to this shape. The control and final points are specified as displacement from the
@@ -438,8 +436,7 @@ define( function( require ) {
     quadraticCurveToPointRelative: function( controlPoint, point ) {
       var relativePoint = this.getRelativePoint();
       return this.quadraticCurveToPoint( relativePoint.plus( controlPoint ), relativePoint.plus( point ) );
-    }
-    ,
+    },
 
     /**
      * Adds a quadratic curve to this shape. The quadratic curves passes through the x and y coordinate.
@@ -456,8 +453,7 @@ define( function( require ) {
       assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
       assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ) );
-    }
-    ,
+    },
 
     /**
      * Adds a quadratic curve to this shape. The quadratic curves passes through the x and y coordinate.
@@ -472,8 +468,7 @@ define( function( require ) {
       assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
       assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ).plus( this.getRelativePoint() ) );
-    }
-    ,
+    },
 
     /**
      * Adds a quadratic bezier curve to this shape.
@@ -499,8 +494,7 @@ define( function( require ) {
       this.setQuadraticControlPoint( controlPoint );
 
       return this;  // for chaining
-    }
-    ,
+    },
 
     /**
      * Adds a cubic bezier curve to this shape.
@@ -522,8 +516,7 @@ define( function( require ) {
       assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
       assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.cubicCurveToPoint( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) );
-    }
-    ,
+    },
 
     /**
      * @public
@@ -544,8 +537,7 @@ define( function( require ) {
       assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
       assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.cubicCurveToPointRelative( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) );
-    }
-    ,
+    },
 
     /**
      * @public
@@ -558,8 +550,7 @@ define( function( require ) {
     cubicCurveToPointRelative: function( control1, control2, point ) {
       var relativePoint = this.getRelativePoint();
       return this.cubicCurveToPoint( relativePoint.plus( control1 ), relativePoint.plus( control2 ), relativePoint.plus( point ) );
-    }
-    ,
+    },
 
     /**
      * @public
@@ -576,8 +567,7 @@ define( function( require ) {
       assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
       assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ), v( x, y ) );
-    }
-    ,
+    },
 
     /**
      * @public
@@ -594,8 +584,7 @@ define( function( require ) {
       assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
       assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
       return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ).plus( this.getRelativePoint() ), v( x, y ).plus( this.getRelativePoint() ) );
-    }
-    ,
+    },
 
     /**
      * @public
@@ -621,8 +610,7 @@ define( function( require ) {
       this.setCubicControlPoint( control2 );
 
       return this;  // for chaining
-    }
-    ,
+    },
 
     /**
      * @public
@@ -639,8 +627,7 @@ define( function( require ) {
       assert && assert( typeof centerX === 'number' && isFinite( centerX ), 'centerX must be a finite number: ' + centerX );
       assert && assert( typeof centerY === 'number' && isFinite( centerY ), 'centerY must be a finite number: ' + centerY );
       return this.arcPoint( v( centerX, centerY ), radius, startAngle, endAngle, anticlockwise );
-    }
-    ,
+    },
 
     /**
      * @public
@@ -681,8 +668,7 @@ define( function( require ) {
       this.resetControlPoints();
 
       return this;  // for chaining
-    }
-    ,
+    },
 
     /**
      * Creates an elliptical arc
@@ -702,8 +688,7 @@ define( function( require ) {
       assert && assert( typeof centerX === 'number' && isFinite( centerX ), 'centerX must be a finite number: ' + centerX );
       assert && assert( typeof centerY === 'number' && isFinite( centerY ), 'centerY must be a finite number: ' + centerY );
       return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
-    }
-    ,
+    },
 
     /**
      * Creates an elliptic arc
@@ -747,8 +732,7 @@ define( function( require ) {
       this.resetControlPoints();
 
       return this;  // for chaining
-    }
-    ,
+    },
 
     /**
      * Adds a subpath that joins the last point of this shape to the first point to form a closed shape
@@ -767,8 +751,7 @@ define( function( require ) {
       }
       this.resetControlPoints();
       return this;  // for chaining
-    }
-    ,
+    },
 
     /**
      * Moves to the next subpath, but without adding any points to it (like a moveTo would do).
@@ -787,8 +770,7 @@ define( function( require ) {
       this.resetControlPoints();
 
       return this; // for chaining
-    }
-    ,
+    },
 
     /**
      * Makes this Shape immutable, so that attempts to further change the Shape will fail. This allows clients to avoid
@@ -803,8 +785,7 @@ define( function( require ) {
       this.notifyInvalidationListeners();
 
       return this; // for chaining
-    }
-    ,
+    },
 
     /**
      * Returns whether this Shape is immutable (see makeImmutable for details).
@@ -814,8 +795,7 @@ define( function( require ) {
      */
     isImmutable: function() {
       return this._immutable;
-    }
-    ,
+    },
 
     /**
      * Matches SVG's elliptical arc from http://www.w3.org/TR/SVG/paths.html
@@ -835,8 +815,7 @@ define( function( require ) {
     ellipticalArcToRelative: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
       var relativePoint = this.getRelativePoint();
       return this.ellipticalArcTo( radiusX, radiusY, rotation, largeArc, sweep, x + relativePoint.x, y + relativePoint.y );
-    }
-    ,
+    },
 
     /**
      * Matches SVG's elliptical arc from http://www.w3.org/TR/SVG/paths.html
@@ -926,8 +905,7 @@ define( function( require ) {
       } );
 
       return this;
-    }
-    ,
+    },
 
     /**
      * Draws a circle using the arc() call with the following parameters:
@@ -954,8 +932,7 @@ define( function( require ) {
         // circle( centerX, centerY, radius )
         return this.arcPoint( v( centerX, centerY ), radius, 0, Math.PI * 2, false ).close();
       }
-    }
-    ,
+    },
 
     /**
      * Draws an ellipse using the ellipticalArc() call with the following parameters:
@@ -990,8 +967,7 @@ define( function( require ) {
         // ellipse( centerX, centerY, radiusX, radiusY, rotation )
         return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false ).close();
       }
-    }
-    ,
+    },
 
     /**
      * Creates a rectangle shape
@@ -1025,8 +1001,7 @@ define( function( require ) {
       this.resetControlPoints();
 
       return this;
-    }
-    ,
+    },
 
     /**
      * Creates a round rectangle. All arguments are number.
@@ -1065,8 +1040,7 @@ define( function( require ) {
           .close();
       }
       return this;
-    }
-    ,
+    },
 
     /**
      * Creates a polygon from an array of vertices.
@@ -1084,8 +1058,7 @@ define( function( require ) {
         }
       }
       return this.close();
-    }
-    ,
+    },
 
     /**
      * This is a convenience function that allows to generate Cardinal splines
@@ -1168,8 +1141,7 @@ define( function( require ) {
       }
 
       return this;
-    }
-    ,
+    },
 
     /**
      * Returns a copy of this shape
@@ -1180,8 +1152,7 @@ define( function( require ) {
     copy: function() {
       // copy each individual subpath, so future modifications to either Shape doesn't affect the other one
       return new Shape( _.map( this.subpaths, function( subpath ) { return subpath.copy(); } ), this.bounds );
-    }
-    ,
+    },
 
     /**
      * Writes out this shape's path to a canvas 2d context. does NOT include the beginPath()!
@@ -1194,8 +1165,7 @@ define( function( require ) {
       for ( var i = 0; i < len; i++ ) {
         this.subpaths[ i ].writeToContext( context );
       }
-    }
-    ,
+    },
 
     /**
      * Returns something like "M150 0 L75 200 L225 200 Z" for a triangle
@@ -1224,8 +1194,7 @@ define( function( require ) {
         }
       }
       return string;
-    }
-    ,
+    },
 
     /**
      * Returns a new Shape that is transformed by the associated matrix
@@ -1239,8 +1208,7 @@ define( function( require ) {
       var subpaths = _.map( this.subpaths, function( subpath ) { return subpath.transformed( matrix ); } );
       var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.bounds ); }, Bounds2.NOTHING );
       return new Shape( subpaths, bounds );
-    }
-    ,
+    },
 
     /**
      * Converts this subpath to a new shape made of many line segments (approximating the current shape) with the
@@ -1272,8 +1240,7 @@ define( function( require ) {
       var subpaths = _.map( this.subpaths, function( subpath ) { return subpath.nonlinearTransformed( options ); } );
       var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.bounds ); }, Bounds2.NOTHING );
       return new Shape( subpaths, bounds );
-    }
-    ,
+    },
 
     /**
      * Maps points by treating their x coordinate as polar angle, and y coordinate as polar magnitude.
@@ -1295,8 +1262,7 @@ define( function( require ) {
         },
         methodName: 'polarToCartesian' // this will be called on Segments if it exists to do more optimized conversion (see Line)
       }, options ) );
-    }
-    ,
+    },
 
     /**
      * Converts each segment into lines, using an adaptive (midpoint distance subdivision) method.
@@ -1312,8 +1278,7 @@ define( function( require ) {
       assert && assert( !options.pointMap, 'No pointMap for toPiecewiseLinear allowed, since it could create non-linear segments' );
       assert && assert( !options.methodName, 'No methodName for toPiecewiseLinear allowed, since it could create non-linear segments' );
       return this.nonlinearTransformed( options );
-    }
-    ,
+    },
 
     /**
      * Is this point contained in this shape
@@ -1327,8 +1292,7 @@ define( function( require ) {
       var ray = new Ray2( point, Vector2.X_UNIT );
 
       return this.windingIntersection( ray ) !== 0;
-    }
-    ,
+    },
 
     /**
      * Hit-tests this shape with the ray. An array of all intersections of the ray with this shape will be returned.
@@ -1358,8 +1322,7 @@ define( function( require ) {
         }
       }
       return _.sortBy( hits, function( hit ) { return hit.distance; } );
-    }
-    ,
+    },
 
     /**
      * Returns whether the provided line segment would have some part on top or touching the interior (filled area) of
@@ -1404,8 +1367,7 @@ define( function( require ) {
 
       // Did not hit the boundary, and wasn't fully contained.
       return false;
-    }
-    ,
+    },
 
     /**
      * Returns the winding number for intersection with a ray
@@ -1435,8 +1397,7 @@ define( function( require ) {
       }
 
       return wind;
-    }
-    ,
+    },
 
     /**
      * Whether the path of the Shape intersects (or is contained in) the provided bounding box.
@@ -1480,8 +1441,7 @@ define( function( require ) {
 
       // not contained, and no intersections with the sides of the bounding box
       return false;
-    }
-    ,
+    },
 
     /**
      * Returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be
@@ -1507,8 +1467,7 @@ define( function( require ) {
         bounds.includeBounds( subpaths[ i ].bounds );
       }
       return new Shape( subpaths, bounds );
-    }
-    ,
+    },
 
     /**
      * Gets a shape offset by a certain amount.
@@ -1530,8 +1489,7 @@ define( function( require ) {
         bounds.includeBounds( subpaths[ i ].bounds );
       }
       return new Shape( subpaths, bounds );
-    }
-    ,
+    },
 
     /**
      * Returns a copy of this subpath with the dash "holes" removed (has many subpaths usually).
@@ -1554,8 +1512,7 @@ define( function( require ) {
       return new Shape( _.flatten( this.subpaths.map( function( subpath ) {
         return subpath.dashed( lineDash, lineDashOffset, options.distanceEpsilon, options.curveEpsilon );
       } ) ) );
-    }
-    ,
+    },
 
     /**
      * Returns the bounds of this shape. It is the bounding-box union of the bounds of each subpath contained.
@@ -1572,8 +1529,7 @@ define( function( require ) {
         this._bounds = bounds;
       }
       return this._bounds;
-    }
-    ,
+    },
     get bounds() { return this.getBounds(); }
     ,
 
@@ -1622,8 +1578,7 @@ define( function( require ) {
         }
         return bounds;
       }
-    }
-    ,
+    },
 
     /**
      * Returns a simplified form of this shape.
@@ -1638,8 +1593,7 @@ define( function( require ) {
      */
     getSimplifiedAreaShape: function() {
       return Graph.simplifyNonZero( this );
-    }
-    ,
+    },
 
     /**
      * @public
@@ -1662,8 +1616,7 @@ define( function( require ) {
       }
 
       return bounds;
-    }
-    ,
+    },
 
     /**
      * Return an approximate value of the area inside of this Shape (where containsPoint is true) using Monte-Carlo.
@@ -1691,8 +1644,7 @@ define( function( require ) {
         }
       }
       return rectangleArea * count / numSamples;
-    }
-    ,
+    },
 
     /**
      * Return the area inside of the Shape (where containsPoint is true), assuming there is no self-intersection or
@@ -1709,8 +1661,7 @@ define( function( require ) {
           return segment.getSignedAreaFragment();
         } ) );
       } ) ) );
-    }
-    ,
+    },
 
     /**
      * Returns the area inside of the shape.
@@ -1723,8 +1674,7 @@ define( function( require ) {
      */
     getArea: function() {
       return this.getSimplifiedAreaShape().getNonoverlappingArea();
-    }
-    ,
+    },
 
     /**
      * Return the approximate location of the centroid of the Shape (the average of all points where containsPoint is true)
@@ -1752,8 +1702,7 @@ define( function( require ) {
         }
       }
       return sum.dividedScalar( count );
-    }
-    ,
+    },
 
     /**
      * Should be called after mutating the x/y of Vector2 points that were passed in to various Shape calls, so that
@@ -1771,8 +1720,7 @@ define( function( require ) {
 
       this._invalidatingPoints = false;
       this.invalidate();
-    }
-    ,
+    },
 
     /**
      * @public
@@ -1782,8 +1730,7 @@ define( function( require ) {
     toString: function() {
       // TODO: consider a more verbose but safer way?
       return 'new kite.Shape( \'' + this.getSVGPath() + '\' )';
-    }
-    ,
+    },
 
     /*---------------------------------------------------------------------------*
      * Internal subpath computations
@@ -1800,8 +1747,7 @@ define( function( require ) {
 
         this.notifyInvalidationListeners();
       }
-    }
-    ,
+    },
 
     /**
      * Called when a part of the Shape has changed, or if metadata on the Shape has changed (e.g. it became immutable).
@@ -1809,8 +1755,7 @@ define( function( require ) {
      */
     notifyInvalidationListeners: function() {
       this.trigger0( 'invalidated' );
-    }
-    ,
+    },
 
     /**
      * @private
@@ -1820,8 +1765,7 @@ define( function( require ) {
     addSegmentAndBounds: function( segment ) {
       this.getLastSubpath().addSegment( segment );
       this.invalidate();
-    }
-    ,
+    },
 
     /**
      * Makes sure that we have a subpath (and if there is no subpath, start it at this point)
@@ -1834,8 +1778,7 @@ define( function( require ) {
         this.addSubpath( new Subpath() );
         this.getLastSubpath().addPoint( point );
       }
-    }
-    ,
+    },
 
     /**
      * Adds a subpath
@@ -1852,8 +1795,7 @@ define( function( require ) {
       this.invalidate();
 
       return this; // allow chaining
-    }
-    ,
+    },
 
     /**
      * Determines if there are any subpaths
@@ -1863,8 +1805,7 @@ define( function( require ) {
      */
     hasSubpaths: function() {
       return this.subpaths.length > 0;
-    }
-    ,
+    },
 
     /**
      * Gets the last subpath
@@ -1874,8 +1815,7 @@ define( function( require ) {
      */
     getLastSubpath: function() {
       return _.last( this.subpaths );
-    }
-    ,
+    },
 
     /**
      * Gets the last point in the last subpath, or null if it doesn't exist
@@ -1885,8 +1825,7 @@ define( function( require ) {
      */
     getLastPoint: function() {
       return this.hasSubpaths() ? this.getLastSubpath().getLastPoint() : null;
-    }
-    ,
+    },
 
     /**
      * Gets the last drawable segment in the last subpath, or null if it doesn't exist
@@ -1901,8 +1840,7 @@ define( function( require ) {
       if ( !subpath.isDrawable() ) { return null; }
 
       return subpath.getLastSegment();
-    }
-    ,
+    },
 
     /**
      * Returns the control point to be used to create a smooth quadratic segments
@@ -1919,8 +1857,7 @@ define( function( require ) {
       else {
         return lastPoint;
       }
-    }
-    ,
+    },
 
     /**
      * Returns the control point to be used to create a smooth cubic segment
@@ -1937,8 +1874,7 @@ define( function( require ) {
       else {
         return lastPoint;
       }
-    }
-    ,
+    },
 
     /**
      * Returns the last point in the last subpath, or the Vector ZERO if it doesn't exist
@@ -1949,8 +1885,7 @@ define( function( require ) {
     getRelativePoint: function() {
       var lastPoint = this.getLastPoint();
       return lastPoint ? lastPoint : Vector2.ZERO;
-    }
-    ,
+    },
 
     /**
      * Returns a new shape that contains a union of the two shapes (a point in either shape is in the resulting shape).
@@ -1961,8 +1896,7 @@ define( function( require ) {
      */
     shapeUnion: function( shape ) {
       return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_UNION );
-    }
-    ,
+    },
 
     /**
      * Returns a new shape that contains the intersection of the two shapes (a point in both shapes is in the
@@ -1974,8 +1908,7 @@ define( function( require ) {
      */
     shapeIntersection: function( shape ) {
       return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_INTERSECTION );
-    }
-    ,
+    },
 
     /**
      * Returns a new shape that contains the difference of the two shapes (a point in the first shape and NOT in the
@@ -1987,8 +1920,7 @@ define( function( require ) {
      */
     shapeDifference: function( shape ) {
       return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_DIFFERENCE );
-    }
-    ,
+    },
 
     /**
      * Returns a new shape that contains the xor of the two shapes (a point in only one shape is in the resulting
@@ -2000,8 +1932,7 @@ define( function( require ) {
      */
     shapeXor: function( shape ) {
       return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_XOR );
-    }
-    ,
+    },
 
     /**
      * Returns a new shape that only contains portions of segments that are within the passed-in shape's area.
@@ -2013,8 +1944,7 @@ define( function( require ) {
      */
     shapeClip: function( shape, options ) {
       return Graph.clipShape( shape, this, options );
-    }
-    ,
+    },
 
     /**
      * Returns the (sometimes approximate) arc length of all of the shape's subpaths combined.
@@ -2031,8 +1961,7 @@ define( function( require ) {
         length += this.subpaths[ i ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels );
       }
       return length;
-    }
-    ,
+    },
 
     /**
      * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
