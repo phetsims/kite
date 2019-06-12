@@ -358,7 +358,7 @@ define( function( require ) {
       const directionUnitVector = delta.normalized();
       const amplitudeNormalVector = directionUnitVector.perpendicular.times( amplitude );
 
-      var wavelength;
+      let wavelength;
       if ( symmetrical ) {
         // the wavelength is shorter to add half a wave.
         wavelength = delta.magnitude / ( numberZigZags + 0.5 );
