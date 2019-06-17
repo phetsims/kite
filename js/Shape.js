@@ -346,7 +346,6 @@ define( function( require ) {
      * @param {number} amplitude - the vertical amplitude of the zig zag wave, signed to choose initial direction
      * @param {number} numberZigZags - the number of complete oscillations
      * @param {boolean} symmetrical - flag for drawing a symmetrical zig zag
-     * @public
      */
     zigZagToPoint: function( endPoint, amplitude, numberZigZags, symmetrical ) {
 
