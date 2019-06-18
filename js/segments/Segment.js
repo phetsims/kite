@@ -14,9 +14,9 @@ define( function( require ) {
 
   var Bounds2 = require( 'DOT/Bounds2' );
   var BoundsIntersection = require( 'KITE/ops/BoundsIntersection' );
-  var Events = require( 'AXON/Events' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
+  var TinyEmitter = require( 'AXON/TinyEmitter' );
   var Util = require( 'DOT/Util' );
 
   /**
@@ -78,7 +78,7 @@ define( function( require ) {
    *   transformed( matrix )     - returns a new segment that represents this segment after transformation by the matrix
    */
   function Segment() {
-    Events.call( this );
+    this.invalidationEmitter = new TinyEmitter();
   }
 
   kite.register( 'Segment', Segment );
@@ -90,7 +90,7 @@ define( function( require ) {
    */
   var identityFunction = function identityFunction( x ) { return x; };
 
-  inherit( Events, Segment, {
+  inherit( Object, Segment, {
     /**
      * Will return true if the start/end tangents are purely vertical or horizontal. If all of the segments of a shape
      * have this property, then the only line joins will be a multiple of pi/2 (90 degrees), and so all of the types of
@@ -254,6 +254,7 @@ define( function( require ) {
       var dashIndex = 0;
       var dashOffset = 0;
       var isInside = true;
+
       function nextDashIndex() {
         dashIndex = ( dashIndex + 1 ) % lineDash.length;
         isInside = !isInside;
@@ -274,7 +275,7 @@ define( function( require ) {
       var initiallyInside = isInside;
 
       // Recursively progress through until we have mostly-linear segments.
-      (function recur( t0, t1, p0, p1, depth ) {
+      ( function recur( t0, t1, p0, p1, depth ) {
         // Compute the t/position at the midpoint t value
         var tMid = ( t0 + t1 ) / 2;
         var pMid = self.positionAt( tMid );
@@ -307,7 +308,7 @@ define( function( require ) {
           recur( t0, tMid, p0, pMid, depth + 1 );
           recur( tMid, t1, pMid, p1, depth + 1 );
         }
-      })( 0, 1, this.start, this.end, 0 );
+      } )( 0, 1, this.start, this.end, 0 );
 
       return {
         values: values,

@@ -14,12 +14,12 @@ define( function( require ) {
 
   var Arc = require( 'KITE/segments/Arc' );
   var Bounds2 = require( 'DOT/Bounds2' );
-  var Events = require( 'AXON/Events' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
   var Line = require( 'KITE/segments/Line' );
   var LineStyles = require( 'KITE/util/LineStyles' );
   var Segment = require( 'KITE/segments/Segment' );
+  var TinyEmitter = require( 'AXON/TinyEmitter' );
   var Vector2 = require( 'DOT/Vector2' );
 
   /**
@@ -33,8 +33,7 @@ define( function( require ) {
    * @param {boolean} [closed]
    */
   function Subpath( segments, points, closed ) {
-    Events.call( this );
-
+    this.invalidatedEmitter = new TinyEmitter();
     var self = this;
 
     // @public {Array.<Segment>}
@@ -75,7 +74,7 @@ define( function( require ) {
 
   kite.register( 'Subpath', Subpath );
 
-  inherit( Events, Subpath, {
+  inherit( Object, Subpath, {
 
     /**
      * Returns the bounds of this subpath. It is the bounding-box union of the bounds of each segment contained.
@@ -146,7 +145,7 @@ define( function( require ) {
       if ( !this._invalidatingPoints ) {
         this._bounds = null;
         this._strokedSubpathsComputed = false;
-        this.trigger0( 'invalidated' );
+        this.invalidatedEmitter.emit();
       }
     },
 
@@ -180,7 +179,7 @@ define( function( require ) {
 
       // Hook up an invalidation listener, so if this segment is invalidated, it will invalidate our subpath!
       // NOTE: if we add removal of segments, we'll need to remove these listeners, or we'll leak!
-      segment.onStatic( 'invalidated', this._invalidateListener );
+      segment.invalidationEmitter.addListener( this._invalidateListener );
 
       return this; // allow chaining
     },
@@ -565,8 +564,8 @@ define( function( require ) {
       else {
         subpaths = [
           new Subpath( leftSegments.concat( lineStyles.cap( lastSegment.end, lastSegment.endTangent ) )
-            .concat( rightSegments )
-            .concat( lineStyles.cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
+              .concat( rightSegments )
+              .concat( lineStyles.cap( firstSegment.start, firstSegment.startTangent.negated() ) ),
             null, true )
         ];
       }

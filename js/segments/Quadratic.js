@@ -273,7 +273,7 @@ define( function( require ) {
       this._bounds = null; // {Bounds2|null}
       this._svgPathFragment = null; // {string|null}
 
-      this.trigger0( 'invalidated' );
+      this.invalidationEmitter.emit();
     },
 
     /**

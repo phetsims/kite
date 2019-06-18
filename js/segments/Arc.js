@@ -337,7 +337,7 @@ define( function( require ) {
                            ( this.anticlockwise && this._startAngle - this._endAngle > Math.PI * 2 ) ),
         'Not handling arcs with start/end angles that show differences in-between browser handling' );
 
-      this.trigger0( 'invalidated' );
+      this.invalidationEmitter.emit();
     },
 
     /**

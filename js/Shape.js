@@ -1789,7 +1789,7 @@ define( function( require ) {
       this.subpaths.push( subpath );
 
       // listen to when the subpath is invalidated (will cause bounds recomputation here)
-      subpath.onStatic( 'invalidated', this._invalidateListener );
+      subpath.invalidatedEmitter.addListener( this._invalidateListener );
 
       this.invalidate();
 
