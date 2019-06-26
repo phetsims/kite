@@ -25,7 +25,6 @@ define( function( require ) {
   var Bounds2 = require( 'DOT/Bounds2' );
   var Cubic = require( 'KITE/segments/Cubic' );
   var EllipticalArc = require( 'KITE/segments/EllipticalArc' );
-  var Events = require( 'AXON/Events' );
   var Graph = require( 'KITE/ops/Graph' );
   var inherit = require( 'PHET_CORE/inherit' );
   var kite = require( 'KITE/kite' );
@@ -35,6 +34,7 @@ define( function( require ) {
   var Ray2 = require( 'DOT/Ray2' );
   var Subpath = require( 'KITE/util/Subpath' );
   var svgPath = require( 'KITE/parser/svgPath' );
+  var TinyEmitter = require( 'AXON/TinyEmitter' );
   var Util = require( 'DOT/Util' );
   var Vector2 = require( 'DOT/Vector2' );
 
@@ -82,7 +82,8 @@ define( function( require ) {
   function Shape( subpaths, bounds ) {
     var self = this;
 
-    Events.call( this );
+    this.on = function() { throw new Error( 'on' ); };
+    this.onStatic = function() { throw new Error( 'onStatic' ); };
 
     // @public {Array.<Subpath>} Lower-level piecewise mathematical description using segments, also
     // individually immutable
@@ -91,6 +92,9 @@ define( function( require ) {
     // @private {Bounds2} If non-null, computed bounds for all pieces added so far. Lazily computed with
     // getBounds/bounds ES5 getter
     this._bounds = bounds ? bounds.copy() : null; // {Bounds2 | null}
+
+    // @public {TinyEmitter}
+    this.invalidatedEmitter = new TinyEmitter();
 
     this.resetControlPoints();
 
@@ -127,7 +131,7 @@ define( function( require ) {
 
   kite.register( 'Shape', Shape );
 
-  inherit( Events, Shape, {
+  inherit( Object, Shape, {
 
     /**
      * Resets the control points
@@ -1753,7 +1757,7 @@ define( function( require ) {
      * @private
      */
     notifyInvalidationListeners: function() {
-      this.trigger0( 'invalidated' );
+      this.invalidatedEmitter.emit();
     },
 
     /**
