@@ -82,9 +82,6 @@ define( function( require ) {
   function Shape( subpaths, bounds ) {
     var self = this;
 
-    this.on = function() { throw new Error( 'on' ); };
-    this.onStatic = function() { throw new Error( 'onStatic' ); };
-
     // @public {Array.<Subpath>} Lower-level piecewise mathematical description using segments, also
     // individually immutable
     this.subpaths = [];
