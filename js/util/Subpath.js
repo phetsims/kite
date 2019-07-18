@@ -346,6 +346,13 @@ define( function( require ) {
         context.moveTo( startPoint.x, startPoint.y ); // the segments assume the current context position is at their start
 
         var len = this.segments.length;
+
+        // Omit an ending line segment if our path is closed.
+        // see https://github.com/phetsims/ph-scale/issues/83#issuecomment-512663949
+        if ( this.closed && len >= 2 && this.segments[ len - 1 ] instanceof Line ) {
+          len--;
+        }
+
         for ( var i = 0; i < len; i++ ) {
           this.segments[ i ].writeToContext( context );
         }
