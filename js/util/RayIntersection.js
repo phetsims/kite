@@ -1,4 +1,4 @@
-// Copyright 2013-2015, University of Colorado Boulder
+// Copyright 2017-2019, University of Colorado Boulder
 
 /**
  * An intersection between a ray and a segment.

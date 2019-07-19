@@ -1,4 +1,4 @@
-// Copyright 2017, University of Colorado Boulder
+// Copyright 2017-2018, University of Colorado Boulder
 
 /**
  * A face is usually contained by an ("inner") boundary of edges, and zero or more ("outer") boundary holes on the inside.
