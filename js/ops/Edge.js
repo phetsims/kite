@@ -1,4 +1,4 @@
-// Copyright 2017-2018, University of Colorado Boulder
+// Copyright 2017-2019, University of Colorado Boulder
 
 /**
  * Represents a segment in the graph (connects to vertices on both ends)

@@ -1,4 +1,4 @@
-// Copyright 2017-2018, University of Colorado Boulder
+// Copyright 2017-2019, University of Colorado Boulder
 
 /**
  * A boundary is a loop of directed half-edges that always follow in the tightest counter-clockwise direction around
