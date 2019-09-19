@@ -23,7 +23,7 @@ define( require => {
   const Poolable = require( 'PHET_CORE/Poolable' );
   const Subpath = require( 'KITE/util/Subpath' );
 
-  var globaId = 0;
+  let globaId = 0;
 
   /**
    * @public (kite-internal)
@@ -78,8 +78,8 @@ define( require => {
      * @returns {Subpath}
      */
     toSubpath: function() {
-      var segments = [];
-      for ( var i = 0; i < this.halfEdges.length; i++ ) {
+      const segments = [];
+      for ( let i = 0; i < this.halfEdges.length; i++ ) {
         segments.push( this.halfEdges[ i ].getDirectionalSegment() );
       }
       return new Subpath( segments, undefined, this.closed );

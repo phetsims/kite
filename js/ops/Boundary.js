@@ -19,7 +19,7 @@ define( require => {
   const Subpath = require( 'KITE/util/Subpath' );
   const Vector2 = require( 'DOT/Vector2' );
 
-  var globaId = 0;
+  let globaId = 0;
 
   /**
    * @public (kite-internal)
@@ -99,8 +99,8 @@ define( require => {
      * @returns {number}
      */
     computeSignedArea: function() {
-      var signedArea = 0;
-      for ( var i = 0; i < this.halfEdges.length; i++ ) {
+      let signedArea = 0;
+      for ( let i = 0; i < this.halfEdges.length; i++ ) {
         signedArea += this.halfEdges[ i ].signedAreaFragment;
       }
       return signedArea;
@@ -113,9 +113,9 @@ define( require => {
      * @returns {Bounds2}
      */
     computeBounds: function() {
-      var bounds = Bounds2.NOTHING.copy();
+      const bounds = Bounds2.NOTHING.copy();
 
-      for ( var i = 0; i < this.halfEdges.length; i++ ) {
+      for ( let i = 0; i < this.halfEdges.length; i++ ) {
         bounds.includeBounds( this.halfEdges[ i ].edge.segment.getBounds() );
       }
       return bounds;
@@ -137,31 +137,31 @@ define( require => {
       assert && assert( this.halfEdges.length > 0, 'There is no extreme point if we have no edges' );
 
       // Transform all of the segments into the new transformed coordinate space.
-      var transformedSegments = [];
+      const transformedSegments = [];
       for ( var i = 0; i < this.halfEdges.length; i++ ) {
         transformedSegments.push( this.halfEdges[ i ].edge.segment.transformed( transform.getMatrix() ) );
       }
 
       // Find the bounds of the entire transformed boundary
-      var transformedBounds = Bounds2.NOTHING.copy();
+      const transformedBounds = Bounds2.NOTHING.copy();
       for ( i = 0; i < transformedSegments.length; i++ ) {
         transformedBounds.includeBounds( transformedSegments[ i ].getBounds() );
       }
 
       for ( i = 0; i < transformedSegments.length; i++ ) {
-        var segment = transformedSegments[ i ];
+        const segment = transformedSegments[ i ];
 
         // See if this is one of our potential segments whose bounds have the minimal y value. This indicates at least
         // one point on this segment will be a minimal-y point.
         if ( segment.getBounds().top === transformedBounds.top ) {
           // Pick a point with values that guarantees any point will have a smaller y value.
-          var minimalPoint = new Vector2( 0, Number.POSITIVE_INFINITY );
+          let minimalPoint = new Vector2( 0, Number.POSITIVE_INFINITY );
 
           // Grab parametric t-values for where our segment has extreme points, and adds the end points (which are
           // candidates). One of the points at these values should be our minimal point.
-          var tValues = [ 0, 1 ].concat( segment.getInteriorExtremaTs() );
-          for ( var j = 0; j < tValues.length; j++ ) {
-            var point = segment.positionAt( tValues[ j ] );
+          const tValues = [ 0, 1 ].concat( segment.getInteriorExtremaTs() );
+          for ( let j = 0; j < tValues.length; j++ ) {
+            const point = segment.positionAt( tValues[ j ] );
             if ( point.y < minimalPoint.y ) {
               minimalPoint = point;
             }
@@ -193,8 +193,8 @@ define( require => {
      * @returns {Ray2}
      */
     computeExtremeRay: function( transform ) {
-      var extremePoint = this.computeExtremePoint( transform );
-      var orientation = transform.inverseDelta2( new Vector2( 0, -1 ) ).normalized();
+      const extremePoint = this.computeExtremePoint( transform );
+      const orientation = transform.inverseDelta2( new Vector2( 0, -1 ) ).normalized();
       return new Ray2( extremePoint.plus( orientation.timesScalar( 1e-4 ) ), orientation );
     },
 
@@ -206,7 +206,7 @@ define( require => {
      * @returns {boolean}
      */
     hasHalfEdge: function( halfEdge ) {
-      for ( var i = 0; i < this.halfEdges.length; i++ ) {
+      for ( let i = 0; i < this.halfEdges.length; i++ ) {
         if ( this.halfEdges[ i ] === halfEdge ) {
           return true;
         }
@@ -221,8 +221,8 @@ define( require => {
      * @returns {Subpath}
      */
     toSubpath: function() {
-      var segments = [];
-      for ( var i = 0; i < this.halfEdges.length; i++ ) {
+      const segments = [];
+      for ( let i = 0; i < this.halfEdges.length; i++ ) {
         segments.push( this.halfEdges[ i ].getDirectionalSegment() );
       }
       return new Subpath( segments, null, true );

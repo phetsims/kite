@@ -26,14 +26,14 @@ define( require => {
   const Util = require( 'DOT/Util' );
   const Vector2 = require( 'DOT/Vector2' );
 
-  var solveQuadraticRootsReal = Util.solveQuadraticRootsReal; // function that returns an array of number
-  var solveCubicRootsReal = Util.solveCubicRootsReal; // function that returns an array of number
-  var arePointsCollinear = Util.arePointsCollinear; // function that returns a boolean
+  const solveQuadraticRootsReal = Util.solveQuadraticRootsReal; // function that returns an array of number
+  const solveCubicRootsReal = Util.solveCubicRootsReal; // function that returns an array of number
+  const arePointsCollinear = Util.arePointsCollinear; // function that returns a boolean
 
   // convenience variables use to reduce the number of vector allocations
-  var scratchVector1 = new Vector2( 0, 0 );
-  var scratchVector2 = new Vector2( 0, 0 );
-  var scratchVector3 = new Vector2( 0, 0 );
+  const scratchVector1 = new Vector2( 0, 0 );
+  const scratchVector2 = new Vector2( 0, 0 );
+  const scratchVector3 = new Vector2( 0, 0 );
 
   // Used in multiple filters
   function isBetween0And1( t ) {
@@ -203,11 +203,11 @@ define( require => {
       assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
 
       // Equivalent position: (1 - t)^3*start + 3*(1 - t)^2*t*control1 + 3*(1 - t) t^2*control2 + t^3*end
-      var mt = 1 - t;
-      var mmm = mt * mt * mt;
-      var mmt = 3 * mt * mt * t;
-      var mtt = 3 * mt * t * t;
-      var ttt = t * t * t;
+      const mt = 1 - t;
+      const mmm = mt * mt * mt;
+      const mmt = 3 * mt * mt * t;
+      const mtt = 3 * mt * t * t;
+      const ttt = t * t * t;
 
       return new Vector2(
         this._start.x * mmm + this._control1.x * mmt + this._control2.x * mtt + this._end.x * ttt,
@@ -232,8 +232,8 @@ define( require => {
       assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
       // derivative: -3 p0 (1 - t)^2 + 3 p1 (1 - t)^2 - 6 p1 (1 - t) t + 6 p2 (1 - t) t - 3 p2 t^2 + 3 p3 t^2
-      var mt = 1 - t;
-      var result = new Vector2( 0, 0 );
+      const mt = 1 - t;
+      const result = new Vector2( 0, 0 );
       return result.set( this._start ).multiplyScalar( -3 * mt * mt )
         .add( scratchVector1.set( this._control1 ).multiplyScalar( 3 * mt * mt - 6 * mt * t ) )
         .add( scratchVector1.set( this._control2 ).multiplyScalar( 6 * mt * t - 3 * t * t ) )
@@ -261,15 +261,15 @@ define( require => {
 
       // see http://cagd.cs.byu.edu/~557/text/ch2.pdf p31
       // TODO: remove code duplication with Quadratic
-      var epsilon = 0.0000001;
+      const epsilon = 0.0000001;
       if ( Math.abs( t - 0.5 ) > 0.5 - epsilon ) {
-        var isZero = t < 0.5;
-        var p0 = isZero ? this._start : this._end;
-        var p1 = isZero ? this._control1 : this._control2;
-        var p2 = isZero ? this._control2 : this._control1;
-        var d10 = p1.minus( p0 );
-        var a = d10.magnitude;
-        var h = ( isZero ? -1 : 1 ) * d10.perpendicular.normalized().dot( p2.minus( p1 ) );
+        const isZero = t < 0.5;
+        const p0 = isZero ? this._start : this._end;
+        const p1 = isZero ? this._control1 : this._control2;
+        const p2 = isZero ? this._control2 : this._control1;
+        const d10 = p1.minus( p0 );
+        const a = d10.magnitude;
+        const h = ( isZero ? -1 : 1 ) * d10.perpendicular.normalized().dot( p2.minus( p1 ) );
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
       }
       else {
@@ -298,12 +298,12 @@ define( require => {
 
       // de Casteljau method
       // TODO: add a 'bisect' or 'between' method for vectors?
-      var left = this._start.blend( this._control1, t );
-      var right = this._control2.blend( this._end, t );
-      var middle = this._control1.blend( this._control2, t );
-      var leftMid = left.blend( middle, t );
-      var rightMid = middle.blend( right, t );
-      var mid = leftMid.blend( rightMid, t );
+      const left = this._start.blend( this._control1, t );
+      const right = this._control2.blend( this._end, t );
+      const middle = this._control1.blend( this._control2, t );
+      const leftMid = left.blend( middle, t );
+      const rightMid = middle.blend( right, t );
+      const mid = leftMid.blend( rightMid, t );
       return [
         new kite.Cubic( this._start, left, leftMid, mid ),
         new kite.Cubic( mid, rightMid, right, this._end )
@@ -522,7 +522,7 @@ define( require => {
         this._bounds = this._bounds.withPoint( this._start );
         this._bounds = this._bounds.withPoint( this._end );
 
-        var self = this;
+        const self = this;
         _.each( this.getXExtremaT(), function( t ) {
           if ( t >= 0 && t <= 1 ) {
             self._bounds = self._bounds.withPoint( self.positionAt( t ) );
@@ -549,18 +549,18 @@ define( require => {
     computeCuspInfo: function() {
       // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
       // TODO: allocation reduction
-      var a = this._start.times( -1 ).plus( this._control1.times( 3 ) ).plus( this._control2.times( -3 ) ).plus( this._end );
-      var b = this._start.times( 3 ).plus( this._control1.times( -6 ) ).plus( this._control2.times( 3 ) );
-      var c = this._start.times( -3 ).plus( this._control1.times( 3 ) );
+      const a = this._start.times( -1 ).plus( this._control1.times( 3 ) ).plus( this._control2.times( -3 ) ).plus( this._end );
+      const b = this._start.times( 3 ).plus( this._control1.times( -6 ) ).plus( this._control2.times( 3 ) );
+      const c = this._start.times( -3 ).plus( this._control1.times( 3 ) );
 
-      var aPerp = a.perpendicular; // {Vector2}
-      var bPerp = b.perpendicular; // {Vector2}
-      var aPerpDotB = aPerp.dot( b ); // {number}
+      const aPerp = a.perpendicular; // {Vector2}
+      const bPerp = b.perpendicular; // {Vector2}
+      const aPerpDotB = aPerp.dot( b ); // {number}
 
       this._tCusp = -0.5 * ( aPerp.dot( c ) / aPerpDotB ); // {number}
       this._tDeterminant = this._tCusp * this._tCusp - ( 1 / 3 ) * ( bPerp.dot( c ) / aPerpDotB ); // {number}
       if ( this._tDeterminant >= 0 ) {
-        var sqrtDet = Math.sqrt( this._tDeterminant );
+        const sqrtDet = Math.sqrt( this._tDeterminant );
         this._tInflection1 = this._tCusp - sqrtDet;
         this._tInflection2 = this._tCusp + sqrtDet;
       }
@@ -580,7 +580,7 @@ define( require => {
         // if there is a cusp, we'll split at the cusp into two quadratic bezier curves.
         // see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.94.8088&rep=rep1&type=pdf (Singularities of rational Bezier curves - J Monterde, 2001)
         this._quadratics = [];
-        var tCusp = this.getTCusp();
+        const tCusp = this.getTCusp();
         if ( tCusp === 0 ) {
           this._quadratics.push( new Quadratic( this.start, this.control2, this.end, false ) );
         }
@@ -588,7 +588,7 @@ define( require => {
           this._quadratics.push( new Quadratic( this.start, this.control1, this.end, false ) );
         }
         else {
-          var subdividedAtCusp = this.subdivided( tCusp );
+          const subdividedAtCusp = this.subdivided( tCusp );
           this._quadratics.push( new Quadratic( subdividedAtCusp[ 0 ].start, subdividedAtCusp[ 0 ].control1, subdividedAtCusp[ 0 ].end, false ) );
           this._quadratics.push( new Quadratic( subdividedAtCusp[ 1 ].start, subdividedAtCusp[ 1 ].control2, subdividedAtCusp[ 1 ].end, false ) );
         }
@@ -606,14 +606,14 @@ define( require => {
      * @returns {Array.<Segment>}
      */
     getNondegenerateSegments: function() {
-      var self = this;
+      const self = this;
 
-      var start = this._start;
-      var control1 = this._control1;
-      var control2 = this._control2;
-      var end = this._end;
+      const start = this._start;
+      const control1 = this._control1;
+      const control2 = this._control2;
+      const end = this._end;
 
-      var reduced = this.degreeReduced( 1e-9 );
+      const reduced = this.degreeReduced( 1e-9 );
 
       if ( start.equals( end ) && start.equals( control1 ) && start.equals( control2 ) ) {
         // degenerate point
@@ -629,17 +629,17 @@ define( require => {
         return reduced.getNondegenerateSegments();
       }
       else if ( arePointsCollinear( start, control1, end ) && arePointsCollinear( start, control2, end ) ) {
-        var extremaPoints = this.getXExtremaT().concat( this.getYExtremaT() ).sort().map( function( t ) {
+        const extremaPoints = this.getXExtremaT().concat( this.getYExtremaT() ).sort().map( function( t ) {
           return self.positionAt( t );
         } );
 
-        var segments = [];
-        var lastPoint = start;
+        const segments = [];
+        let lastPoint = start;
         if ( extremaPoints.length ) {
           segments.push( new kite.Line( start, extremaPoints[ 0 ] ) );
           lastPoint = extremaPoints[ 0 ];
         }
-        for ( var i = 1; i < extremaPoints.length; i++ ) {
+        for ( let i = 1; i < extremaPoints.length; i++ ) {
           segments.push( new kite.Line( extremaPoints[ i - 1 ], extremaPoints[ i ] ) );
           lastPoint = extremaPoints[ i ];
         }
@@ -659,9 +659,9 @@ define( require => {
      * @returns {boolean}
      */
     hasCusp: function() {
-      var tCusp = this.getTCusp();
+      const tCusp = this.getTCusp();
 
-      var epsilon = 1e-7; // TODO: make this available to change?
+      const epsilon = 1e-7; // TODO: make this available to change?
       return tCusp >= 0 && tCusp <= 1 && this.tangentAt( tCusp ).magnitude < epsilon;
     },
 
@@ -671,7 +671,7 @@ define( require => {
      * @returns {Vector2}
      */
     toRS: function( point ) {
-      var firstVector = point.minus( this._start );
+      const firstVector = point.minus( this._start );
       return new Vector2( firstVector.dot( this.getR() ), firstVector.dot( this.getS() ) );
     },
 
@@ -686,12 +686,12 @@ define( require => {
       // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
 
       // how many segments to create (possibly make this more adaptive?)
-      var quantity = 32;
+      const quantity = 32;
 
-      var points = [];
-      var result = [];
-      for ( var i = 0; i < quantity; i++ ) {
-        var t = i / ( quantity - 1 );
+      const points = [];
+      const result = [];
+      for ( let i = 0; i < quantity; i++ ) {
+        let t = i / ( quantity - 1 );
         if ( reverse ) {
           t = 1 - t;
         }
@@ -752,10 +752,10 @@ define( require => {
      * @returns {Array.<number>}
      */
     getInteriorExtremaTs: function() {
-      var ts = this.getXExtremaT().concat( this.getYExtremaT() );
-      var result = [];
+      const ts = this.getXExtremaT().concat( this.getYExtremaT() );
+      const result = [];
       _.each( ts, function( t ) {
-        var epsilon = 0.0000000001; // TODO: general kite epsilon?
+        const epsilon = 0.0000000001; // TODO: general kite epsilon?
         if ( t > epsilon && t < 1 - epsilon ) {
           // don't add duplicate t values
           if ( _.every( result, function( otherT ) { return Math.abs( t - otherT ) > epsilon; } ) ) {
@@ -776,36 +776,36 @@ define( require => {
      * @returns {Array.<RayIntersection>}
      */
     intersection: function( ray ) {
-      var self = this;
-      var result = [];
+      const self = this;
+      const result = [];
 
       // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
-      var inverseMatrix = Matrix3.rotation2( -ray.direction.angle ).timesMatrix( Matrix3.translation( -ray.position.x, -ray.position.y ) );
+      const inverseMatrix = Matrix3.rotation2( -ray.direction.angle ).timesMatrix( Matrix3.translation( -ray.position.x, -ray.position.y ) );
 
-      var p0 = inverseMatrix.timesVector2( this._start );
-      var p1 = inverseMatrix.timesVector2( this._control1 );
-      var p2 = inverseMatrix.timesVector2( this._control2 );
-      var p3 = inverseMatrix.timesVector2( this._end );
+      const p0 = inverseMatrix.timesVector2( this._start );
+      const p1 = inverseMatrix.timesVector2( this._control1 );
+      const p2 = inverseMatrix.timesVector2( this._control2 );
+      const p3 = inverseMatrix.timesVector2( this._end );
 
       // polynomial form of cubic: start + (3 control1 - 3 start) t + (-6 control1 + 3 control2 + 3 start) t^2 + (3 control1 - 3 control2 + end - start) t^3
-      var a = -p0.y + 3 * p1.y - 3 * p2.y + p3.y;
-      var b = 3 * p0.y - 6 * p1.y + 3 * p2.y;
-      var c = -3 * p0.y + 3 * p1.y;
-      var d = p0.y;
+      const a = -p0.y + 3 * p1.y - 3 * p2.y + p3.y;
+      const b = 3 * p0.y - 6 * p1.y + 3 * p2.y;
+      const c = -3 * p0.y + 3 * p1.y;
+      const d = p0.y;
 
-      var ts = solveCubicRootsReal( a, b, c, d );
+      const ts = solveCubicRootsReal( a, b, c, d );
 
       _.each( ts, function( t ) {
         if ( t >= 0 && t <= 1 ) {
-          var hitPoint = self.positionAt( t );
-          var unitTangent = self.tangentAt( t ).normalized();
-          var perp = unitTangent.perpendicular;
-          var toHit = hitPoint.minus( ray.position );
+          const hitPoint = self.positionAt( t );
+          const unitTangent = self.tangentAt( t ).normalized();
+          const perp = unitTangent.perpendicular;
+          const toHit = hitPoint.minus( ray.position );
 
           // make sure it's not behind the ray
           if ( toHit.dot( ray.direction ) > 0 ) {
-            var normal = perp.dot( ray.direction ) > 0 ? perp.negated() : perp;
-            var wind = ray.direction.perpendicular.dot( unitTangent ) < 0 ? 1 : -1;
+            const normal = perp.dot( ray.direction ) > 0 ? perp.negated() : perp;
+            const wind = ray.direction.perpendicular.dot( unitTangent ) < 0 ? 1 : -1;
             result.push( new RayIntersection( toHit.magnitude, hitPoint, normal, wind, t ) );
           }
         }
@@ -819,8 +819,8 @@ define( require => {
      * @returns {number}
      */
     windingIntersection: function( ray ) {
-      var wind = 0;
-      var hits = this.intersection( ray );
+      let wind = 0;
+      const hits = this.intersection( ray );
       _.each( hits, function( hit ) {
         wind += hit.wind;
       } );
@@ -852,9 +852,9 @@ define( require => {
      */
     degreeReduced: function( epsilon ) {
       epsilon = epsilon || 0; // if not provided, use an exact version
-      var controlA = scratchVector1.set( this._control1 ).multiplyScalar( 3 ).subtract( this._start ).divideScalar( 2 );
-      var controlB = scratchVector2.set( this._control2 ).multiplyScalar( 3 ).subtract( this._end ).divideScalar( 2 );
-      var difference = scratchVector3.set( controlA ).subtract( controlB );
+      const controlA = scratchVector1.set( this._control1 ).multiplyScalar( 3 ).subtract( this._start ).divideScalar( 2 );
+      const controlB = scratchVector2.set( this._control2 ).multiplyScalar( 3 ).subtract( this._end ).divideScalar( 2 );
+      const difference = scratchVector3.set( controlA ).subtract( controlB );
       if ( difference.magnitude <= epsilon ) {
         return new Quadratic(
           this._start,
@@ -903,29 +903,29 @@ define( require => {
      */
     getSelfIntersection: function() {
       // We split the cubic into monotone sections (which can't self-intersect), then check these for intersections
-      var tExtremes = this.getInteriorExtremaTs();
-      var fullExtremes = [ 0 ].concat( tExtremes ).concat( [ 1 ] );
-      var segments = this.subdivisions( tExtremes );
+      const tExtremes = this.getInteriorExtremaTs();
+      const fullExtremes = [ 0 ].concat( tExtremes ).concat( [ 1 ] );
+      const segments = this.subdivisions( tExtremes );
       if ( segments.length < 3 ) {
         return null;
       }
 
-      for ( var i = 0; i < segments.length; i++ ) {
-        var aSegment = segments[ i ];
-        for ( var j = i + 1; j < segments.length; j++ ) {
-          var bSegment = segments[ j ];
+      for ( let i = 0; i < segments.length; i++ ) {
+        const aSegment = segments[ i ];
+        for ( let j = i + 1; j < segments.length; j++ ) {
+          const bSegment = segments[ j ];
 
-          var intersections = BoundsIntersection.intersect( aSegment, bSegment );
+          const intersections = BoundsIntersection.intersect( aSegment, bSegment );
           assert && assert( intersections.length < 2 );
 
           if ( intersections.length ) {
-            var intersection = intersections[ 0 ];
+            const intersection = intersections[ 0 ];
             // Exclude endpoints overlapping
             if ( intersection.aT > 1e-7 && intersection.aT < ( 1 - 1e-7 ) &&
                  intersection.bT > 1e-7 && intersection.bT < ( 1 - 1e-7 ) ) {
               // Remap parametric values from the subdivided segments to the main segment
-              var aT = fullExtremes[ i ] + intersection.aT * ( fullExtremes[ i + 1 ] - fullExtremes[ i ] );
-              var bT = fullExtremes[ j ] + intersection.bT * ( fullExtremes[ j + 1 ] - fullExtremes[ j ] );
+              const aT = fullExtremes[ i ] + intersection.aT * ( fullExtremes[ i + 1 ] - fullExtremes[ i ] );
+              const bT = fullExtremes[ j ] + intersection.bT * ( fullExtremes[ j + 1 ] - fullExtremes[ j ] );
               return new SegmentIntersection( intersection.point, aT, bT );
             }
           }
@@ -1016,9 +1016,9 @@ define( require => {
     }
 
     // coefficients of derivative
-    var a = -3 * v0 + 9 * v1 - 9 * v2 + 3 * v3;
-    var b = 6 * v0 - 12 * v1 + 6 * v2;
-    var c = -3 * v0 + 3 * v1;
+    const a = -3 * v0 + 9 * v1 - 9 * v2 + 3 * v3;
+    const b = 6 * v0 - 12 * v1 + 6 * v2;
+    const c = -3 * v0 + 3 * v1;
 
     return _.filter( solveQuadraticRootsReal( a, b, c ), isBetween0And1 );
   };
@@ -1078,38 +1078,38 @@ define( require => {
      * arithmetic).
      */
 
-    var noOverlap = [];
+    const noOverlap = [];
 
     // Efficiently compute the multiplication of the bezier matrix:
-    var p0x = cubic1._start.x;
-    var p1x = -3 * cubic1._start.x + 3 * cubic1._control1.x;
-    var p2x = 3 * cubic1._start.x - 6 * cubic1._control1.x + 3 * cubic1._control2.x;
-    var p3x = -1 * cubic1._start.x + 3 * cubic1._control1.x - 3 * cubic1._control2.x + cubic1._end.x;
-    var p0y = cubic1._start.y;
-    var p1y = -3 * cubic1._start.y + 3 * cubic1._control1.y;
-    var p2y = 3 * cubic1._start.y - 6 * cubic1._control1.y + 3 * cubic1._control2.y;
-    var p3y = -1 * cubic1._start.y + 3 * cubic1._control1.y - 3 * cubic1._control2.y + cubic1._end.y;
-    var q0x = cubic2._start.x;
-    var q1x = -3 * cubic2._start.x + 3 * cubic2._control1.x;
-    var q2x = 3 * cubic2._start.x - 6 * cubic2._control1.x + 3 * cubic2._control2.x;
-    var q3x = -1 * cubic2._start.x + 3 * cubic2._control1.x - 3 * cubic2._control2.x + cubic2._end.x;
-    var q0y = cubic2._start.y;
-    var q1y = -3 * cubic2._start.y + 3 * cubic2._control1.y;
-    var q2y = 3 * cubic2._start.y - 6 * cubic2._control1.y + 3 * cubic2._control2.y;
-    var q3y = -1 * cubic2._start.y + 3 * cubic2._control1.y - 3 * cubic2._control2.y + cubic2._end.y;
+    const p0x = cubic1._start.x;
+    const p1x = -3 * cubic1._start.x + 3 * cubic1._control1.x;
+    const p2x = 3 * cubic1._start.x - 6 * cubic1._control1.x + 3 * cubic1._control2.x;
+    const p3x = -1 * cubic1._start.x + 3 * cubic1._control1.x - 3 * cubic1._control2.x + cubic1._end.x;
+    const p0y = cubic1._start.y;
+    const p1y = -3 * cubic1._start.y + 3 * cubic1._control1.y;
+    const p2y = 3 * cubic1._start.y - 6 * cubic1._control1.y + 3 * cubic1._control2.y;
+    const p3y = -1 * cubic1._start.y + 3 * cubic1._control1.y - 3 * cubic1._control2.y + cubic1._end.y;
+    const q0x = cubic2._start.x;
+    const q1x = -3 * cubic2._start.x + 3 * cubic2._control1.x;
+    const q2x = 3 * cubic2._start.x - 6 * cubic2._control1.x + 3 * cubic2._control2.x;
+    const q3x = -1 * cubic2._start.x + 3 * cubic2._control1.x - 3 * cubic2._control2.x + cubic2._end.x;
+    const q0y = cubic2._start.y;
+    const q1y = -3 * cubic2._start.y + 3 * cubic2._control1.y;
+    const q2y = 3 * cubic2._start.y - 6 * cubic2._control1.y + 3 * cubic2._control2.y;
+    const q3y = -1 * cubic2._start.y + 3 * cubic2._control1.y - 3 * cubic2._control2.y + cubic2._end.y;
 
     // Determine the candidate overlap (preferring the dimension with the largest variation)
-    var xSpread = Math.abs( Math.max( cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x,
+    const xSpread = Math.abs( Math.max( cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x,
                                       cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x ) -
                             Math.min( cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x,
                                       cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x ) );
-    var ySpread = Math.abs( Math.max( cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y,
+    const ySpread = Math.abs( Math.max( cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y,
                                       cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y ) -
                             Math.min( cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y,
                                       cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y ) );
-    var xOverlap = Segment.polynomialGetOverlapCubic( p0x, p1x, p2x, p3x, q0x, q1x, q2x, q3x );
-    var yOverlap = Segment.polynomialGetOverlapCubic( p0y, p1y, p2y, p3y, q0y, q1y, q2y, q3y );
-    var overlap;
+    const xOverlap = Segment.polynomialGetOverlapCubic( p0x, p1x, p2x, p3x, q0x, q1x, q2x, q3x );
+    const yOverlap = Segment.polynomialGetOverlapCubic( p0y, p1y, p2y, p3y, q0y, q1y, q2y, q3y );
+    let overlap;
     if ( xSpread > ySpread ) {
       overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
     }
@@ -1120,34 +1120,34 @@ define( require => {
       return noOverlap; // No way to pin down an overlap
     }
 
-    var a = overlap.a;
-    var b = overlap.b;
+    const a = overlap.a;
+    const b = overlap.b;
 
     // Premultiply a few values
-    var aa = a * a;
-    var aaa = a * a * a;
-    var bb = b * b;
-    var bbb = b * b * b;
-    var ab2 = 2 * a * b;
-    var abb3 = 3 * a * bb;
-    var aab3 = 3 * aa * b;
+    const aa = a * a;
+    const aaa = a * a * a;
+    const bb = b * b;
+    const bbb = b * b * b;
+    const ab2 = 2 * a * b;
+    const abb3 = 3 * a * bb;
+    const aab3 = 3 * aa * b;
 
     // Compute cubic coefficients for the difference between p(t) and q(a*t+b)
-    var d0x = q0x + b * q1x + bb * q2x + bbb * q3x - p0x;
-    var d1x = a * q1x + ab2 * q2x + abb3 * q3x - p1x;
-    var d2x = aa * q2x + aab3 * q3x - p2x;
-    var d3x = aaa * q3x - p3x;
-    var d0y = q0y + b * q1y + bb * q2y + bbb * q3y - p0y;
-    var d1y = a * q1y + ab2 * q2y + abb3 * q3y - p1y;
-    var d2y = aa * q2y + aab3 * q3y - p2y;
-    var d3y = aaa * q3y - p3y;
+    const d0x = q0x + b * q1x + bb * q2x + bbb * q3x - p0x;
+    const d1x = a * q1x + ab2 * q2x + abb3 * q3x - p1x;
+    const d2x = aa * q2x + aab3 * q3x - p2x;
+    const d3x = aaa * q3x - p3x;
+    const d0y = q0y + b * q1y + bb * q2y + bbb * q3y - p0y;
+    const d1y = a * q1y + ab2 * q2y + abb3 * q3y - p1y;
+    const d2y = aa * q2y + aab3 * q3y - p2y;
+    const d3y = aaa * q3y - p3y;
 
     // Find the t values where extremes lie in the [0,1] range for each 1-dimensional cubic. We do this by
     // differentiating the cubic and finding the roots of the resulting quadratic.
-    var xRoots = Util.solveQuadraticRootsReal( 3 * d3x, 2 * d2x, d1x );
-    var yRoots = Util.solveQuadraticRootsReal( 3 * d3y, 2 * d2y, d1y );
-    var xExtremeTs = _.uniq( [ 0, 1 ].concat( xRoots !== null ? xRoots.filter( isBetween0And1 ) : [] ) );
-    var yExtremeTs = _.uniq( [ 0, 1 ].concat( yRoots !== null ? yRoots.filter( isBetween0And1 ) : [] ) );
+    const xRoots = Util.solveQuadraticRootsReal( 3 * d3x, 2 * d2x, d1x );
+    const yRoots = Util.solveQuadraticRootsReal( 3 * d3y, 2 * d2y, d1y );
+    const xExtremeTs = _.uniq( [ 0, 1 ].concat( xRoots !== null ? xRoots.filter( isBetween0And1 ) : [] ) );
+    const yExtremeTs = _.uniq( [ 0, 1 ].concat( yRoots !== null ? yRoots.filter( isBetween0And1 ) : [] ) );
 
     // Examine the single-coordinate distances between the "overlaps" at each extreme T value. If the distance is larger
     // than our epsilon, then the "overlap" would not be valid.
@@ -1164,8 +1164,8 @@ define( require => {
       }
     }
 
-    var qt0 = b;
-    var qt1 = a + b;
+    const qt0 = b;
+    const qt1 = a + b;
 
     // TODO: do we want an epsilon in here to be permissive?
     if ( ( qt0 > 1 && qt1 > 1 ) || ( qt0 < 0 && qt1 < 0 ) ) {

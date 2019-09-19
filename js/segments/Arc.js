@@ -21,7 +21,7 @@ define( require => {
   const Vector2 = require( 'DOT/Vector2' );
 
   // TODO: See if we should use this more
-  var TWO_PI = Math.PI * 2;
+  const TWO_PI = Math.PI * 2;
 
   /**
    * @constructor
@@ -286,9 +286,9 @@ define( require => {
       }
 
       // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles
-      var angle0 = this.angleAt( 0 );
-      var angleT = this.angleAt( t );
-      var angle1 = this.angleAt( 1 );
+      const angle0 = this.angleAt( 0 );
+      const angleT = this.angleAt( t );
+      const angle1 = this.angleAt( 1 );
       return [
         new kite.Arc( this._center, this._radius, angle0, angleT, this._anticlockwise ),
         new kite.Arc( this._center, this._radius, angleT, angle1, this._anticlockwise )
@@ -530,7 +530,7 @@ define( require => {
      * @returns {number}
      */
     tAtAngle: function( angle ) {
-      var t = ( this.mapAngle( angle ) - this._startAngle ) / ( this.getActualEndAngle() - this._startAngle );
+      const t = ( this.mapAngle( angle ) - this._startAngle ) / ( this.getActualEndAngle() - this._startAngle );
 
       assert && assert( t >= 0 && t <= 1, 'tAtAngle out of range: ' + t );
 
@@ -569,7 +569,7 @@ define( require => {
      * @returns {Vector2}
      */
     tangentAtAngle: function( angle ) {
-      var normal = Vector2.createPolar( 1, angle );
+      const normal = Vector2.createPolar( 1, angle );
 
       return this._anticlockwise ? normal.perpendicular : normal.perpendicular.negated();
     },
@@ -585,10 +585,10 @@ define( require => {
     containsAngle: function( angle ) {
       // transform the angle into the appropriate coordinate form
       // TODO: check anticlockwise version!
-      var normalizedAngle = this._anticlockwise ? angle - this._endAngle : angle - this._startAngle;
+      const normalizedAngle = this._anticlockwise ? angle - this._endAngle : angle - this._startAngle;
 
       // get the angle between 0 and 2pi
-      var positiveMinAngle = Util.moduloBetweenDown( normalizedAngle, 0, Math.PI * 2 );
+      const positiveMinAngle = Util.moduloBetweenDown( normalizedAngle, 0, Math.PI * 2 );
 
       return positiveMinAngle <= this.angleDifference;
     },
@@ -609,9 +609,9 @@ define( require => {
         // see http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands for more info
         // rx ry x-axis-rotation large-arc-flag sweep-flag x y
 
-        var epsilon = 0.01; // allow some leeway to render things as 'almost circles'
-        var sweepFlag = this._anticlockwise ? '0' : '1';
-        var largeArcFlag;
+        const epsilon = 0.01; // allow some leeway to render things as 'almost circles'
+        const sweepFlag = this._anticlockwise ? '0' : '1';
+        let largeArcFlag;
         if ( this.angleDifference < Math.PI * 2 - epsilon ) {
           largeArcFlag = this.angleDifference < Math.PI ? '0' : '1';
           this._svgPathFragment = 'A ' + kite.svgNumber( this._radius ) + ' ' + kite.svgNumber( this._radius ) + ' 0 ' + largeArcFlag +
@@ -622,14 +622,14 @@ define( require => {
           // since SVG will not be able to draw (or know how to draw) the correct circle if we just have a start and end, we need to split it into two circular arcs
 
           // get the angle that is between and opposite of both of the points
-          var splitOppositeAngle = ( this._startAngle + this._endAngle ) / 2; // this _should_ work for the modular case?
-          var splitPoint = this._center.plus( Vector2.createPolar( this._radius, splitOppositeAngle ) );
+          const splitOppositeAngle = ( this._startAngle + this._endAngle ) / 2; // this _should_ work for the modular case?
+          const splitPoint = this._center.plus( Vector2.createPolar( this._radius, splitOppositeAngle ) );
 
           largeArcFlag = '0'; // since we split it in 2, it's always the small arc
 
-          var firstArc = 'A ' + kite.svgNumber( this._radius ) + ' ' + kite.svgNumber( this._radius ) + ' 0 ' +
+          const firstArc = 'A ' + kite.svgNumber( this._radius ) + ' ' + kite.svgNumber( this._radius ) + ' 0 ' +
                          largeArcFlag + ' ' + sweepFlag + ' ' + kite.svgNumber( splitPoint.x ) + ' ' + kite.svgNumber( splitPoint.y );
-          var secondArc = 'A ' + kite.svgNumber( this._radius ) + ' ' + kite.svgNumber( this._radius ) + ' 0 ' +
+          const secondArc = 'A ' + kite.svgNumber( this._radius ) + ' ' + kite.svgNumber( this._radius ) + ' 0 ' +
                           largeArcFlag + ' ' + sweepFlag + ' ' + kite.svgNumber( this.end.x ) + ' ' + kite.svgNumber( this.end.y );
 
           this._svgPathFragment = firstArc + ' ' + secondArc;
@@ -673,12 +673,12 @@ define( require => {
      * @returns {Array.<number>}
      */
     getInteriorExtremaTs: function() {
-      var self = this;
-      var result = [];
+      const self = this;
+      const result = [];
       _.each( [ 0, Math.PI / 2, Math.PI, 3 * Math.PI / 2 ], function( angle ) {
         if ( self.containsAngle( angle ) ) {
-          var t = self.tAtAngle( angle );
-          var epsilon = 0.0000000001; // TODO: general kite epsilon?, also do 1e-Number format
+          const t = self.tAtAngle( angle );
+          const epsilon = 0.0000000001; // TODO: general kite epsilon?, also do 1e-Number format
           if ( t > epsilon && t < 1 - epsilon ) {
             result.push( t );
           }
@@ -696,35 +696,35 @@ define( require => {
      * @returns {Array.<RayIntersection>} - See Segment.js for details
      */
     intersection: function( ray ) {
-      var result = []; // hits in order
+      const result = []; // hits in order
 
       // left here, if in the future we want to better-handle boundary points
-      var epsilon = 0;
+      const epsilon = 0;
 
       // Run a general circle-intersection routine, then we can test the angles later.
       // Solves for the two solutions t such that ray.position + ray.direction * t is on the circle.
       // Then we check whether the angle at each possible hit point is in our arc.
-      var centerToRay = ray.position.minus( this._center );
-      var tmp = ray.direction.dot( centerToRay );
-      var centerToRayDistSq = centerToRay.magnitudeSquared;
-      var discriminant = 4 * tmp * tmp - 4 * ( centerToRayDistSq - this._radius * this._radius );
+      const centerToRay = ray.position.minus( this._center );
+      const tmp = ray.direction.dot( centerToRay );
+      const centerToRayDistSq = centerToRay.magnitudeSquared;
+      const discriminant = 4 * tmp * tmp - 4 * ( centerToRayDistSq - this._radius * this._radius );
       if ( discriminant < epsilon ) {
         // ray misses circle entirely
         return result;
       }
-      var base = ray.direction.dot( this._center ) - ray.direction.dot( ray.position );
-      var sqt = Math.sqrt( discriminant ) / 2;
-      var ta = base - sqt;
-      var tb = base + sqt;
+      const base = ray.direction.dot( this._center ) - ray.direction.dot( ray.position );
+      const sqt = Math.sqrt( discriminant ) / 2;
+      const ta = base - sqt;
+      const tb = base + sqt;
 
       if ( tb < epsilon ) {
         // circle is behind ray
         return result;
       }
 
-      var pointB = ray.pointAtDistance( tb );
-      var normalB = pointB.minus( this._center ).normalized();
-      var normalBAngle = normalB.angle;
+      const pointB = ray.pointAtDistance( tb );
+      const normalB = pointB.minus( this._center ).normalized();
+      const normalBAngle = normalB.angle;
 
       if ( ta < epsilon ) {
         // we are inside the circle, so only one intersection is possible
@@ -735,9 +735,9 @@ define( require => {
       }
       else {
         // two possible hits (outside circle)
-        var pointA = ray.pointAtDistance( ta );
-        var normalA = pointA.minus( this._center ).normalized();
-        var normalAAngle = normalA.angle;
+        const pointA = ray.pointAtDistance( ta );
+        const normalA = pointA.minus( this._center ).normalized();
+        const normalAAngle = normalA.angle;
 
         if ( this.containsAngle( normalAAngle ) ) {
           // hit from outside
@@ -759,8 +759,8 @@ define( require => {
      * @returns {number}
      */
     windingIntersection: function( ray ) {
-      var wind = 0;
-      var hits = this.intersection( ray );
+      let wind = 0;
+      const hits = this.intersection( ray );
       _.each( hits, function( hit ) {
         wind += hit.wind;
       } );
@@ -788,24 +788,24 @@ define( require => {
      */
     transformed: function( matrix ) {
       // so we can handle reflections in the transform, we do the general case handling for start/end angles
-      var startAngle = matrix.timesVector2( Vector2.createPolar( 1, this._startAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle;
-      var endAngle = matrix.timesVector2( Vector2.createPolar( 1, this._endAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle;
+      const startAngle = matrix.timesVector2( Vector2.createPolar( 1, this._startAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle;
+      let endAngle = matrix.timesVector2( Vector2.createPolar( 1, this._endAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle;
 
       // reverse the 'clockwiseness' if our transform includes a reflection
-      var anticlockwise = matrix.getDeterminant() >= 0 ? this._anticlockwise : !this._anticlockwise;
+      const anticlockwise = matrix.getDeterminant() >= 0 ? this._anticlockwise : !this._anticlockwise;
 
       if ( Math.abs( this._endAngle - this._startAngle ) === Math.PI * 2 ) {
         endAngle = anticlockwise ? startAngle - Math.PI * 2 : startAngle + Math.PI * 2;
       }
 
-      var scaleVector = matrix.getScaleVector();
+      const scaleVector = matrix.getScaleVector();
       if ( scaleVector.x !== scaleVector.y ) {
-        var radiusX = scaleVector.x * this._radius;
-        var radiusY = scaleVector.y * this._radius;
+        const radiusX = scaleVector.x * this._radius;
+        const radiusY = scaleVector.y * this._radius;
         return new kite.EllipticalArc( matrix.timesVector2( this._center ), radiusX, radiusY, 0, startAngle, endAngle, anticlockwise );
       }
       else {
-        var radius = scaleVector.x * this._radius;
+        const radius = scaleVector.x * this._radius;
         return new kite.Arc( matrix.timesVector2( this._center ), radius, startAngle, endAngle, anticlockwise );
       }
     },
@@ -819,8 +819,8 @@ define( require => {
      * @returns {number}
      */
     getSignedAreaFragment: function() {
-      var t0 = this._startAngle;
-      var t1 = this.getActualEndAngle();
+      const t0 = this._startAngle;
+      const t1 = this.getActualEndAngle();
 
       // Derived via Mathematica (curve-area.nb)
       return 0.5 * this._radius * ( this._radius * ( t1 - t0 ) +
@@ -952,12 +952,12 @@ define( require => {
     assert && assert( tStart2 >= 0 && tStart2 <= 1 );
     assert && assert( tEnd2 >= 0 && tEnd2 <= 1 );
 
-    var reversed2 = end2 < start2;
-    var min2 = reversed2 ? end2 : start2;
-    var max2 = reversed2 ? start2 : end2;
+    const reversed2 = end2 < start2;
+    const min2 = reversed2 ? end2 : start2;
+    const max2 = reversed2 ? start2 : end2;
 
-    var overlapMin = min2;
-    var overlapMax = Math.min( end1, max2 );
+    const overlapMin = min2;
+    const overlapMax = Math.min( end1, max2 );
 
     // If there's not a small amount of overlap
     if ( overlapMax < overlapMin + 1e-8 ) {
@@ -993,15 +993,15 @@ define( require => {
     assert && assert( typeof endAngle2 === 'number' && isFinite( endAngle2 ) );
 
     // Remap start of arc 1 to 0, and the end to be positive (sign1 )
-    var end1 = endAngle1 - startAngle1;
-    var sign1 = end1 < 0 ? -1 : 1;
+    let end1 = endAngle1 - startAngle1;
+    const sign1 = end1 < 0 ? -1 : 1;
     end1 *= sign1;
 
     // Remap arc 2 so the start point maps to the [0,2pi) range (and end-point may lie outside that)
-    var start2 = Util.moduloBetweenDown( sign1 * ( startAngle2 - startAngle1 ), 0, TWO_PI );
-    var end2 = sign1 * ( endAngle2 - startAngle2 ) + start2;
+    const start2 = Util.moduloBetweenDown( sign1 * ( startAngle2 - startAngle1 ), 0, TWO_PI );
+    const end2 = sign1 * ( endAngle2 - startAngle2 ) + start2;
 
-    var wrapT;
+    let wrapT;
     if ( end2 < -1e-10 ) {
       wrapT = -start2 / ( end2 - start2 );
       return Arc.getPartialOverlap( end1, start2, 0, 0, wrapT ).concat( Arc.getPartialOverlap( end1, TWO_PI, end2 + TWO_PI, wrapT, 1 ) );
@@ -1050,9 +1050,9 @@ define( require => {
     assert && assert( center2 instanceof Vector2 );
     assert && assert( typeof radius2 === 'number' && isFinite( radius2 ) && radius2 >= 0 );
 
-    var delta = center2.minus( center1 );
-    var d = delta.magnitude;
-    var results = [];
+    const delta = center2.minus( center1 );
+    const d = delta.magnitude;
+    let results = [];
     if ( d < 1e-10 || d > radius1 + radius2 + 1e-10 ) {
       // No intersections
     }
@@ -1062,13 +1062,13 @@ define( require => {
       ];
     }
     else {
-      var xPrime = 0.5 * ( d * d  - radius2 * radius2 + radius1 * radius1 ) / d;
-      var bit = d * d - radius2 * radius2 + radius1 * radius1;
-      var discriminant = 4 * d * d * radius1 * radius1 - bit * bit;
-      var base = center1.blend( center2, xPrime / d );
+      const xPrime = 0.5 * ( d * d  - radius2 * radius2 + radius1 * radius1 ) / d;
+      const bit = d * d - radius2 * radius2 + radius1 * radius1;
+      const discriminant = 4 * d * d * radius1 * radius1 - bit * bit;
+      const base = center1.blend( center2, xPrime / d );
       if ( discriminant >= 1e-10 ) {
-        var yPrime = Math.sqrt( discriminant ) / d / 2;
-        var perpendicular = delta.perpendicular.setMagnitude( yPrime );
+        const yPrime = Math.sqrt( discriminant ) / d / 2;
+        const perpendicular = delta.perpendicular.setMagnitude( yPrime );
         results = [
           base.plus( perpendicular ),
           base.minus( perpendicular )
@@ -1098,13 +1098,13 @@ define( require => {
     assert && assert( a instanceof Arc );
     assert && assert( b instanceof Arc );
 
-    var points = Arc.getCircleIntersectionPoint( a._center, a._radius, b._center, b._radius );
-    var results = [];
+    const points = Arc.getCircleIntersectionPoint( a._center, a._radius, b._center, b._radius );
+    const results = [];
 
-    for ( var i = 0; i < points.length; i++ ) {
-      var point = points[ i ];
-      var angleA = point.minus( a._center ).angle;
-      var angleB = point.minus( b._center ).angle;
+    for ( let i = 0; i < points.length; i++ ) {
+      const point = points[ i ];
+      const angleA = point.minus( a._center ).angle;
+      const angleB = point.minus( b._center ).angle;
 
       if ( a.containsAngle( angleA ) && b.containsAngle( angleB ) ) {
         results.push( new SegmentIntersection( point, a.tAtAngle( angleA ), b.tAtAngle( angleB ) ) );
@@ -1125,24 +1125,24 @@ define( require => {
    * @returns {Segment}
    */
   Arc.createFromPoints = function( startPoint, middlePoint, endPoint ) {
-    var center = Util.circleCenterFromPoints( startPoint, middlePoint, endPoint );
+    const center = Util.circleCenterFromPoints( startPoint, middlePoint, endPoint );
 
     // Close enough
     if ( center === null ) {
       return new Line( startPoint, endPoint );
     }
     else {
-      var startDiff = startPoint.minus( center );
-      var middleDiff = middlePoint.minus( center );
-      var endDiff = endPoint.minus( center );
-      var startAngle = startDiff.angle;
-      var middleAngle = middleDiff.angle;
-      var endAngle = endDiff.angle;
+      const startDiff = startPoint.minus( center );
+      const middleDiff = middlePoint.minus( center );
+      const endDiff = endPoint.minus( center );
+      const startAngle = startDiff.angle;
+      const middleAngle = middleDiff.angle;
+      const endAngle = endDiff.angle;
 
-      var radius = ( startDiff.magnitude + middleDiff.magnitude + endDiff.magnitude ) / 3;
+      const radius = ( startDiff.magnitude + middleDiff.magnitude + endDiff.magnitude ) / 3;
 
       // Try anticlockwise first. TODO: Don't require creation of extra Arcs
-      var arc = new Arc( center, radius, startAngle, endAngle, false );
+      const arc = new Arc( center, radius, startAngle, endAngle, false );
       if ( arc.containsAngle( middleAngle ) ) {
         return arc;
       }

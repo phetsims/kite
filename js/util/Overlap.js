@@ -38,10 +38,10 @@ define( require => {
     this.a = a;
     this.b = b;
 
-    var t0 = 0;
-    var t1 = 1;
-    var qt0 = this.apply( t0 );
-    var qt1 = this.apply( t1 );
+    let t0 = 0;
+    let t1 = 1;
+    let qt0 = this.apply( t0 );
+    let qt1 = this.apply( t1 );
 
     if ( qt0 > 1 ) {
       qt0 = 1;
@@ -126,7 +126,7 @@ define( require => {
      * @returns {Overlap}
      */
     createLinear: function( a0, b0, a1, b1 ) {
-      var factor = ( b1 - b0 ) / ( a1 - a0 );
+      const factor = ( b1 - b0 ) / ( a1 - a0 );
       return new Overlap( factor, b0 - a0 * factor );
     }
   } );

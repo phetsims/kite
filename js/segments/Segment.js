@@ -88,7 +88,7 @@ define( require => {
    * @param {Vector2} x
    * @returns {Vector2}
    */
-  var identityFunction = function identityFunction( x ) { return x; };
+  const identityFunction = function identityFunction( x ) { return x; };
 
   inherit( Object, Segment, {
     /**
@@ -101,7 +101,7 @@ define( require => {
      * @returns {boolean}
      */
     areStrokedBoundsDilated: function() {
-      var epsilon = 0.0000001;
+      const epsilon = 0.0000001;
 
       // If the derivative at the start/end are pointing in a cardinal direction (north/south/east/west), then the
       // endpoints won't trigger non-dilated bounds, and the interior of the curve will not contribute.
@@ -114,7 +114,7 @@ define( require => {
      * @returns {Bounds2}
      */
     getBoundsWithTransform: function( matrix ) {
-      var transformedSegment = this.transformed( matrix );
+      const transformedSegment = this.transformed( matrix );
       return transformedSegment.getBounds();
     },
 
@@ -132,7 +132,7 @@ define( require => {
       assert && assert( t0 >= 0 && t0 <= 1 && t1 >= 0 && t1 <= 1, 'Parametric value out of range' );
       assert && assert( t0 < t1 );
 
-      var segment = this; // eslint-disable-line consistent-this
+      let segment = this; // eslint-disable-line consistent-this
       if ( t1 < 1 ) {
         segment = segment.subdivided( t1 )[ 0 ];
       }
@@ -149,18 +149,18 @@ define( require => {
      */
     subdivisions: function( tList ) {
       // this could be solved by recursion, but we don't plan on the JS engine doing tail-call optimization
-      var right = this; // eslint-disable-line consistent-this
-      var result = [];
-      for ( var i = 0; i < tList.length; i++ ) {
+      let right = this; // eslint-disable-line consistent-this
+      const result = [];
+      for ( let i = 0; i < tList.length; i++ ) {
         // assume binary subdivision
-        var t = tList[ i ];
-        var arr = right.subdivided( t );
+        const t = tList[ i ];
+        const arr = right.subdivided( t );
         assert && assert( arr.length === 2 );
         result.push( arr[ 0 ] );
         right = arr[ 1 ];
 
         // scale up the remaining t values
-        for ( var j = i + 1; j < tList.length; j++ ) {
+        for ( let j = i + 1; j < tList.length; j++ ) {
           tList[ j ] = Util.linear( t, 1, 0, 1, tList[ j ] );
         }
       }
@@ -184,9 +184,9 @@ define( require => {
      * @returns {boolean}
      */
     isSufficientlyFlat: function( distanceEpsilon, curveEpsilon ) {
-      var start = this.start;
-      var middle = this.positionAt( 0.5 );
-      var end = this.end;
+      const start = this.start;
+      const middle = this.positionAt( 0.5 );
+      const end = this.end;
 
       return Segment.isSufficientlyFlat( distanceEpsilon, curveEpsilon, start, middle, end );
     },
@@ -209,7 +209,7 @@ define( require => {
         return this.start.distance( this.end );
       }
       else {
-        var subdivided = this.subdivided( 0.5 );
+        const subdivided = this.subdivided( 0.5 );
         return subdivided[ 0 ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels - 1 ) +
                subdivided[ 1 ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels - 1 );
       }
@@ -236,13 +236,13 @@ define( require => {
     getDashValues: function( lineDash, lineDashOffset, distanceEpsilon, curveEpsilon ) {
       assert && assert( lineDash.length > 0, 'Do not call with an empty dash array' );
 
-      var self = this;
+      const self = this;
 
-      var values = [];
-      var arcLength = 0;
+      const values = [];
+      let arcLength = 0;
 
       // Do the offset modulo the sum, so that we don't have to cycle for a long time
-      var lineDashSum = _.sum( lineDash );
+      const lineDashSum = _.sum( lineDash );
       lineDashOffset = lineDashOffset % lineDashSum;
 
       // Ensure the lineDashOffset is positive
@@ -251,9 +251,9 @@ define( require => {
       }
 
       // The current section of lineDash that we are in
-      var dashIndex = 0;
-      var dashOffset = 0;
-      var isInside = true;
+      let dashIndex = 0;
+      let dashOffset = 0;
+      let isInside = true;
 
       function nextDashIndex() {
         dashIndex = ( dashIndex + 1 ) % lineDash.length;
@@ -272,25 +272,25 @@ define( require => {
         }
       }
 
-      var initiallyInside = isInside;
+      const initiallyInside = isInside;
 
       // Recursively progress through until we have mostly-linear segments.
       ( function recur( t0, t1, p0, p1, depth ) {
         // Compute the t/position at the midpoint t value
-        var tMid = ( t0 + t1 ) / 2;
-        var pMid = self.positionAt( tMid );
+        const tMid = ( t0 + t1 ) / 2;
+        const pMid = self.positionAt( tMid );
 
         // If it's flat enough (or we hit our recursion limit), process it
         if ( depth > 14 || Segment.isSufficientlyFlat( distanceEpsilon, curveEpsilon, p0, pMid, p1 ) ) {
           // Estimate length
-          var totalLength = p0.distance( pMid ) + pMid.distance( p1 );
+          const totalLength = p0.distance( pMid ) + pMid.distance( p1 );
           arcLength += totalLength;
 
           // While we are longer than the remaining amount for the next dash change.
-          var lengthLeft = totalLength;
+          let lengthLeft = totalLength;
           while ( dashOffset + lengthLeft >= lineDash[ dashIndex ] ) {
             // Compute the t (for now, based on the total length for ease)
-            var t = Util.linear( 0, totalLength, t0, t1, totalLength - lengthLeft + lineDash[ dashIndex ] - dashOffset );
+            const t = Util.linear( 0, totalLength, t0, t1, totalLength - lengthLeft + lineDash[ dashIndex ] - dashOffset );
 
             // Record the dash change
             values.push( t );
@@ -339,12 +339,12 @@ define( require => {
       minLevels = minLevels === undefined ? options.minLevels : minLevels;
       maxLevels = maxLevels === undefined ? options.maxLevels : maxLevels;
       segments = segments || [];
-      var pointMap = options.pointMap || identityFunction;
+      const pointMap = options.pointMap || identityFunction;
 
       // points mapped by the (possibly-nonlinear) pointMap.
       start = start || pointMap( this.start );
       end = end || pointMap( this.end );
-      var middle = pointMap( this.positionAt( 0.5 ) );
+      const middle = pointMap( this.positionAt( 0.5 ) );
 
       assert && assert( minLevels <= maxLevels );
       assert && assert( options.distanceEpsilon === null || typeof options.distanceEpsilon === 'number' );
@@ -352,7 +352,7 @@ define( require => {
       assert && assert( !pointMap || typeof pointMap === 'function' );
 
       // i.e. we will have finished = maxLevels === 0 || ( minLevels <= 0 && epsilonConstraints ), just didn't want to one-line it
-      var finished = maxLevels === 0; // bail out once we reach our maximum number of subdivision levels
+      let finished = maxLevels === 0; // bail out once we reach our maximum number of subdivision levels
       if ( !finished && minLevels <= 0 ) { // force subdivision if minLevels hasn't been reached
         finished = this.isSufficientlyFlat(
           options.distanceEpsilon === null ? Number.POSITIVE_INFINITY : options.distanceEpsilon,
@@ -364,7 +364,7 @@ define( require => {
         segments.push( new kite.Line( start, end ) );
       }
       else {
-        var subdividedSegments = this.subdivided( 0.5 );
+        const subdividedSegments = this.subdivided( 0.5 );
         subdividedSegments[ 0 ].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, start, middle );
         subdividedSegments[ 1 ].toPiecewiseLinearSegments( options, minLevels - 1, maxLevels - 1, segments, middle, end );
       }
@@ -387,7 +387,7 @@ define( require => {
         errorPoints: [ 0.25, 0.75 ]
       }, options );
 
-      var segments = [];
+      const segments = [];
       this.toPiecewiseLinearOrArcRecursion( options, options.minLevels, options.maxLevels, segments,
         0, 1,
         this.positionAt( 0 ), this.positionAt( 1 ),
@@ -411,18 +411,18 @@ define( require => {
      * @param {number} endCurvature
      */
     toPiecewiseLinearOrArcRecursion: function( options, minLevels, maxLevels, segments, startT, endT, startPoint, endPoint, startCurvature, endCurvature ) {
-      var middleT = ( startT + endT ) / 2;
-      var middlePoint = this.positionAt( middleT );
-      var middleCurvature = this.curvatureAt( middleT );
+      const middleT = ( startT + endT ) / 2;
+      const middlePoint = this.positionAt( middleT );
+      const middleCurvature = this.curvatureAt( middleT );
 
       if ( maxLevels <= 0 || ( minLevels <= 0 && Math.abs( startCurvature - middleCurvature ) + Math.abs( middleCurvature - endCurvature ) < options.curvatureThreshold * 2 ) ) {
-        var segment = kite.Arc.createFromPoints( startPoint, middlePoint, endPoint );
-        var needsSplit = false;
+        const segment = kite.Arc.createFromPoints( startPoint, middlePoint, endPoint );
+        let needsSplit = false;
         if ( segment instanceof kite.Arc ) {
-          var radiusSquared = segment.radius * segment.radius;
-          for ( var i = 0; i < options.errorPoints.length; i++ ) {
-            var t = options.errorPoints[ i ];
-            var point = this.positionAt( startT * ( 1 - t ) + endT * t );
+          const radiusSquared = segment.radius * segment.radius;
+          for ( let i = 0; i < options.errorPoints.length; i++ ) {
+            const t = options.errorPoints[ i ];
+            const point = this.positionAt( startT * ( 1 - t ) + endT * t );
             if ( Math.abs( point.distanceSquared( segment.center ) - radiusSquared ) > options.errorThreshold ) {
               needsSplit = true;
               break;
@@ -465,16 +465,16 @@ define( require => {
    * @returns {Array.<Object>}
    */
   Segment.closestToPoint = function( segments, point, threshold ) {
-    var thresholdSquared = threshold * threshold;
-    var items = [];
-    var bestList = [];
-    var bestDistanceSquared = Number.POSITIVE_INFINITY;
-    var thresholdOk = false;
+    const thresholdSquared = threshold * threshold;
+    let items = [];
+    let bestList = [];
+    let bestDistanceSquared = Number.POSITIVE_INFINITY;
+    let thresholdOk = false;
 
     _.each( segments, function( segment ) {
       // if we have an explicit computation for this segment, use it
       if ( segment.explicitClosestToPoint ) {
-        var infos = segment.explicitClosestToPoint( point );
+        const infos = segment.explicitClosestToPoint( point );
         _.each( infos, function( info ) {
           if ( info.distanceSquared < bestDistanceSquared ) {
             bestList = [ info ];
@@ -488,16 +488,16 @@ define( require => {
       else {
         // otherwise, we will split based on monotonicity, so we can subdivide
         // separate, so we can map the subdivided segments
-        var ts = [ 0 ].concat( segment.getInteriorExtremaTs() ).concat( [ 1 ] );
-        for ( var i = 0; i < ts.length - 1; i++ ) {
-          var ta = ts[ i ];
-          var tb = ts[ i + 1 ];
-          var pa = segment.positionAt( ta );
-          var pb = segment.positionAt( tb );
-          var bounds = Bounds2.point( pa ).addPoint( pb );
-          var minDistanceSquared = bounds.minimumDistanceToPointSquared( point );
+        const ts = [ 0 ].concat( segment.getInteriorExtremaTs() ).concat( [ 1 ] );
+        for ( let i = 0; i < ts.length - 1; i++ ) {
+          const ta = ts[ i ];
+          const tb = ts[ i + 1 ];
+          const pa = segment.positionAt( ta );
+          const pb = segment.positionAt( tb );
+          const bounds = Bounds2.point( pa ).addPoint( pb );
+          const minDistanceSquared = bounds.minimumDistanceToPointSquared( point );
           if ( minDistanceSquared <= bestDistanceSquared ) {
-            var maxDistanceSquared = bounds.maximumDistanceToPointSquared( point );
+            const maxDistanceSquared = bounds.maximumDistanceToPointSquared( point );
             if ( maxDistanceSquared < bestDistanceSquared ) {
               bestDistanceSquared = maxDistanceSquared;
               bestList = []; // clear it
@@ -518,7 +518,7 @@ define( require => {
     } );
 
     while ( items.length && !thresholdOk ) {
-      var curItems = items;
+      const curItems = items;
       items = [];
 
       // whether all of the segments processed are shorter than the threshold
@@ -531,14 +531,14 @@ define( require => {
         if ( thresholdOk && item.pa.distanceSquared( item.pb ) > thresholdSquared ) {
           thresholdOk = false;
         }
-        var tmid = ( item.ta + item.tb ) / 2;
-        var pmid = item.segment.positionAt( tmid );
-        var boundsA = Bounds2.point( item.pa ).addPoint( pmid );
-        var boundsB = Bounds2.point( item.pb ).addPoint( pmid );
-        var minA = boundsA.minimumDistanceToPointSquared( point );
-        var minB = boundsB.minimumDistanceToPointSquared( point );
+        const tmid = ( item.ta + item.tb ) / 2;
+        const pmid = item.segment.positionAt( tmid );
+        const boundsA = Bounds2.point( item.pa ).addPoint( pmid );
+        const boundsB = Bounds2.point( item.pb ).addPoint( pmid );
+        const minA = boundsA.minimumDistanceToPointSquared( point );
+        const minB = boundsB.minimumDistanceToPointSquared( point );
         if ( minA <= bestDistanceSquared ) {
-          var maxA = boundsA.maximumDistanceToPointSquared( point );
+          const maxA = boundsA.maximumDistanceToPointSquared( point );
           if ( maxA < bestDistanceSquared ) {
             bestDistanceSquared = maxA;
             bestList = []; // clear it
@@ -555,7 +555,7 @@ define( require => {
           } );
         }
         if ( minB <= bestDistanceSquared ) {
-          var maxB = boundsB.maximumDistanceToPointSquared( point );
+          const maxB = boundsB.maximumDistanceToPointSquared( point );
           if ( maxB < bestDistanceSquared ) {
             bestDistanceSquared = maxB;
             bestList = []; // clear it
@@ -576,8 +576,8 @@ define( require => {
 
     // if there are any closest regions, they are within the threshold, so we will add them all
     _.each( items, function( item ) {
-      var t = ( item.ta + item.tb ) / 2;
-      var closestPoint = item.segment.positionAt( t );
+      const t = ( item.ta + item.tb ) / 2;
+      const closestPoint = item.segment.positionAt( t );
       bestList.push( {
         segment: item.segment,
         t: t,
@@ -619,11 +619,11 @@ define( require => {
       return Segment.polynomialGetOverlapQuadratic( p0s, p1s, p2s, q0s, q1s, q2s );
     }
 
-    var a = Util.sign( p3s / q3s ) * Math.pow( Math.abs( p3s / q3s ), 1 / 3 );
+    const a = Util.sign( p3s / q3s ) * Math.pow( Math.abs( p3s / q3s ), 1 / 3 );
     if ( a === 0 ) {
       return null; // If there would be solutions, then q3s would have been non-zero
     }
-    var b = ( p2s - a * a * q2s ) / ( 3 * a * a * q3s );
+    const b = ( p2s - a * a * q2s ) / ( 3 * a * a * q3s );
     return {
       a: a,
       b: b
@@ -657,17 +657,17 @@ define( require => {
       return Segment.polynomialGetOverlapLinear( p0s, p1s, q0s, q1s );
     }
 
-    var discr = p2s / q2s;
+    const discr = p2s / q2s;
     if ( discr < 0 ) {
       return null; // not possible to have a solution with an imaginary a
     }
 
-    var a = Math.sqrt( p2s / q2s );
+    const a = Math.sqrt( p2s / q2s );
     if ( a === 0 ) {
       return null; // If there would be solutions, then q2s would have been non-zero
     }
 
-    var b = ( p1s - a * q1s ) / ( 2 * a * q2s );
+    const b = ( p1s - a * q1s ) / ( 2 * a * q2s );
     return {
       a: a,
       b: b
@@ -703,12 +703,12 @@ define( require => {
       }
     }
 
-    var a = p1s / q1s;
+    const a = p1s / q1s;
     if ( a === 0 ) {
       return null;
     }
 
-    var b = ( p0s - q0s ) / q1s;
+    const b = ( p0s - q0s ) / q1s;
     return {
       a: a,
       b: b

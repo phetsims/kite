@@ -18,9 +18,9 @@ define( require => {
   const Util = require( 'DOT/Util' );
 
   // constants
-  var lineLineIntersection = Util.lineLineIntersection;
+  const lineLineIntersection = Util.lineLineIntersection;
 
-  var DEFAULT_OPTIONS = {
+  const DEFAULT_OPTIONS = {
     lineWidth: 1,
     lineCap: 'butt',
     lineJoin: 'miter',
@@ -93,7 +93,7 @@ define( require => {
      * @returns {boolean}
      */
     equals: function( other ) {
-      var typical = this.lineWidth === other.lineWidth &&
+      const typical = this.lineWidth === other.lineWidth &&
                     this.lineCap === other.lineCap &&
                     this.lineJoin === other.lineJoin &&
                     this.miterLimit === other.miterLimit &&
@@ -103,7 +103,7 @@ define( require => {
       }
 
       if ( this.lineDash.length === other.lineDash.length ) {
-        for ( var i = 0; i < this.lineDash.length; i++ ) {
+        for ( let i = 0; i < this.lineDash.length; i++ ) {
           if ( this.lineDash[ i ] !== other.lineDash[ i ] ) {
             return false;
           }
@@ -134,10 +134,10 @@ define( require => {
       toTangent = toTangent.normalized();
 
       // where our join path starts and ends
-      var fromPoint = center.plus( fromTangent.perpendicular.negated().times( this.lineWidth / 2 ) );
-      var toPoint = center.plus( toTangent.perpendicular.negated().times( this.lineWidth / 2 ) );
+      const fromPoint = center.plus( fromTangent.perpendicular.negated().times( this.lineWidth / 2 ) );
+      const toPoint = center.plus( toTangent.perpendicular.negated().times( this.lineWidth / 2 ) );
 
-      var bevel = ( fromPoint.equals( toPoint ) ? [] : [ new Line( fromPoint, toPoint ) ] );
+      const bevel = ( fromPoint.equals( toPoint ) ? [] : [ new Line( fromPoint, toPoint ) ] );
 
       // only insert a join on the non-acute-angle side
       // epsilon present for https://github.com/phetsims/kite/issues/73, where we don't want to join barely-existing
@@ -152,7 +152,7 @@ define( require => {
             var theta = fromTangent.angleBetween( toTangent.negated() );
             if ( 1 / Math.sin( theta / 2 ) <= this.miterLimit && theta < Math.PI - 0.00001 ) {
               // draw the miter
-              var miterPoint = lineLineIntersection( fromPoint, fromPoint.plus( fromTangent ), toPoint, toPoint.plus( toTangent ) );
+              const miterPoint = lineLineIntersection( fromPoint, fromPoint.plus( fromTangent ), toPoint, toPoint.plus( toTangent ) );
               return [
                 new Line( fromPoint, miterPoint ),
                 new Line( miterPoint, toPoint )
@@ -201,8 +201,8 @@ define( require => {
     cap: function( center, tangent ) {
       tangent = tangent.normalized();
 
-      var fromPoint = center.plus( tangent.perpendicular.times( -this.lineWidth / 2 ) );
-      var toPoint = center.plus( tangent.perpendicular.times( this.lineWidth / 2 ) );
+      const fromPoint = center.plus( tangent.perpendicular.times( -this.lineWidth / 2 ) );
+      const toPoint = center.plus( tangent.perpendicular.times( this.lineWidth / 2 ) );
 
       switch( this.lineCap ) {
         case 'butt':

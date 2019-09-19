@@ -20,7 +20,7 @@ define( require => {
   const Util = require( 'DOT/Util' );
   const Vector2 = require( 'DOT/Vector2' );
 
-  var scratchVector2 = new Vector2( 0, 0 );
+  const scratchVector2 = new Vector2( 0, 0 );
 
   /**
    * @constructor
@@ -182,7 +182,7 @@ define( require => {
         return [ this ];
       }
 
-      var pt = this.positionAt( t );
+      const pt = this.positionAt( t );
       return [
         new kite.Line( this._start, pt ),
         new kite.Line( pt, this._end )
@@ -253,7 +253,7 @@ define( require => {
      */
     getBoundsWithTransform: function( matrix ) {
       // uses mutable calls
-      var bounds = Bounds2.NOTHING.copy();
+      const bounds = Bounds2.NOTHING.copy();
       bounds.addPoint( matrix.multiplyVector2( scratchVector2.set( this._start ) ) );
       bounds.addPoint( matrix.multiplyVector2( scratchVector2.set( this._end ) ) );
       return bounds;
@@ -303,7 +303,7 @@ define( require => {
      * @returns {Array.<Line>}
      */
     strokeLeft: function( lineWidth ) {
-      var offset = this.getEndTangent().perpendicular.negated().times( lineWidth / 2 );
+      const offset = this.getEndTangent().perpendicular.negated().times( lineWidth / 2 );
       return [ new kite.Line( this._start.plus( offset ), this._end.plus( offset ) ) ];
     },
     /**
@@ -312,7 +312,7 @@ define( require => {
      * @returns {Array.<Line>}
      */
     strokeRight: function( lineWidth ) {
-      var offset = this.getStartTangent().perpendicular.times( lineWidth / 2 );
+      const offset = this.getStartTangent().perpendicular.times( lineWidth / 2 );
       return [ new kite.Line( this._end.plus( offset ), this._start.plus( offset ) ) ];
     },
 
@@ -337,18 +337,18 @@ define( require => {
       // We solve for the parametric line-line intersection, and then ensure the parameters are within both
       // the line segment and forwards from the ray.
 
-      var result = [];
+      const result = [];
 
-      var start = this._start;
-      var end = this._end;
+      const start = this._start;
+      const end = this._end;
 
-      var diff = end.minus( start );
+      const diff = end.minus( start );
 
       if ( diff.magnitudeSquared === 0 ) {
         return result;
       }
 
-      var denom = ray.direction.y * diff.x - ray.direction.x * diff.y;
+      const denom = ray.direction.y * diff.x - ray.direction.x * diff.y;
 
       // If denominator is 0, the lines are parallel or coincident
       if ( denom === 0 ) {
@@ -356,7 +356,7 @@ define( require => {
       }
 
       // linear parameter where start (0) to end (1)
-      var t = ( ray.direction.x * ( start.y - ray.position.y ) - ray.direction.y * ( start.x - ray.position.x ) ) / denom;
+      const t = ( ray.direction.x * ( start.y - ray.position.y ) - ray.direction.y * ( start.x - ray.position.x ) ) / denom;
 
       // check that the intersection point is between the line segment's endpoints
       if ( t < 0 || t >= 1 ) {
@@ -364,7 +364,7 @@ define( require => {
       }
 
       // linear parameter where ray.position (0) to ray.position+ray.direction (1)
-      var s = ( diff.x * ( start.y - ray.position.y ) - diff.y * ( start.x - ray.position.x ) ) / denom;
+      const s = ( diff.x * ( start.y - ray.position.y ) - diff.y * ( start.x - ray.position.x ) ) / denom;
 
       // bail if it is behind our ray
       if ( s < 0.00000001 ) {
@@ -372,11 +372,11 @@ define( require => {
       }
 
       // return the proper winding direction depending on what way our line intersection is "pointed"
-      var perp = diff.perpendicular;
+      const perp = diff.perpendicular;
 
-      var intersectionPoint = start.plus( diff.times( t ) );
-      var normal = ( perp.dot( ray.direction ) > 0 ? perp.negated() : perp ).normalized();
-      var wind = ray.direction.perpendicular.dot( diff ) < 0 ? 1 : -1;
+      const intersectionPoint = start.plus( diff.times( t ) );
+      const normal = ( perp.dot( ray.direction ) > 0 ? perp.negated() : perp ).normalized();
+      const wind = ray.direction.perpendicular.dot( diff ) < 0 ? 1 : -1;
       result.push( new RayIntersection( s, intersectionPoint, normal, wind, t ) );
       return result;
     },
@@ -389,7 +389,7 @@ define( require => {
      * @returns {number}
      */
     windingIntersection: function( ray ) {
-      var hits = this.intersection( ray );
+      const hits = this.intersection( ray );
       if ( hits.length ) {
         return hits[ 0 ].wind;
       }
@@ -421,10 +421,10 @@ define( require => {
      * @returns {Array.<Object>}
      */
     explicitClosestToPoint: function( point ) {
-      var diff = this._end.minus( this._start );
-      var t = point.minus( this._start ).dot( diff ) / diff.magnitudeSquared;
+      const diff = this._end.minus( this._start );
+      let t = point.minus( this._start ).dot( diff ) / diff.magnitudeSquared;
       t = Util.clamp( t, 0, 1 );
-      var closestPoint = this.positionAt( t );
+      const closestPoint = this.positionAt( t );
       return [
         {
           segment: this,
@@ -570,26 +570,26 @@ define( require => {
      * And we use the upper-left section of (at+b) adjustment matrix relevant for the line.
      */
 
-    var noOverlap = [];
+    const noOverlap = [];
 
     // Efficiently compute the multiplication of the bezier matrix:
-    var p0x = line1._start.x;
-    var p1x = -1 * line1._start.x + line1._end.x;
-    var p0y = line1._start.y;
-    var p1y = -1 * line1._start.y + line1._end.y;
-    var q0x = line2._start.x;
-    var q1x = -1 * line2._start.x + line2._end.x;
-    var q0y = line2._start.y;
-    var q1y = -1 * line2._start.y + line2._end.y;
+    const p0x = line1._start.x;
+    const p1x = -1 * line1._start.x + line1._end.x;
+    const p0y = line1._start.y;
+    const p1y = -1 * line1._start.y + line1._end.y;
+    const q0x = line2._start.x;
+    const q1x = -1 * line2._start.x + line2._end.x;
+    const q0y = line2._start.y;
+    const q1y = -1 * line2._start.y + line2._end.y;
 
     // Determine the candidate overlap (preferring the dimension with the largest variation)
-    var xSpread = Math.abs( Math.max( line1._start.x, line1._end.x, line2._start.x, line2._end.x ) -
+    const xSpread = Math.abs( Math.max( line1._start.x, line1._end.x, line2._start.x, line2._end.x ) -
                             Math.min( line1._start.x, line1._end.x, line2._start.x, line2._end.x ) );
-    var ySpread = Math.abs( Math.max( line1._start.y, line1._end.y, line2._start.y, line2._end.y ) -
+    const ySpread = Math.abs( Math.max( line1._start.y, line1._end.y, line2._start.y, line2._end.y ) -
                             Math.min( line1._start.y, line1._end.y, line2._start.y, line2._end.y ) );
-    var xOverlap = Segment.polynomialGetOverlapLinear( p0x, p1x, q0x, q1x );
-    var yOverlap = Segment.polynomialGetOverlapLinear( p0y, p1y, q0y, q1y );
-    var overlap;
+    const xOverlap = Segment.polynomialGetOverlapLinear( p0x, p1x, q0x, q1x );
+    const yOverlap = Segment.polynomialGetOverlapLinear( p0y, p1y, q0y, q1y );
+    let overlap;
     if ( xSpread > ySpread ) {
       overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
     }
@@ -600,14 +600,14 @@ define( require => {
       return noOverlap; // No way to pin down an overlap
     }
 
-    var a = overlap.a;
-    var b = overlap.b;
+    const a = overlap.a;
+    const b = overlap.b;
 
     // Compute linear coefficients for the difference between p(t) and q(a*t+b)
-    var d0x = q0x + b * q1x - p0x;
-    var d1x = a * q1x - p1x;
-    var d0y = q0y + b * q1y - p0y;
-    var d1y = a * q1y - p1y;
+    const d0x = q0x + b * q1x - p0x;
+    const d1x = a * q1x - p1x;
+    const d0y = q0y + b * q1y - p0y;
+    const d1y = a * q1y - p1y;
 
     // Examine the single-coordinate distances between the "overlaps" at each extreme T value. If the distance is larger
     // than our epsilon, then the "overlap" would not be valid.
@@ -620,8 +620,8 @@ define( require => {
       return noOverlap;
     }
 
-    var qt0 = b;
-    var qt1 = a + b;
+    const qt0 = b;
+    const qt1 = a + b;
 
     // TODO: do we want an epsilon in here to be permissive?
     if ( ( qt0 > 1 && qt1 > 1 ) || ( qt0 < 0 && qt1 < 0 ) ) {
@@ -642,14 +642,14 @@ define( require => {
     assert && assert( a instanceof Line );
     assert && assert( b instanceof Line );
 
-    var lineSegmentIntersection = Util.lineSegmentIntersection(
+    const lineSegmentIntersection = Util.lineSegmentIntersection(
       a.start.x, a.start.y, a.end.x, a.end.y,
       b.start.x, b.start.y, b.end.x, b.end.y
     );
 
     if ( lineSegmentIntersection !== null ) {
-      var aT = a.explicitClosestToPoint( lineSegmentIntersection )[ 0 ].t;
-      var bT = b.explicitClosestToPoint( lineSegmentIntersection )[ 0 ].t;
+      const aT = a.explicitClosestToPoint( lineSegmentIntersection )[ 0 ].t;
+      const bT = b.explicitClosestToPoint( lineSegmentIntersection )[ 0 ].t;
       return [ new SegmentIntersection( lineSegmentIntersection, aT, bT ) ];
     }
     else {
@@ -672,17 +672,17 @@ define( require => {
     assert && assert( other instanceof Segment );
 
     // Set up a ray
-    var delta = line.end.minus( line.start );
-    var length = delta.magnitude;
-    var ray = new Ray2( line.start, delta.normalize() );
+    const delta = line.end.minus( line.start );
+    const length = delta.magnitude;
+    const ray = new Ray2( line.start, delta.normalize() );
 
     // Find the other segment's intersections with the ray
-    var rayIntersections = other.intersection( ray );
+    const rayIntersections = other.intersection( ray );
 
-    var results = [];
-    for ( var i = 0; i < rayIntersections.length; i++ ) {
-      var rayIntersection = rayIntersections[ i ];
-      var lineT = rayIntersection.distance / length;
+    const results = [];
+    for ( let i = 0; i < rayIntersections.length; i++ ) {
+      const rayIntersection = rayIntersections[ i ];
+      const lineT = rayIntersection.distance / length;
 
       // Exclude intersections that are outside of our line segment (or right on the boundary)
       if ( lineT > 1e-8 && lineT < 1 - 1e-8 ) {

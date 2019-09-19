@@ -13,30 +13,30 @@ module.exports = function( grunt ) {
   grunt.registerTask( 'generate-svgPath-parser',
     'Uses js/parser/svgPath.pegjs to generate js/parser/svgPath.js',
     function() {
-      var pegInput = fs.readFileSync( 'js/parser/svgPath.pegjs', 'utf8' );
-      var source = pegjs.buildParser( pegInput ).toSource();
+      const pegInput = fs.readFileSync( 'js/parser/svgPath.pegjs', 'utf8' );
+      let source = pegjs.buildParser( pegInput ).toSource();
 
       // replace fixed strings at the start/end with our prefix/suffix, so that it will work nicely with require.js
-      var prefix = '/' + '*\n' +
+      const prefix = '/' + '*\n' +
                    ' * NOTE: Generated from svgPath.pegjs using PEG.js, with added kite namespace and require.js compatibility.\n' +
                    ' * See svgPath.pegjs for more documentation, or run \'grunt generate-svgPath-parser\' to regenerate.\n' +
                    ' *' + '/\n' +
                    '\n' +
                    'define( require => {\n' +
                    '  const kite = require( \'KITE/kite\' );\n';
-      var suffix = '  kite.register( \'svgPath\', result );\n' +
+      const suffix = '  kite.register( \'svgPath\', result );\n' +
                    '  return kite.svgPath;\n' +
                    '} );\n';
-      var toStripFromStart = '(function(){';
-      var toStrimFromEnd = '  return result;\n})()';
+      const toStripFromStart = '(function(){';
+      const toStrimFromEnd = '  return result;\n})()';
 
-      var startIndex = source.indexOf( toStripFromStart );
+      const startIndex = source.indexOf( toStripFromStart );
       if ( startIndex !== 0 ) {
         throw new Error( 'Could not find string to strip from the beginning of the PEG.js output' );
       }
       source = prefix + source.substring( startIndex + toStripFromStart.length );
 
-      var endIndex = source.lastIndexOf( toStrimFromEnd );
+      const endIndex = source.lastIndexOf( toStrimFromEnd );
       if ( endIndex === -1 ) {
         throw new Error( 'Could not find string to strip from the end of the PEG.js output' );
       }

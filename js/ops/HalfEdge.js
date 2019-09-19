@@ -97,12 +97,12 @@ define( require => {
      */
     getNext: function( filter ) {
       // Starting at 1, forever incrementing (we will bail out with normal conditions)
-      for ( var i = 1;; i++ ) {
-        var index = this.endVertex.incidentHalfEdges.indexOf( this ) - i;
+      for ( let i = 1;; i++ ) {
+        let index = this.endVertex.incidentHalfEdges.indexOf( this ) - i;
         if ( index < 0 ) {
           index += this.endVertex.incidentHalfEdges.length;
         }
-        var halfEdge = this.endVertex.incidentHalfEdges[ index ].getReversed();
+        const halfEdge = this.endVertex.incidentHalfEdges[ index ].getReversed();
         if ( filter && !filter( halfEdge.edge ) ) {
           continue;
         }

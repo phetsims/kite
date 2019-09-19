@@ -18,7 +18,7 @@ define( require => {
   const Poolable = require( 'PHET_CORE/Poolable' );
   const Vector2 = require( 'DOT/Vector2' );
 
-  var globaId = 0;
+  let globaId = 0;
 
   /**
    * @public (kite-internal)
@@ -85,17 +85,17 @@ define( require => {
      * @public
      */
     sortEdges: function() {
-      var vectors = []; // x coordinate will be "angle", y coordinate will be curvature
+      const vectors = []; // x coordinate will be "angle", y coordinate will be curvature
       for ( var i = 0; i < this.incidentHalfEdges.length; i++ ) {
-        var halfEdge = this.incidentHalfEdges[ i ];
+        const halfEdge = this.incidentHalfEdges[ i ];
         // NOTE: If it is expensive to precompute curvature, we could save it until edgeComparison needs it.
         vectors.push( halfEdge.sortVector.setXY( halfEdge.getEndTangent().angle, halfEdge.getEndCurvature() ) );
       }
 
       // "Rotate" the angles until we are sure that our "cut" (where -pi goes to pi around the circle) is at a place
       // not near any angle. This should prevent ambiguity in sorting (which can lead to bugs in the order)
-      var cutoff = -Math.PI + 1e-4;
-      var atCutAngle = false;
+      const cutoff = -Math.PI + 1e-4;
+      let atCutAngle = false;
       while ( !atCutAngle ) {
         atCutAngle = true;
         for ( i = 0; i < vectors.length; i++ ) {
@@ -105,7 +105,7 @@ define( require => {
         }
         if ( !atCutAngle ) {
           for ( i = 0; i < vectors.length; i++ ) {
-            var vector = vectors[ i ];
+            const vector = vectors[ i ];
             vector.x -= 1.62594024516; // Definitely not choosing random digits by typing! (shouldn't matter)
             if ( vector.x < -Math.PI - 1e-4 ) {
               vector.x += Math.PI * 2;
@@ -126,8 +126,8 @@ define( require => {
      * @returns {number}
      */
     edgeComparison: function( halfEdgeA, halfEdgeB ) {
-      var angleA = halfEdgeA.sortVector.x;
-      var angleB = halfEdgeB.sortVector.x;
+      const angleA = halfEdgeA.sortVector.x;
+      const angleB = halfEdgeB.sortVector.x;
 
       // Don't allow angleA=-pi, angleB=pi (they are equivalent)
       // If our angle is very small, we need to accept it still if we have two lines (since they will have the same
@@ -137,8 +137,8 @@ define( require => {
         return angleA < angleB ? -1 : 1;
       }
       else {
-        var curvatureA = halfEdgeA.sortVector.y;
-        var curvatureB = halfEdgeB.sortVector.y;
+        const curvatureA = halfEdgeA.sortVector.y;
+        const curvatureB = halfEdgeB.sortVector.y;
         if ( Math.abs( curvatureA - curvatureB ) > 1e-5 ) {
           return curvatureA < curvatureB ? 1 : -1;
         }

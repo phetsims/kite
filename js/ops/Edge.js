@@ -17,7 +17,7 @@ define( require => {
   const Segment = require( 'KITE/segments/Segment' );
   const Vertex = require( 'KITE/ops/Vertex' );
 
-  var globaId = 0;
+  let globaId = 0;
 
   /**
    * @public (kite-internal)

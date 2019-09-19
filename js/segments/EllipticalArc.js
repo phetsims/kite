@@ -26,7 +26,7 @@ define( require => {
   const Vector2 = require( 'DOT/Vector2' );
 
   // constants
-  var toDegrees = Util.toDegrees;
+  const toDegrees = Util.toDegrees;
 
   /**
    * @constructor
@@ -330,10 +330,10 @@ define( require => {
       assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
 
       // see http://mathworld.wolfram.com/Ellipse.html (59)
-      var angle = this.angleAt( t );
-      var aq = this._radiusX * Math.sin( angle );
-      var bq = this._radiusY * Math.cos( angle );
-      var denominator = Math.pow( bq * bq + aq * aq, 3 / 2 );
+      const angle = this.angleAt( t );
+      const aq = this._radiusX * Math.sin( angle );
+      const bq = this._radiusY * Math.cos( angle );
+      const denominator = Math.pow( bq * bq + aq * aq, 3 / 2 );
       return ( this._anticlockwise ? -1 : 1 ) * this._radiusX * this._radiusY / denominator;
     },
 
@@ -357,9 +357,9 @@ define( require => {
       }
 
       // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles
-      var angle0 = this.angleAt( 0 );
-      var angleT = this.angleAt( t );
-      var angle1 = this.angleAt( 1 );
+      const angle0 = this.angleAt( 0 );
+      const angleT = this.angleAt( t );
+      const angle1 = this.angleAt( 1 );
       return [
         new kite.EllipticalArc( this._center, this._radiusX, this._radiusY, this._rotation, angle0, angleT, this._anticlockwise ),
         new kite.EllipticalArc( this._center, this._radiusX, this._radiusY, this._rotation, angleT, angle1, this._anticlockwise )
@@ -421,7 +421,7 @@ define( require => {
         this._endAngle -= Math.PI / 2;
 
         // swap radiusX and radiusY
-        var tmpR = this._radiusX;
+        const tmpR = this._radiusX;
         this._radiusX = this._radiusY;
         this._radiusY = tmpR;
       }
@@ -594,8 +594,8 @@ define( require => {
         if ( this._startAngle !== this._endAngle ) {
           // solve the mapping from the unit circle, find locations where a coordinate of the gradient is zero.
           // we find one extrema point for both x and y, since the other two are just rotated by pi from them.
-          var xAngle = Math.atan( -( this._radiusY / this._radiusX ) * Math.tan( this._rotation ) );
-          var yAngle = Math.atan( ( this._radiusY / this._radiusX ) / Math.tan( this._rotation ) );
+          const xAngle = Math.atan( -( this._radiusY / this._radiusX ) * Math.tan( this._rotation ) );
+          const yAngle = Math.atan( ( this._radiusY / this._radiusX ) / Math.tan( this._rotation ) );
 
           // check all of the extrema points
           this.possibleExtremaAngles = [
@@ -625,8 +625,8 @@ define( require => {
       }
       else if ( this._radiusX === this._radiusY ) {
         // reduce to an Arc
-        var startAngle = this._startAngle - this._rotation;
-        var endAngle = this._endAngle - this._rotation;
+        const startAngle = this._startAngle - this._rotation;
+        let endAngle = this._endAngle - this._rotation;
 
         // preserve full circles
         if ( Math.abs( this._endAngle - this._startAngle ) === Math.PI * 2 ) {
@@ -720,7 +720,7 @@ define( require => {
      * @returns {Vector2}
      */
     tangentAtAngle: function( angle ) {
-      var normal = this.getUnitTransform().transformNormal2( Vector2.createPolar( 1, angle ) );
+      const normal = this.getUnitTransform().transformNormal2( Vector2.createPolar( 1, angle ) );
 
       return this._anticlockwise ? normal.perpendicular : normal.perpendicular.negated();
     },
@@ -736,16 +736,16 @@ define( require => {
      */
     offsetTo: function( r, reverse ) {
       // how many segments to create (possibly make this more adaptive?)
-      var quantity = 32;
+      const quantity = 32;
 
-      var points = [];
-      var result = [];
-      for ( var i = 0; i < quantity; i++ ) {
-        var ratio = i / ( quantity - 1 );
+      const points = [];
+      const result = [];
+      for ( let i = 0; i < quantity; i++ ) {
+        let ratio = i / ( quantity - 1 );
         if ( reverse ) {
           ratio = 1 - ratio;
         }
-        var angle = this.angleAt( ratio );
+        const angle = this.angleAt( ratio );
 
         points.push( this.positionAtAngle( angle ).plus( this.tangentAtAngle( angle ).perpendicular.normalized().times( r ) ) );
         if ( i > 0 ) {
@@ -771,10 +771,10 @@ define( require => {
       if ( !this._svgPathFragment ) {
         // see http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands for more info
         // rx ry x-axis-rotation large-arc-flag sweep-flag x y
-        var epsilon = 0.01; // allow some leeway to render things as 'almost circles'
-        var sweepFlag = this._anticlockwise ? '0' : '1';
-        var largeArcFlag;
-        var degreesRotation = toDegrees( this._rotation ); // bleh, degrees?
+        const epsilon = 0.01; // allow some leeway to render things as 'almost circles'
+        const sweepFlag = this._anticlockwise ? '0' : '1';
+        let largeArcFlag;
+        const degreesRotation = toDegrees( this._rotation ); // bleh, degrees?
         if ( this.getAngleDifference() < Math.PI * 2 - epsilon ) {
           largeArcFlag = this.getAngleDifference() < Math.PI ? '0' : '1';
           this._svgPathFragment = 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' + degreesRotation +
@@ -785,15 +785,15 @@ define( require => {
           // since SVG will not be able to draw (or know how to draw) the correct circle if we just have a start and end, we need to split it into two circular arcs
 
           // get the angle that is between and opposite of both of the points
-          var splitOppositeAngle = ( this._startAngle + this._endAngle ) / 2; // this _should_ work for the modular case?
-          var splitPoint = this.positionAtAngle( splitOppositeAngle );
+          const splitOppositeAngle = ( this._startAngle + this._endAngle ) / 2; // this _should_ work for the modular case?
+          const splitPoint = this.positionAtAngle( splitOppositeAngle );
 
           largeArcFlag = '0'; // since we split it in 2, it's always the small arc
 
-          var firstArc = 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' +
+          const firstArc = 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' +
                          degreesRotation + ' ' + largeArcFlag + ' ' + sweepFlag + ' ' +
                          kite.svgNumber( splitPoint.x ) + ' ' + kite.svgNumber( splitPoint.y );
-          var secondArc = 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' +
+          const secondArc = 'A ' + kite.svgNumber( this._radiusX ) + ' ' + kite.svgNumber( this._radiusY ) + ' ' +
                           degreesRotation + ' ' + largeArcFlag + ' ' + sweepFlag + ' ' +
                           kite.svgNumber( this.getEnd().x ) + ' ' + kite.svgNumber( this.getEnd().y );
 
@@ -838,12 +838,12 @@ define( require => {
      * @returns {Array.<number>}
      */
     getInteriorExtremaTs: function() {
-      var self = this;
-      var result = [];
+      const self = this;
+      const result = [];
       _.each( this.possibleExtremaAngles, function( angle ) {
         if ( self.unitArcSegment.containsAngle( angle ) ) {
-          var t = self.tAtAngle( angle );
-          var epsilon = 0.0000000001; // TODO: general kite epsilon?
+          const t = self.tAtAngle( angle );
+          const epsilon = 0.0000000001; // TODO: general kite epsilon?
           if ( t > epsilon && t < 1 - epsilon ) {
             result.push( t );
           }
@@ -862,14 +862,14 @@ define( require => {
      */
     intersection: function( ray ) {
       // be lazy. transform it into the space of a non-elliptical arc.
-      var unitTransform = this.getUnitTransform();
-      var rayInUnitCircleSpace = unitTransform.inverseRay2( ray );
-      var hits = this.getUnitArcSegment().intersection( rayInUnitCircleSpace );
+      const unitTransform = this.getUnitTransform();
+      const rayInUnitCircleSpace = unitTransform.inverseRay2( ray );
+      const hits = this.getUnitArcSegment().intersection( rayInUnitCircleSpace );
 
       return _.map( hits, function( hit ) {
-        var transformedPoint = unitTransform.transformPosition2( hit.point );
-        var distance = ray.position.distance( transformedPoint );
-        var normal = unitTransform.inverseNormal2( hit.normal );
+        const transformedPoint = unitTransform.transformPosition2( hit.point );
+        const distance = ray.position.distance( transformedPoint );
+        const normal = unitTransform.inverseNormal2( hit.normal );
         return new RayIntersection( distance, transformedPoint, normal, hit.wind, hit.t );
       } );
     },
@@ -883,7 +883,7 @@ define( require => {
      */
     windingIntersection: function( ray ) {
       // be lazy. transform it into the space of a non-elliptical arc.
-      var rayInUnitCircleSpace = this.getUnitTransform().inverseRay2( ray );
+      const rayInUnitCircleSpace = this.getUnitTransform().inverseRay2( ray );
       return this.getUnitArcSegment().windingIntersection( rayInUnitCircleSpace );
     },
 
@@ -913,19 +913,19 @@ define( require => {
      * @returns {EllipticalArc}
      */
     transformed: function( matrix ) {
-      var transformedSemiMajorAxis = matrix.timesVector2( Vector2.createPolar( this._radiusX, this._rotation ) ).minus( matrix.timesVector2( Vector2.ZERO ) );
-      var transformedSemiMinorAxis = matrix.timesVector2( Vector2.createPolar( this._radiusY, this._rotation + Math.PI / 2 ) ).minus( matrix.timesVector2( Vector2.ZERO ) );
-      var rotation = transformedSemiMajorAxis.angle;
-      var radiusX = transformedSemiMajorAxis.magnitude;
-      var radiusY = transformedSemiMinorAxis.magnitude;
+      const transformedSemiMajorAxis = matrix.timesVector2( Vector2.createPolar( this._radiusX, this._rotation ) ).minus( matrix.timesVector2( Vector2.ZERO ) );
+      const transformedSemiMinorAxis = matrix.timesVector2( Vector2.createPolar( this._radiusY, this._rotation + Math.PI / 2 ) ).minus( matrix.timesVector2( Vector2.ZERO ) );
+      const rotation = transformedSemiMajorAxis.angle;
+      const radiusX = transformedSemiMajorAxis.magnitude;
+      const radiusY = transformedSemiMinorAxis.magnitude;
 
-      var reflected = matrix.getDeterminant() < 0;
+      const reflected = matrix.getDeterminant() < 0;
 
       // reverse the 'clockwiseness' if our transform includes a reflection
       // TODO: check reflections. swapping angle signs should fix clockwiseness
-      var anticlockwise = reflected ? !this._anticlockwise : this._anticlockwise;
-      var startAngle = reflected ? -this._startAngle : this._startAngle;
-      var endAngle = reflected ? -this._endAngle : this._endAngle;
+      const anticlockwise = reflected ? !this._anticlockwise : this._anticlockwise;
+      const startAngle = reflected ? -this._startAngle : this._startAngle;
+      let endAngle = reflected ? -this._endAngle : this._endAngle;
 
       if ( Math.abs( this._endAngle - this._startAngle ) === Math.PI * 2 ) {
         endAngle = anticlockwise ? startAngle - Math.PI * 2 : startAngle + Math.PI * 2;
@@ -943,13 +943,13 @@ define( require => {
      * @returns {number}
      */
     getSignedAreaFragment: function() {
-      var t0 = this._startAngle;
-      var t1 = this.getActualEndAngle();
+      const t0 = this._startAngle;
+      const t1 = this.getActualEndAngle();
 
-      var sin0 = Math.sin( t0 );
-      var sin1 = Math.sin( t1 );
-      var cos0 = Math.cos( t0 );
-      var cos1 = Math.cos( t1 );
+      const sin0 = Math.sin( t0 );
+      const sin1 = Math.sin( t1 );
+      const cos0 = Math.cos( t0 );
+      const cos1 = Math.cos( t1 );
 
       // Derived via Mathematica (curve-area.nb)
       return 0.5 * ( this._radiusX * this._radiusY * ( t1 - t0 ) +

@@ -80,7 +80,7 @@ define( require => {
    * @param {Bounds2} [bounds]
    */
   function Shape( subpaths, bounds ) {
-    var self = this;
+    const self = this;
 
     // @public {Array.<Subpath>} Lower-level piecewise mathematical description using segments, also
     // individually immutable
@@ -108,7 +108,7 @@ define( require => {
     // Add in subpaths from the constructor (if applicable)
     if ( typeof subpaths === 'object' ) {
       // assume it's an array
-      for ( var i = 0; i < subpaths.length; i++ ) {
+      for ( let i = 0; i < subpaths.length; i++ ) {
         this.addSubpath( subpaths[ i ] );
       }
     }
@@ -266,9 +266,9 @@ define( require => {
     lineToPoint: function( point ) {
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-lineto
       if ( this.hasSubpaths() ) {
-        var start = this.getLastSubpath().getLastPoint();
-        var end = point;
-        var line = new Line( start, end );
+        const start = this.getLastSubpath().getLastPoint();
+        const end = point;
+        const line = new Line( start, end );
         this.getLastSubpath().addPoint( end );
         this.addSegmentAndBounds( line );
       }
@@ -434,7 +434,7 @@ define( require => {
      * @returns {Shape}
      */
     quadraticCurveToPointRelative: function( controlPoint, point ) {
-      var relativePoint = this.getRelativePoint();
+      const relativePoint = this.getRelativePoint();
       return this.quadraticCurveToPoint( relativePoint.plus( controlPoint ), relativePoint.plus( point ) );
     },
 
@@ -479,14 +479,14 @@ define( require => {
      * @returns {Shape}
      */
     quadraticCurveToPoint: function( controlPoint, point ) {
-      var self = this;
+      const self = this;
 
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
       this.ensure( controlPoint );
-      var start = this.getLastSubpath().getLastPoint();
-      var quadratic = new Quadratic( start, controlPoint, point );
+      const start = this.getLastSubpath().getLastPoint();
+      const quadratic = new Quadratic( start, controlPoint, point );
       this.getLastSubpath().addPoint( point );
-      var nondegenerateSegments = quadratic.getNondegenerateSegments();
+      const nondegenerateSegments = quadratic.getNondegenerateSegments();
       _.each( nondegenerateSegments, function( segment ) {
         // TODO: optimization
         self.addSegmentAndBounds( segment );
@@ -548,7 +548,7 @@ define( require => {
      * @returns {Shape}
      */
     cubicCurveToPointRelative: function( control1, control2, point ) {
-      var relativePoint = this.getRelativePoint();
+      const relativePoint = this.getRelativePoint();
       return this.cubicCurveToPoint( relativePoint.plus( control1 ), relativePoint.plus( control2 ), relativePoint.plus( point ) );
     },
 
@@ -595,13 +595,13 @@ define( require => {
      * @returns {Shape}
      */
     cubicCurveToPoint: function( control1, control2, point ) {
-      var self = this;
+      const self = this;
       // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
       this.ensure( control1 );
-      var start = this.getLastSubpath().getLastPoint();
-      var cubic = new Cubic( start, control1, control2, point );
+      const start = this.getLastSubpath().getLastPoint();
+      const cubic = new Cubic( start, control1, control2, point );
 
-      var nondegenerateSegments = cubic.getNondegenerateSegments();
+      const nondegenerateSegments = cubic.getNondegenerateSegments();
       _.each( nondegenerateSegments, function( segment ) {
         self.addSegmentAndBounds( segment );
       } );
@@ -645,11 +645,11 @@ define( require => {
         anticlockwise = false;
       }
 
-      var arc = new Arc( center, radius, startAngle, endAngle, anticlockwise );
+      const arc = new Arc( center, radius, startAngle, endAngle, anticlockwise );
 
       // we are assuming that the normal conditions were already met (or exceptioned out) so that these actually work with canvas
-      var startPoint = arc.getStart();
-      var endPoint = arc.getEnd();
+      const startPoint = arc.getStart();
+      const endPoint = arc.getEnd();
 
       // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
       if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
@@ -709,11 +709,11 @@ define( require => {
         anticlockwise = false;
       }
 
-      var ellipticalArc = new EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
+      const ellipticalArc = new EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
 
       // we are assuming that the normal conditions were already met (or exceptioned out) so that these actually work with canvas
-      var startPoint = ellipticalArc.start;
-      var endPoint = ellipticalArc.end;
+      const startPoint = ellipticalArc.start;
+      const endPoint = ellipticalArc.end;
 
       // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
       if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
@@ -742,8 +742,8 @@ define( require => {
      */
     close: function() {
       if ( this.hasSubpaths() ) {
-        var previousPath = this.getLastSubpath();
-        var nextPath = new Subpath();
+        const previousPath = this.getLastSubpath();
+        const nextPath = new Subpath();
 
         previousPath.close();
         this.addSubpath( nextPath );
@@ -813,7 +813,7 @@ define( require => {
      * @returns {Shape} - this Shape for chaining
      */
     ellipticalArcToRelative: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
-      var relativePoint = this.getRelativePoint();
+      const relativePoint = this.getRelativePoint();
       return this.ellipticalArcTo( radiusX, radiusY, rotation, largeArc, sweep, x + relativePoint.x, y + relativePoint.y );
     },
 
@@ -836,27 +836,27 @@ define( require => {
       // See "F.6.5 Conversion from endpoint to center parameterization"
       // in https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
 
-      var self = this;
+      const self = this;
 
-      var endPoint = new Vector2( x, y );
+      const endPoint = new Vector2( x, y );
       this.ensure( endPoint );
 
-      var startPoint = this.getLastSubpath().getLastPoint();
+      const startPoint = this.getLastSubpath().getLastPoint();
       this.getLastSubpath().addPoint( endPoint );
 
       // Absolute value applied to radii (per SVG spec)
       if ( radiusX < 0 ) { radiusX *= -1.0; }
       if ( radiusY < 0 ) { radiusY *= -1.0; }
 
-      var rxs = radiusX * radiusX;
-      var rys = radiusY * radiusY;
-      var prime = startPoint.minus( endPoint ).dividedScalar( 2 ).rotated( -rotation );
-      var pxs = prime.x * prime.x;
-      var pys = prime.y * prime.y;
-      var centerPrime = new Vector2( radiusX * prime.y / radiusY, -radiusY * prime.x / radiusX );
+      let rxs = radiusX * radiusX;
+      let rys = radiusY * radiusY;
+      const prime = startPoint.minus( endPoint ).dividedScalar( 2 ).rotated( -rotation );
+      const pxs = prime.x * prime.x;
+      const pys = prime.y * prime.y;
+      let centerPrime = new Vector2( radiusX * prime.y / radiusY, -radiusY * prime.x / radiusX );
 
       // If the radii are not large enough to accomodate the start/end point, apply F.6.6 correction
-      var size = pxs / rxs + pys / rys;
+      const size = pxs / rxs + pys / rys;
       if ( size > 1 ) {
         radiusX *= Math.sqrt( size );
         radiusY *= Math.sqrt( size );
@@ -875,17 +875,17 @@ define( require => {
         // From spec: where the + sign is chosen if fA ≠ fS, and the − sign is chosen if fA = fS.
         centerPrime.multiplyScalar( -1 );
       }
-      var center = startPoint.blend( endPoint, 0.5 ).plus( centerPrime.rotated( rotation ) );
+      const center = startPoint.blend( endPoint, 0.5 ).plus( centerPrime.rotated( rotation ) );
 
       function signedAngle( u, v ) {
         // From spec: where the ± sign appearing here is the sign of ux vy − uy vx.
         return ( ( u.x * v.y - u.y * v.x ) > 0 ? 1 : -1 ) * u.angleBetween( v );
       }
 
-      var victor = new Vector2( ( prime.x - centerPrime.x ) / radiusX, ( prime.y - centerPrime.y ) / radiusY );
-      var ross = new Vector2( ( -prime.x - centerPrime.x ) / radiusX, ( -prime.y - centerPrime.y ) / radiusY );
-      var startAngle = signedAngle( Vector2.X_UNIT, victor );
-      var deltaAngle = signedAngle( victor, ross ) % ( Math.PI * 2 );
+      const victor = new Vector2( ( prime.x - centerPrime.x ) / radiusX, ( prime.y - centerPrime.y ) / radiusY );
+      const ross = new Vector2( ( -prime.x - centerPrime.x ) / radiusX, ( -prime.y - centerPrime.y ) / radiusY );
+      const startAngle = signedAngle( Vector2.X_UNIT, victor );
+      let deltaAngle = signedAngle( victor, ross ) % ( Math.PI * 2 );
 
       // From spec:
       // > In other words, if fS = 0 and the right side of (F.6.5.6) is greater than 0, then subtract 360°, whereas if
@@ -898,8 +898,8 @@ define( require => {
       }
 
       // Standard handling of degenerate segments (particularly, converting elliptical arcs to circular arcs)
-      var ellipticalArc = new EllipticalArc( center, radiusX, radiusY, rotation, startAngle, startAngle + deltaAngle, !sweep );
-      var nondegenerateSegments = ellipticalArc.getNondegenerateSegments();
+      const ellipticalArc = new EllipticalArc( center, radiusX, radiusY, rotation, startAngle, startAngle + deltaAngle, !sweep );
+      const nondegenerateSegments = ellipticalArc.getNondegenerateSegments();
       _.each( nondegenerateSegments, function( segment ) {
         self.addSegmentAndBounds( segment );
       } );
@@ -921,7 +921,7 @@ define( require => {
     circle: function( centerX, centerY, radius ) {
       if ( typeof centerX === 'object' ) {
         // circle( center, radius )
-        var center = centerX;
+        const center = centerX;
         radius = centerY;
         return this.arcPoint( center, radius, 0, Math.PI * 2, false ).close();
       }
@@ -954,7 +954,7 @@ define( require => {
       // TODO: Ellipse/EllipticalArc has a mess of parameters. Consider parameter object, or double-check parameter handling
       if ( typeof centerX === 'object' ) {
         // ellipse( center, radiusX, radiusY, rotation )
-        var center = centerX;
+        const center = centerX;
         rotation = radiusY;
         radiusY = radiusX;
         radiusX = centerY;
@@ -985,7 +985,7 @@ define( require => {
       assert && assert( typeof width === 'number' && isFinite( width ), 'width must be a finite number: ' + width );
       assert && assert( typeof height === 'number' && isFinite( height ), 'height must be a finite number: ' + height );
 
-      var subpath = new Subpath();
+      const subpath = new Subpath();
       this.addSubpath( subpath );
       subpath.addPoint( v( x, y ) );
       subpath.addPoint( v( x + width, y ) );
@@ -1016,10 +1016,10 @@ define( require => {
      * @returns {Shape}
      */
     roundRect: function( x, y, width, height, arcw, arch ) {
-      var lowX = x + arcw;
-      var highX = x + width - arcw;
-      var lowY = y + arch;
-      var highY = y + height - arch;
+      const lowX = x + arcw;
+      const highX = x + width - arcw;
+      const lowY = y + arch;
+      const highY = y + height - arch;
       // if ( true ) {
       if ( arcw === arch ) {
         // we can use circular arcs, which have well defined stroked offsets
@@ -1050,10 +1050,10 @@ define( require => {
      * @returns {Shape}
      */
     polygon: function( vertices ) {
-      var length = vertices.length;
+      const length = vertices.length;
       if ( length > 0 ) {
         this.moveToPoint( vertices[ 0 ] );
-        for ( var i = 1; i < length; i++ ) {
+        for ( let i = 1; i < length; i++ ) {
           this.lineToPoint( vertices[ i ] );
         }
       }
@@ -1088,12 +1088,12 @@ define( require => {
 
       assert && assert( options.tension < 1 && options.tension > -1, ' the tension goes from -1 to 1 ' );
 
-      var pointNumber = positions.length; // number of points in the array
+      const pointNumber = positions.length; // number of points in the array
 
       // if the line is open, there is one less segments than point vectors
-      var segmentNumber = ( options.isClosedLineSegments ) ? pointNumber : pointNumber - 1;
+      const segmentNumber = ( options.isClosedLineSegments ) ? pointNumber : pointNumber - 1;
 
-      for ( var i = 0; i < segmentNumber; i++ ) {
+      for ( let i = 0; i < segmentNumber; i++ ) {
         var cardinalPoints; // {Array.<Vector2>} cardinal points Array
         if ( i === 0 && !options.isClosedLineSegments ) {
           cardinalPoints = [
@@ -1124,7 +1124,7 @@ define( require => {
         //    0                 0             1           0
 
         // {Array.<Vector2>} bezier points Array
-        var bezierPoints = [
+        const bezierPoints = [
           cardinalPoints[ 1 ],
           weightedSplineVector( cardinalPoints[ 0 ], cardinalPoints[ 1 ], cardinalPoints[ 2 ], options.tension ),
           weightedSplineVector( cardinalPoints[ 3 ], cardinalPoints[ 2 ], cardinalPoints[ 1 ], options.tension ),
@@ -1161,8 +1161,8 @@ define( require => {
      * @param {CanvasRenderingContext2D} context
      */
     writeToContext: function( context ) {
-      var len = this.subpaths.length;
-      for ( var i = 0; i < len; i++ ) {
+      const len = this.subpaths.length;
+      for ( let i = 0; i < len; i++ ) {
         this.subpaths[ i ].writeToContext( context );
       }
     },
@@ -1174,17 +1174,17 @@ define( require => {
      * @returns {string}
      */
     getSVGPath: function() {
-      var string = '';
-      var len = this.subpaths.length;
-      for ( var i = 0; i < len; i++ ) {
-        var subpath = this.subpaths[ i ];
+      let string = '';
+      const len = this.subpaths.length;
+      for ( let i = 0; i < len; i++ ) {
+        const subpath = this.subpaths[ i ];
         if ( subpath.isDrawable() ) {
           // since the commands after this are relative to the previous 'point', we need to specify a move to the initial point
-          var startPoint = subpath.segments[ 0 ].start;
+          const startPoint = subpath.segments[ 0 ].start;
 
           string += 'M ' + kite.svgNumber( startPoint.x ) + ' ' + kite.svgNumber( startPoint.y ) + ' ';
 
-          for ( var k = 0; k < subpath.segments.length; k++ ) {
+          for ( let k = 0; k < subpath.segments.length; k++ ) {
             string += subpath.segments[ k ].getSVGPathFragment() + ' ';
           }
 
@@ -1205,8 +1205,8 @@ define( require => {
      */
     transformed: function( matrix ) {
       // TODO: allocation reduction
-      var subpaths = _.map( this.subpaths, function( subpath ) { return subpath.transformed( matrix ); } );
-      var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.bounds ); }, Bounds2.NOTHING );
+      const subpaths = _.map( this.subpaths, function( subpath ) { return subpath.transformed( matrix ); } );
+      const bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.bounds ); }, Bounds2.NOTHING );
       return new Shape( subpaths, bounds );
     },
 
@@ -1237,8 +1237,8 @@ define( require => {
       }, options );
 
       // TODO: allocation reduction
-      var subpaths = _.map( this.subpaths, function( subpath ) { return subpath.nonlinearTransformed( options ); } );
-      var bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.bounds ); }, Bounds2.NOTHING );
+      const subpaths = _.map( this.subpaths, function( subpath ) { return subpath.nonlinearTransformed( options ); } );
+      const bounds = _.reduce( subpaths, function( bounds, subpath ) { return bounds.union( subpath.bounds ); }, Bounds2.NOTHING );
       return new Shape( subpaths, bounds );
     },
 
@@ -1289,7 +1289,7 @@ define( require => {
      */
     containsPoint: function( point ) {
       // we pick a ray, and determine the winding number over that ray. if the number of segments crossing it CCW == number of segments crossing it CW, then the point is contained in the shape
-      var ray = new Ray2( point, Vector2.X_UNIT );
+      const ray = new Ray2( point, Vector2.X_UNIT );
 
       return this.windingIntersection( ray ) !== 0;
     },
@@ -1304,15 +1304,15 @@ define( require => {
      *                                   sorted by the distance from the ray's location.
      */
     intersection: function( ray ) {
-      var hits = [];
-      var numSubpaths = this.subpaths.length;
-      for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[ i ];
+      let hits = [];
+      const numSubpaths = this.subpaths.length;
+      for ( let i = 0; i < numSubpaths; i++ ) {
+        const subpath = this.subpaths[ i ];
 
         if ( subpath.isDrawable() ) {
-          var numSegments = subpath.segments.length;
-          for ( var k = 0; k < numSegments; k++ ) {
-            var segment = subpath.segments[ k ];
+          const numSegments = subpath.segments.length;
+          for ( let k = 0; k < numSegments; k++ ) {
+            const segment = subpath.segments[ k ];
             hits = hits.concat( segment.intersection( ray ) );
           }
 
@@ -1339,14 +1339,14 @@ define( require => {
     interiorIntersectsLineSegment: function( startPoint, endPoint ) {
       // First check if our midpoint is in the Shape (as either our midpoint is in the Shape, OR the line segment will
       // intersect the Shape's boundary path).
-      var midpoint = startPoint.blend( endPoint, 0.5 );
+      const midpoint = startPoint.blend( endPoint, 0.5 );
       if ( this.containsPoint( midpoint ) ) {
         return true;
       }
 
       // TODO: if an issue, we can reduce this allocation to a scratch variable local in the Shape.js scope.
-      var delta = endPoint.minus( startPoint );
-      var length = delta.magnitude;
+      const delta = endPoint.minus( startPoint );
+      const length = delta.magnitude;
 
       if ( length === 0 ) {
         return false;
@@ -1355,11 +1355,11 @@ define( require => {
       delta.normalize(); // so we can use it as a unit vector, expected by the Ray
 
       // Grab all intersections (that are from startPoint towards the direction of endPoint)
-      var hits = this.intersection( new Ray2( startPoint, delta ) );
+      const hits = this.intersection( new Ray2( startPoint, delta ) );
 
       // See if we have any intersections along our infinite ray whose distance from the startPoint is less than or
       // equal to our line segment's length.
-      for ( var i = 0; i < hits.length; i++ ) {
+      for ( let i = 0; i < hits.length; i++ ) {
         if ( hits[ i ].distance <= length ) {
           return true;
         }
@@ -1377,15 +1377,15 @@ define( require => {
      * @returns {number}
      */
     windingIntersection: function( ray ) {
-      var wind = 0;
+      let wind = 0;
 
-      var numSubpaths = this.subpaths.length;
-      for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[ i ];
+      const numSubpaths = this.subpaths.length;
+      for ( let i = 0; i < numSubpaths; i++ ) {
+        const subpath = this.subpaths[ i ];
 
         if ( subpath.isDrawable() ) {
-          var numSegments = subpath.segments.length;
-          for ( var k = 0; k < numSegments; k++ ) {
+          const numSegments = subpath.segments.length;
+          for ( let k = 0; k < numSegments; k++ ) {
             wind += subpath.segments[ k ].windingIntersection( ray );
           }
 
@@ -1415,15 +1415,15 @@ define( require => {
       }
 
       // rays for hit testing along the bounding box edges
-      var minHorizontalRay = new Ray2( new Vector2( bounds.minX, bounds.minY ), new Vector2( 1, 0 ) );
-      var minVerticalRay = new Ray2( new Vector2( bounds.minX, bounds.minY ), new Vector2( 0, 1 ) );
-      var maxHorizontalRay = new Ray2( new Vector2( bounds.maxX, bounds.maxY ), new Vector2( -1, 0 ) );
-      var maxVerticalRay = new Ray2( new Vector2( bounds.maxX, bounds.maxY ), new Vector2( 0, -1 ) );
+      const minHorizontalRay = new Ray2( new Vector2( bounds.minX, bounds.minY ), new Vector2( 1, 0 ) );
+      const minVerticalRay = new Ray2( new Vector2( bounds.minX, bounds.minY ), new Vector2( 0, 1 ) );
+      const maxHorizontalRay = new Ray2( new Vector2( bounds.maxX, bounds.maxY ), new Vector2( -1, 0 ) );
+      const maxVerticalRay = new Ray2( new Vector2( bounds.maxX, bounds.maxY ), new Vector2( 0, -1 ) );
 
-      var hitPoint;
-      var i;
+      let hitPoint;
+      let i;
       // TODO: could optimize to intersect differently so we bail sooner
-      var horizontalRayIntersections = this.intersection( minHorizontalRay ).concat( this.intersection( maxHorizontalRay ) );
+      const horizontalRayIntersections = this.intersection( minHorizontalRay ).concat( this.intersection( maxHorizontalRay ) );
       for ( i = 0; i < horizontalRayIntersections.length; i++ ) {
         hitPoint = horizontalRayIntersections[ i ].point;
         if ( hitPoint.x >= bounds.minX && hitPoint.x <= bounds.maxX ) {
@@ -1431,7 +1431,7 @@ define( require => {
         }
       }
 
-      var verticalRayIntersections = this.intersection( minVerticalRay ).concat( this.intersection( maxVerticalRay ) );
+      const verticalRayIntersections = this.intersection( minVerticalRay ).concat( this.intersection( maxVerticalRay ) );
       for ( i = 0; i < verticalRayIntersections.length; i++ ) {
         hitPoint = verticalRayIntersections[ i ].point;
         if ( hitPoint.y >= bounds.minY && hitPoint.y <= bounds.maxY ) {
@@ -1454,12 +1454,12 @@ define( require => {
      * @returns {Shape}
      */
     getStrokedShape: function( lineStyles ) {
-      var subpaths = [];
-      var bounds = Bounds2.NOTHING.copy();
-      var subLen = this.subpaths.length;
+      let subpaths = [];
+      const bounds = Bounds2.NOTHING.copy();
+      let subLen = this.subpaths.length;
       for ( var i = 0; i < subLen; i++ ) {
-        var subpath = this.subpaths[ i ];
-        var strokedSubpath = subpath.stroked( lineStyles );
+        const subpath = this.subpaths[ i ];
+        const strokedSubpath = subpath.stroked( lineStyles );
         subpaths = subpaths.concat( strokedSubpath );
       }
       subLen = subpaths.length;
@@ -1478,9 +1478,9 @@ define( require => {
      */
     getOffsetShape: function( distance ) {
       // TODO: abstract away this type of behavior
-      var subpaths = [];
-      var bounds = Bounds2.NOTHING.copy();
-      var subLen = this.subpaths.length;
+      const subpaths = [];
+      const bounds = Bounds2.NOTHING.copy();
+      let subLen = this.subpaths.length;
       for ( var i = 0; i < subLen; i++ ) {
         subpaths.push( this.subpaths[ i ].offset( distance ) );
       }
@@ -1522,7 +1522,7 @@ define( require => {
      */
     getBounds: function() {
       if ( this._bounds === null ) {
-        var bounds = Bounds2.NOTHING.copy();
+        const bounds = Bounds2.NOTHING.copy();
         _.each( this.subpaths, function( subpath ) {
           bounds.includeBounds( subpath.getBounds() );
         } );
@@ -1546,9 +1546,9 @@ define( require => {
 
       // Check if all of our segments end vertically or horizontally AND our drawable subpaths are all closed. If so,
       // we can apply a bounds dilation.
-      var areStrokedBoundsDilated = true;
+      let areStrokedBoundsDilated = true;
       for ( var i = 0; i < this.subpaths.length; i++ ) {
-        var subpath = this.subpaths[ i ];
+        const subpath = this.subpaths[ i ];
 
         // If a subpath with any segments is NOT closed, line-caps will apply. We can't make the simplification in this
         // case.
@@ -1557,7 +1557,7 @@ define( require => {
           break;
         }
         for ( var j = 0; j < subpath.segments.length; j++ ) {
-          var segment = subpath.segments[ j ];
+          const segment = subpath.segments[ j ];
           if ( !segment.areStrokedBoundsDilated() ) {
             areStrokedBoundsDilated = false;
             break;
@@ -1569,9 +1569,9 @@ define( require => {
         return this.bounds.dilated( lineStyles.lineWidth / 2 );
       }
       else {
-        var bounds = this.bounds.copy();
+        const bounds = this.bounds.copy();
         for ( i = 0; i < this.subpaths.length; i++ ) {
-          var subpaths = this.subpaths[ i ].stroked( lineStyles );
+          const subpaths = this.subpaths[ i ].stroked( lineStyles );
           for ( j = 0; j < subpaths.length; j++ ) {
             bounds.includeBounds( subpaths[ j ].bounds );
           }
@@ -1603,11 +1603,11 @@ define( require => {
      * @returns {Bounds2}
      */
     getBoundsWithTransform: function( matrix, lineStyles ) {
-      var bounds = Bounds2.NOTHING.copy();
+      const bounds = Bounds2.NOTHING.copy();
 
-      var numSubpaths = this.subpaths.length;
-      for ( var i = 0; i < numSubpaths; i++ ) {
-        var subpath = this.subpaths[ i ];
+      const numSubpaths = this.subpaths.length;
+      for ( let i = 0; i < numSubpaths; i++ ) {
+        const subpath = this.subpaths[ i ];
         bounds.includeBounds( subpath.getBoundsWithTransform( matrix ) );
       }
 
@@ -1628,15 +1628,15 @@ define( require => {
      * @returns {number}
      */
     getApproximateArea: function( numSamples ) {
-      var x = this.bounds.minX;
-      var y = this.bounds.minY;
-      var width = this.bounds.width;
-      var height = this.bounds.height;
+      const x = this.bounds.minX;
+      const y = this.bounds.minY;
+      const width = this.bounds.width;
+      const height = this.bounds.height;
 
-      var rectangleArea = width * height;
-      var count = 0;
-      var point = new Vector2( 0, 0 );
-      for ( var i = 0; i < numSamples; i++ ) {
+      const rectangleArea = width * height;
+      let count = 0;
+      const point = new Vector2( 0, 0 );
+      for ( let i = 0; i < numSamples; i++ ) {
         point.x = x + randomSource() * width;
         point.y = y + randomSource() * height;
         if ( this.containsPoint( point ) ) {
@@ -1685,15 +1685,15 @@ define( require => {
      * @returns {number}
      */
     getApproximateCentroid: function( numSamples ) {
-      var x = this.bounds.minX;
-      var y = this.bounds.minY;
-      var width = this.bounds.width;
-      var height = this.bounds.height;
+      const x = this.bounds.minX;
+      const y = this.bounds.minY;
+      const width = this.bounds.width;
+      const height = this.bounds.height;
 
-      var count = 0;
-      var sum = new Vector2( 0, 0 );
-      var point = new Vector2( 0, 0 );
-      for ( var i = 0; i < numSamples; i++ ) {
+      let count = 0;
+      const sum = new Vector2( 0, 0 );
+      const point = new Vector2( 0, 0 );
+      for ( let i = 0; i < numSamples; i++ ) {
         point.x = x + randomSource() * width;
         point.y = y + randomSource() * height;
         if ( this.containsPoint( point ) ) {
@@ -1713,8 +1713,8 @@ define( require => {
     invalidatePoints: function() {
       this._invalidatingPoints = true;
 
-      var numSubpaths = this.subpaths.length;
-      for ( var i = 0; i < numSubpaths; i++ ) {
+      const numSubpaths = this.subpaths.length;
+      for ( let i = 0; i < numSubpaths; i++ ) {
         this.subpaths[ i ].invalidatePoints();
       }
 
@@ -1836,7 +1836,7 @@ define( require => {
     getLastSegment: function() {
       if ( !this.hasSubpaths() ) { return null; }
 
-      var subpath = this.getLastSubpath();
+      const subpath = this.getLastSubpath();
       if ( !subpath.isDrawable() ) { return null; }
 
       return subpath.getLastSegment();
@@ -1849,7 +1849,7 @@ define( require => {
      * @returns {Vector2}
      */
     getSmoothQuadraticControlPoint: function() {
-      var lastPoint = this.getLastPoint();
+      const lastPoint = this.getLastPoint();
 
       if ( this.lastQuadraticControlPoint ) {
         return lastPoint.plus( lastPoint.minus( this.lastQuadraticControlPoint ) );
@@ -1866,7 +1866,7 @@ define( require => {
      * @returns {Vector2}
      */
     getSmoothCubicControlPoint: function() {
-      var lastPoint = this.getLastPoint();
+      const lastPoint = this.getLastPoint();
 
       if ( this.lastCubicControlPoint ) {
         return lastPoint.plus( lastPoint.minus( this.lastCubicControlPoint ) );
@@ -1883,7 +1883,7 @@ define( require => {
      * @returns {Vector2}
      */
     getRelativePoint: function() {
-      var lastPoint = this.getLastPoint();
+      const lastPoint = this.getLastPoint();
       return lastPoint ? lastPoint : Vector2.ZERO;
     },
 
@@ -1956,8 +1956,8 @@ define( require => {
      * @returns {number}
      */
     getArcLength: function( distanceEpsilon, curveEpsilon, maxLevels ) {
-      var length = 0;
-      for ( var i = 0; i < this.subpaths.length; i++ ) {
+      let length = 0;
+      for ( let i = 0; i < this.subpaths.length; i++ ) {
         length += this.subpaths[ i ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels );
       }
       return length;
@@ -2050,10 +2050,10 @@ define( require => {
    */
   Shape.roundedRectangleWithRadii = function( x, y, width, height, cornerRadii ) {
     // defaults to 0 (not using _.extends, since we reference each multiple times)
-    var topLeftRadius = cornerRadii && cornerRadii.topLeft || 0;
-    var topRightRadius = cornerRadii && cornerRadii.topRight || 0;
-    var bottomLeftRadius = cornerRadii && cornerRadii.bottomLeft || 0;
-    var bottomRightRadius = cornerRadii && cornerRadii.bottomRight || 0;
+    const topLeftRadius = cornerRadii && cornerRadii.topLeft || 0;
+    const topRightRadius = cornerRadii && cornerRadii.topRight || 0;
+    const bottomLeftRadius = cornerRadii && cornerRadii.bottomLeft || 0;
+    const bottomRightRadius = cornerRadii && cornerRadii.bottomRight || 0;
 
     // type and constraint assertions
     assert && assert( typeof x === 'number' && isFinite( x ), 'Non-finite x' );
@@ -2075,9 +2075,9 @@ define( require => {
     assert && assert( topLeftRadius + bottomLeftRadius <= height, 'Corner overlap on left edge' );
     assert && assert( topRightRadius + bottomRightRadius <= height, 'Corner overlap on right edge' );
 
-    var shape = new kite.Shape();
-    var right = x + width;
-    var bottom = y + height;
+    const shape = new kite.Shape();
+    const right = x + width;
+    const bottom = y + height;
 
     // To draw the rounded rectangle, we use the implicit "line from last segment to next segment" and the close() for
     // all of the straight line edges between arcs, or lineTo the corner.
@@ -2183,9 +2183,9 @@ define( require => {
    * @returns {Shape}
    */
   Shape.regularPolygon = function( sides, radius ) {
-    var shape = new Shape();
+    const shape = new Shape();
     _.each( _.range( sides ), function( k ) {
-      var point = Vector2.createPolar( radius, 2 * Math.PI * k / sides );
+      const point = Vector2.createPolar( radius, 2 * Math.PI * k / sides );
       ( k === 0 ) ? shape.moveToPoint( point ) : shape.lineToPoint( point );
     } );
     return shape.close();
@@ -2289,7 +2289,7 @@ define( require => {
    */
   Shape.segments = function( segments, closed ) {
     if ( assert ) {
-      for ( var i = 1; i < segments.length; i++ ) {
+      for ( let i = 1; i < segments.length; i++ ) {
         assert( segments[ i - 1 ].end.equalsEpsilon( segments[ i ].start, 1e-6 ), 'Mismatched start/end' );
       }
     }

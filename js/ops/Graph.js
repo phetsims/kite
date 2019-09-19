@@ -46,7 +46,7 @@ define( require => {
   const Util = require( 'DOT/Util' );
   const Vertex = require( 'KITE/ops/Vertex' );
 
-  var bridgeId = 0;
+  let bridgeId = 0;
 
   /**
    * @public (kite-internal)
@@ -92,7 +92,7 @@ define( require => {
      * @param {Object} [options] - See addSubpath
      */
     addShape: function( shapeId, shape, options ) {
-      for ( var i = 0; i < shape.subpaths.length; i++ ) {
+      for ( let i = 0; i < shape.subpaths.length; i++ ) {
         this.addSubpath( shapeId, shape.subpaths[ i ], options );
       }
     },
@@ -122,22 +122,22 @@ define( require => {
         return;
       }
 
-      var closed = subpath.closed || options.ensureClosed;
-      var segments = options.ensureClosed ? subpath.getFillSegments() : subpath.segments;
-      var index;
+      const closed = subpath.closed || options.ensureClosed;
+      const segments = options.ensureClosed ? subpath.getFillSegments() : subpath.segments;
+      let index;
 
       // Collects all of the vertices
-      var vertices = [];
+      const vertices = [];
       for ( index = 0; index < segments.length; index++ ) {
-        var previousIndex = index - 1;
+        let previousIndex = index - 1;
         if ( previousIndex < 0 ) {
           previousIndex = segments.length - 1;
         }
 
         // Get the end of the previous segment and start of the next. Generally they should be equal or almost equal,
         // as it's the point at the joint of two segments.
-        var end = segments[ previousIndex ].end;
-        var start = segments[ index ].start;
+        let end = segments[ previousIndex ].end;
+        const start = segments[ index ].start;
 
         // If we are creating an open "loop", don't interpolate the start/end of the entire subpath together.
         if ( !closed && index === 0 ) {
@@ -159,14 +159,14 @@ define( require => {
       }
 
       // Create the loop object from the vertices, filling in edges
-      var loop = Loop.createFromPool( shapeId, closed );
+      const loop = Loop.createFromPool( shapeId, closed );
       for ( index = 0; index < segments.length; index++ ) {
-        var nextIndex = index + 1;
+        let nextIndex = index + 1;
         if ( closed && nextIndex === segments.length ) {
           nextIndex = 0;
         }
 
-        var edge = Edge.createFromPool( segments[ index ], vertices[ index ], vertices[ nextIndex ] );
+        const edge = Edge.createFromPool( segments[ index ], vertices[ index ], vertices[ nextIndex ] );
         loop.halfEdges.push( edge.forwardHalf );
         this.addEdge( edge );
       }
@@ -255,8 +255,8 @@ define( require => {
      * @param {function} windingMapFilter
      */
     computeFaceInclusion: function( windingMapFilter ) {
-      for ( var i = 0; i < this.faces.length; i++ ) {
-        var face = this.faces[ i ];
+      for ( let i = 0; i < this.faces.length; i++ ) {
+        const face = this.faces[ i ];
         face.filled = windingMapFilter( face.windingMap );
       }
     },
@@ -270,26 +270,26 @@ define( require => {
      * holes properly, given a filled "normal" graph.
      */
     createFilledSubGraph: function() {
-      var graph = new Graph();
+      const graph = new Graph();
 
-      var vertexMap = {}; // old id => newVertex
+      const vertexMap = {}; // old id => newVertex
 
-      for ( var i = 0; i < this.edges.length; i++ ) {
-        var edge = this.edges[ i ];
+      for ( let i = 0; i < this.edges.length; i++ ) {
+        const edge = this.edges[ i ];
         if ( edge.forwardHalf.face.filled !== edge.reversedHalf.face.filled ) {
           if ( !vertexMap[ edge.startVertex.id ] ) {
-            var newStartVertex = Vertex.createFromPool( edge.startVertex.point );
+            const newStartVertex = Vertex.createFromPool( edge.startVertex.point );
             graph.vertices.push( newStartVertex );
             vertexMap[ edge.startVertex.id ] = newStartVertex;
           }
           if ( !vertexMap[ edge.endVertex.id ] ) {
-            var newEndVertex = Vertex.createFromPool( edge.endVertex.point );
+            const newEndVertex = Vertex.createFromPool( edge.endVertex.point );
             graph.vertices.push( newEndVertex );
             vertexMap[ edge.endVertex.id ] = newEndVertex;
           }
 
-          var startVertex = vertexMap[ edge.startVertex.id ];
-          var endVertex = vertexMap[ edge.endVertex.id ];
+          const startVertex = vertexMap[ edge.startVertex.id ];
+          const endVertex = vertexMap[ edge.endVertex.id ];
           graph.addEdge( Edge.createFromPool( edge.segment, startVertex, endVertex ) );
         }
       }
@@ -315,12 +315,12 @@ define( require => {
      * @returns {Shape}
      */
     facesToShape: function() {
-      var subpaths = [];
-      for ( var i = 0; i < this.faces.length; i++ ) {
-        var face = this.faces[ i ];
+      const subpaths = [];
+      for ( let i = 0; i < this.faces.length; i++ ) {
+        const face = this.faces[ i ];
         if ( face.filled ) {
           subpaths.push( face.boundary.toSubpath() );
-          for ( var j = 0; j < face.holes.length; j++ ) {
+          for ( let j = 0; j < face.holes.length; j++ ) {
             subpaths.push( face.holes[ j ].toSubpath() );
           }
         }
@@ -394,19 +394,19 @@ define( require => {
      */
     replaceEdgeInLoops: function( edge, forwardHalfEdges ) {
       // Compute reversed half-edges
-      var reversedHalfEdges = [];
+      const reversedHalfEdges = [];
       for ( var i = 0; i < forwardHalfEdges.length; i++ ) {
         reversedHalfEdges.push( forwardHalfEdges[ forwardHalfEdges.length - 1 - i ].getReversed() );
       }
 
       for ( i = 0; i < this.loops.length; i++ ) {
-        var loop = this.loops[ i ];
+        const loop = this.loops[ i ];
 
-        for ( var j = loop.halfEdges.length - 1; j >= 0; j-- ) {
-          var halfEdge = loop.halfEdges[ j ];
+        for ( let j = loop.halfEdges.length - 1; j >= 0; j-- ) {
+          const halfEdge = loop.halfEdges[ j ];
 
           if ( halfEdge.edge === edge ) {
-            var replacementHalfEdges = halfEdge === edge.forwardHalf ? forwardHalfEdges : reversedHalfEdges;
+            const replacementHalfEdges = halfEdge === edge.forwardHalf ? forwardHalfEdges : reversedHalfEdges;
             Array.prototype.splice.apply( loop.halfEdges, [ j, 1 ].concat( replacementHalfEdges ) );
           }
         }
@@ -420,20 +420,20 @@ define( require => {
      * This helps to combine things like collinear lines, where there's a vertex that can basically be removed.
      */
     collapseAdjacentEdges: function() {
-      var needsLoop = true;
+      let needsLoop = true;
       while ( needsLoop ) {
         needsLoop = false;
 
         collapsed:
-          for ( var i = 0; i < this.vertices.length; i++ ) {
-            var vertex = this.vertices[ i ];
+          for ( let i = 0; i < this.vertices.length; i++ ) {
+            const vertex = this.vertices[ i ];
             if ( vertex.incidentHalfEdges.length === 2 ) {
-              var aEdge = vertex.incidentHalfEdges[ 0 ].edge;
-              var bEdge = vertex.incidentHalfEdges[ 1 ].edge;
-              var aSegment = aEdge.segment;
-              var bSegment = bEdge.segment;
-              var aVertex = aEdge.getOtherVertex( vertex );
-              var bVertex = bEdge.getOtherVertex( vertex );
+              const aEdge = vertex.incidentHalfEdges[ 0 ].edge;
+              const bEdge = vertex.incidentHalfEdges[ 1 ].edge;
+              let aSegment = aEdge.segment;
+              let bSegment = bEdge.segment;
+              const aVertex = aEdge.getOtherVertex( vertex );
+              const bVertex = bEdge.getOtherVertex( vertex );
 
               assert && assert( this.loops.length === 0 );
 
@@ -455,7 +455,7 @@ define( require => {
                   arrayRemove( this.vertices, vertex );
                   vertex.dispose();
 
-                  var newSegment = new Line( aVertex.point, bVertex.point );
+                  const newSegment = new Line( aVertex.point, bVertex.point );
                   this.addEdge( new Edge( newSegment, aVertex, bVertex ) );
 
                   needsLoop = true;
@@ -472,19 +472,19 @@ define( require => {
      * @private
      */
     eliminateOverlap: function() {
-      var needsLoop = true;
+      let needsLoop = true;
       while ( needsLoop ) {
         needsLoop = false;
 
         overlap:
-          for ( var i = 0; i < this.edges.length; i++ ) {
-            var aEdge = this.edges[ i ];
-            var aSegment = aEdge.segment;
-            for ( var j = i + 1; j < this.edges.length; j++ ) {
-              var bEdge = this.edges[ j ];
-              var bSegment = bEdge.segment;
+          for ( let i = 0; i < this.edges.length; i++ ) {
+            const aEdge = this.edges[ i ];
+            const aSegment = aEdge.segment;
+            for ( let j = i + 1; j < this.edges.length; j++ ) {
+              const bEdge = this.edges[ j ];
+              const bSegment = bEdge.segment;
 
-              var overlapFunction = null;
+              let overlapFunction = null;
               if ( aSegment instanceof Line && bSegment instanceof Line ) {
                 overlapFunction = Line.getOverlaps;
               }
@@ -502,10 +502,10 @@ define( require => {
               }
 
               if ( overlapFunction ) {
-                var overlaps = overlapFunction( aSegment, bSegment );
+                const overlaps = overlapFunction( aSegment, bSegment );
                 if ( overlaps.length ) {
-                  for ( var k = 0; k < overlaps.length; k++ ) {
-                    var overlap = overlaps[ k ];
+                  for ( let k = 0; k < overlaps.length; k++ ) {
+                    const overlap = overlaps[ k ];
                     if ( Math.abs( overlap.t1 - overlap.t0 ) > 1e-5 &&
                          Math.abs( overlap.qt1 - overlap.qt0 ) > 1e-5 ) {
                       this.splitOverlap( aEdge, bEdge, overlap );
@@ -530,17 +530,17 @@ define( require => {
      * outside of the shared region, connecting them together.
      */
     splitOverlap: function( aEdge, bEdge, overlap ) {
-      var aSegment = aEdge.segment;
-      var bSegment = bEdge.segment;
+      const aSegment = aEdge.segment;
+      const bSegment = bEdge.segment;
 
       // Remove the edges from before
       this.removeEdge( aEdge );
       this.removeEdge( bEdge );
 
-      var t0 = overlap.t0;
-      var t1 = overlap.t1;
-      var qt0 = overlap.qt0;
-      var qt1 = overlap.qt1;
+      let t0 = overlap.t0;
+      let t1 = overlap.t1;
+      let qt0 = overlap.qt0;
+      let qt1 = overlap.qt1;
 
       // Apply rounding so we don't generate really small segments on the ends
       if ( t0 < 1e-5 ) { t0 = 0; }
@@ -549,12 +549,12 @@ define( require => {
       if ( qt1 > 1 - 1e-5 ) { qt1 = 1; }
 
       // Whether there will be remaining edges on each side.
-      var aBefore = t0 > 0 ? aSegment.subdivided( t0 )[ 0 ] : null;
-      var bBefore = qt0 > 0 ? bSegment.subdivided( qt0 )[ 0 ] : null;
-      var aAfter = t1 < 1 ? aSegment.subdivided( t1 )[ 1 ] : null;
-      var bAfter = qt1 < 1 ? bSegment.subdivided( qt1 )[ 1 ] : null;
+      const aBefore = t0 > 0 ? aSegment.subdivided( t0 )[ 0 ] : null;
+      const bBefore = qt0 > 0 ? bSegment.subdivided( qt0 )[ 0 ] : null;
+      const aAfter = t1 < 1 ? aSegment.subdivided( t1 )[ 1 ] : null;
+      const bAfter = qt1 < 1 ? bSegment.subdivided( qt1 )[ 1 ] : null;
 
-      var middle = aSegment;
+      let middle = aSegment;
       if ( t0 > 0 ) {
         middle = middle.subdivided( t0 )[ 1 ];
       }
@@ -562,7 +562,7 @@ define( require => {
         middle = middle.subdivided( Util.linear( t0, 1, 0, 1, t1 ) )[ 0 ];
       }
 
-      var beforeVertex;
+      let beforeVertex;
       if ( aBefore && bBefore ) {
         beforeVertex = Vertex.createFromPool( middle.start );
         this.vertices.push( beforeVertex );
@@ -574,7 +574,7 @@ define( require => {
         beforeVertex = aEdge.startVertex;
       }
 
-      var afterVertex;
+      let afterVertex;
       if ( aAfter && bAfter ) {
         afterVertex = Vertex.createFromPool( middle.end );
         this.vertices.push( afterVertex );
@@ -586,13 +586,13 @@ define( require => {
         afterVertex = aEdge.endVertex;
       }
 
-      var middleEdge = Edge.createFromPool( middle, beforeVertex, afterVertex );
+      const middleEdge = Edge.createFromPool( middle, beforeVertex, afterVertex );
       this.addEdge( middleEdge );
 
-      var aBeforeEdge;
-      var aAfterEdge;
-      var bBeforeEdge;
-      var bAfterEdge;
+      let aBeforeEdge;
+      let aAfterEdge;
+      let bBeforeEdge;
+      let bAfterEdge;
 
       // Add "leftover" edges
       if ( aBefore ) {
@@ -613,18 +613,18 @@ define( require => {
       }
 
       // Collect "replacement" edges
-      var aEdges = ( aBefore ? [ aBeforeEdge ] : [] ).concat( [ middleEdge ] ).concat( aAfter ? [ aAfterEdge ] : [] );
-      var bEdges = ( bBefore ? [ bBeforeEdge ] : [] ).concat( [ middleEdge ] ).concat( bAfter ? [ bAfterEdge ] : [] );
+      const aEdges = ( aBefore ? [ aBeforeEdge ] : [] ).concat( [ middleEdge ] ).concat( aAfter ? [ aAfterEdge ] : [] );
+      const bEdges = ( bBefore ? [ bBeforeEdge ] : [] ).concat( [ middleEdge ] ).concat( bAfter ? [ bAfterEdge ] : [] );
 
-      var aForwardHalfEdges = [];
-      var bForwardHalfEdges = [];
+      const aForwardHalfEdges = [];
+      const bForwardHalfEdges = [];
 
       for ( var i = 0; i < aEdges.length; i++ ) {
         aForwardHalfEdges.push( aEdges[ i ].forwardHalf );
       }
       for ( i = 0; i < bEdges.length; i++ ) {
         // Handle reversing the "middle" edge
-        var isForward = bEdges[ i ] !== middleEdge || overlap.a > 0;
+        const isForward = bEdges[ i ] !== middleEdge || overlap.a > 0;
         bForwardHalfEdges.push( isForward ? bEdges[ i ].forwardHalf : bEdges[ i ].reversedHalf );
       }
 
@@ -643,25 +643,25 @@ define( require => {
     eliminateSelfIntersection: function() {
       assert && assert( this.boundaries.length === 0, 'Only handles simpler level primitive splitting right now' );
 
-      for ( var i = this.edges.length - 1; i >= 0; i-- ) {
-        var edge = this.edges[ i ];
-        var segment = edge.segment;
+      for ( let i = this.edges.length - 1; i >= 0; i-- ) {
+        const edge = this.edges[ i ];
+        const segment = edge.segment;
 
         if ( segment instanceof Cubic ) {
           // TODO: This might not properly handle when it only one endpoint is on the curve
-          var selfIntersection = segment.getSelfIntersection();
+          const selfIntersection = segment.getSelfIntersection();
 
           if ( selfIntersection ) {
             assert && assert( selfIntersection.aT < selfIntersection.bT );
 
-            var segments = segment.subdivisions( [ selfIntersection.aT, selfIntersection.bT ] );
+            const segments = segment.subdivisions( [ selfIntersection.aT, selfIntersection.bT ] );
 
-            var vertex = Vertex.createFromPool( selfIntersection.point );
+            const vertex = Vertex.createFromPool( selfIntersection.point );
             this.vertices.push( vertex );
 
-            var startEdge = Edge.createFromPool( segments[ 0 ], edge.startVertex, vertex );
-            var middleEdge = Edge.createFromPool( segments[ 1 ], vertex, vertex );
-            var endEdge = Edge.createFromPool( segments[ 2 ], vertex, edge.endVertex );
+            const startEdge = Edge.createFromPool( segments[ 0 ], edge.startVertex, vertex );
+            const middleEdge = Edge.createFromPool( segments[ 1 ], vertex, vertex );
+            const endEdge = Edge.createFromPool( segments[ 2 ], vertex, edge.endVertex );
 
             this.removeEdge( edge );
 
@@ -682,30 +682,30 @@ define( require => {
      * @private
      */
     eliminateIntersection: function() {
-      var needsLoop = true;
+      let needsLoop = true;
       while ( needsLoop ) {
         needsLoop = false;
 
         intersect:
-          for ( var i = 0; i < this.edges.length; i++ ) {
-            var aEdge = this.edges[ i ];
-            var aSegment = aEdge.segment;
-            for ( var j = i + 1; j < this.edges.length; j++ ) {
-              var bEdge = this.edges[ j ];
-              var bSegment = bEdge.segment;
+          for ( let i = 0; i < this.edges.length; i++ ) {
+            const aEdge = this.edges[ i ];
+            const aSegment = aEdge.segment;
+            for ( let j = i + 1; j < this.edges.length; j++ ) {
+              const bEdge = this.edges[ j ];
+              const bSegment = bEdge.segment;
 
-              var intersections = Segment.intersect( aSegment, bSegment );
+              let intersections = Segment.intersect( aSegment, bSegment );
               intersections = intersections.filter( function( intersection ) {
-                var aT = intersection.aT;
-                var bT = intersection.bT;
-                var aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
-                var bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
+                const aT = intersection.aT;
+                const bT = intersection.bT;
+                const aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
+                const bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
                 return aInternal || bInternal;
               } );
               if ( intersections.length ) {
 
                 // TODO: In the future, handle multiple intersections (instead of re-running)
-                var intersection = intersections[ 0 ];
+                const intersection = intersections[ 0 ];
 
                 needsLoop = this.simpleSplit( aEdge, bEdge, intersection.aT, intersection.bT, intersection.point );
                 break intersect;
@@ -728,12 +728,12 @@ define( require => {
      * @returns {boolean} - true if something was split.
      */
     simpleSplit: function( aEdge, bEdge, aT, bT, point ) {
-      var changed = false;
+      let changed = false;
 
-      var aInternal = aT > 1e-6 && aT < ( 1 - 1e-6 );
-      var bInternal = bT > 1e-6 && bT < ( 1 - 1e-6 );
+      const aInternal = aT > 1e-6 && aT < ( 1 - 1e-6 );
+      const bInternal = bT > 1e-6 && bT < ( 1 - 1e-6 );
 
-      var vertex = null;
+      let vertex = null;
       if ( !aInternal ) {
         vertex = aT < 0.5 ? aEdge.startVertex : aEdge.endVertex;
       }
@@ -770,11 +770,11 @@ define( require => {
       assert && assert( edge.startVertex !== vertex );
       assert && assert( edge.endVertex !== vertex );
 
-      var segments = edge.segment.subdivided( t );
+      const segments = edge.segment.subdivided( t );
       assert && assert( segments.length === 2 );
 
-      var firstEdge = Edge.createFromPool( segments[ 0 ], edge.startVertex, vertex );
-      var secondEdge = Edge.createFromPool( segments[ 1 ], vertex, edge.endVertex );
+      const firstEdge = Edge.createFromPool( segments[ 0 ], edge.startVertex, vertex );
+      const secondEdge = Edge.createFromPool( segments[ 1 ], vertex, edge.endVertex );
 
       // Remove old connections
       this.removeEdge( edge );
@@ -793,37 +793,37 @@ define( require => {
      * @private
      */
     collapseVertices: function() {
-      var self = this;
+      const self = this;
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
 
-      var needsLoop = true;
+      let needsLoop = true;
       while ( needsLoop ) {
         needsLoop = false;
         nextLoop:
-          for ( var i = 0; i < this.vertices.length; i++ ) {
-            var aVertex = this.vertices[ i ];
-            for ( var j = i + 1; j < this.vertices.length; j++ ) {
-              var bVertex = this.vertices[ j ];
+          for ( let i = 0; i < this.vertices.length; i++ ) {
+            const aVertex = this.vertices[ i ];
+            for ( let j = i + 1; j < this.vertices.length; j++ ) {
+              const bVertex = this.vertices[ j ];
 
-              var distance = aVertex.point.distance( bVertex.point );
+              const distance = aVertex.point.distance( bVertex.point );
               if ( distance < 1e-5 ) {
-                var newVertex = Vertex.createFromPool( distance === 0 ? aVertex.point : aVertex.point.average( bVertex.point ) );
+                const newVertex = Vertex.createFromPool( distance === 0 ? aVertex.point : aVertex.point.average( bVertex.point ) );
                 this.vertices.push( newVertex );
 
                 arrayRemove( this.vertices, aVertex );
                 arrayRemove( this.vertices, bVertex );
-                for ( var k = this.edges.length - 1; k >= 0; k-- ) {
-                  var edge = this.edges[ k ];
-                  var startMatches = edge.startVertex === aVertex || edge.startVertex === bVertex;
-                  var endMatches = edge.endVertex === aVertex || edge.endVertex === bVertex;
+                for ( let k = this.edges.length - 1; k >= 0; k-- ) {
+                  const edge = this.edges[ k ];
+                  const startMatches = edge.startVertex === aVertex || edge.startVertex === bVertex;
+                  const endMatches = edge.endVertex === aVertex || edge.endVertex === bVertex;
 
                   // Outright remove edges that were between A and B that aren't loops
                   if ( startMatches && endMatches ) {
                     if ( ( edge.segment.bounds.width > 1e-5 || edge.segment.bounds.height > 1e-5 ) &&
                          ( edge.segment instanceof Cubic || edge.segment instanceof Arc || edge.segment instanceof EllipticalArc ) ) {
                       // Replace it with a new edge that is from the vertex to itself
-                      var replacementEdge = Edge.createFromPool( edge.segment, newVertex, newVertex );
+                      const replacementEdge = Edge.createFromPool( edge.segment, newVertex, newVertex );
                       this.addEdge( replacementEdge );
                       this.replaceEdgeInLoops( edge, [ replacementEdge.forwardHalf ] );
                     }
@@ -880,9 +880,9 @@ define( require => {
       vertex.visited = true;
       vertex.visitIndex = vertex.lowIndex = bridgeId++;
 
-      for ( var i = 0; i < vertex.incidentHalfEdges.length; i++ ) {
-        var edge = vertex.incidentHalfEdges[ i ].edge;
-        var childVertex = vertex.incidentHalfEdges[ i ].startVertex; // by definition, our vertex should be the endVertex
+      for ( let i = 0; i < vertex.incidentHalfEdges.length; i++ ) {
+        const edge = vertex.incidentHalfEdges[ i ].edge;
+        const childVertex = vertex.incidentHalfEdges[ i ].startVertex; // by definition, our vertex should be the endVertex
         if ( !childVertex.visited ) {
           edge.visited = true;
           childVertex.parent = vertex;
@@ -908,17 +908,17 @@ define( require => {
      * @private
      */
     removeBridges: function() {
-      var bridges = [];
+      const bridges = [];
 
       for ( var i = 0; i < this.vertices.length; i++ ) {
-        var vertex = this.vertices[ i ];
+        const vertex = this.vertices[ i ];
         if ( !vertex.visited ) {
           this.markBridges( bridges, vertex );
         }
       }
 
       for ( i = 0; i < bridges.length; i++ ) {
-        var bridgeEdge = bridges[ i ];
+        const bridgeEdge = bridges[ i ];
 
         this.removeEdge( bridgeEdge );
         this.replaceEdgeInLoops( bridgeEdge, [] );
@@ -931,22 +931,22 @@ define( require => {
      * @private
      */
     removeLowOrderVertices: function() {
-      var self = this;
+      const self = this;
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
       assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
 
-      var needsLoop = true;
+      let needsLoop = true;
       while ( needsLoop ) {
         needsLoop = false;
 
         nextVertexLoop:
-          for ( var i = this.vertices.length - 1; i >= 0; i-- ) {
-            var vertex = this.vertices[ i ];
+          for ( let i = this.vertices.length - 1; i >= 0; i-- ) {
+            const vertex = this.vertices[ i ];
 
             if ( vertex.incidentHalfEdges.length < 2 ) {
               // Disconnect any existing edges
-              for ( var j = 0; j < vertex.incidentHalfEdges.length; j++ ) {
-                var edge = vertex.incidentHalfEdges[ j ].edge;
+              for ( let j = 0; j < vertex.incidentHalfEdges.length; j++ ) {
+                const edge = vertex.incidentHalfEdges[ j ].edge;
                 this.removeEdge( edge );
                 this.replaceEdgeInLoops( edge, [] ); // remove the edge from the loops
                 edge.dispose();
@@ -970,7 +970,7 @@ define( require => {
      * @private
      */
     orderVertexEdges: function() {
-      for ( var i = 0; i < this.vertices.length; i++ ) {
+      for ( let i = 0; i < this.vertices.length; i++ ) {
         this.vertices[ i ].sortEdges();
       }
     },
@@ -980,16 +980,16 @@ define( require => {
      * @private
      */
     extractFaces: function() {
-      var halfEdges = [];
+      const halfEdges = [];
       for ( var i = 0; i < this.edges.length; i++ ) {
         halfEdges.push( this.edges[ i ].forwardHalf );
         halfEdges.push( this.edges[ i ].reversedHalf );
       }
 
       while ( halfEdges.length ) {
-        var boundaryHalfEdges = [];
-        var halfEdge = halfEdges[ 0 ];
-        var startingHalfEdge = halfEdge;
+        const boundaryHalfEdges = [];
+        let halfEdge = halfEdges[ 0 ];
+        const startingHalfEdge = halfEdge;
         while ( halfEdge ) {
           arrayRemove( halfEdges, halfEdge );
           boundaryHalfEdges.push( halfEdge );
@@ -998,7 +998,7 @@ define( require => {
             break;
           }
         }
-        var boundary = Boundary.createFromPool( boundaryHalfEdges );
+        const boundary = Boundary.createFromPool( boundaryHalfEdges );
         ( boundary.signedArea > 0 ? this.innerBoundaries : this.outerBoundaries ).push( boundary );
         this.boundaries.push( boundary );
       }
@@ -1017,28 +1017,28 @@ define( require => {
      */
     computeBoundaryTree: function() {
       // TODO: detect "indeterminate" for robustness (and try new angles?)
-      var unboundedHoles = []; // {Array.<Boundary>}
+      const unboundedHoles = []; // {Array.<Boundary>}
 
       // We'll want to compute a ray for each outer boundary that starts at an extreme point for that direction and
       // continues outwards. The next boundary it intersects will be linked together in the tree.
       // We have a mostly-arbitrary angle here that hopefully won't be used.
-      var transform = new Transform3( Matrix3.rotation2( 1.5729657 ) );
+      const transform = new Transform3( Matrix3.rotation2( 1.5729657 ) );
 
       for ( var i = 0; i < this.outerBoundaries.length; i++ ) {
-        var outerBoundary = this.outerBoundaries[ i ];
+        const outerBoundary = this.outerBoundaries[ i ];
 
-        var ray = outerBoundary.computeExtremeRay( transform );
+        const ray = outerBoundary.computeExtremeRay( transform );
 
-        var closestEdge = null;
-        var closestDistance = Number.POSITIVE_INFINITY;
-        var closestWind = false;
+        let closestEdge = null;
+        let closestDistance = Number.POSITIVE_INFINITY;
+        let closestWind = false;
 
-        for ( var j = 0; j < this.edges.length; j++ ) {
-          var edge = this.edges[ j ];
+        for ( let j = 0; j < this.edges.length; j++ ) {
+          const edge = this.edges[ j ];
 
-          var intersections = edge.segment.intersection( ray );
-          for ( var k = 0; k < intersections.length; k++ ) {
-            var intersection = intersections[ k ];
+          const intersections = edge.segment.intersection( ray );
+          for ( let k = 0; k < intersections.length; k++ ) {
+            const intersection = intersections[ k ];
 
             if ( intersection.distance < closestDistance ) {
               closestEdge = edge;
@@ -1052,16 +1052,16 @@ define( require => {
           unboundedHoles.push( outerBoundary );
         }
         else {
-          var reversed = closestWind < 0;
-          var closestHalfEdge = reversed ? closestEdge.reversedHalf : closestEdge.forwardHalf;
-          var closestBoundary = this.getBoundaryOfHalfEdge( closestHalfEdge );
+          const reversed = closestWind < 0;
+          const closestHalfEdge = reversed ? closestEdge.reversedHalf : closestEdge.forwardHalf;
+          const closestBoundary = this.getBoundaryOfHalfEdge( closestHalfEdge );
           closestBoundary.childBoundaries.push( outerBoundary );
         }
       }
 
       unboundedHoles.forEach( this.unboundedFace.recursivelyAddHoles.bind( this.unboundedFace ) );
       for ( i = 0; i < this.faces.length; i++ ) {
-        var face = this.faces[ i ];
+        const face = this.faces[ i ];
         if ( face.boundary !== null ) {
           face.boundary.childBoundaries.forEach( face.recursivelyAddHoles.bind( face ) );
         }
@@ -1073,11 +1073,11 @@ define( require => {
      * @private
      */
     computeWindingMap: function() {
-      var edges = this.edges.slice();
+      const edges = this.edges.slice();
 
       // Winding numbers for "outside" are 0.
-      var outsideMap = {};
-      for ( var i = 0; i < this.shapeIds.length; i++ ) {
+      const outsideMap = {};
+      for ( let i = 0; i < this.shapeIds.length; i++ ) {
         outsideMap[ this.shapeIds[ i ] ] = 0;
       }
       this.unboundedFace.windingMap = outsideMap;
@@ -1086,25 +1086,25 @@ define( require => {
       // solved one of the faces that is adjacent to that edge. We can then compute the difference between winding
       // numbers between the two faces, and thus determine the (absolute) winding numbers for the unsolved face.
       while ( edges.length ) {
-        for ( var j = edges.length - 1; j >= 0; j-- ) {
-          var edge = edges[ j ];
+        for ( let j = edges.length - 1; j >= 0; j-- ) {
+          const edge = edges[ j ];
 
-          var forwardHalf = edge.forwardHalf;
-          var reversedHalf = edge.reversedHalf;
+          const forwardHalf = edge.forwardHalf;
+          const reversedHalf = edge.reversedHalf;
 
-          var forwardFace = forwardHalf.face;
-          var reversedFace = reversedHalf.face;
+          const forwardFace = forwardHalf.face;
+          const reversedFace = reversedHalf.face;
           assert && assert( forwardFace !== reversedFace );
 
-          var solvedForward = forwardFace.windingMap !== null;
-          var solvedReversed = reversedFace.windingMap !== null;
+          const solvedForward = forwardFace.windingMap !== null;
+          const solvedReversed = reversedFace.windingMap !== null;
 
           if ( solvedForward && solvedReversed ) {
             edges.splice( j, 1 );
 
             if ( assert ) {
-              for ( var m = 0; m < this.shapeIds.length; m++ ) {
-                var id = this.shapeIds[ m ];
+              for ( let m = 0; m < this.shapeIds.length; m++ ) {
+                const id = this.shapeIds[ m ];
                 assert( forwardFace.windingMap[ id ] - reversedFace.windingMap[ id ] === this.computeDifferential( edge, id ) );
               }
             }
@@ -1113,13 +1113,13 @@ define( require => {
             continue;
           }
           else {
-            var solvedFace = solvedForward ? forwardFace : reversedFace;
-            var unsolvedFace = solvedForward ? reversedFace : forwardFace;
+            const solvedFace = solvedForward ? forwardFace : reversedFace;
+            const unsolvedFace = solvedForward ? reversedFace : forwardFace;
 
-            var windingMap = {};
-            for ( var k = 0; k < this.shapeIds.length; k++ ) {
-              var shapeId = this.shapeIds[ k ];
-              var differential = this.computeDifferential( edge, shapeId );
+            const windingMap = {};
+            for ( let k = 0; k < this.shapeIds.length; k++ ) {
+              const shapeId = this.shapeIds[ k ];
+              const differential = this.computeDifferential( edge, shapeId );
               windingMap[ shapeId ] = solvedFace.windingMap[ shapeId ] + differential * ( solvedForward ? -1 : 1 );
             }
             unsolvedFace.windingMap = windingMap;
@@ -1138,16 +1138,16 @@ define( require => {
      * @returns {number} - The difference between forward face and reversed face winding numbers.
      */
     computeDifferential: function( edge, shapeId ) {
-      var differential = 0; // forward face - reversed face
-      for ( var m = 0; m < this.loops.length; m++ ) {
-        var loop = this.loops[ m ];
+      let differential = 0; // forward face - reversed face
+      for ( let m = 0; m < this.loops.length; m++ ) {
+        const loop = this.loops[ m ];
         assert && assert( loop.closed, 'This is only defined to work for closed loops' );
         if ( loop.shapeId !== shapeId ) {
           continue;
         }
 
-        for ( var n = 0; n < loop.halfEdges.length; n++ ) {
-          var loopHalfEdge = loop.halfEdges[ n ];
+        for ( let n = 0; n < loop.halfEdges.length; n++ ) {
+          const loopHalfEdge = loop.halfEdges[ n ];
           if ( loopHalfEdge === edge.forwardHalf ) {
             differential++;
           }
@@ -1168,7 +1168,7 @@ define( require => {
      *       to make this consistent. Notably, all vertices need to have an even order (number of edges)
      */
     fillAlternatingFaces: function() {
-      var nullFaceFilledCount = 0;
+      let nullFaceFilledCount = 0;
       for ( var i = 0; i < this.faces.length; i++ ) {
         this.faces[ i ].filled = null;
         nullFaceFilledCount++;
@@ -1179,12 +1179,12 @@ define( require => {
 
       while ( nullFaceFilledCount ) {
         for ( i = 0; i < this.edges.length; i++ ) {
-          var edge = this.edges[ i ];
-          var forwardFace = edge.forwardHalf.face;
-          var reversedFace = edge.reversedHalf.face;
+          const edge = this.edges[ i ];
+          const forwardFace = edge.forwardHalf.face;
+          const reversedFace = edge.reversedHalf.face;
 
-          var forwardNull = forwardFace.filled === null;
-          var reversedNull = reversedFace.filled === null;
+          const forwardNull = forwardFace.filled === null;
+          const reversedNull = reversedFace.filled === null;
 
           if ( forwardNull && !reversedNull ) {
             forwardFace.filled = !reversedFace.filled;
@@ -1208,8 +1208,8 @@ define( require => {
      * @returns {Boundary}
      */
     getBoundaryOfHalfEdge: function( halfEdge ) {
-      for ( var i = 0; i < this.boundaries.length; i++ ) {
-        var boundary = this.boundaries[ i ];
+      for ( let i = 0; i < this.boundaries.length; i++ ) {
+        const boundary = this.boundaries[ i ];
 
         if ( boundary.hasHalfEdge( halfEdge ) ) {
           return boundary;
@@ -1286,14 +1286,14 @@ define( require => {
    * @returns {Shape}
    */
   Graph.binaryResult = function( shapeA, shapeB, windingMapFilter ) {
-    var graph = new Graph();
+    const graph = new Graph();
     graph.addShape( 0, shapeA );
     graph.addShape( 1, shapeB );
 
     graph.computeSimplifiedFaces();
     graph.computeFaceInclusion( windingMapFilter );
-    var subgraph = graph.createFilledSubGraph();
-    var shape = subgraph.facesToShape();
+    const subgraph = graph.createFilledSubGraph();
+    const shape = subgraph.facesToShape();
 
     graph.dispose();
     subgraph.dispose();
@@ -1309,22 +1309,22 @@ define( require => {
    * @returns {Shape}
    */
   Graph.unionNonZero = function( shapes ) {
-    var graph = new Graph();
-    for ( var i = 0; i < shapes.length; i++ ) {
+    const graph = new Graph();
+    for ( let i = 0; i < shapes.length; i++ ) {
       graph.addShape( i, shapes[ i ] );
     }
 
     graph.computeSimplifiedFaces();
     graph.computeFaceInclusion( function( windingMap ) {
-      for ( var j = 0; j < shapes.length; j++ ) {
+      for ( let j = 0; j < shapes.length; j++ ) {
         if ( windingMap[ j ] !== 0 ) {
           return true;
         }
       }
       return false;
     } );
-    var subgraph = graph.createFilledSubGraph();
-    var shape = subgraph.facesToShape();
+    const subgraph = graph.createFilledSubGraph();
+    const shape = subgraph.facesToShape();
 
     graph.dispose();
     subgraph.dispose();
@@ -1340,22 +1340,22 @@ define( require => {
    * @returns {Shape}
    */
   Graph.intersectionNonZero = function( shapes ) {
-    var graph = new Graph();
-    for ( var i = 0; i < shapes.length; i++ ) {
+    const graph = new Graph();
+    for ( let i = 0; i < shapes.length; i++ ) {
       graph.addShape( i, shapes[ i ] );
     }
 
     graph.computeSimplifiedFaces();
     graph.computeFaceInclusion( function( windingMap ) {
-      for ( var j = 0; j < shapes.length; j++ ) {
+      for ( let j = 0; j < shapes.length; j++ ) {
         if ( windingMap[ j ] === 0 ) {
           return false;
         }
       }
       return true;
     } );
-    var subgraph = graph.createFilledSubGraph();
-    var shape = subgraph.facesToShape();
+    const subgraph = graph.createFilledSubGraph();
+    const shape = subgraph.facesToShape();
 
     graph.dispose();
     subgraph.dispose();
@@ -1373,23 +1373,23 @@ define( require => {
    * @returns {Shape}
    */
   Graph.xorNonZero = function( shapes ) {
-    var graph = new Graph();
-    for ( var i = 0; i < shapes.length; i++ ) {
+    const graph = new Graph();
+    for ( let i = 0; i < shapes.length; i++ ) {
       graph.addShape( i, shapes[ i ] );
     }
 
     graph.computeSimplifiedFaces();
     graph.computeFaceInclusion( function( windingMap ) {
-      var included = false;
-      for ( var j = 0; j < shapes.length; j++ ) {
+      let included = false;
+      for ( let j = 0; j < shapes.length; j++ ) {
         if ( windingMap[ j ] !== 0 ) {
           included = !included;
         }
       }
       return included;
     } );
-    var subgraph = graph.createFilledSubGraph();
-    var shape = subgraph.facesToShape();
+    const subgraph = graph.createFilledSubGraph();
+    const shape = subgraph.facesToShape();
 
     graph.dispose();
     subgraph.dispose();
@@ -1405,15 +1405,15 @@ define( require => {
    * @returns {Shape}
    */
   Graph.simplifyNonZero = function( shape ) {
-    var graph = new Graph();
+    const graph = new Graph();
     graph.addShape( 0, shape );
 
     graph.computeSimplifiedFaces();
     graph.computeFaceInclusion( function( map ) {
       return map[ '0' ] !== 0;
     } );
-    var subgraph = graph.createFilledSubGraph();
-    var resultShape = subgraph.facesToShape();
+    const subgraph = graph.createFilledSubGraph();
+    const resultShape = subgraph.facesToShape();
 
     graph.dispose();
     subgraph.dispose();
@@ -1432,12 +1432,12 @@ define( require => {
    * @returns {Shape}
    */
   Graph.clipShape = function( clipAreaShape, shape, options ) {
-    var i;
-    var j;
-    var loop;
+    let i;
+    let j;
+    let loop;
 
-    var SHAPE_ID = 0;
-    var CLIP_SHAPE_ID = 1;
+    const SHAPE_ID = 0;
+    const CLIP_SHAPE_ID = 1;
 
     options = _.extend( {
       // {boolean} - Respectively whether segments should be in the returned shape if they are in the exterior of the
@@ -1447,9 +1447,9 @@ define( require => {
       includeInterior: true
     }, options );
 
-    var simplifiedClipAreaShape = Graph.simplifyNonZero( clipAreaShape );
+    const simplifiedClipAreaShape = Graph.simplifyNonZero( clipAreaShape );
 
-    var graph = new Graph();
+    const graph = new Graph();
     graph.addShape( SHAPE_ID, shape, {
       ensureClosed: false // don't add closing segments, since we'll be recreating subpaths/etc.
     } );
@@ -1471,15 +1471,15 @@ define( require => {
       }
     }
 
-    var subpaths = [];
+    const subpaths = [];
     for ( i = 0; i < graph.loops.length; i++ ) {
       loop = graph.loops[ i ];
       if ( loop.shapeId === SHAPE_ID ) {
-        var segments = [];
+        let segments = [];
         for ( j = 0; j < loop.halfEdges.length; j++ ) {
-          var halfEdge = loop.halfEdges[ j ];
+          const halfEdge = loop.halfEdges[ j ];
 
-          var included = halfEdge.edge.data ? options.includeBoundary : (
+          const included = halfEdge.edge.data ? options.includeBoundary : (
             simplifiedClipAreaShape.containsPoint( halfEdge.edge.segment.positionAt( 0.5 ) ) ? options.includeInterior : options.includeExterior
           );
           if ( included ) {

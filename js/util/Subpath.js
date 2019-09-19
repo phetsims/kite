@@ -34,7 +34,7 @@ define( require => {
    */
   function Subpath( segments, points, closed ) {
     this.invalidatedEmitter = new TinyEmitter();
-    var self = this;
+    const self = this;
 
     // @public {Array.<Segment>}
     this.segments = [];
@@ -64,7 +64,7 @@ define( require => {
 
     // Add all segments directly (hooks up invalidation listeners properly)
     if ( segments ) {
-      for ( var i = 0; i < segments.length; i++ ) {
+      for ( let i = 0; i < segments.length; i++ ) {
         _.each( segments[ i ].getNondegenerateSegments(), function( segment ) {
           self.addSegmentDirectly( segment );
         } );
@@ -84,7 +84,7 @@ define( require => {
      */
     getBounds: function() {
       if ( this._bounds === null ) {
-        var bounds = Bounds2.NOTHING.copy();
+        const bounds = Bounds2.NOTHING.copy();
         _.each( this.segments, function( segment ) {
           bounds.includeBounds( segment.getBounds() );
         } );
@@ -104,8 +104,8 @@ define( require => {
      * @returns {number}
      */
     getArcLength: function( distanceEpsilon, curveEpsilon, maxLevels ) {
-      var length = 0;
-      for ( var i = 0; i < this.segments.length; i++ ) {
+      let length = 0;
+      for ( let i = 0; i < this.segments.length; i++ ) {
         length += this.segments[ i ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels );
       }
       return length;
@@ -128,8 +128,8 @@ define( require => {
     invalidatePoints: function() {
       this._invalidatingPoints = true;
 
-      var numSegments = this.segments.length;
-      for ( var i = 0; i < numSegments; i++ ) {
+      const numSegments = this.segments.length;
+      for ( let i = 0; i < numSegments; i++ ) {
         this.segments[ i ].invalidate();
       }
 
@@ -192,9 +192,9 @@ define( require => {
      * @returns {Subpath}
      */
     addSegment: function( segment ) {
-      var nondegenerateSegments = segment.getNondegenerateSegments();
-      var numNondegenerateSegments = nondegenerateSegments.length;
-      for ( var i = 0; i < numNondegenerateSegments; i++ ) {
+      const nondegenerateSegments = segment.getNondegenerateSegments();
+      const numNondegenerateSegments = nondegenerateSegments.length;
+      for ( let i = 0; i < numNondegenerateSegments; i++ ) {
         this.addSegmentDirectly( segment );
       }
       this.invalidate(); // need to invalidate after addSegmentDirectly
@@ -209,7 +209,7 @@ define( require => {
      */
     addClosingSegment: function() {
       if ( this.hasClosingSegment() ) {
-        var closingSegment = this.getClosingSegment();
+        const closingSegment = this.getClosingSegment();
         this.addSegmentDirectly( closingSegment );
         this.invalidate(); // need to invalidate after addSegmentDirectly
         this.addPoint( this.getFirstPoint() );
@@ -285,7 +285,7 @@ define( require => {
      * @returns {Array.<Segment>}
      */
     getFillSegments: function() {
-      var segments = this.segments.slice();
+      const segments = this.segments.slice();
       if ( this.hasClosingSegment() ) {
         segments.push( this.getClosingSegment() );
       }
@@ -341,10 +341,10 @@ define( require => {
      */
     writeToContext: function( context ) {
       if ( this.isDrawable() ) {
-        var startPoint = this.getFirstSegment().start;
+        const startPoint = this.getFirstSegment().start;
         context.moveTo( startPoint.x, startPoint.y ); // the segments assume the current context position is at their start
 
-        var len = this.segments.length;
+        let len = this.segments.length;
 
         // Omit an ending line segment if our path is closed.
         // see https://github.com/phetsims/ph-scale/issues/83#issuecomment-512663949
@@ -352,7 +352,7 @@ define( require => {
           len--;
         }
 
-        for ( var i = 0; i < len; i++ ) {
+        for ( let i = 0; i < len; i++ ) {
           this.segments[ i ].writeToContext( context );
         }
 
@@ -433,9 +433,9 @@ define( require => {
      * @returns {bounds}
      */
     getBoundsWithTransform: function( matrix ) {
-      var bounds = Bounds2.NOTHING.copy();
-      var numSegments = this.segments.length;
-      for ( var i = 0; i < numSegments; i++ ) {
+      const bounds = Bounds2.NOTHING.copy();
+      const numSegments = this.segments.length;
+      for ( let i = 0; i < numSegments; i++ ) {
         bounds.includeBounds( this.segments[ i ].getBoundsWithTransform( matrix ) );
       }
       return bounds;
@@ -458,26 +458,26 @@ define( require => {
         return new Subpath( this.segments.slice(), null, this.closed );
       }
 
-      var i;
+      let i;
 
-      var regularSegments = this.segments.slice();
-      var offsets = [];
+      const regularSegments = this.segments.slice();
+      const offsets = [];
 
       for ( i = 0; i < regularSegments.length; i++ ) {
         offsets.push( regularSegments[ i ].strokeLeft( 2 * distance ) );
       }
 
-      var segments = [];
+      let segments = [];
       for ( i = 0; i < regularSegments.length; i++ ) {
         if ( this.closed || i > 0 ) {
-          var previousI = ( i > 0 ? i : regularSegments.length ) - 1;
-          var center = regularSegments[ i ].start;
-          var fromTangent = regularSegments[ previousI ].endTangent;
-          var toTangent = regularSegments[ i ].startTangent;
+          const previousI = ( i > 0 ? i : regularSegments.length ) - 1;
+          const center = regularSegments[ i ].start;
+          const fromTangent = regularSegments[ previousI ].endTangent;
+          const toTangent = regularSegments[ i ].startTangent;
 
-          var startAngle = fromTangent.perpendicular.negated().times( distance ).angle;
-          var endAngle = toTangent.perpendicular.negated().times( distance ).angle;
-          var anticlockwise = fromTangent.perpendicular.dot( toTangent ) > 0;
+          const startAngle = fromTangent.perpendicular.negated().times( distance ).angle;
+          const endAngle = toTangent.perpendicular.negated().times( distance ).angle;
+          const anticlockwise = fromTangent.perpendicular.dot( toTangent ) > 0;
           segments.push( new Arc( center, Math.abs( distance ), startAngle, endAngle, anticlockwise ) );
         }
         segments = segments.concat( offsets[ i ] );
@@ -508,13 +508,13 @@ define( require => {
         return this._strokedSubpaths;
       }
 
-      var lineWidth = lineStyles.lineWidth;
+      const lineWidth = lineStyles.lineWidth;
 
-      var i;
-      var leftSegments = [];
-      var rightSegments = [];
-      var firstSegment = this.getFirstSegment();
-      var lastSegment = this.getLastSegment();
+      let i;
+      let leftSegments = [];
+      let rightSegments = [];
+      const firstSegment = this.getFirstSegment();
+      const lastSegment = this.getLastSegment();
 
       function appendLeftSegments( segments ) {
         leftSegments = leftSegments.concat( segments );
@@ -525,9 +525,9 @@ define( require => {
       }
 
       // we don't need to insert an implicit closing segment if the start and end points are the same
-      var alreadyClosed = lastSegment.end.equals( firstSegment.start );
+      const alreadyClosed = lastSegment.end.equals( firstSegment.start );
       // if there is an implicit closing segment
-      var closingSegment = alreadyClosed ? null : new Line( this.segments[ this.segments.length - 1 ].end, this.segments[ 0 ].start );
+      const closingSegment = alreadyClosed ? null : new Line( this.segments[ this.segments.length - 1 ].end, this.segments[ 0 ].start );
 
       // stroke the logical "left" side of our path
       for ( i = 0; i < this.segments.length; i++ ) {
@@ -545,7 +545,7 @@ define( require => {
         appendRightSegments( this.segments[ i ].strokeRight( lineWidth ) );
       }
 
-      var subpaths;
+      let subpaths;
       if ( this.closed ) {
         if ( alreadyClosed ) {
           // add the joins between the start and end
@@ -599,8 +599,8 @@ define( require => {
     dashed: function( lineDash, lineDashOffset, distanceEpsilon, curveEpsilon ) {
       // Combine segment arrays (collapsing the two-most-adjacent arrays into one, with concatenation)
       function combineSegmentArrays( left, right ) {
-        var combined = left[ left.length - 1 ].concat( right[ 0 ] );
-        var result = left.slice( 0, left.length - 1 ).concat( [ combined ] ).concat( right.slice( 1 ) );
+        const combined = left[ left.length - 1 ].concat( right[ 0 ] );
+        const result = left.slice( 0, left.length - 1 ).concat( [ combined ] ).concat( right.slice( 1 ) );
         assert && assert( result.length === left.length + right.length - 1 );
         return result;
       }
@@ -611,23 +611,23 @@ define( require => {
         if ( !leftItem.hasRightFilled || !rightItem.hasLeftFilled ) {
           return false;
         }
-        var leftSegment = _.last( _.last( leftItem.segmentArrays ) );
-        var rightSegment = rightItem.segmentArrays[ 0 ][ 0 ];
+        const leftSegment = _.last( _.last( leftItem.segmentArrays ) );
+        const rightSegment = rightItem.segmentArrays[ 0 ][ 0 ];
         return leftSegment.end.distance( rightSegment.start ) < 1e-5;
       }
 
       // Compute all of the dashes
-      var dashItems = [];
+      const dashItems = [];
       for ( var i = 0; i < this.segments.length; i++ ) {
-        var segment = this.segments[ i ];
-        var dashItem = segment.getDashValues( lineDash, lineDashOffset, distanceEpsilon, curveEpsilon );
+        const segment = this.segments[ i ];
+        const dashItem = segment.getDashValues( lineDash, lineDashOffset, distanceEpsilon, curveEpsilon );
         dashItems.push( dashItem );
 
         // We moved forward in the offset by this much
         lineDashOffset += dashItem.arcLength;
 
-        var values = [ 0 ].concat( dashItem.values ).concat( [ 1 ] );
-        var initiallyInside = dashItem.initiallyInside;
+        const values = [ 0 ].concat( dashItem.values ).concat( [ 1 ] );
+        const initiallyInside = dashItem.initiallyInside;
 
         // Mark whether the ends are filled, so adjacent filled ends can be combined
         dashItem.hasLeftFilled = initiallyInside;
@@ -635,7 +635,7 @@ define( require => {
 
         // {Array.<Array.<Segment>>}, where each contained array will be turned into a subpath at the end.
         dashItem.segmentArrays = [];
-        for ( var j = ( initiallyInside ? 0 : 1 ); j < values.length - 1; j += 2 ) {
+        for ( let j = ( initiallyInside ? 0 : 1 ); j < values.length - 1; j += 2 ) {
           if ( values[ j ] !== values[ j + 1 ] ) {
             dashItem.segmentArrays.push( [ segment.slice( values[ j ], values[ j + 1 ] ) ] );
           }

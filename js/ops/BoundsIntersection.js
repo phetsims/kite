@@ -92,8 +92,8 @@ define( require => {
      * @param {Array.<BoundsIntersection>}
      */
     pushSubdivisions: function( intersections ) {
-      var atMid = ( this.atMax + this.atMin ) / 2;
-      var btMid = ( this.btMax + this.btMin ) / 2;
+      const atMid = ( this.atMax + this.atMin ) / 2;
+      const btMid = ( this.btMax + this.btMin ) / 2;
 
       // If we reached the point where no higher precision can be obtained, return the given intersection
       if ( atMid === this.atMin || atMid === this.atMax || btMid === this.btMin || btMid === this.btMax ) {
@@ -101,8 +101,8 @@ define( require => {
         return;
       }
 
-      var aMid = this.a.positionAt( atMid );
-      var bMid = this.b.positionAt( btMid );
+      const aMid = this.a.positionAt( atMid );
+      const bMid = this.b.positionAt( btMid );
 
       if ( BoundsIntersection.boxIntersects( this.aMin, aMid, this.bMin, bMid ) ) {
         intersections.push( BoundsIntersection.createFromPool(
@@ -136,10 +136,10 @@ define( require => {
      * @returns {number}
      */
     distance: function( otherIntersection ) {
-      var daMin = this.atMin - otherIntersection.atMin;
-      var daMax = this.atMax - otherIntersection.atMax;
-      var dbMin = this.btMin - otherIntersection.btMin;
-      var dbMax = this.btMax - otherIntersection.btMax;
+      const daMin = this.atMin - otherIntersection.atMin;
+      const daMax = this.atMax - otherIntersection.atMax;
+      const dbMin = this.btMin - otherIntersection.btMin;
+      const dbMax = this.btMax - otherIntersection.btMax;
       return daMin * daMin + daMax * daMax + dbMin * dbMin + dbMax * dbMax;
     },
 
@@ -172,22 +172,22 @@ define( require => {
         return [];
       }
 
-      var intersections = BoundsIntersection.getIntersectionRanges( a, b );
+      const intersections = BoundsIntersection.getIntersectionRanges( a, b );
 
       // Group together intersections that are very close (in parametric value space) so we can only return
       // one intersection (averaged value) for them.
-      var groups = [];
+      const groups = [];
 
       // NOTE: Doesn't have to be the fastest, won't be a crazy huge amount of these unless something went
       //       seriously wrong (degenerate case?)
       for ( var i = 0; i < intersections.length; i++ ) {
-        var intersection = intersections[ i ];
-        var wasAdded = false;
+        const intersection = intersections[ i ];
+        let wasAdded = false;
         nextComparison:
         for ( var j = 0; j < groups.length; j++ ) {
           var group = groups[ j ];
-          for ( var k = 0; k < group.length; k++ ) {
-            var otherIntersection = group[ k ];
+          for ( let k = 0; k < group.length; k++ ) {
+            const otherIntersection = group[ k ];
             if ( intersection.distance( otherIntersection ) < 1e-13 ) {
               group.push( intersection );
               wasAdded = true;
@@ -200,14 +200,14 @@ define( require => {
         }
       }
 
-      var results = [];
+      const results = [];
 
       // For each group, average its parametric values, and create a "result intersection" from it.
       for ( i = 0; i < groups.length; i++ ) {
         group = groups[ i ];
 
-        var aT = 0;
-        var bT = 0;
+        let aT = 0;
+        let bT = 0;
         for ( j = 0; j < group.length; j++ ) {
           aT += group[ j ].atMin + group[ j ].atMax;
           bT += group[ j ].btMin + group[ j ].btMax;
@@ -215,8 +215,8 @@ define( require => {
         aT /= 2 * group.length;
         bT /= 2 * group.length;
 
-        var positionA = a.positionAt( aT );
-        var positionB = b.positionAt( bT );
+        const positionA = a.positionAt( aT );
+        const positionB = b.positionAt( bT );
         assert && assert( positionA.distance( positionB ) < 1e-10 );
 
         results.push( new SegmentIntersection( positionA.average( positionB ), aT, bT ) );
@@ -242,25 +242,25 @@ define( require => {
     getIntersectionRanges: function( a, b ) {
       // Internal t-values that have a local min/max in at least one coordinate. We'll split based on these, so we only
       // check intersections between monotone segments (won't have to check self-intersection).
-      var aExtrema = a.getInteriorExtremaTs();
-      var bExtrema = b.getInteriorExtremaTs();
+      const aExtrema = a.getInteriorExtremaTs();
+      const bExtrema = b.getInteriorExtremaTs();
 
       // T-value pairs
-      var aInternals = _.zip( [ 0 ].concat( aExtrema ), aExtrema.concat( [ 1 ] ) );
-      var bInternals = _.zip( [ 0 ].concat( bExtrema ), bExtrema.concat( [ 1 ] ) );
+      const aInternals = _.zip( [ 0 ].concat( aExtrema ), aExtrema.concat( [ 1 ] ) );
+      const bInternals = _.zip( [ 0 ].concat( bExtrema ), bExtrema.concat( [ 1 ] ) );
 
       // Set up initial candidiate intersection ranges
-      var intersections = [];
+      let intersections = [];
       for ( var i = 0; i < aInternals.length; i++ ) {
         for ( var j = 0; j < bInternals.length; j++ ) {
-          var atMin = aInternals[ i ][ 0 ];
-          var atMax = aInternals[ i ][ 1 ];
-          var btMin = bInternals[ j ][ 0 ];
-          var btMax = bInternals[ j ][ 1 ];
-          var aMin = a.positionAt( atMin );
-          var aMax = a.positionAt( atMax );
-          var bMin = b.positionAt( btMin );
-          var bMax = b.positionAt( btMax );
+          const atMin = aInternals[ i ][ 0 ];
+          const atMax = aInternals[ i ][ 1 ];
+          const btMin = bInternals[ j ][ 0 ];
+          const btMax = bInternals[ j ][ 1 ];
+          const aMin = a.positionAt( atMin );
+          const aMax = a.positionAt( atMax );
+          const bMin = b.positionAt( btMin );
+          const bMax = b.positionAt( btMax );
           if ( BoundsIntersection.boxIntersects( aMin, aMax, bMin, bMax ) ) {
             intersections.push( BoundsIntersection.createFromPool(
               a, b, atMin, atMax, btMin, btMax, aMin, aMax, bMin, bMax
@@ -272,7 +272,7 @@ define( require => {
       // Subdivide continuously
       // TODO: is 50 the proper number of iterations?
       for ( i = 0; i < 50; i++ ) {
-        var newIntersections = [];
+        const newIntersections = [];
         for ( j = intersections.length - 1; j >= 0; j-- ) {
           intersections[ j ].pushSubdivisions( newIntersections );
         }
@@ -299,10 +299,10 @@ define( require => {
       assert && assert( bMax instanceof Vector2 );
 
       // e.g. Bounds2.includeBounds
-      var minX = Math.max( Math.min( aMin.x, aMax.x ), Math.min( bMin.x, bMax.x ) );
-      var minY = Math.max( Math.min( aMin.y, aMax.y ), Math.min( bMin.y, bMax.y ) );
-      var maxX = Math.min( Math.max( aMin.x, aMax.x ), Math.max( bMin.x, bMax.x ) );
-      var maxY = Math.min( Math.max( aMin.y, aMax.y ), Math.max( bMin.y, bMax.y ) );
+      const minX = Math.max( Math.min( aMin.x, aMax.x ), Math.min( bMin.x, bMax.x ) );
+      const minY = Math.max( Math.min( aMin.y, aMax.y ), Math.min( bMin.y, bMax.y ) );
+      const maxX = Math.min( Math.max( aMin.x, aMax.x ), Math.max( bMin.x, bMax.x ) );
+      const maxY = Math.min( Math.max( aMin.y, aMax.y ), Math.max( bMin.y, bMax.y ) );
       return ( maxX - minX ) >= 0 && ( maxY - minY >= 0 );
     },
 
@@ -312,7 +312,7 @@ define( require => {
      * @private
      */
     cleanPool: function() {
-      for ( var i = 0; i < BoundsIntersection.pool.length; i++ ) {
+      for ( let i = 0; i < BoundsIntersection.pool.length; i++ ) {
         BoundsIntersection.pool[ i ].clean();
       }
     }

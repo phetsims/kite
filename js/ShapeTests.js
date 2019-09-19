@@ -24,10 +24,10 @@ define( require => {
 
   function dataToCanvas( snapshot ) {
 
-    var canvas = document.createElement( 'canvas' );
+    const canvas = document.createElement( 'canvas' );
     canvas.width = snapshot.width;
     canvas.height = snapshot.height;
-    var context = canvas.getContext( '2d' );
+    const context = canvas.getContext( '2d' );
     context.putImageData( snapshot, 0, 0 );
     $( canvas ).css( 'border', '1px solid black' );
     return canvas;
@@ -36,14 +36,14 @@ define( require => {
   // compares two pixel snapshots {ImageData} and uses the qunit's assert to verify they are the same
   function dataEquals( assert, a, b, threshold, message, extraDom ) {
 
-    var isEqual = a.width === b.width && a.height === b.height;
-    var largestDifference = 0;
-    var totalDifference = 0;
-    var colorDiffData = document.createElement( 'canvas' ).getContext( '2d' ).createImageData( a.width, a.height );
-    var alphaDiffData = document.createElement( 'canvas' ).getContext( '2d' ).createImageData( a.width, a.height );
+    let isEqual = a.width === b.width && a.height === b.height;
+    let largestDifference = 0;
+    let totalDifference = 0;
+    const colorDiffData = document.createElement( 'canvas' ).getContext( '2d' ).createImageData( a.width, a.height );
+    const alphaDiffData = document.createElement( 'canvas' ).getContext( '2d' ).createImageData( a.width, a.height );
     if ( isEqual ) {
-      for ( var i = 0; i < a.data.length; i++ ) {
-        var diff = Math.abs( a.data[ i ] - b.data[ i ] );
+      for ( let i = 0; i < a.data.length; i++ ) {
+        const diff = Math.abs( a.data[ i ] - b.data[ i ] );
         if ( i % 4 === 3 ) {
           colorDiffData.data[ i ] = 255;
           alphaDiffData.data[ i ] = 255;
@@ -54,9 +54,9 @@ define( require => {
         else {
           colorDiffData.data[ i ] = diff;
         }
-        var alphaIndex = ( i - ( i % 4 ) + 3 );
+        const alphaIndex = ( i - ( i % 4 ) + 3 );
         // grab the associated alpha channel and multiply it times the diff
-        var alphaMultipliedDiff = ( i % 4 === 3 ) ? diff : diff * ( a.data[ alphaIndex ] / 255 ) * ( b.data[ alphaIndex ] / 255 );
+        const alphaMultipliedDiff = ( i % 4 === 3 ) ? diff : diff * ( a.data[ alphaIndex ] / 255 ) * ( b.data[ alphaIndex ] / 255 );
 
         totalDifference += alphaMultipliedDiff;
         // if ( alphaMultipliedDiff > threshold ) {
@@ -67,14 +67,14 @@ define( require => {
         // }
       }
     }
-    var averageDifference = totalDifference / ( 4 * a.width * a.height );
+    const averageDifference = totalDifference / ( 4 * a.width * a.height );
     if ( averageDifference > threshold ) {
-      var display = $( '#display' );
+      const display = $( '#display' );
       // header
-      var note = document.createElement( 'h2' );
+      const note = document.createElement( 'h2' );
       $( note ).text( message );
       display.append( note );
-      var differenceDiv = document.createElement( 'div' );
+      const differenceDiv = document.createElement( 'div' );
       $( differenceDiv ).text( '(actual) (expected) (color diff) (alpha diff) Diffs max: ' + largestDifference + ', average: ' + averageDifference );
       display.append( differenceDiv );
 
@@ -97,10 +97,10 @@ define( require => {
   }
 
   function testUnion( assert, aShape, bShape, threshold, message ) {
-    var normalCanvas = document.createElement( 'canvas' );
+    const normalCanvas = document.createElement( 'canvas' );
     normalCanvas.width = 100;
     normalCanvas.height = 100;
-    var normalContext = normalCanvas.getContext( '2d' );
+    const normalContext = normalCanvas.getContext( '2d' );
     normalContext.fillStyle = 'black';
 
     normalContext.beginPath();
@@ -113,12 +113,12 @@ define( require => {
 
     // document.body.appendChild( normalCanvas );
 
-    var shape = aShape.shapeUnion( bShape );
+    const shape = aShape.shapeUnion( bShape );
 
-    var testCanvas = document.createElement( 'canvas' );
+    const testCanvas = document.createElement( 'canvas' );
     testCanvas.width = 100;
     testCanvas.height = 100;
-    var testContext = testCanvas.getContext( '2d' );
+    const testContext = testCanvas.getContext( '2d' );
     testContext.fillStyle = 'black';
 
     testContext.beginPath();
@@ -127,17 +127,17 @@ define( require => {
 
     // document.body.appendChild( testCanvas );
 
-    var normalData = normalContext.getImageData( 0, 0, 100, 100 );
-    var testData = testContext.getImageData( 0, 0, 100, 100 );
+    const normalData = normalContext.getImageData( 0, 0, 100, 100 );
+    const testData = testContext.getImageData( 0, 0, 100, 100 );
 
     dataEquals( assert, normalData, testData, threshold, message );
   }
 
   function testDifference( assert, aShape, bShape, threshold, message ) {
-    var normalCanvas = document.createElement( 'canvas' );
+    const normalCanvas = document.createElement( 'canvas' );
     normalCanvas.width = 100;
     normalCanvas.height = 100;
-    var normalContext = normalCanvas.getContext( '2d' );
+    const normalContext = normalCanvas.getContext( '2d' );
     normalContext.fillStyle = 'white';
     normalContext.fillRect( 0, 0, 100, 100 );
     normalContext.fillStyle = 'black';
@@ -154,12 +154,12 @@ define( require => {
 
     // document.body.appendChild( normalCanvas );
 
-    var shape = aShape.shapeDifference( bShape );
+    const shape = aShape.shapeDifference( bShape );
 
-    var testCanvas = document.createElement( 'canvas' );
+    const testCanvas = document.createElement( 'canvas' );
     testCanvas.width = 100;
     testCanvas.height = 100;
-    var testContext = testCanvas.getContext( '2d' );
+    const testContext = testCanvas.getContext( '2d' );
     testContext.fillStyle = 'white';
     testContext.fillRect( 0, 0, 100, 100 );
     testContext.fillStyle = 'black';
@@ -170,8 +170,8 @@ define( require => {
 
     // document.body.appendChild( testCanvas );
 
-    var normalData = normalContext.getImageData( 0, 0, 100, 100 );
-    var testData = testContext.getImageData( 0, 0, 100, 100 );
+    const normalData = normalContext.getImageData( 0, 0, 100, 100 );
+    const testData = testContext.getImageData( 0, 0, 100, 100 );
 
     dataEquals( assert, normalData, testData, threshold, message );
   }
@@ -215,9 +215,9 @@ define( require => {
   } );
 
   QUnit.test( 'CAG multiple test', function( assert ) {
-    var a = new Shape();
-    var b = new Shape();
-    var c = new Shape();
+    let a = new Shape();
+    let b = new Shape();
+    let c = new Shape();
 
     a.moveTo( 0, 2 ).cubicCurveTo( 22, 2, -1, 10, 25, 10 ).lineTo( 25, 16.5 ).lineTo( 0, 16.5 ).close();
     a.moveTo( 0, 10 ).lineTo( 10, 10 ).lineTo( 10, 25 ).lineTo( 0, 25 ).close();
@@ -234,19 +234,19 @@ define( require => {
 
     testUnion( assert, a, b, 1, 'CAG multiple #1' );
 
-    var ab = a.shapeUnion( b );
+    const ab = a.shapeUnion( b );
 
     testDifference( assert, ab, c, 1, 'CAG multiple #2' );
   } );
 
   QUnit.test( 'Testing cubic overlap', function( assert ) {
-    var a = new Shape();
-    var b = new Shape();
+    const a = new Shape();
+    const b = new Shape();
 
-    var curve = new Cubic( new Vector2( 0, 0 ), new Vector2( 10, 0 ), new Vector2( 10, 10 ), new Vector2( 20, 10 ) );
+    const curve = new Cubic( new Vector2( 0, 0 ), new Vector2( 10, 0 ), new Vector2( 10, 10 ), new Vector2( 20, 10 ) );
 
-    var left = curve.subdivided( 0.7 )[ 0 ];
-    var right = curve.subdivided( 0.3 )[ 1 ];
+    const left = curve.subdivided( 0.7 )[ 0 ];
+    const right = curve.subdivided( 0.3 )[ 1 ];
 
     a.moveTo( 0, 10 ).lineTo( left.start.x, left.start.y ).cubicCurveTo( left.control1.x, left.control1.y, left.control2.x, left.control2.y, left.end.x, left.end.y ).close();
     b.moveTo( 20, 0 ).lineTo( right.start.x, right.start.y ).cubicCurveTo( right.control1.x, right.control1.y, right.control2.x, right.control2.y, right.end.x, right.end.y ).close();
@@ -255,13 +255,13 @@ define( require => {
   } );
 
   QUnit.test( 'Testing quadratic overlap', function( assert ) {
-    var a = new Shape();
-    var b = new Shape();
+    const a = new Shape();
+    const b = new Shape();
 
-    var curve = new Quadratic( new Vector2( 0, 0 ), new Vector2( 10, 0 ), new Vector2( 10, 10 ) );
+    const curve = new Quadratic( new Vector2( 0, 0 ), new Vector2( 10, 0 ), new Vector2( 10, 10 ) );
 
-    var left = curve.subdivided( 0.7 )[ 0 ];
-    var right = curve.subdivided( 0.3 )[ 1 ];
+    const left = curve.subdivided( 0.7 )[ 0 ];
+    const right = curve.subdivided( 0.3 )[ 1 ];
 
     a.moveTo( 0, 10 ).lineTo( left.start.x, left.start.y ).quadraticCurveTo( left.control.x, left.control.y, left.end.x, left.end.y ).close();
     b.moveTo( 20, 0 ).lineTo( right.start.x, right.start.y ).quadraticCurveTo( right.control.x, right.control.y, right.end.x, right.end.y ).close();
@@ -270,8 +270,8 @@ define( require => {
   } );
 
   QUnit.test( 'Cubic self-intersection', function( assert ) {
-    var a = new Shape();
-    var b = new Shape();
+    const a = new Shape();
+    const b = new Shape();
 
     a.moveTo( 10, 0 ).cubicCurveTo( 30, 10, 0, 10, 20, 0 ).close();
     b.rect( 0, 0, 5, 5 );
@@ -280,8 +280,8 @@ define( require => {
   } );
 
   QUnit.test( 'Cubic self-intersection + overlapping unused edge', function( assert ) {
-    var a = new Shape();
-    var b = new Shape();
+    const a = new Shape();
+    const b = new Shape();
 
     a.moveTo( 10, 0 ).lineTo( 10, 10 ).lineTo( 10, 0 ).cubicCurveTo( 30, 10, 0, 10, 20, 0 ).close();
     b.rect( 0, 0, 5, 5 );
@@ -290,8 +290,8 @@ define( require => {
   } );
 
   QUnit.test( 'Removal of bridge edges', function( assert ) {
-    var a = new Shape();
-    var b = new Shape();
+    const a = new Shape();
+    const b = new Shape();
 
     a.moveTo( 40, 50 ).lineTo( 20, 70 ).lineTo( 20, 30 ).lineTo( 40, 50 ).lineTo( 60, 50 ).lineTo( 80, 30 ).lineTo( 80, 70 ).lineTo( 60, 50 ).close();
     b.rect( 0, 0, 5, 5 );
@@ -300,8 +300,8 @@ define( require => {
   } );
 
   QUnit.test( 'Double circle', function( assert ) {
-    var a = new Shape();
-    var b = new Shape();
+    const a = new Shape();
+    const b = new Shape();
 
     a.circle( 20, 20, 10 );
     b.circle( 25, 20, 10 );
@@ -311,8 +311,8 @@ define( require => {
   } );
 
   QUnit.test( 'Half circle join', function( assert ) {
-    var a = new Shape();
-    var b = new Shape();
+    const a = new Shape();
+    const b = new Shape();
 
     a.arc( 50, 50, 30, 0, Math.PI, false ).close();
     b.arc( 50, 50, 30, Math.PI, Math.PI * 2, false ).close();
@@ -321,8 +321,8 @@ define( require => {
   } );
 
   QUnit.test( 'Partial circle overlap', function( assert ) {
-    var a = new Shape();
-    var b = new Shape();
+    const a = new Shape();
+    const b = new Shape();
 
     a.arc( 50, 50, 30, 0, Math.PI, false ).close();
     b.arc( 50, 50, 30, Math.PI * 0.5, Math.PI * 2, false ).close();
@@ -331,8 +331,8 @@ define( require => {
   } );
 
   QUnit.test( 'Circle overlap', function( assert ) {
-    var a = new Shape();
-    var b = new Shape();
+    const a = new Shape();
+    const b = new Shape();
 
     a.circle( 50, 50, 30 );
     b.circle( 50, 50, 30 );
@@ -341,8 +341,8 @@ define( require => {
   } );
 
   QUnit.test( 'Circle adjacent', function( assert ) {
-    var a = new Shape();
-    var b = new Shape();
+    const a = new Shape();
+    const b = new Shape();
 
     a.circle( 10, 10, 5 );
     b.arc( 20, 10, 5, Math.PI, 3 * Math.PI, false ).close();
@@ -351,15 +351,15 @@ define( require => {
   } );
 
   QUnit.test( '4 adjacent circles', function( assert ) {
-    var a = new Shape().circle( -5, 0, 5 ).circle( 5, 0, 5 );
-    var b = new Shape().circle( 0, -5, 5 ).circle( 0, 5, 5 );
+    const a = new Shape().circle( -5, 0, 5 ).circle( 5, 0, 5 );
+    const b = new Shape().circle( 0, -5, 5 ).circle( 0, 5, 5 );
 
     testUnion( assert, a, b, 1, '4 adjacent circles union' );
   } );
 
   QUnit.test( 'stroked line 1', function( assert ) {
 
-    var a = Shape.deserialize( {
+    const a = Shape.deserialize( {
       'type': 'Shape',
       'subpaths': [ {
         'type': 'Subpath',
@@ -393,7 +393,7 @@ define( require => {
         'closed': true
       } ]
     } );
-    var b = Shape.deserialize( {
+    const b = Shape.deserialize( {
       'type': 'Shape',
       'subpaths': [ {
         'type': 'Subpath',
@@ -441,7 +441,7 @@ define( require => {
   } );
 
   QUnit.test( 'Shared endpoint test', function( assert ) {
-    var a = Shape.deserialize( {
+    const a = Shape.deserialize( {
       'type': 'Shape',
       'subpaths': [
         {
@@ -498,7 +498,7 @@ define( require => {
           'closed': false
         } ]
     } );
-    var b = Shape.deserialize( {
+    const b = Shape.deserialize( {
       'type': 'Shape', 'subpaths': [
         {
           'type': 'Subpath',
@@ -563,7 +563,7 @@ define( require => {
   } );
 
   QUnit.test( 'Line segment winding', function( assert ) {
-    var line = new Line( new Vector2( 0, 0 ), new Vector2( 2, 2 ) );
+    const line = new Line( new Vector2( 0, 0 ), new Vector2( 2, 2 ) );
 
     assert.equal( line.windingIntersection( new Ray2( new Vector2( 0, 1 ), new Vector2( 1, 0 ) ) ), 1 );
     assert.equal( line.windingIntersection( new Ray2( new Vector2( 0, 5 ), new Vector2( 1, 0 ) ) ), 0 );
@@ -573,7 +573,7 @@ define( require => {
   } );
 
   QUnit.test( 'Rectangle hit testing', function( assert ) {
-    var shape = Shape.rectangle( 0, 0, 1, 1 );
+    const shape = Shape.rectangle( 0, 0, 1, 1 );
 
     assert.equal( shape.containsPoint( new Vector2( 0.2, 0.3 ) ), true, '0.2, 0.3' );
     assert.equal( shape.containsPoint( new Vector2( 0.5, 0.5 ) ), true, '0.5, 0.5' );
@@ -583,38 +583,38 @@ define( require => {
 
   //See https://github.com/phetsims/kite/issues/34
   QUnit.test( 'Trapezoid hit testing', function( assert ) {
-    var shape = new Shape( 'M 415 298.5 L 414.99999999999994 94.5 L 468.596798162286 101.08659447295564 L 468.59679816228606 291.91340552704435 Z' );
+    const shape = new Shape( 'M 415 298.5 L 414.99999999999994 94.5 L 468.596798162286 101.08659447295564 L 468.59679816228606 291.91340552704435 Z' );
     assert.equal( shape.containsPoint( new Vector2( 441, 125 ) ), true, 'trapezoid should report that an interior point is "containsPoint" true' );
   } );
 
   QUnit.test( 'Un-closed shape hit testing', function( assert ) {
-    var shape = new Shape().moveTo( 0, 0 ).lineTo( 10, 10 ).lineTo( 0, 10 );
+    const shape = new Shape().moveTo( 0, 0 ).lineTo( 10, 10 ).lineTo( 0, 10 );
 
     assert.equal( shape.containsPoint( new Vector2( 1, 2 ) ), true, '1, 2' );
     assert.equal( shape.containsPoint( new Vector2( 10, 2 ) ), false, '10, 2' );
   } );
 
   QUnit.test( 'Zero-size rectangle', function( assert ) {
-    var shape = new Shape().rect( 20, 50, 0, 0 );
+    const shape = new Shape().rect( 20, 50, 0, 0 );
 
     assert.ok( shape.bounds.isFinite() || shape.bounds.isEmpty() ); // relies on the boundary case from dot
   } );
 
   QUnit.test( 'Zero-size line segment', function( assert ) {
-    var shape = new Shape().moveTo( 20, 50 ).lineTo( 20, 50 ).close();
+    const shape = new Shape().moveTo( 20, 50 ).lineTo( 20, 50 ).close();
 
     assert.ok( shape.bounds.isFinite() || shape.bounds.isEmpty() ); // relies on the boundary case from dot
   } );
 
   QUnit.test( 'Bucket hit region', function( assert ) {
-    var shape = new Shape().moveTo( -60, 0 )
+    const shape = new Shape().moveTo( -60, 0 )
       .lineTo( -48, 42 )
       .cubicCurveTo( -36, 51, 36, 51, 48, 42 )
       .lineTo( 60, 0 )
       .ellipticalArc( 0, 0, 60, 7.5, 0, 0, -Math.PI, false )
       .close();
-    var point = new Vector2( -131.07772925764198, -274.65043668122274 );
-    var ray = new Ray2( point, new Vector2( 1, 0 ) );
+    const point = new Vector2( -131.07772925764198, -274.65043668122274 );
+    const ray = new Ray2( point, new Vector2( 1, 0 ) );
 
     assert.equal( 0, shape.windingIntersection( ray ), 'The winding intersection should be zero' );
   } );
@@ -633,7 +633,7 @@ define( require => {
   } );
 
   QUnit.test( 'interiorIntersectsLineSegment', function( assert ) {
-    var circle = Shape.circle( 0, 0, 10 ); // radius 10 at 0,0
+    const circle = Shape.circle( 0, 0, 10 ); // radius 10 at 0,0
 
     assert.ok( circle.interiorIntersectsLineSegment( new Vector2( -1, 0 ), new Vector2( 1, 0 ) ),
       'Fully contained' );
@@ -650,74 +650,74 @@ define( require => {
   } );
 
   QUnit.test( 'Cubic overlap', function( assert ) {
-    var cubic = new Cubic( new Vector2( 0, 0 ), new Vector2( 0, 3 ), new Vector2( 10, 7 ), new Vector2( 10, 9 ) );
-    var otherCubic = new Cubic( new Vector2( 10, 0 ), new Vector2( 0, 3 ), new Vector2( 10, 7 ), new Vector2( 10, 9 ) );
+    const cubic = new Cubic( new Vector2( 0, 0 ), new Vector2( 0, 3 ), new Vector2( 10, 7 ), new Vector2( 10, 9 ) );
+    const otherCubic = new Cubic( new Vector2( 10, 0 ), new Vector2( 0, 3 ), new Vector2( 10, 7 ), new Vector2( 10, 9 ) );
 
-    var selfTest = Cubic.getOverlaps( cubic, cubic )[ 0 ];
+    const selfTest = Cubic.getOverlaps( cubic, cubic )[ 0 ];
     assert.equal( selfTest.a, 1, 'selfTest.a' );
     assert.equal( selfTest.b, 0, 'selfTest.b' );
 
-    var firstHalf = cubic.subdivided( 0.5 )[ 0 ];
-    var firstTest = Cubic.getOverlaps( cubic, firstHalf )[ 0 ];
+    const firstHalf = cubic.subdivided( 0.5 )[ 0 ];
+    const firstTest = Cubic.getOverlaps( cubic, firstHalf )[ 0 ];
     assert.equal( firstTest.a, 2, 'firstTest.a' );
     assert.equal( firstTest.b, 0, 'firstTest.b' );
     assert.ok( cubic.positionAt( 0.25 ).distance( firstHalf.positionAt( 0.25 * firstTest.a + firstTest.b ) ) < 1e-6, 'firstHalf t=0.25 check' );
 
-    var secondHalf = cubic.subdivided( 0.5 )[ 1 ];
-    var secondTest = Cubic.getOverlaps( cubic, secondHalf )[ 0 ];
+    const secondHalf = cubic.subdivided( 0.5 )[ 1 ];
+    const secondTest = Cubic.getOverlaps( cubic, secondHalf )[ 0 ];
     assert.equal( secondTest.a, 2, 'secondTest.a' );
     assert.equal( secondTest.b, -1, 'secondTest.b' );
     assert.ok( cubic.positionAt( 0.75 ).distance( secondHalf.positionAt( 0.75 * secondTest.a + secondTest.b ) ) < 1e-6, 'secondHalf t=0.75 check' );
 
-    var negativeTest = Cubic.getOverlaps( cubic, otherCubic );
+    const negativeTest = Cubic.getOverlaps( cubic, otherCubic );
     assert.equal( negativeTest.length, 0, 'negativeTest' );
   } );
 
   QUnit.test( 'Quadratic overlap', function( assert ) {
-    var quadratic = new Quadratic( new Vector2( 0, 0 ), new Vector2( 0, 3 ), new Vector2( 10, 9 ) );
-    var otherQuadratic = new Quadratic( new Vector2( 10, 0 ), new Vector2( 0, 3 ), new Vector2( 10, 9 ) );
+    const quadratic = new Quadratic( new Vector2( 0, 0 ), new Vector2( 0, 3 ), new Vector2( 10, 9 ) );
+    const otherQuadratic = new Quadratic( new Vector2( 10, 0 ), new Vector2( 0, 3 ), new Vector2( 10, 9 ) );
 
-    var selfTest = Quadratic.getOverlaps( quadratic, quadratic )[ 0 ];
+    const selfTest = Quadratic.getOverlaps( quadratic, quadratic )[ 0 ];
     assert.equal( selfTest.a, 1, 'selfTest.a' );
     assert.equal( selfTest.b, 0, 'selfTest.b' );
 
-    var firstHalf = quadratic.subdivided( 0.5 )[ 0 ];
-    var firstTest = Quadratic.getOverlaps( quadratic, firstHalf )[ 0 ];
+    const firstHalf = quadratic.subdivided( 0.5 )[ 0 ];
+    const firstTest = Quadratic.getOverlaps( quadratic, firstHalf )[ 0 ];
     assert.equal( firstTest.a, 2, 'firstTest.a' );
     assert.equal( firstTest.b, 0, 'firstTest.b' );
     assert.ok( quadratic.positionAt( 0.25 ).distance( firstHalf.positionAt( 0.25 * firstTest.a + firstTest.b ) ) < 1e-6, 'firstHalf t=0.25 check' );
 
-    var secondHalf = quadratic.subdivided( 0.5 )[ 1 ];
-    var secondTest = Quadratic.getOverlaps( quadratic, secondHalf )[ 0 ];
+    const secondHalf = quadratic.subdivided( 0.5 )[ 1 ];
+    const secondTest = Quadratic.getOverlaps( quadratic, secondHalf )[ 0 ];
     assert.equal( secondTest.a, 2, 'secondTest.a' );
     assert.equal( secondTest.b, -1, 'secondTest.b' );
     assert.ok( quadratic.positionAt( 0.75 ).distance( secondHalf.positionAt( 0.75 * secondTest.a + secondTest.b ) ) < 1e-6, 'secondHalf t=0.75 check' );
 
-    var negativeTest = Quadratic.getOverlaps( quadratic, otherQuadratic );
+    const negativeTest = Quadratic.getOverlaps( quadratic, otherQuadratic );
     assert.equal( negativeTest.length, 0, 'negativeTest' );
   } );
 
   QUnit.test( 'Linear overlap', function( assert ) {
-    var line = new Line( new Vector2( 0, 0 ), new Vector2( 10, 9 ) );
-    var otherLine = new Line( new Vector2( 10, 0 ), new Vector2( 10, 9 ) );
+    const line = new Line( new Vector2( 0, 0 ), new Vector2( 10, 9 ) );
+    const otherLine = new Line( new Vector2( 10, 0 ), new Vector2( 10, 9 ) );
 
-    var selfTest = Line.getOverlaps( line, line )[ 0 ];
+    const selfTest = Line.getOverlaps( line, line )[ 0 ];
     assert.equal( selfTest.a, 1, 'selfTest.a' );
     assert.equal( selfTest.b, 0, 'selfTest.b' );
 
-    var firstHalf = line.subdivided( 0.5 )[ 0 ];
-    var firstTest = Line.getOverlaps( line, firstHalf )[ 0 ];
+    const firstHalf = line.subdivided( 0.5 )[ 0 ];
+    const firstTest = Line.getOverlaps( line, firstHalf )[ 0 ];
     assert.equal( firstTest.a, 2, 'firstTest.a' );
     assert.equal( firstTest.b, 0, 'firstTest.b' );
     assert.ok( line.positionAt( 0.25 ).distance( firstHalf.positionAt( 0.25 * firstTest.a + firstTest.b ) ) < 1e-6, 'firstHalf t=0.25 check' );
 
-    var secondHalf = line.subdivided( 0.5 )[ 1 ];
-    var secondTest = Line.getOverlaps( line, secondHalf )[ 0 ];
+    const secondHalf = line.subdivided( 0.5 )[ 1 ];
+    const secondTest = Line.getOverlaps( line, secondHalf )[ 0 ];
     assert.equal( secondTest.a, 2, 'secondTest.a' );
     assert.equal( secondTest.b, -1, 'secondTest.b' );
     assert.ok( line.positionAt( 0.75 ).distance( secondHalf.positionAt( 0.75 * secondTest.a + secondTest.b ) ) < 1e-6, 'secondHalf t=0.75 check' );
 
-    var negativeTest = Line.getOverlaps( line, otherLine );
+    const negativeTest = Line.getOverlaps( line, otherLine );
     assert.equal( negativeTest.length, 0, 'negativeTest' );
   } );
 
@@ -746,14 +746,14 @@ define( require => {
       return Math.ceil( randomSource() * 20 );
     }
 
-    for ( var i = 0; i < 200; i++ ) {
+    for ( let i = 0; i < 200; i++ ) {
       Arc.getCircleIntersectionPoint( new Vector2( r(), r() ), r(), new Vector2( r(), r() ), r() );
     }
   } );
 
   QUnit.test( 'Close linear overlap', function( assert ) {
-    var a = new Line( new Vector2( 0, 0 ), new Vector2( 6.123233995736766e-16, -10 ) );
-    var b = new Line( new Vector2( -1.8369701987210296e-15, -10 ), new Vector2( 0, 0 ) );
+    const a = new Line( new Vector2( 0, 0 ), new Vector2( 6.123233995736766e-16, -10 ) );
+    const b = new Line( new Vector2( -1.8369701987210296e-15, -10 ), new Vector2( 0, 0 ) );
 
     assert.ok( Line.getOverlaps( a, b ).length === 1, 'Should find one continuous overlap' );
   } );

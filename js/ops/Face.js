@@ -19,7 +19,7 @@ define( require => {
   const kite = require( 'KITE/kite' );
   const Poolable = require( 'PHET_CORE/Poolable' );
 
-  var globaId = 0;
+  let globaId = 0;
 
   /**
    * @public (kite-internal)
@@ -91,7 +91,7 @@ define( require => {
      * @param {Boundary} boundary
      */
     addBoundaryFaceReferences: function( boundary ) {
-      for ( var i = 0; i < boundary.halfEdges.length; i++ ) {
+      for ( let i = 0; i < boundary.halfEdges.length; i++ ) {
         assert && assert( boundary.halfEdges[ i ].face === null );
 
         boundary.halfEdges[ i ].face = this;
@@ -113,7 +113,7 @@ define( require => {
 
       this.holes.push( outerBoundary );
       this.addBoundaryFaceReferences( outerBoundary );
-      for ( var i = 0; i < outerBoundary.childBoundaries.length; i++ ) {
+      for ( let i = 0; i < outerBoundary.childBoundaries.length; i++ ) {
         this.recursivelyAddHoles( outerBoundary.childBoundaries[ i ] );
       }
     }

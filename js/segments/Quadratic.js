@@ -22,8 +22,8 @@ define( require => {
   const Vector2 = require( 'DOT/Vector2' );
 
   // constants
-  var solveQuadraticRootsReal = Util.solveQuadraticRootsReal;
-  var arePointsCollinear = Util.arePointsCollinear;
+  const solveQuadraticRootsReal = Util.solveQuadraticRootsReal;
+  const arePointsCollinear = Util.arePointsCollinear;
 
   // Used in multiple filters
   function isBetween0And1( t ) {
@@ -160,7 +160,7 @@ define( require => {
       assert && assert( t >= 0, 'positionAt t should be non-negative' );
       assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
 
-      var mt = 1 - t;
+      const mt = 1 - t;
       // described from t=[0,1] as: (1-t)^2 start + 2(1-t)t control + t^2 end
       // TODO: allocation reduction
       return this._start.times( mt * mt ).plus( this._control.times( 2 * mt * t ) ).plus( this._end.times( t * t ) );
@@ -208,15 +208,15 @@ define( require => {
 
       // see http://cagd.cs.byu.edu/~557/text/ch2.pdf p31
       // TODO: remove code duplication with Cubic
-      var epsilon = 0.0000001;
+      const epsilon = 0.0000001;
       if ( Math.abs( t - 0.5 ) > 0.5 - epsilon ) {
-        var isZero = t < 0.5;
-        var p0 = isZero ? this._start : this._end;
-        var p1 = this._control;
-        var p2 = isZero ? this._end : this._start;
-        var d10 = p1.minus( p0 );
-        var a = d10.magnitude;
-        var h = ( isZero ? -1 : 1 ) * d10.perpendicular.normalized().dot( p2.minus( p1 ) );
+        const isZero = t < 0.5;
+        const p0 = isZero ? this._start : this._end;
+        const p1 = this._control;
+        const p2 = isZero ? this._end : this._start;
+        const d10 = p1.minus( p0 );
+        const a = d10.magnitude;
+        const h = ( isZero ? -1 : 1 ) * d10.perpendicular.normalized().dot( p2.minus( p1 ) );
         return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
       }
       else {
@@ -244,9 +244,9 @@ define( require => {
       }
 
       // de Casteljau method
-      var leftMid = this._start.blend( this._control, t );
-      var rightMid = this._control.blend( this._end, t );
-      var mid = leftMid.blend( rightMid, t );
+      const leftMid = this._start.blend( this._control, t );
+      const rightMid = this._control.blend( this._end, t );
+      const mid = leftMid.blend( rightMid, t );
       return [
         new kite.Quadratic( this._start, leftMid, mid ),
         new kite.Quadratic( mid, rightMid, this._end )
@@ -282,7 +282,7 @@ define( require => {
      */
     getStartTangent: function() {
       if ( this._startTangent === null ) {
-        var controlIsStart = this._start.equals( this._control );
+        const controlIsStart = this._start.equals( this._control );
         // TODO: allocation reduction
         this._startTangent = controlIsStart ?
                              this._end.minus( this._start ).normalized() :
@@ -298,7 +298,7 @@ define( require => {
      */
     getEndTangent: function() {
       if ( this._endTangent === null ) {
-        var controlIsEnd = this._end.equals( this._control );
+        const controlIsEnd = this._end.equals( this._control );
         // TODO: allocation reduction
         this._endTangent = controlIsEnd ?
                            this._end.minus( this._start ).normalized() :
@@ -343,13 +343,13 @@ define( require => {
      * @returns {Array.<Segment>}
      */
     getNondegenerateSegments: function() {
-      var start = this._start;
-      var control = this._control;
-      var end = this._end;
+      const start = this._start;
+      const control = this._control;
+      const end = this._end;
 
-      var startIsEnd = start.equals( end );
-      var startIsControl = start.equals( control );
-      var endIsControl = start.equals( control );
+      const startIsEnd = start.equals( end );
+      const startIsControl = start.equals( control );
+      const endIsControl = start.equals( control );
 
       if ( startIsEnd && startIsControl ) {
         // all same points
@@ -357,7 +357,7 @@ define( require => {
       }
       else if ( startIsEnd ) {
         // this is a special collinear case, we basically line out to the farthest point and back
-        var halfPoint = this.positionAt( 0.5 );
+        const halfPoint = this.positionAt( 0.5 );
         return [
           new kite.Line( start, halfPoint ),
           new kite.Line( halfPoint, end )
@@ -371,13 +371,13 @@ define( require => {
           return [ new kite.Line( start, end ) ]; // no extra nondegenerate check since start !== end
         }
         // now control point must be unique. we check to see if our rendered path will be outside of the start->end line segment
-        var delta = end.minus( start );
-        var p1d = control.minus( start ).dot( delta.normalized ) / delta.magnitude;
-        var t = Quadratic.extremaT( 0, p1d, 1 );
+        const delta = end.minus( start );
+        const p1d = control.minus( start ).dot( delta.normalized ) / delta.magnitude;
+        const t = Quadratic.extremaT( 0, p1d, 1 );
         if ( !isNaN( t ) && t > 0 && t < 1 ) {
           // we have a local max inside the range, indicating that our extrema point is outside of start->end
           // we'll line to and from it
-          var pt = this.positionAt( t );
+          const pt = this.positionAt( t );
           return _.flatten( [
             new kite.Line( start, pt ).getNondegenerateSegments(),
             new kite.Line( pt, end ).getNondegenerateSegments()
@@ -405,8 +405,8 @@ define( require => {
         this._bounds = new Bounds2( Math.min( this._start.x, this._end.x ), Math.min( this._start.y, this._end.y ), Math.max( this._start.x, this._end.x ), Math.max( this._start.y, this._end.y ) );
 
         // compute x and y where the derivative is 0, so we can include this in the bounds
-        var tCriticalX = this.getTCriticalX();
-        var tCriticalY = this.getTCriticalY();
+        const tCriticalX = this.getTCriticalX();
+        const tCriticalY = this.getTCriticalY();
 
         if ( !isNaN( tCriticalX ) && tCriticalX > 0 && tCriticalX < 1 ) {
           this._bounds = this._bounds.withPoint( this.positionAt( tCriticalX ) );
@@ -431,17 +431,17 @@ define( require => {
     offsetTo: function( r, reverse ) {
       // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html
       // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
-      var curves = [ this ];
+      let curves = [ this ];
 
       // subdivide this curve
-      var depth = 5; // generates 2^depth curves
-      for ( var i = 0; i < depth; i++ ) {
+      const depth = 5; // generates 2^depth curves
+      for ( let i = 0; i < depth; i++ ) {
         curves = _.flatten( _.map( curves, function( curve ) {
           return curve.subdivided( 0.5, true );
         } ) );
       }
 
-      var offsetCurves = _.map( curves, function( curve ) { return curve.approximateOffset( r ); } );
+      let offsetCurves = _.map( curves, function( curve ) { return curve.approximateOffset( r ); } );
 
       if ( reverse ) {
         offsetCurves.reverse();
@@ -523,11 +523,11 @@ define( require => {
      */
     getInteriorExtremaTs: function() {
       // TODO: we assume here we are reduce, so that a criticalX doesn't equal a criticalY?
-      var result = [];
-      var epsilon = 0.0000000001; // TODO: general kite epsilon?
+      const result = [];
+      const epsilon = 0.0000000001; // TODO: general kite epsilon?
 
-      var criticalX = this.getTCriticalX();
-      var criticalY = this.getTCriticalY();
+      const criticalX = this.getTCriticalX();
+      const criticalY = this.getTCriticalY();
 
       if ( !isNaN( criticalX ) && criticalX > epsilon && criticalX < 1 - epsilon ) {
         result.push( this.tCriticalX );
@@ -547,34 +547,34 @@ define( require => {
      * @returns {Array.<RayIntersection>}
      */
     intersection: function( ray ) {
-      var self = this;
-      var result = [];
+      const self = this;
+      const result = [];
 
       // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
-      var inverseMatrix = Matrix3.rotation2( -ray.direction.angle ).timesMatrix( Matrix3.translation( -ray.position.x, -ray.position.y ) );
+      const inverseMatrix = Matrix3.rotation2( -ray.direction.angle ).timesMatrix( Matrix3.translation( -ray.position.x, -ray.position.y ) );
 
-      var p0 = inverseMatrix.timesVector2( this._start );
-      var p1 = inverseMatrix.timesVector2( this._control );
-      var p2 = inverseMatrix.timesVector2( this._end );
+      const p0 = inverseMatrix.timesVector2( this._start );
+      const p1 = inverseMatrix.timesVector2( this._control );
+      const p2 = inverseMatrix.timesVector2( this._end );
 
       //(1-t)^2 start + 2(1-t)t control + t^2 end
-      var a = p0.y - 2 * p1.y + p2.y;
-      var b = -2 * p0.y + 2 * p1.y;
-      var c = p0.y;
+      const a = p0.y - 2 * p1.y + p2.y;
+      const b = -2 * p0.y + 2 * p1.y;
+      const c = p0.y;
 
-      var ts = solveQuadraticRootsReal( a, b, c );
+      const ts = solveQuadraticRootsReal( a, b, c );
 
       _.each( ts, function( t ) {
         if ( t >= 0 && t <= 1 ) {
-          var hitPoint = self.positionAt( t );
-          var unitTangent = self.tangentAt( t ).normalized();
-          var perp = unitTangent.perpendicular;
-          var toHit = hitPoint.minus( ray.position );
+          const hitPoint = self.positionAt( t );
+          const unitTangent = self.tangentAt( t ).normalized();
+          const perp = unitTangent.perpendicular;
+          const toHit = hitPoint.minus( ray.position );
 
           // make sure it's not behind the ray
           if ( toHit.dot( ray.direction ) > 0 ) {
-            var normal = perp.dot( ray.direction ) > 0 ? perp.negated() : perp;
-            var wind = ray.direction.perpendicular.dot( unitTangent ) < 0 ? 1 : -1;
+            const normal = perp.dot( ray.direction ) > 0 ? perp.negated() : perp;
+            const wind = ray.direction.perpendicular.dot( unitTangent ) < 0 ? 1 : -1;
             result.push( new RayIntersection( toHit.magnitude, hitPoint, normal, wind, t ) );
           }
         }
@@ -588,8 +588,8 @@ define( require => {
      * @returns {number}
      */
     windingIntersection: function( ray ) {
-      var wind = 0;
-      var hits = this.intersection( ray );
+      let wind = 0;
+      const hits = this.intersection( ray );
       _.each( hits, function( hit ) {
         wind += hit.wind;
       } );
@@ -637,14 +637,14 @@ define( require => {
      */
     reparameterized: function( a, b ) {
       // to the polynomial pt^2 + qt + r:
-      var p = this._start.plus( this._end.plus( this._control.timesScalar( -2 ) ) );
-      var q = this._control.minus( this._start ).timesScalar( 2 );
-      var r = this._start;
+      const p = this._start.plus( this._end.plus( this._control.timesScalar( -2 ) ) );
+      const q = this._control.minus( this._start ).timesScalar( 2 );
+      const r = this._start;
 
       // to the polynomial alpha*x^2 + beta*x + gamma:
-      var alpha = p.timesScalar( a * a );
-      var beta = p.timesScalar( a * b ).timesScalar( 2 ).plus( q.timesScalar( a ) );
-      var gamma = p.timesScalar( b * b ).plus( q.timesScalar( b ) ).plus( r );
+      const alpha = p.timesScalar( a * a );
+      const beta = p.timesScalar( a * b ).timesScalar( 2 ).plus( q.timesScalar( a ) );
+      const gamma = p.timesScalar( b * b ).plus( q.timesScalar( b ) ).plus( r );
 
       // back to the form start,control,end
       return new kite.Quadratic( gamma, beta.timesScalar( 0.5 ).plus( gamma ), alpha.plus( beta ).plus( gamma ) );
@@ -695,7 +695,7 @@ define( require => {
   // one-dimensional solution to extrema
   Quadratic.extremaT = function( start, control, end ) {
     // compute t where the derivative is 0 (used for bounds and other things)
-    var divisorX = 2 * ( end - 2 * control + start );
+    const divisorX = 2 * ( end - 2 * control + start );
     if ( divisorX !== 0 ) {
       return -2 * ( control - start ) / divisorX;
     }
@@ -733,34 +733,34 @@ define( require => {
      * And we use the upper-left section of (at+b) adjustment matrix relevant for the quadratic.
      */
 
-    var noOverlap = [];
+    const noOverlap = [];
 
     // Efficiently compute the multiplication of the bezier matrix:
-    var p0x = quadratic1._start.x;
-    var p1x = -2 * quadratic1._start.x + 2 * quadratic1._control.x;
-    var p2x = quadratic1._start.x - 2 * quadratic1._control.x + quadratic1._end.x;
-    var p0y = quadratic1._start.y;
-    var p1y = -2 * quadratic1._start.y + 2 * quadratic1._control.y;
-    var p2y = quadratic1._start.y - 2 * quadratic1._control.y + quadratic1._end.y;
-    var q0x = quadratic2._start.x;
-    var q1x = -2 * quadratic2._start.x + 2 * quadratic2._control.x;
-    var q2x = quadratic2._start.x - 2 * quadratic2._control.x + quadratic2._end.x;
-    var q0y = quadratic2._start.y;
-    var q1y = -2 * quadratic2._start.y + 2 * quadratic2._control.y;
-    var q2y = quadratic2._start.y - 2 * quadratic2._control.y + quadratic2._end.y;
+    const p0x = quadratic1._start.x;
+    const p1x = -2 * quadratic1._start.x + 2 * quadratic1._control.x;
+    const p2x = quadratic1._start.x - 2 * quadratic1._control.x + quadratic1._end.x;
+    const p0y = quadratic1._start.y;
+    const p1y = -2 * quadratic1._start.y + 2 * quadratic1._control.y;
+    const p2y = quadratic1._start.y - 2 * quadratic1._control.y + quadratic1._end.y;
+    const q0x = quadratic2._start.x;
+    const q1x = -2 * quadratic2._start.x + 2 * quadratic2._control.x;
+    const q2x = quadratic2._start.x - 2 * quadratic2._control.x + quadratic2._end.x;
+    const q0y = quadratic2._start.y;
+    const q1y = -2 * quadratic2._start.y + 2 * quadratic2._control.y;
+    const q2y = quadratic2._start.y - 2 * quadratic2._control.y + quadratic2._end.y;
 
     // Determine the candidate overlap (preferring the dimension with the largest variation)
-    var xSpread = Math.abs( Math.max( quadratic1._start.x, quadratic1._control.x, quadratic1._end.x,
+    const xSpread = Math.abs( Math.max( quadratic1._start.x, quadratic1._control.x, quadratic1._end.x,
                                       quadratic2._start.x, quadratic2._control.x, quadratic2._end.x ) -
                             Math.min( quadratic1._start.x, quadratic1._control.x, quadratic1._end.x,
                                       quadratic2._start.x, quadratic2._control.x, quadratic2._end.x ) );
-    var ySpread = Math.abs( Math.max( quadratic1._start.y, quadratic1._control.y, quadratic1._end.y,
+    const ySpread = Math.abs( Math.max( quadratic1._start.y, quadratic1._control.y, quadratic1._end.y,
                                       quadratic2._start.y, quadratic2._control.y, quadratic2._end.y ) -
                             Math.min( quadratic1._start.y, quadratic1._control.y, quadratic1._end.y,
                                       quadratic2._start.y, quadratic2._control.y, quadratic2._end.y ) );
-    var xOverlap = Segment.polynomialGetOverlapQuadratic( p0x, p1x, p2x, q0x, q1x, q2x );
-    var yOverlap = Segment.polynomialGetOverlapQuadratic( p0y, p1y, p2y, q0y, q1y, q2y );
-    var overlap;
+    const xOverlap = Segment.polynomialGetOverlapQuadratic( p0x, p1x, p2x, q0x, q1x, q2x );
+    const yOverlap = Segment.polynomialGetOverlapQuadratic( p0y, p1y, p2y, q0y, q1y, q2y );
+    let overlap;
     if ( xSpread > ySpread ) {
       overlap = ( xOverlap === null || xOverlap === true ) ? yOverlap : xOverlap;
     }
@@ -771,27 +771,27 @@ define( require => {
       return noOverlap; // No way to pin down an overlap
     }
 
-    var a = overlap.a;
-    var b = overlap.b;
+    const a = overlap.a;
+    const b = overlap.b;
 
-    var aa = a * a;
-    var bb = b * b;
-    var ab2 = 2 * a * b;
+    const aa = a * a;
+    const bb = b * b;
+    const ab2 = 2 * a * b;
 
     // Compute quadratic coefficients for the difference between p(t) and q(a*t+b)
-    var d0x = q0x + b * q1x + bb * q2x - p0x;
-    var d1x = a * q1x + ab2 * q2x - p1x;
-    var d2x = aa * q2x - p2x;
-    var d0y = q0y + b * q1y + bb * q2y - p0y;
-    var d1y = a * q1y + ab2 * q2y - p1y;
-    var d2y = aa * q2y - p2y;
+    const d0x = q0x + b * q1x + bb * q2x - p0x;
+    const d1x = a * q1x + ab2 * q2x - p1x;
+    const d2x = aa * q2x - p2x;
+    const d0y = q0y + b * q1y + bb * q2y - p0y;
+    const d1y = a * q1y + ab2 * q2y - p1y;
+    const d2y = aa * q2y - p2y;
 
     // Find the t values where extremes lie in the [0,1] range for each 1-dimensional quadratic. We do this by
     // differentiating the quadratic and finding the roots of the resulting line.
-    var xRoots = Util.solveLinearRootsReal( 2 * d2x, d1x );
-    var yRoots = Util.solveLinearRootsReal( 2 * d2y, d1y );
-    var xExtremeTs = _.uniq( [ 0, 1 ].concat( xRoots ? xRoots.filter( isBetween0And1 ) : [] ) );
-    var yExtremeTs = _.uniq( [ 0, 1 ].concat( yRoots ? yRoots.filter( isBetween0And1 ) : [] ) );
+    const xRoots = Util.solveLinearRootsReal( 2 * d2x, d1x );
+    const yRoots = Util.solveLinearRootsReal( 2 * d2y, d1y );
+    const xExtremeTs = _.uniq( [ 0, 1 ].concat( xRoots ? xRoots.filter( isBetween0And1 ) : [] ) );
+    const yExtremeTs = _.uniq( [ 0, 1 ].concat( yRoots ? yRoots.filter( isBetween0And1 ) : [] ) );
 
     // Examine the single-coordinate distances between the "overlaps" at each extreme T value. If the distance is larger
     // than our epsilon, then the "overlap" would not be valid.
@@ -808,8 +808,8 @@ define( require => {
       }
     }
 
-    var qt0 = b;
-    var qt1 = a + b;
+    const qt0 = b;
+    const qt1 = a + b;
 
     // TODO: do we want an epsilon in here to be permissive?
     if ( ( qt0 > 1 && qt1 > 1 ) || ( qt0 < 0 && qt1 < 0 ) ) {

@@ -15,7 +15,7 @@ define( require => {
 
   const Namespace = require( 'PHET_CORE/Namespace' );
 
-  var kite = new Namespace( 'kite' );
+  const kite = new Namespace( 'kite' );
 
   // Since SVG doesn't support parsing scientific notation (e.g. 7e5), we need to output fixed decimal-point strings.
   // Since this needs to be done quickly, and we don't particularly care about slight rounding differences (it's
