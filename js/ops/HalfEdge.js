@@ -7,13 +7,13 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var inherit = require( 'PHET_CORE/inherit' );
-  var kite = require( 'KITE/kite' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
-  var Vector2 = require( 'DOT/Vector2' );
+  const inherit = require( 'PHET_CORE/inherit' );
+  const kite = require( 'KITE/kite' );
+  const Poolable = require( 'PHET_CORE/Poolable' );
+  const Vector2 = require( 'DOT/Vector2' );
 
   /**
    * @public (kite-internal)

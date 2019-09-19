@@ -6,16 +6,16 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var HalfEdge = require( 'KITE/ops/HalfEdge' );
-  var inherit = require( 'PHET_CORE/inherit' );
-  var kite = require( 'KITE/kite' );
-  var Line = require( 'KITE/segments/Line' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
-  var Segment = require( 'KITE/segments/Segment' );
-  var Vertex = require( 'KITE/ops/Vertex' );
+  const HalfEdge = require( 'KITE/ops/HalfEdge' );
+  const inherit = require( 'PHET_CORE/inherit' );
+  const kite = require( 'KITE/kite' );
+  const Line = require( 'KITE/segments/Line' );
+  const Poolable = require( 'PHET_CORE/Poolable' );
+  const Segment = require( 'KITE/segments/Segment' );
+  const Vertex = require( 'KITE/ops/Vertex' );
 
   var globaId = 0;
 

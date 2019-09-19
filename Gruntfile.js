@@ -1,10 +1,10 @@
 // Copyright 2013-2016, University of Colorado Boulder
 
-var pegjs = require( 'pegjs' );
-var fs = require( 'fs' );
+const pegjs = require( 'pegjs' );
+const fs = require( 'fs' );
 
 // use chipper's gruntfile
-var Gruntfile = require( '../chipper/js/grunt/Gruntfile.js' ); // eslint-disable-line require-statement-match
+const Gruntfile = require( '../chipper/js/grunt/Gruntfile.js' ); // eslint-disable-line require-statement-match
 
 // Add repo-specific grunt tasks
 module.exports = function( grunt ) {
@@ -22,8 +22,8 @@ module.exports = function( grunt ) {
                    ' * See svgPath.pegjs for more documentation, or run \'grunt generate-svgPath-parser\' to regenerate.\n' +
                    ' *' + '/\n' +
                    '\n' +
-                   'define( function( require ) {\n' +
-                   '  var kite = require( \'KITE/kite\' );\n';
+                   'define( require => {\n' +
+                   '  const kite = require( \'KITE/kite\' );\n';
       var suffix = '  kite.register( \'svgPath\', result );\n' +
                    '  return kite.svgPath;\n' +
                    '} );\n';

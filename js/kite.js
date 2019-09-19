@@ -10,10 +10,10 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var Namespace = require( 'PHET_CORE/Namespace' );
+  const Namespace = require( 'PHET_CORE/Namespace' );
 
   var kite = new Namespace( 'kite' );
 

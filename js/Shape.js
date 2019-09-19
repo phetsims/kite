@@ -18,25 +18,25 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var Arc = require( 'KITE/segments/Arc' );
-  var Bounds2 = require( 'DOT/Bounds2' );
-  var Cubic = require( 'KITE/segments/Cubic' );
-  var EllipticalArc = require( 'KITE/segments/EllipticalArc' );
-  var Graph = require( 'KITE/ops/Graph' );
-  var inherit = require( 'PHET_CORE/inherit' );
-  var kite = require( 'KITE/kite' );
-  var Line = require( 'KITE/segments/Line' );
-  var LineStyles = require( 'KITE/util/LineStyles' );
-  var Quadratic = require( 'KITE/segments/Quadratic' );
-  var Ray2 = require( 'DOT/Ray2' );
-  var Subpath = require( 'KITE/util/Subpath' );
-  var svgPath = require( 'KITE/parser/svgPath' );
-  var TinyEmitter = require( 'AXON/TinyEmitter' );
-  var Util = require( 'DOT/Util' );
-  var Vector2 = require( 'DOT/Vector2' );
+  const Arc = require( 'KITE/segments/Arc' );
+  const Bounds2 = require( 'DOT/Bounds2' );
+  const Cubic = require( 'KITE/segments/Cubic' );
+  const EllipticalArc = require( 'KITE/segments/EllipticalArc' );
+  const Graph = require( 'KITE/ops/Graph' );
+  const inherit = require( 'PHET_CORE/inherit' );
+  const kite = require( 'KITE/kite' );
+  const Line = require( 'KITE/segments/Line' );
+  const LineStyles = require( 'KITE/util/LineStyles' );
+  const Quadratic = require( 'KITE/segments/Quadratic' );
+  const Ray2 = require( 'DOT/Ray2' );
+  const Subpath = require( 'KITE/util/Subpath' );
+  const svgPath = require( 'KITE/parser/svgPath' );
+  const TinyEmitter = require( 'AXON/TinyEmitter' );
+  const Util = require( 'DOT/Util' );
+  const Vector2 = require( 'DOT/Vector2' );
 
   const randomSource = Math.random; // eslint-disable-line bad-sim-text (We can't get joist's random reference here)
 

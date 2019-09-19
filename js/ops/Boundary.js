@@ -7,17 +7,17 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var Bounds2 = require( 'DOT/Bounds2' );
-  var cleanArray = require( 'PHET_CORE/cleanArray' );
-  var inherit = require( 'PHET_CORE/inherit' );
-  var kite = require( 'KITE/kite' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
-  var Ray2 = require( 'DOT/Ray2' );
-  var Subpath = require( 'KITE/util/Subpath' );
-  var Vector2 = require( 'DOT/Vector2' );
+  const Bounds2 = require( 'DOT/Bounds2' );
+  const cleanArray = require( 'PHET_CORE/cleanArray' );
+  const inherit = require( 'PHET_CORE/inherit' );
+  const kite = require( 'KITE/kite' );
+  const Poolable = require( 'PHET_CORE/Poolable' );
+  const Ray2 = require( 'DOT/Ray2' );
+  const Subpath = require( 'KITE/util/Subpath' );
+  const Vector2 = require( 'DOT/Vector2' );
 
   var globaId = 0;
 

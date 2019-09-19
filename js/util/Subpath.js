@@ -9,18 +9,18 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var Arc = require( 'KITE/segments/Arc' );
-  var Bounds2 = require( 'DOT/Bounds2' );
-  var inherit = require( 'PHET_CORE/inherit' );
-  var kite = require( 'KITE/kite' );
-  var Line = require( 'KITE/segments/Line' );
-  var LineStyles = require( 'KITE/util/LineStyles' );
-  var Segment = require( 'KITE/segments/Segment' );
-  var TinyEmitter = require( 'AXON/TinyEmitter' );
-  var Vector2 = require( 'DOT/Vector2' );
+  const Arc = require( 'KITE/segments/Arc' );
+  const Bounds2 = require( 'DOT/Bounds2' );
+  const inherit = require( 'PHET_CORE/inherit' );
+  const kite = require( 'KITE/kite' );
+  const Line = require( 'KITE/segments/Line' );
+  const LineStyles = require( 'KITE/util/LineStyles' );
+  const Segment = require( 'KITE/segments/Segment' );
+  const TinyEmitter = require( 'AXON/TinyEmitter' );
+  const Vector2 = require( 'DOT/Vector2' );
 
   /**
    * @public

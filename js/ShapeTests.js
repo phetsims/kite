@@ -6,19 +6,19 @@
  * @author Jonathan Olson (PhET Interactive Simulations)
  * @author Sam Reid (PhET Interactive Simulations)
  */
-define( function( require ) {
+define( require => {
   'use strict';
 
   // modules
-  var Arc = require( 'KITE/segments/Arc' );
-  var Bounds2 = require( 'DOT/Bounds2' );
-  var Cubic = require( 'KITE/segments/Cubic' );
-  var Line = require( 'KITE/segments/Line' );
-  var Matrix3 = require( 'DOT/Matrix3' );
-  var Quadratic = require( 'KITE/segments/Quadratic' );
-  var Ray2 = require( 'DOT/Ray2' );
-  var Shape = require( 'KITE/Shape' );
-  var Vector2 = require( 'DOT/Vector2' );
+  const Arc = require( 'KITE/segments/Arc' );
+  const Bounds2 = require( 'DOT/Bounds2' );
+  const Cubic = require( 'KITE/segments/Cubic' );
+  const Line = require( 'KITE/segments/Line' );
+  const Matrix3 = require( 'DOT/Matrix3' );
+  const Quadratic = require( 'KITE/segments/Quadratic' );
+  const Ray2 = require( 'DOT/Ray2' );
+  const Shape = require( 'KITE/Shape' );
+  const Vector2 = require( 'DOT/Vector2' );
 
   QUnit.module( 'Shape' );
 

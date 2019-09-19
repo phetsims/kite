@@ -8,14 +8,14 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var Arc = require( 'KITE/segments/Arc' );
-  var inherit = require( 'PHET_CORE/inherit' );
-  var kite = require( 'KITE/kite' );
-  var Line = require( 'KITE/segments/Line' );
-  var Util = require( 'DOT/Util' );
+  const Arc = require( 'KITE/segments/Arc' );
+  const inherit = require( 'PHET_CORE/inherit' );
+  const kite = require( 'KITE/kite' );
+  const Line = require( 'KITE/segments/Line' );
+  const Util = require( 'DOT/Util' );
 
   // constants
   var lineLineIntersection = Util.lineLineIntersection;

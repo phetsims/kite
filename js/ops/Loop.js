@@ -14,14 +14,14 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var cleanArray = require( 'PHET_CORE/cleanArray' );
-  var inherit = require( 'PHET_CORE/inherit' );
-  var kite = require( 'KITE/kite' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
-  var Subpath = require( 'KITE/util/Subpath' );
+  const cleanArray = require( 'PHET_CORE/cleanArray' );
+  const inherit = require( 'PHET_CORE/inherit' );
+  const kite = require( 'KITE/kite' );
+  const Poolable = require( 'PHET_CORE/Poolable' );
+  const Subpath = require( 'KITE/util/Subpath' );
 
   var globaId = 0;
 

@@ -4,7 +4,7 @@
   if ( !window.hasOwnProperty( '_' ) ) {
     throw new Error( 'Underscore/Lodash not found: _' );
   }
-  define( function( require ) {
+  define( require => {
 
     window.axon = require( 'AXON/main' );
     window.dot = require( 'DOT/main' );

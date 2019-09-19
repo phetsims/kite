@@ -6,19 +6,19 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var Bounds2 = require( 'DOT/Bounds2' );
-  var inherit = require( 'PHET_CORE/inherit' );
-  var kite = require( 'KITE/kite' );
-  var Line = require( 'KITE/segments/Line' );
-  var Overlap = require( 'KITE/util/Overlap' );
-  var RayIntersection = require( 'KITE/util/RayIntersection' );
-  var Segment = require( 'KITE/segments/Segment' );
-  var SegmentIntersection = require( 'KITE/util/SegmentIntersection' );
-  var Util = require( 'DOT/Util' );
-  var Vector2 = require( 'DOT/Vector2' );
+  const Bounds2 = require( 'DOT/Bounds2' );
+  const inherit = require( 'PHET_CORE/inherit' );
+  const kite = require( 'KITE/kite' );
+  const Line = require( 'KITE/segments/Line' );
+  const Overlap = require( 'KITE/util/Overlap' );
+  const RayIntersection = require( 'KITE/util/RayIntersection' );
+  const Segment = require( 'KITE/segments/Segment' );
+  const SegmentIntersection = require( 'KITE/util/SegmentIntersection' );
+  const Util = require( 'DOT/Util' );
+  const Vector2 = require( 'DOT/Vector2' );
 
   // TODO: See if we should use this more
   var TWO_PI = Math.PI * 2;

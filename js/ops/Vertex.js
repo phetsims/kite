@@ -8,15 +8,15 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var cleanArray = require( 'PHET_CORE/cleanArray' );
-  var inherit = require( 'PHET_CORE/inherit' );
-  var kite = require( 'KITE/kite' );
-  var Line = require( 'KITE/segments/Line' );
-  var Poolable = require( 'PHET_CORE/Poolable' );
-  var Vector2 = require( 'DOT/Vector2' );
+  const cleanArray = require( 'PHET_CORE/cleanArray' );
+  const inherit = require( 'PHET_CORE/inherit' );
+  const kite = require( 'KITE/kite' );
+  const Line = require( 'KITE/segments/Line' );
+  const Poolable = require( 'PHET_CORE/Poolable' );
+  const Vector2 = require( 'DOT/Vector2' );
 
   var globaId = 0;
 

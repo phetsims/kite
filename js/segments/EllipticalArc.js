@@ -11,19 +11,19 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var Arc = require( 'KITE/segments/Arc' );
-  var Bounds2 = require( 'DOT/Bounds2' );
-  var inherit = require( 'PHET_CORE/inherit' );
-  var kite = require( 'KITE/kite' );
-  var Matrix3 = require( 'DOT/Matrix3' );
-  var RayIntersection = require( 'KITE/util/RayIntersection' );
-  var Segment = require( 'KITE/segments/Segment' );
-  var Transform3 = require( 'DOT/Transform3' );
-  var Util = require( 'DOT/Util' );
-  var Vector2 = require( 'DOT/Vector2' );
+  const Arc = require( 'KITE/segments/Arc' );
+  const Bounds2 = require( 'DOT/Bounds2' );
+  const inherit = require( 'PHET_CORE/inherit' );
+  const kite = require( 'KITE/kite' );
+  const Matrix3 = require( 'DOT/Matrix3' );
+  const RayIntersection = require( 'KITE/util/RayIntersection' );
+  const Segment = require( 'KITE/segments/Segment' );
+  const Transform3 = require( 'DOT/Transform3' );
+  const Util = require( 'DOT/Util' );
+  const Vector2 = require( 'DOT/Vector2' );
 
   // constants
   var toDegrees = Util.toDegrees;

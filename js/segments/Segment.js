@@ -9,15 +9,15 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var Bounds2 = require( 'DOT/Bounds2' );
-  var BoundsIntersection = require( 'KITE/ops/BoundsIntersection' );
-  var inherit = require( 'PHET_CORE/inherit' );
-  var kite = require( 'KITE/kite' );
-  var TinyEmitter = require( 'AXON/TinyEmitter' );
-  var Util = require( 'DOT/Util' );
+  const Bounds2 = require( 'DOT/Bounds2' );
+  const BoundsIntersection = require( 'KITE/ops/BoundsIntersection' );
+  const inherit = require( 'PHET_CORE/inherit' );
+  const kite = require( 'KITE/kite' );
+  const TinyEmitter = require( 'AXON/TinyEmitter' );
+  const Util = require( 'DOT/Util' );
 
   /**
    * @constructor

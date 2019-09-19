@@ -23,28 +23,28 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( function( require ) {
+define( require => {
   'use strict';
 
-  var Arc = require( 'KITE/segments/Arc' );
-  var arrayRemove = require( 'PHET_CORE/arrayRemove' );
-  var Boundary = require( 'KITE/ops/Boundary' );
-  var cleanArray = require( 'PHET_CORE/cleanArray' );
-  var Cubic = require( 'KITE/segments/Cubic' );
-  var Edge = require( 'KITE/ops/Edge' );
-  var EllipticalArc = require( 'KITE/segments/EllipticalArc' );
-  var Face = require( 'KITE/ops/Face' );
-  var inherit = require( 'PHET_CORE/inherit' );
-  var kite = require( 'KITE/kite' );
-  var Line = require( 'KITE/segments/Line' );
-  var Loop = require( 'KITE/ops/Loop' );
-  var Matrix3 = require( 'DOT/Matrix3' );
-  var Quadratic = require( 'KITE/segments/Quadratic' );
-  var Segment = require( 'KITE/segments/Segment' );
-  var Subpath = require( 'KITE/util/Subpath' );
-  var Transform3 = require( 'DOT/Transform3' );
-  var Util = require( 'DOT/Util' );
-  var Vertex = require( 'KITE/ops/Vertex' );
+  const Arc = require( 'KITE/segments/Arc' );
+  const arrayRemove = require( 'PHET_CORE/arrayRemove' );
+  const Boundary = require( 'KITE/ops/Boundary' );
+  const cleanArray = require( 'PHET_CORE/cleanArray' );
+  const Cubic = require( 'KITE/segments/Cubic' );
+  const Edge = require( 'KITE/ops/Edge' );
+  const EllipticalArc = require( 'KITE/segments/EllipticalArc' );
+  const Face = require( 'KITE/ops/Face' );
+  const inherit = require( 'PHET_CORE/inherit' );
+  const kite = require( 'KITE/kite' );
+  const Line = require( 'KITE/segments/Line' );
+  const Loop = require( 'KITE/ops/Loop' );
+  const Matrix3 = require( 'DOT/Matrix3' );
+  const Quadratic = require( 'KITE/segments/Quadratic' );
+  const Segment = require( 'KITE/segments/Segment' );
+  const Subpath = require( 'KITE/util/Subpath' );
+  const Transform3 = require( 'DOT/Transform3' );
+  const Util = require( 'DOT/Util' );
+  const Vertex = require( 'KITE/ops/Vertex' );
 
   var bridgeId = 0;
 
