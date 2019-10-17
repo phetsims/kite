@@ -16,6 +16,7 @@ define( require => {
   const BoundsIntersection = require( 'KITE/ops/BoundsIntersection' );
   const inherit = require( 'PHET_CORE/inherit' );
   const kite = require( 'KITE/kite' );
+  const merge = require( 'PHET_CORE/merge' );
   const TinyEmitter = require( 'AXON/TinyEmitter' );
   const Util = require( 'DOT/Util' );
 
@@ -379,7 +380,7 @@ define( require => {
      * @returns {Array.<Segment>}
      */
     toPiecewiseLinearOrArcSegments: function( options ) {
-      options = _.extend( {
+      options = merge( {
         minLevels: 2,
         maxLevels: 7,
         curvatureThreshold: 0.02,

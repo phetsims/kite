@@ -36,7 +36,7 @@ define( require => {
    * @param {Object} [options]
    */
   function LineStyles( options ) {
-    options = _.extend( {}, DEFAULT_OPTIONS, options );
+    options = _.extend( {}, DEFAULT_OPTIONS, options ); // using extend here because `this._strokedStyles = new LineStyles( lineStyles );` breaks the extra prototype for merge
 
     // @public {number} - The width of the line (will be offset to each side by lineWidth/2)
     this.lineWidth = options.lineWidth;

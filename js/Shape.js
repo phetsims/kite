@@ -30,6 +30,7 @@ define( require => {
   const kite = require( 'KITE/kite' );
   const Line = require( 'KITE/segments/Line' );
   const LineStyles = require( 'KITE/util/LineStyles' );
+  const merge = require( 'PHET_CORE/merge' );
   const Quadratic = require( 'KITE/segments/Quadratic' );
   const Ray2 = require( 'DOT/Ray2' );
   const Subpath = require( 'KITE/util/Subpath' );
@@ -1076,7 +1077,7 @@ define( require => {
      * @returns {Shape}
      */
     cardinalSpline: function( positions, options ) {
-      options = _.extend( {
+      options = merge( {
         // the tension parameter controls how smoothly the curve turns through its
         // control points. For a Catmull-Rom curve the tension is zero.
         // the tension should range from  -1 to 1
@@ -1229,7 +1230,7 @@ define( require => {
      */
     nonlinearTransformed: function( options ) {
       // defaults
-      options = _.extend( {
+      options = merge( {
         minLevels: 0,
         maxLevels: 7,
         distanceEpsilon: 0.16, // NOTE: this will change when the Shape is scaled, since this is a threshold for the square of a distance value
@@ -1255,7 +1256,7 @@ define( require => {
      * @returns {Shape}
      */
     polarToCartesian: function( options ) {
-      return this.nonlinearTransformed( _.extend( {
+      return this.nonlinearTransformed( merge( {
         pointMap: function( p ) {
           return Vector2.createPolar( p.y, p.x );
           // return new Vector2( p.y * Math.cos( p.x ), p.y * Math.sin( p.x ) );
@@ -1504,7 +1505,7 @@ define( require => {
      * @returns {Array.<Subpath>}
      */
     getDashedShape: function( lineDash, lineDashOffset, options ) {
-      options = _.extend( {
+      options = merge( {
         distanceEpsilon: 1e-10,
         curveEpsilon: 1e-8
       }, options );
@@ -2049,7 +2050,7 @@ define( require => {
    * @returns {Shape}
    */
   Shape.roundedRectangleWithRadii = function( x, y, width, height, cornerRadii ) {
-    // defaults to 0 (not using _.extends, since we reference each multiple times)
+    // defaults to 0 (not using merge, since we reference each multiple times)
     const topLeftRadius = cornerRadii && cornerRadii.topLeft || 0;
     const topRightRadius = cornerRadii && cornerRadii.topRight || 0;
     const bottomLeftRadius = cornerRadii && cornerRadii.bottomLeft || 0;

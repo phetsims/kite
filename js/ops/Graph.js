@@ -39,6 +39,7 @@ define( require => {
   const Line = require( 'KITE/segments/Line' );
   const Loop = require( 'KITE/ops/Loop' );
   const Matrix3 = require( 'DOT/Matrix3' );
+  const merge = require( 'PHET_CORE/merge' );
   const Quadratic = require( 'KITE/segments/Quadratic' );
   const Segment = require( 'KITE/segments/Segment' );
   const Subpath = require( 'KITE/util/Subpath' );
@@ -109,7 +110,7 @@ define( require => {
       assert && assert( typeof shapeId === 'number' );
       assert && assert( subpath instanceof Subpath );
 
-      options = _.extend( {
+      options = merge( {
         ensureClosed: true
       }, options );
 
@@ -1439,7 +1440,7 @@ define( require => {
     const SHAPE_ID = 0;
     const CLIP_SHAPE_ID = 1;
 
-    options = _.extend( {
+    options = merge( {
       // {boolean} - Respectively whether segments should be in the returned shape if they are in the exterior of the
       // clipAreaShape (outside), on the boundary, or in the interior.
       includeExterior: false,
