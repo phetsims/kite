@@ -579,7 +579,7 @@ define( require => {
 
       this._strokedSubpaths = subpaths;
       this._strokedSubpathsComputed = true;
-      this._strokedStyles = new LineStyles( lineStyles ); // shallow copy, since we consider linestyles to be mutable
+      this._strokedStyles = lineStyles.copy(); // shallow copy, since we consider linestyles to be mutable
 
       return subpaths;
     },
