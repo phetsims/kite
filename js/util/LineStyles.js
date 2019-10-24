@@ -15,6 +15,7 @@ define( require => {
   const inherit = require( 'PHET_CORE/inherit' );
   const kite = require( 'KITE/kite' );
   const Line = require( 'KITE/segments/Line' );
+  const merge = require( 'PHET_CORE/merge' );
   const Util = require( 'DOT/Util' );
 
   // constants
@@ -36,7 +37,7 @@ define( require => {
    * @param {Object} [options]
    */
   function LineStyles( options ) {
-    options = _.extend( {}, DEFAULT_OPTIONS, options ); // using extend here because `this._strokedStyles = new LineStyles( lineStyles );` breaks the extra prototype for merge
+    options = merge( {}, DEFAULT_OPTIONS, options );
 
     // @public {number} - The width of the line (will be offset to each side by lineWidth/2)
     this.lineWidth = options.lineWidth;
@@ -115,6 +116,23 @@ define( require => {
       }
 
       return true;
+    },
+
+    /**
+     * Returns a copy of this LineStyles.
+     * @public
+     *
+     * @returns {LineStyles}
+     */
+    copy: function() {
+      return new LineStyles( {
+        lineWidth: this.lineWidth,
+        lineCap: this.lineCap,
+        lineJoin: this.lineJoin,
+        lineDash: this.lineDash,
+        lineDashOffset: this.lineDashOffset,
+        miterLimit: this.miterLimit
+      } );
     },
 
     /**
