@@ -679,7 +679,7 @@ define( require => {
      * @param {number} centerY -  vertical coordinate of the center of the arc
      * @param {number} radiusX - semi axis
      * @param {number} radiusY - semi axis
-     * @param {number} rotation - rotation of the elliptical arc with respect to the
+     * @param {number} rotation - rotation of the elliptical arc with respect to the positive x axis.
      * @param {number} startAngle
      * @param {number} endAngle
      * @param {boolean} [anticlockwise]
