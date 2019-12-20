@@ -2299,5 +2299,4 @@ define( require => {
   };
 
   return Shape;
-} )
-;
+} );
