@@ -36,7 +36,7 @@ define( require => {
   const Subpath = require( 'KITE/util/Subpath' );
   const svgPath = require( 'KITE/parser/svgPath' );
   const TinyEmitter = require( 'AXON/TinyEmitter' );
-  const Util = require( 'DOT/Util' );
+  const Utils = require( 'DOT/Utils' );
   const Vector2 = require( 'DOT/Vector2' );
 
   const randomSource = Math.random; // eslint-disable-line bad-sim-text (We can't get joist's random reference here)
@@ -351,7 +351,7 @@ define( require => {
      */
     zigZagToPoint: function( endPoint, amplitude, numberZigZags, symmetrical ) {
 
-      assert && assert( Util.isInteger( numberZigZags ), 'numberZigZags must be an integer: ' + numberZigZags );
+      assert && assert( Utils.isInteger( numberZigZags ), 'numberZigZags must be an integer: ' + numberZigZags );
 
       this.ensure( endPoint );
       const startPoint = this.getLastPoint();

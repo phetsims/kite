@@ -17,7 +17,7 @@ define( require => {
   const RayIntersection = require( 'KITE/util/RayIntersection' );
   const Segment = require( 'KITE/segments/Segment' );
   const SegmentIntersection = require( 'KITE/util/SegmentIntersection' );
-  const Util = require( 'DOT/Util' );
+  const Utils = require( 'DOT/Utils' );
   const Vector2 = require( 'DOT/Vector2' );
 
   // TODO: See if we should use this more
@@ -510,16 +510,16 @@ define( require => {
      * @returns {number}
      */
     mapAngle: function( angle ) {
-      if ( Math.abs( Util.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
+      if ( Math.abs( Utils.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
         return this._startAngle;
       }
-      if ( Math.abs( Util.moduloBetweenDown( angle - this.getActualEndAngle(), -Math.PI, Math.PI ) ) < 1e-8 ) {
+      if ( Math.abs( Utils.moduloBetweenDown( angle - this.getActualEndAngle(), -Math.PI, Math.PI ) ) < 1e-8 ) {
         return this.getActualEndAngle();
       }
       // consider an assert that we contain that angle?
       return ( this._startAngle > this.getActualEndAngle() ) ?
-             Util.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
-             Util.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
+             Utils.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
+             Utils.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
     },
 
     /**
@@ -588,7 +588,7 @@ define( require => {
       const normalizedAngle = this._anticlockwise ? angle - this._endAngle : angle - this._startAngle;
 
       // get the angle between 0 and 2pi
-      const positiveMinAngle = Util.moduloBetweenDown( normalizedAngle, 0, Math.PI * 2 );
+      const positiveMinAngle = Utils.moduloBetweenDown( normalizedAngle, 0, Math.PI * 2 );
 
       return positiveMinAngle <= this.angleDifference;
     },
@@ -966,11 +966,11 @@ define( require => {
     else {
       return [ Overlap.createLinear(
         // minimum
-        Util.clamp( Util.linear( 0, end1, 0, 1, overlapMin ), 0, 1 ), // arc1 min
-        Util.clamp( Util.linear( start2, end2, tStart2, tEnd2, overlapMin ), 0, 1 ), // arc2 min
+        Utils.clamp( Utils.linear( 0, end1, 0, 1, overlapMin ), 0, 1 ), // arc1 min
+        Utils.clamp( Utils.linear( start2, end2, tStart2, tEnd2, overlapMin ), 0, 1 ), // arc2 min
         // maximum
-        Util.clamp( Util.linear( 0, end1, 0, 1, overlapMax ), 0, 1 ), // arc1 max
-        Util.clamp( Util.linear( start2, end2, tStart2, tEnd2, overlapMax ), 0, 1 ) // arc2 max
+        Utils.clamp( Utils.linear( 0, end1, 0, 1, overlapMax ), 0, 1 ), // arc1 max
+        Utils.clamp( Utils.linear( start2, end2, tStart2, tEnd2, overlapMax ), 0, 1 ) // arc2 max
       ) ];
     }
   };
@@ -998,7 +998,7 @@ define( require => {
     end1 *= sign1;
 
     // Remap arc 2 so the start point maps to the [0,2pi) range (and end-point may lie outside that)
-    const start2 = Util.moduloBetweenDown( sign1 * ( startAngle2 - startAngle1 ), 0, TWO_PI );
+    const start2 = Utils.moduloBetweenDown( sign1 * ( startAngle2 - startAngle1 ), 0, TWO_PI );
     const end2 = sign1 * ( endAngle2 - startAngle2 ) + start2;
 
     let wrapT;
@@ -1125,7 +1125,7 @@ define( require => {
    * @returns {Segment}
    */
   Arc.createFromPoints = function( startPoint, middlePoint, endPoint ) {
-    const center = Util.circleCenterFromPoints( startPoint, middlePoint, endPoint );
+    const center = Utils.circleCenterFromPoints( startPoint, middlePoint, endPoint );
 
     // Close enough
     if ( center === null ) {

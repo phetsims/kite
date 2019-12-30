@@ -18,12 +18,12 @@ define( require => {
   const Overlap = require( 'KITE/util/Overlap' );
   const RayIntersection = require( 'KITE/util/RayIntersection' );
   const Segment = require( 'KITE/segments/Segment' );
-  const Util = require( 'DOT/Util' );
+  const Utils = require( 'DOT/Utils' );
   const Vector2 = require( 'DOT/Vector2' );
 
   // constants
-  const solveQuadraticRootsReal = Util.solveQuadraticRootsReal;
-  const arePointsCollinear = Util.arePointsCollinear;
+  const solveQuadraticRootsReal = Utils.solveQuadraticRootsReal;
+  const arePointsCollinear = Utils.arePointsCollinear;
 
   // Used in multiple filters
   function isBetween0And1( t ) {
@@ -788,8 +788,8 @@ define( require => {
 
     // Find the t values where extremes lie in the [0,1] range for each 1-dimensional quadratic. We do this by
     // differentiating the quadratic and finding the roots of the resulting line.
-    const xRoots = Util.solveLinearRootsReal( 2 * d2x, d1x );
-    const yRoots = Util.solveLinearRootsReal( 2 * d2y, d1y );
+    const xRoots = Utils.solveLinearRootsReal( 2 * d2x, d1x );
+    const yRoots = Utils.solveLinearRootsReal( 2 * d2y, d1y );
     const xExtremeTs = _.uniq( [ 0, 1 ].concat( xRoots ? xRoots.filter( isBetween0And1 ) : [] ) );
     const yExtremeTs = _.uniq( [ 0, 1 ].concat( yRoots ? yRoots.filter( isBetween0And1 ) : [] ) );
 

@@ -23,12 +23,12 @@ define( require => {
   const RayIntersection = require( 'KITE/util/RayIntersection' );
   const Segment = require( 'KITE/segments/Segment' );
   const SegmentIntersection = require( 'KITE/util/SegmentIntersection' );
-  const Util = require( 'DOT/Util' );
+  const Utils = require( 'DOT/Utils' );
   const Vector2 = require( 'DOT/Vector2' );
 
-  const solveQuadraticRootsReal = Util.solveQuadraticRootsReal; // function that returns an array of number
-  const solveCubicRootsReal = Util.solveCubicRootsReal; // function that returns an array of number
-  const arePointsCollinear = Util.arePointsCollinear; // function that returns a boolean
+  const solveQuadraticRootsReal = Utils.solveQuadraticRootsReal; // function that returns an array of number
+  const solveCubicRootsReal = Utils.solveCubicRootsReal; // function that returns an array of number
+  const arePointsCollinear = Utils.arePointsCollinear; // function that returns a boolean
 
   // convenience variables use to reduce the number of vector allocations
   const scratchVector1 = new Vector2( 0, 0 );
@@ -1144,8 +1144,8 @@ define( require => {
 
     // Find the t values where extremes lie in the [0,1] range for each 1-dimensional cubic. We do this by
     // differentiating the cubic and finding the roots of the resulting quadratic.
-    const xRoots = Util.solveQuadraticRootsReal( 3 * d3x, 2 * d2x, d1x );
-    const yRoots = Util.solveQuadraticRootsReal( 3 * d3y, 2 * d2y, d1y );
+    const xRoots = Utils.solveQuadraticRootsReal( 3 * d3x, 2 * d2x, d1x );
+    const yRoots = Utils.solveQuadraticRootsReal( 3 * d3y, 2 * d2y, d1y );
     const xExtremeTs = _.uniq( [ 0, 1 ].concat( xRoots !== null ? xRoots.filter( isBetween0And1 ) : [] ) );
     const yExtremeTs = _.uniq( [ 0, 1 ].concat( yRoots !== null ? yRoots.filter( isBetween0And1 ) : [] ) );
 

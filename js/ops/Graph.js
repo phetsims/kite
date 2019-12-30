@@ -44,7 +44,7 @@ define( require => {
   const Segment = require( 'KITE/segments/Segment' );
   const Subpath = require( 'KITE/util/Subpath' );
   const Transform3 = require( 'DOT/Transform3' );
-  const Util = require( 'DOT/Util' );
+  const Utils = require( 'DOT/Utils' );
   const Vertex = require( 'KITE/ops/Vertex' );
 
   let bridgeId = 0;
@@ -560,7 +560,7 @@ define( require => {
         middle = middle.subdivided( t0 )[ 1 ];
       }
       if ( t1 < 1 ) {
-        middle = middle.subdivided( Util.linear( t0, 1, 0, 1, t1 ) )[ 0 ];
+        middle = middle.subdivided( Utils.linear( t0, 1, 0, 1, t1 ) )[ 0 ];
       }
 
       let beforeVertex;

@@ -17,7 +17,7 @@ define( require => {
   const RayIntersection = require( 'KITE/util/RayIntersection' );
   const Segment = require( 'KITE/segments/Segment' );
   const SegmentIntersection = require( 'KITE/util/SegmentIntersection' );
-  const Util = require( 'DOT/Util' );
+  const Utils = require( 'DOT/Utils' );
   const Vector2 = require( 'DOT/Vector2' );
 
   const scratchVector2 = new Vector2( 0, 0 );
@@ -423,7 +423,7 @@ define( require => {
     explicitClosestToPoint: function( point ) {
       const diff = this._end.minus( this._start );
       let t = point.minus( this._start ).dot( diff ) / diff.magnitudeSquared;
-      t = Util.clamp( t, 0, 1 );
+      t = Utils.clamp( t, 0, 1 );
       const closestPoint = this.positionAt( t );
       return [
         {
@@ -642,7 +642,7 @@ define( require => {
     assert && assert( a instanceof Line );
     assert && assert( b instanceof Line );
 
-    const lineSegmentIntersection = Util.lineSegmentIntersection(
+    const lineSegmentIntersection = Utils.lineSegmentIntersection(
       a.start.x, a.start.y, a.end.x, a.end.y,
       b.start.x, b.start.y, b.end.x, b.end.y
     );

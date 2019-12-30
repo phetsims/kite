@@ -11,7 +11,7 @@ define( require => {
 
   const inherit = require( 'PHET_CORE/inherit' );
   const kite = require( 'KITE/kite' );
-  const Util = require( 'DOT/Util' );
+  const Utils = require( 'DOT/Utils' );
   const Vector2 = require( 'DOT/Vector2' );
 
   /**
@@ -31,8 +31,8 @@ define( require => {
     this.point = point;
 
     // @public {number} - Clamped in case it's slightly out-of-range
-    this.aT = Util.clamp( aT, 0, 1 );
-    this.bT = Util.clamp( bT, 0, 1 );
+    this.aT = Utils.clamp( aT, 0, 1 );
+    this.bT = Utils.clamp( bT, 0, 1 );
   }
 
   kite.register( 'SegmentIntersection', SegmentIntersection );

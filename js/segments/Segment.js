@@ -18,7 +18,7 @@ define( require => {
   const kite = require( 'KITE/kite' );
   const merge = require( 'PHET_CORE/merge' );
   const TinyEmitter = require( 'AXON/TinyEmitter' );
-  const Util = require( 'DOT/Util' );
+  const Utils = require( 'DOT/Utils' );
 
   /**
    * @constructor
@@ -138,7 +138,7 @@ define( require => {
         segment = segment.subdivided( t1 )[ 0 ];
       }
       if ( t0 > 0 ) {
-        segment = segment.subdivided( Util.linear( 0, t1, 0, 1, t0 ) )[ 1 ];
+        segment = segment.subdivided( Utils.linear( 0, t1, 0, 1, t0 ) )[ 1 ];
       }
       return segment;
     },
@@ -162,7 +162,7 @@ define( require => {
 
         // scale up the remaining t values
         for ( let j = i + 1; j < tList.length; j++ ) {
-          tList[ j ] = Util.linear( t, 1, 0, 1, tList[ j ] );
+          tList[ j ] = Utils.linear( t, 1, 0, 1, tList[ j ] );
         }
       }
       result.push( right );
@@ -291,7 +291,7 @@ define( require => {
           let lengthLeft = totalLength;
           while ( dashOffset + lengthLeft >= lineDash[ dashIndex ] ) {
             // Compute the t (for now, based on the total length for ease)
-            const t = Util.linear( 0, totalLength, t0, t1, totalLength - lengthLeft + lineDash[ dashIndex ] - dashOffset );
+            const t = Utils.linear( 0, totalLength, t0, t1, totalLength - lengthLeft + lineDash[ dashIndex ] - dashOffset );
 
             // Record the dash change
             values.push( t );
@@ -620,7 +620,7 @@ define( require => {
       return Segment.polynomialGetOverlapQuadratic( p0s, p1s, p2s, q0s, q1s, q2s );
     }
 
-    const a = Util.sign( p3s / q3s ) * Math.pow( Math.abs( p3s / q3s ), 1 / 3 );
+    const a = Utils.sign( p3s / q3s ) * Math.pow( Math.abs( p3s / q3s ), 1 / 3 );
     if ( a === 0 ) {
       return null; // If there would be solutions, then q3s would have been non-zero
     }
@@ -780,11 +780,11 @@ define( require => {
    */
   Segment.isSufficientlyFlat = function( distanceEpsilon, curveEpsilon, start, middle, end ) {
     // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
-    if ( Util.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) > curveEpsilon ) {
+    if ( Utils.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) > curveEpsilon ) {
       return false;
     }
     // deviation criterion
-    if ( Util.distToSegmentSquared( middle, start, end ) > distanceEpsilon ) {
+    if ( Utils.distToSegmentSquared( middle, start, end ) > distanceEpsilon ) {
       return false;
     }
     return true;

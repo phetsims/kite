@@ -22,11 +22,11 @@ define( require => {
   const RayIntersection = require( 'KITE/util/RayIntersection' );
   const Segment = require( 'KITE/segments/Segment' );
   const Transform3 = require( 'DOT/Transform3' );
-  const Util = require( 'DOT/Util' );
+  const Utils = require( 'DOT/Utils' );
   const Vector2 = require( 'DOT/Vector2' );
 
   // constants
-  const toDegrees = Util.toDegrees;
+  const toDegrees = Utils.toDegrees;
 
   /**
    * @constructor
@@ -664,16 +664,16 @@ define( require => {
      * @returns {number}
      */
     mapAngle: function( angle ) {
-      if ( Math.abs( Util.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
+      if ( Math.abs( Utils.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
         return this._startAngle;
       }
-      if ( Math.abs( Util.moduloBetweenDown( angle - this.getActualEndAngle(), -Math.PI, Math.PI ) ) < 1e-8 ) {
+      if ( Math.abs( Utils.moduloBetweenDown( angle - this.getActualEndAngle(), -Math.PI, Math.PI ) ) < 1e-8 ) {
         return this.getActualEndAngle();
       }
       // consider an assert that we contain that angle?
       return ( this._startAngle > this.getActualEndAngle() ) ?
-             Util.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
-             Util.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
+             Utils.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
+             Utils.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
     },
 
     /**
@@ -1026,7 +1026,7 @@ define( require => {
          Math.abs( arc1._radiusY - arc2._radiusY ) > 1e-8 ||
          // Difference between rotations should be an approximate multiple of pi. We add pi/2 before modulo, so the
          // result of that should be ~pi/2 (don't need to check both endpoints)
-         Math.abs( Util.moduloBetweenDown( arc1._rotation - arc2._rotation + Math.PI / 2, 0, Math.PI ) - Math.PI / 2 ) > 1e-10 ) {
+         Math.abs( Utils.moduloBetweenDown( arc1._rotation - arc2._rotation + Math.PI / 2, 0, Math.PI ) - Math.PI / 2 ) > 1e-10 ) {
       return [];
     }
 

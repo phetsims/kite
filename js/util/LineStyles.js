@@ -16,10 +16,10 @@ define( require => {
   const kite = require( 'KITE/kite' );
   const Line = require( 'KITE/segments/Line' );
   const merge = require( 'PHET_CORE/merge' );
-  const Util = require( 'DOT/Util' );
+  const Utils = require( 'DOT/Utils' );
 
   // constants
-  const lineLineIntersection = Util.lineLineIntersection;
+  const lineLineIntersection = Utils.lineLineIntersection;
 
   const DEFAULT_OPTIONS = {
     lineWidth: 1,

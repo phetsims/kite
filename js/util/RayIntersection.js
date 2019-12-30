@@ -11,7 +11,7 @@ define( require => {
 
   const inherit = require( 'PHET_CORE/inherit' );
   const kite = require( 'KITE/kite' );
-  const Util = require( 'DOT/Util' );
+  const Utils = require( 'DOT/Utils' );
   const Vector2 = require( 'DOT/Vector2' );
 
   /**
@@ -41,7 +41,7 @@ define( require => {
     // @public {number}
     this.distance = distance;
     this.wind = wind;
-    this.t = Util.clamp( t, 0, 1 ); // In case it is slightly out of range
+    this.t = Utils.clamp( t, 0, 1 ); // In case it is slightly out of range
   }
 
   kite.register( 'RayIntersection', RayIntersection );
