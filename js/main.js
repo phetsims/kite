@@ -10,34 +10,34 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( [
-  'KITE/kite',
+define( require => {
 
-  'KITE/Shape',
-  'KITE/ops/Boundary',
-  'KITE/ops/BoundsIntersection',
-  'KITE/ops/Edge',
-  'KITE/ops/Face',
-  'KITE/ops/Graph',
-  'KITE/ops/HalfEdge',
-  'KITE/ops/Loop',
-  'KITE/ops/Vertex',
-  'KITE/segments/Arc',
-  'KITE/segments/Cubic',
-  'KITE/segments/EllipticalArc',
-  'KITE/segments/Line',
-  'KITE/segments/Quadratic',
-  'KITE/segments/Segment',
-  'KITE/util/LineStyles',
-  'KITE/util/Overlap',
-  'KITE/util/SegmentIntersection',
-  'KITE/util/Subpath',
-
-  'KITE/parser/svgPath'
-
-  // note: the kite variable is filled in as modules are visited
-], function( kite ) {
   'use strict';
 
+  const kite = require( 'KITE/kite' );
+
+  require( 'KITE/Shape' );
+  require( 'KITE/ops/Boundary' );
+  require( 'KITE/ops/BoundsIntersection' );
+  require( 'KITE/ops/Edge' );
+  require( 'KITE/ops/Face' );
+  require( 'KITE/ops/Graph' );
+  require( 'KITE/ops/HalfEdge' );
+  require( 'KITE/ops/Loop' );
+  require( 'KITE/ops/Vertex' );
+  require( 'KITE/segments/Arc' );
+  require( 'KITE/segments/Cubic' );
+  require( 'KITE/segments/EllipticalArc' );
+  require( 'KITE/segments/Line' );
+  require( 'KITE/segments/Quadratic' );
+  require( 'KITE/segments/Segment' );
+  require( 'KITE/util/LineStyles' );
+  require( 'KITE/util/Overlap' );
+  require( 'KITE/util/SegmentIntersection' );
+  require( 'KITE/util/Subpath' );
+
+  require( 'KITE/parser/svgPath' );
+
+  // note: the kite variable is filled in as modules are visited
   return kite;
 } );
