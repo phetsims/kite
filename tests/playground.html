@@ -46,7 +46,6 @@
 
       window.cubicIssue = function() {
         setTimeout(function(){
-          debugger;
           window.result = kite.Segment.polynomialGetOverlapCubic( 528.84, 0, 9.072000000000116, -1.5120000000002847, 536.4, -13.60799999999972, 4.5359999999996035, 1.5120000000000573 );
         });
 
@@ -87,13 +86,11 @@
       };
 
       window.overlapTest = function() {
-        debugger;
-
         window.a = new kite.Line( new dot.Vector2( 0, 0 ), new dot.Vector2( 6.123233995736766e-16, -10 ) );
         window.b = new kite.Line( new dot.Vector2( -1.8369701987210296e-15, -10 ), new dot.Vector2( 0, 0 ) );
 
         console.log( kite.Line.getOverlaps( a, b ) );
-      }
+      };
 
       window.initTest = function() {
 
@@ -108,7 +105,6 @@
           graph.addShape( i, shapes[ i ] );
         }
         graph.eliminateOverlap();
-        debugger;
         graph.eliminateSelfIntersection();
         graph.eliminateIntersection();
         graph.collapseVertices();
