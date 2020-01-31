@@ -39,7 +39,8 @@ define( require => {
   const Utils = require( 'DOT/Utils' );
   const Vector2 = require( 'DOT/Vector2' );
 
-  const randomSource = Math.random; // eslint-disable-line bad-sim-text (We can't get joist's random reference here)
+  //  (We can't get joist's random reference here)
+  const randomSource = Math.random; // eslint-disable-line bad-sim-text
 
   /**
    * Convenience function that returns a Vector2
