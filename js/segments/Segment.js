@@ -400,7 +400,7 @@ define( require => {
      * Helper function for toPiecewiseLinearOrArcSegments.
      * @private
      *
-     * @param {Object} options
+     * @param {Object} [options]
      * @param {number} minLevels
      * @param {number} maxLevels
      * @param {Array.<Segment>} segments - We will push resulting segments to here
