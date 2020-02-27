@@ -1,14 +1,16 @@
-// Copyright 2016-2019, University of Colorado Boulder
-(function() {
-  'use strict';
-  if ( !window.hasOwnProperty( '_' ) ) {
-    throw new Error( 'Underscore/Lodash not found: _' );
-  }
-  define( require => {
+import axon from '../../axon/js/main.js';
+import dot from '../../dot/js/main.js';
+import phetCore from '../../phet-core/js/main.js';
+import kite from './main.js';
 
-    window.axon = require( 'AXON/main' );
-    window.dot = require( 'DOT/main' );
-    window.kite = require( 'KITE/main' );
-    window.phetCore = require( 'PHET_CORE/main' );
-  } );
-})();
+// Copyright 2016-2019, University of Colorado Boulder
+
+if ( !window.hasOwnProperty( '_' ) ) {
+  throw new Error( 'Underscore/Lodash not found: _' );
+}
+
+
+window.axon = axon;
+window.dot = dot;
+window.kite = kite;
+window.phetCore = phetCore;

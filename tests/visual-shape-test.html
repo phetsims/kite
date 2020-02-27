@@ -16,7 +16,6 @@
   <script src="../../tandem/js/PhetioIDUtils.js"></script>
   <script src="../../sherpa/lib/lodash-4.17.4.min.js"></script>
 
-  <script data-main="../js/kite-config.js" src="../../sherpa/lib/require-2.3.6.js"></script>
 
   <style>
     html, body {
@@ -136,724 +135,723 @@
   </div>
 </div>
 
-<script>
-  require( [ 'kite-config' ], function() {
-    require( [ 'main', 'DOT/main' ], function( kite, dot ) {
-      window.kite = kite;
-      window.dot = dot;
+<script type="module">
+  import kite from '../js/main.js';
+  import dot from '../../dot/js/main.js';
 
-      console.log( 'loaded' );
+  window.kite = kite;
+  window.dot = dot;
 
-      /*---------------------------------------------------------------------------*
-       * State
-       *---------------------------------------------------------------------------*/
+  console.log( 'loaded' );
 
-      var strokeStyles = new kite.LineStyles( {
-        lineWidth: 30,
-        lineCap: 'butt',
-        lineJoin: 'miter',
-        miterLimit: 10
-      } );
+  /*---------------------------------------------------------------------------*
+   * State
+   *---------------------------------------------------------------------------*/
 
-      var point = 0; // how far our inspection point is along the curve
-      var subdivideT = 0.5;
-      var pointPosition = false; // highlight the inspected point(s)
-      var pointTangent = false; // tangent on points
-      var pointCurvature = false; // curvature on points
-      var pointSubdivide = false; // subdivides the segments at the point
-      var pointMonotone = false; // subdivides the segments to make each one monotone
-      var segmentControlNet = false; // control net for beziers
+  var strokeStyles = new kite.LineStyles( {
+    lineWidth: 30,
+    lineCap: 'butt',
+    lineJoin: 'miter',
+    miterLimit: 10
+  } );
 
-      var kiteStroked = false;
-      var fill = false;
-      var close = false;
-      var hitMouse = false; // show a starburst pattern with winding colors
-      var hitMouseSpan = false;
-      var endpoints = false;
-      var hitDistance = false;
+  var point = 0; // how far our inspection point is along the curve
+  var subdivideT = 0.5;
+  var pointPosition = false; // highlight the inspected point(s)
+  var pointTangent = false; // tangent on points
+  var pointCurvature = false; // curvature on points
+  var pointSubdivide = false; // subdivides the segments at the point
+  var pointMonotone = false; // subdivides the segments to make each one monotone
+  var segmentControlNet = false; // control net for beziers
 
-      var shapeBounds = false;
-      var shapeRotBounds = false;
+  var kiteStroked = false;
+  var fill = false;
+  var close = false;
+  var hitMouse = false; // show a starburst pattern with winding colors
+  var hitMouseSpan = false;
+  var endpoints = false;
+  var hitDistance = false;
 
-      var shape = new kite.Shape();
-      var transformedShape;
-      var strokedShape;
+  var shapeBounds = false;
+  var shapeRotBounds = false;
 
-      var xOffset = 150;
-      var yOffset = 150;
+  var shape = new kite.Shape();
+  var transformedShape;
+  var strokedShape;
 
-      var transformActive = false;
-      var translation = 0;
-      var rotation = 0;
-      var scaling = 1;
-      var shear = 0;
-      var offset = 0;
-      var reflection = false;
+  var xOffset = 150;
+  var yOffset = 150;
 
-      var rotationMatrix = dot.Matrix3.rotation2( Math.PI / 4 );
-      var inverseRotationMatrix = rotationMatrix.inverted();
+  var transformActive = false;
+  var translation = 0;
+  var rotation = 0;
+  var scaling = 1;
+  var shear = 0;
+  var offset = 0;
+  var reflection = false;
 
-      /*---------------------------------------------------------------------------*
-       * Drawing
-       *---------------------------------------------------------------------------*/
-      var canvas = document.getElementById( 'canvas' );
-      window.canvas = canvas;
+  var rotationMatrix = dot.Matrix3.rotation2( Math.PI / 4 );
+  var inverseRotationMatrix = rotationMatrix.inverted();
 
-      var context = canvas.getContext( '2d' );
-      window.context = context;
+  /*---------------------------------------------------------------------------*
+   * Drawing
+   *---------------------------------------------------------------------------*/
+  var canvas = document.getElementById( 'canvas' );
+  window.canvas = canvas;
 
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+  var context = canvas.getContext( '2d' );
+  window.context = context;
 
-      function render() {
-        window.lastShape = shape;
-        context.setTransform( 1, 0, 0, 1, 0, 0 );
-        context.clearRect( 0, 0, canvas.width, canvas.height );
-        context.setTransform( 1, 0, 0, 1, xOffset, yOffset );
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
-        transformedShape = shape;
-        if ( transformActive ) {
-          var matrix = dot.Matrix3.translation( translation, 0 )
-              .timesMatrix( dot.Matrix3.rotation2( rotation ) )
-              .timesMatrix( dot.Matrix3.scale( scaling ) )
-              .timesMatrix( dot.Matrix3.createFromPool( 1, shear, 0, 0, 1, 0, 0, 0, 1 ) )
-              .timesMatrix( reflection ? dot.Matrix3.X_REFLECTION : dot.Matrix3.IDENTITY );
-          transformedShape = shape.transformed( matrix );
-          // console.log( matrix.toString() + '\n' );
-        }
-        if ( close ) {
-          transformedShape = transformedShape.copy().close();
-        }
-        if ( transformActive ) {
-          transformedShape = transformedShape.getOffsetShape( offset );
-        }
+  function render() {
+    window.lastShape = shape;
+    context.setTransform( 1, 0, 0, 1, 0, 0 );
+    context.clearRect( 0, 0, canvas.width, canvas.height );
+    context.setTransform( 1, 0, 0, 1, xOffset, yOffset );
 
-        // main shape stroked in black
-        context.beginPath();
-        if ( kiteStroked ) {
-          strokedShape = transformedShape.getStrokedShape( strokeStyles );
-          strokedShape.writeToContext( context );
-          context.fillStyle = '#000';
-          context.fill();
-          context.strokeStyle = 'rgba(0,255,0,1)';
+    transformedShape = shape;
+    if ( transformActive ) {
+      var matrix = dot.Matrix3.translation( translation, 0 )
+        .timesMatrix( dot.Matrix3.rotation2( rotation ) )
+        .timesMatrix( dot.Matrix3.scale( scaling ) )
+        .timesMatrix( dot.Matrix3.createFromPool( 1, shear, 0, 0, 1, 0, 0, 0, 1 ) )
+        .timesMatrix( reflection ? dot.Matrix3.X_REFLECTION : dot.Matrix3.IDENTITY );
+      transformedShape = shape.transformed( matrix );
+      // console.log( matrix.toString() + '\n' );
+    }
+    if ( close ) {
+      transformedShape = transformedShape.copy().close();
+    }
+    if ( transformActive ) {
+      transformedShape = transformedShape.getOffsetShape( offset );
+    }
+
+    // main shape stroked in black
+    context.beginPath();
+    if ( kiteStroked ) {
+      strokedShape = transformedShape.getStrokedShape( strokeStyles );
+      strokedShape.writeToContext( context );
+      context.fillStyle = '#000';
+      context.fill();
+      context.strokeStyle = 'rgba(0,255,0,1)';
+      context.lineWidth = 1;
+      context.stroke();
+    }
+    else {
+      strokedShape = transformedShape;
+      transformedShape.writeToContext( context );
+      context.strokeStyle = '#000';
+      context.lineWidth = strokeStyles.lineWidth;
+      context.lineCap = strokeStyles.lineCap;
+      context.lineJoin = strokeStyles.lineJoin;
+      context.miterLimit = strokeStyles.miterLimit;
+      context.stroke();
+    }
+
+    // overlay in red
+    context.beginPath();
+    transformedShape.writeToContext( context );
+    context.strokeStyle = '#f00';
+    context.lineWidth = 1;
+    context.lineCap = 'butt';
+    context.lineJoin = 'miter';
+    context.miterLimit = 10;
+    context.stroke();
+
+    _.each( transformedShape.subpaths, function( subpath ) {
+      if ( endpoints ) {
+        for ( var k = 0; k < subpath.points.length; k++ ) {
+          var subpoint = subpath.points[ k ];
+          context.beginPath();
+          context.arc( subpoint.x, subpoint.y, 7, 0, Math.PI * 2, false );
+          context.strokeStyle = k === 0 ? '#f80' : ( k === subpath.points.length - 1 ? '#0f8' : '#80f' );
           context.lineWidth = 1;
           context.stroke();
-        }
-        else {
-          strokedShape = transformedShape;
-          transformedShape.writeToContext( context );
-          context.strokeStyle = '#000';
-          context.lineWidth = strokeStyles.lineWidth;
-          context.lineCap = strokeStyles.lineCap;
-          context.lineJoin = strokeStyles.lineJoin;
-          context.miterLimit = strokeStyles.miterLimit;
-          context.stroke();
-        }
-
-        // overlay in red
-        context.beginPath();
-        transformedShape.writeToContext( context );
-        context.strokeStyle = '#f00';
-        context.lineWidth = 1;
-        context.lineCap = 'butt';
-        context.lineJoin = 'miter';
-        context.miterLimit = 10;
-        context.stroke();
-
-        _.each( transformedShape.subpaths, function( subpath ) {
-          if ( endpoints ) {
-            for ( var k = 0; k < subpath.points.length; k++ ) {
-              var subpoint = subpath.points[ k ];
-              context.beginPath();
-              context.arc( subpoint.x, subpoint.y, 7, 0, Math.PI * 2, false );
-              context.strokeStyle = k === 0 ? '#f80' : ( k === subpath.points.length - 1 ? '#0f8' : '#80f' );
-              context.lineWidth = 1;
-              context.stroke();
-            }
-          }
-
-          if ( subpath.isClosed() ) {
-            subpath.addClosingSegment();
-          }
-
-          var segments = subpath.segments;
-
-          if ( pointMonotone ) {
-            segments = _.flatten( _.map( segments, function( segment ) {
-              if ( segment.subdividedIntoMonotone ) {
-                // console.log( segment.getInteriorExtremaTs() );
-                return segment.subdividedIntoMonotone();
-              }
-              else {
-                return [ segment ];
-              }
-            } ) );
-          }
-
-          if ( pointSubdivide ) {
-            segments = _.flatten( _.map( segments, function( segment ) {
-              return segment.subdivided( subdivideT );
-              // return segment.subdivisions( [ 0.25, 0.5, 0.75 ] );
-            } ) );
-          }
-
-          _.each( segments, function( segment ) {
-            // don't attempt to show invalid segments
-            if ( segment.invalid ) { return; }
-
-            var p = segment.positionAt( point );
-            var t = segment.tangentAt( point );
-            if ( t.magnitude === 0 ) { return; } // bail out if we are at a cusp or undefined tangent
-            var tn = t.normalized();
-            var c = segment.curvatureAt( point );
-
-            // console.log( 'point: ' + p.toString() );
-            // console.log( 'tangent: ' + tn.toString() );
-            // console.log( 'curvature: ' + c );
-
-            // highlight the inspection point
-            if ( pointPosition ) {
-              context.beginPath();
-              context.arc( p.x, p.y, 3, 0, Math.PI * 2, false );
-              context.fillStyle = '#0f0';
-              context.fill();
-            }
-
-            if ( pointTangent ) {
-              var length = 25;
-              context.beginPath();
-              context.moveTo( p.x - tn.x * length * 0, p.y - tn.y * length * 0 );
-              context.lineTo( p.x + tn.x * length, p.y + tn.y * length );
-              context.strokeStyle = '#0ff';
-              context.lineWidth = 1;
-              context.stroke();
-            }
-
-            if ( pointCurvature ) {
-              if ( Math.abs( c ) > 0.0000001 ) {
-                var radiusOfCurvature = 1 / c;
-                var curvatureCenter = p.plus( tn.perpendicular().times( -radiusOfCurvature ) );
-
-                context.beginPath();
-                context.arc( curvatureCenter.x, curvatureCenter.y, Math.abs( radiusOfCurvature ), 0, Math.PI * 2, false );
-                context.strokeStyle = '#f0f';
-                context.lineWidth = 1;
-                context.stroke();
-              }
-            }
-
-            if ( segmentControlNet ) {
-              var pts = [];
-              if ( segment instanceof kite.Quadratic ) {
-                pts = [ segment.start, segment.control, segment.end ];
-              }
-              else if ( segment instanceof kite.Cubic ) {
-                pts = [ segment.start, segment.control1, segment.control2, segment.end ];
-              }
-              if ( pts.length ) {
-                // path along the net
-                context.beginPath();
-                context.moveTo( pts[ 0 ].x, pts[ 0 ].y );
-                for ( var qi = 1; qi < pts.length; qi++ ) { context.lineTo( pts[ qi ].x, pts[ qi ].y ); }
-                context.strokeStyle = '#0f0';
-                context.lineWidth = 1;
-                context.stroke();
-
-                // control points
-                for ( var qi = 1; qi < pts.length - 1; qi++ ) {
-                  context.beginPath();
-                  context.arc( pts[ qi ].x, pts[ qi ].y, 3, 0, Math.PI * 2, false );
-                  context.fillStyle = '#00f';
-                  context.fill();
-                }
-              }
-            }
-          } );
-        } );
-
-        if ( shapeBounds ) {
-          var b = strokedShape.bounds;
-          context.beginPath();
-          context.rect( b.minX, b.minY, b.width, b.height );
-          context.strokeStyle = 'rgba(255,0,255,0.8)';
-          context.lineWidth = 1;
-          context.stroke();
-        }
-
-        if ( shapeRotBounds ) {
-          var c = strokedShape.getBoundsWithTransform( rotationMatrix );
-          context.save();
-          inverseRotationMatrix.canvasAppendTransform( context );
-          context.beginPath();
-          context.rect( c.minX, c.minY, c.width, c.height );
-          context.strokeStyle = 'rgba(0,255,255,0.8)';
-          context.lineWidth = 1;
-          context.stroke();
-          context.restore();
-        }
-
-        if ( fill ) {
-          context.beginPath();
-          transformedShape.writeToContext( context );
-          context.fillStyle = 'rgba(255,255,0,0.5)';
-          context.fill();
         }
       }
 
-      function updateListener( id, callback, event ) {
-        event = event || 'click';
-        document.getElementById( id ).addEventListener( event, function() {
-          callback();
-          render();
-        } );
+      if ( subpath.isClosed() ) {
+        subpath.addClosingSegment();
       }
 
-      /*---------------------------------------------------------------------------*
-       * Basic segments
-       *----------------------------------------------------------------------------*/
-      updateListener( 'line', function() {
-        shape = new kite.Shape().moveTo( -100, -100 ).lineTo( -50, 50 );
-      } );
-      updateListener( 'quadratic', function() {
-        shape = new kite.Shape().moveTo( -100, -100 ).quadraticCurveTo( -50, 50, 50, 50 );
-      } );
-      updateListener( 'cubic', function() {
-        shape = new kite.Shape().moveTo( -100, -100 ).cubicCurveTo( -50, 50, 50, 50, 0, 100 );
-      } );
-      updateListener( 'arc', function() {
-        shape = new kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, false );
-      } );
-      updateListener( 'ellipticalArc', function() {
-        shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 4, Math.PI / 4, -Math.PI / 2, false );
-      } );
+      var segments = subpath.segments;
 
-      /*---------------------------------------------------------------------------*
-       * Shapes
-       *----------------------------------------------------------------------------*/
-
-      updateListener( 'lines', function() {
-        shape = new kite.Shape().moveTo( -100, -100 ).lineTo( -50, 50 ).lineTo( 50, 50 ).lineTo( 30, 0 );
-      } );
-      updateListener( 'arc1', function() {
-        shape = new kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, false );
-      } );
-      updateListener( 'arc2', function() {
-        shape = new kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, true );
-      } );
-      updateListener( 'arc3', function() {
-        shape = new kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, false );
-      } );
-      updateListener( 'arc4', function() {
-        shape = new kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, true );
-      } );
-      updateListener( 'narc1', function() {
-        shape = new kite.Shape().arc( 0, 0, -100, Math.PI / 4, -Math.PI / 2, false );
-      } );
-      updateListener( 'ellipse1', function() {
-        shape = new kite.Shape().ellipse( 0, 0, 100, 50, 0 );
-      } );
-      updateListener( 'ellipse2', function() {
-        shape = new kite.Shape().ellipse( 0, 0, 100, 50, Math.PI / 2 );
-      } );
-      updateListener( 'ellipse3', function() {
-        shape = new kite.Shape().ellipse( 0, 0, 100, 50, Math.PI / 4 );
-      } );
-      updateListener( 'circle', function() {
-        shape = new kite.Shape().arc( 0, 0, 100, 0, Math.PI * 2, false );
-      } );
-      updateListener( 'rect', function() {
-        shape = new kite.Shape().rect( -100, -75, 200, 150 );
-      } );
-      updateListener( 'earc1', function() {
-        shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
-      } );
-      updateListener( 'earc2', function() {
-        shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, true );
-      } );
-      updateListener( 'earc3', function() {
-        shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, -Math.PI / 3, Math.PI / 6, false );
-      } );
-      updateListener( 'earc4', function() {
-        shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, -Math.PI / 3, Math.PI / 6, true );
-      } );
-      updateListener( 'nxearc1', function() {
-        shape = new kite.Shape().ellipticalArc( 0, 0, -100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
-      } );
-      updateListener( 'nyearc1', function() {
-        shape = new kite.Shape().ellipticalArc( 0, 0, 100, -50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
-      } );
-      updateListener( 'nxyearc1', function() {
-        shape = new kite.Shape().ellipticalArc( 0, 0, -100, -50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
-      } );
-      updateListener( 'rrect', function() {
-        shape = new kite.Shape().roundRect( -50, -50, 100, 100, 30, 30 );
-      } );
-      updateListener( 'errect', function() {
-        shape = new kite.Shape().roundRect( -50, -50, 100, 100, 20, 40 );
-      } );
-      updateListener( 'bucket', function() {
-        shape = new kite.Shape().moveTo( -60, 0 )
-            .lineTo( -48, 42 )
-            .cubicCurveTo( -36, 51, 36, 51, 48, 42 )
-            .lineTo( 60, 0 )
-            .ellipticalArc( 0, 0, 60, 7.5, 0, 0, -Math.PI, false )
-            .close();
-        var point = dot.v2( -131.07772925764198, -274.65043668122274 );
-        var ray = new dot.Ray2( point, dot.v2( 1, 0 ) );
-        console.log( shape.intersection( ray ) );
-      } );
-      updateListener( 'polarrow', function() {
-        var tipAngle = Math.PI;
-        var baseAngle = Math.PI * ( 1 + 1 / 8 );
-        var tailAngle = Math.PI * 2;
-        var middleRadius = 70;
-        var halfHeadWidth = 40 / 2;
-        var halfTailWidth = 20 / 2;
-        shape = new kite.Shape().moveTo( tipAngle, middleRadius )
-            .lineTo( baseAngle, middleRadius + halfHeadWidth )
-            .lineTo( baseAngle, middleRadius + halfTailWidth )
-            .lineTo( tailAngle, middleRadius + halfTailWidth )
-            .lineTo( tailAngle, middleRadius - halfTailWidth )
-            .lineTo( baseAngle, middleRadius - halfTailWidth )
-            .lineTo( baseAngle, middleRadius - halfHeadWidth )
-            .close();
-
-        shape = shape.polarToCartesian();
-      } );
-      updateListener( 'spline', function() {
-        shape = new kite.Shape().cardinalSpline( [
-          dot.v2( -100, 0 ),
-          dot.v2( 100, 0 ),
-          dot.v2( -100, 200 ),
-          dot.v2( 100, 200 )
-        ], { isClosedLineSegments: true, tension: -1 } ).close().cardinalSpline( [
-          dot.v2( 200, 0 ),
-          dot.v2( 400, 0 ),
-          dot.v2( 200, 200 ),
-          dot.v2( 400, 200 )
-        ], { isClosedLineSegments: true, tension: 0 } ).close().cardinalSpline( [
-          dot.v2( 500, 0 ),
-          dot.v2( 700, 0 ),
-          dot.v2( 500, 200 ),
-          dot.v2( 700, 200 )
-        ], { isClosedLineSegments: true, tension: 1 } ).close();
-      } );
-      updateListener( 'svgPath', function() {
-        var s;
-        var el = document.getElementById( 'svgPath' );
-        try {
-          shape = new kite.Shape( el.value );
-          el.style.backgroundColor = '#dfd';
-        }
-        catch( e ) {
-          console.log( e );
-          console.log( e.stack );
-          el.style.backgroundColor = '#fdd';
-        }
-      }, 'input' );
-
-      /*---------------------------------------------------------------------------*
-       * Line Cap
-       *----------------------------------------------------------------------------*/
-
-      updateListener( 'cap-butt', function() {
-        strokeStyles.lineCap = 'butt';
-      } );
-      updateListener( 'cap-square', function() {
-        strokeStyles.lineCap = 'square';
-      } );
-      updateListener( 'cap-round', function() {
-        strokeStyles.lineCap = 'round';
-      } );
-
-      /*---------------------------------------------------------------------------*
-       * Line Join
-       *----------------------------------------------------------------------------*/
-
-      updateListener( 'join-miter', function() {
-        strokeStyles.lineJoin = 'miter';
-      } );
-      updateListener( 'join-bevel', function() {
-        strokeStyles.lineJoin = 'bevel';
-      } );
-      updateListener( 'join-round', function() {
-        strokeStyles.lineJoin = 'round';
-      } );
-
-      /*---------------------------------------------------------------------------*
-       * Close
-       *----------------------------------------------------------------------------*/
-
-      updateListener( 'close', function() {
-        close = !close;
-      } );
-
-      /*---------------------------------------------------------------------------*
-       * Point
-       *----------------------------------------------------------------------------*/
-
-      updateListener( 'point', function() {
-        point = parseFloat( document.getElementById( 'point' ).value, 10 );
-      }, 'input' );
-      updateListener( 'subdivideT', function() {
-        subdivideT = parseFloat( document.getElementById( 'subdivideT' ).value, 10 );
-      }, 'input' );
-
-      updateListener( 'point-position', function() {
-        pointPosition = !pointPosition;
-      } );
-      updateListener( 'point-tangent', function() {
-        pointTangent = !pointTangent;
-      } );
-      updateListener( 'point-curvature', function() {
-        pointCurvature = !pointCurvature;
-      } );
-      updateListener( 'point-subdivide', function() {
-        pointSubdivide = !pointSubdivide;
-      } );
-      updateListener( 'point-monotone', function() {
-        pointMonotone = !pointMonotone;
-      } );
-      updateListener( 'point-net', function() {
-        segmentControlNet = !segmentControlNet;
-      } );
-
-      /*---------------------------------------------------------------------------*
-       * Bounds
-       *----------------------------------------------------------------------------*/
-
-      updateListener( 'bounds-shape', function() {
-        shapeBounds = !shapeBounds;
-      } );
-
-      updateListener( 'bounds-shape-rot', function() {
-        shapeRotBounds = !shapeRotBounds;
-      } );
-
-      /*---------------------------------------------------------------------------*
-       * Fill
-       *----------------------------------------------------------------------------*/
-
-      updateListener( 'fill', function() {
-        fill = !fill;
-      } );
-
-      /*---------------------------------------------------------------------------*
-       * Stroke
-       *----------------------------------------------------------------------------*/
-
-      updateListener( 'stroke-kite', function() {
-        kiteStroked = !kiteStroked;
-      } );
-
-      updateListener( 'endpoints', function() {
-        endpoints = !endpoints;
-      } );
-
-      /*---------------------------------------------------------------------------*
-       * Transform
-       *----------------------------------------------------------------------------*/
-
-      updateListener( 'transform-active', function() {
-        transformActive = !transformActive;
-      } );
-      updateListener( 'transform-reflect', function() {
-        reflection = !reflection;
-      } );
-      updateListener( 'translation', function() {
-        translation = parseFloat( document.getElementById( 'translation' ).value );
-      }, 'input' );
-      updateListener( 'rotation', function() {
-        rotation = parseFloat( document.getElementById( 'rotation' ).value ) * Math.PI / 180;
-      }, 'input' );
-      updateListener( 'scaling', function() {
-        scaling = parseFloat( document.getElementById( 'scaling' ).value );
-      }, 'input' );
-      updateListener( 'shear', function() {
-        shear = parseFloat( document.getElementById( 'shear' ).value );
-      }, 'input' );
-      updateListener( 'offset', function() {
-        offset = parseFloat( document.getElementById( 'offset' ).value );
-      }, 'input' );
-
-      /*---------------------------------------------------------------------------*
-       * Hit testing
-       *----------------------------------------------------------------------------*/
-
-      document.getElementById( 'hit-fill' ).addEventListener( 'click', function() {
-        for ( var x = -200; x <= 200; x++ ) {
-          for ( var y = -200; y <= 200; y++ ) {
-            if ( !transformedShape.containsPoint( new dot.Vector2( x + 0.5, y + 0.5 ) ) ) {
-              context.beginPath();
-              context.fillStyle = 'rgba(255,0,0,0.5)';
-              context.fillRect( x, y, 1, 1 );
-            }
+      if ( pointMonotone ) {
+        segments = _.flatten( _.map( segments, function( segment ) {
+          if ( segment.subdividedIntoMonotone ) {
+            // console.log( segment.getInteriorExtremaTs() );
+            return segment.subdividedIntoMonotone();
           }
-        }
-      } );
-
-      document.getElementById( 'hit-stroke' ).addEventListener( 'click', function() {
-        var shp = transformedShape.getStrokedShape( strokeStyles );
-        for ( var x = -200; x <= 200; x++ ) {
-          for ( var y = -200; y <= 200; y++ ) {
-            if ( !shp.containsPoint( new dot.Vector2( x + 0.5, y + 0.5 ) ) ) {
-              context.beginPath();
-              context.fillStyle = 'rgba(255,0,0,0.5)';
-              context.fillRect( x, y, 1, 1 );
-            }
+          else {
+            return [ segment ];
           }
+        } ) );
+      }
+
+      if ( pointSubdivide ) {
+        segments = _.flatten( _.map( segments, function( segment ) {
+          return segment.subdivided( subdivideT );
+          // return segment.subdivisions( [ 0.25, 0.5, 0.75 ] );
+        } ) );
+      }
+
+      _.each( segments, function( segment ) {
+        // don't attempt to show invalid segments
+        if ( segment.invalid ) { return; }
+
+        var p = segment.positionAt( point );
+        var t = segment.tangentAt( point );
+        if ( t.magnitude === 0 ) { return; } // bail out if we are at a cusp or undefined tangent
+        var tn = t.normalized();
+        var c = segment.curvatureAt( point );
+
+        // console.log( 'point: ' + p.toString() );
+        // console.log( 'tangent: ' + tn.toString() );
+        // console.log( 'curvature: ' + c );
+
+        // highlight the inspection point
+        if ( pointPosition ) {
+          context.beginPath();
+          context.arc( p.x, p.y, 3, 0, Math.PI * 2, false );
+          context.fillStyle = '#0f0';
+          context.fill();
         }
-      } );
 
-      updateListener( 'hit-mouse', function() {
-        hitMouse = !hitMouse;
-      } );
-      updateListener( 'hit-mouseSpan', function() {
-        hitMouseSpan = !hitMouseSpan;
-      } );
-      updateListener( 'hit-distance', function() {
-        hitDistance = !hitDistance;
-      } );
+        if ( pointTangent ) {
+          var length = 25;
+          context.beginPath();
+          context.moveTo( p.x - tn.x * length * 0, p.y - tn.y * length * 0 );
+          context.lineTo( p.x + tn.x * length, p.y + tn.y * length );
+          context.strokeStyle = '#0ff';
+          context.lineWidth = 1;
+          context.stroke();
+        }
 
-      canvas.addEventListener( 'mousemove', function( domEvent ) {
-        if ( hitMouse ) {
-          render();
-          var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
-
-          var resolution = 192;
-          var displayLength = 500;
-          var multiplier = Math.PI * 2 / resolution;
-          for ( var i = 0; i < resolution; i++ ) {
-            var angle = multiplier * i;
-            var ray = new dot.Ray2( pos, dot.Vector2.createPolar( 1, angle ) );
-
-            var a = pos.plus( dot.Vector2.createPolar( displayLength, ( i - 0.5 ) * multiplier ) );
-            var b = pos.plus( dot.Vector2.createPolar( displayLength, ( i + 0.5 ) * multiplier ) );
-            var end = ray.pointAtDistance( 200 );
-
-            var wind = strokedShape.windingIntersection( ray );
+        if ( pointCurvature ) {
+          if ( Math.abs( c ) > 0.0000001 ) {
+            var radiusOfCurvature = 1 / c;
+            var curvatureCenter = p.plus( tn.perpendicular().times( -radiusOfCurvature ) );
 
             context.beginPath();
-            context.moveTo( pos.x, pos.y );
-            context.lineTo( a.x, a.y );
-            context.lineTo( b.x, b.y );
-            context.fillStyle = wind === 0 ? 'rgba(255,0,0,0.5)' : 'rgba(0,255,0,0.5)';
-            context.fill();
-          }
-        }
-        if ( hitMouseSpan ) {
-          render();
-          var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
-
-          var resolution = 192;
-          var displayLength = 1000;
-          var multiplier = Math.PI * 2 / resolution;
-
-          for ( var i = 0; i < resolution; i++ ) {
-            var angle = multiplier * i;
-            var minAngle = ( i - 0.5 ) * multiplier;
-            var maxAngle = ( i + 0.5 ) * multiplier;
-            var ray = new dot.Ray2( pos, dot.Vector2.createPolar( 1, angle ) );
-
-            var hits = strokedShape.intersection( ray );
-
-            function drawSegment( a, b, color ) {
-              context.beginPath();
-              var p1 = pos.plus( dot.Vector2.createPolar( a, minAngle ) );
-              var p2 = pos.plus( dot.Vector2.createPolar( a, maxAngle ) );
-              var p3 = pos.plus( dot.Vector2.createPolar( b, maxAngle ) );
-              var p4 = pos.plus( dot.Vector2.createPolar( b, minAngle ) );
-
-              context.moveTo( p1.x, p1.y );
-              context.lineTo( p2.x, p2.y );
-              context.lineTo( p3.x, p3.y );
-              context.lineTo( p4.x, p4.y );
-
-              context.fillStyle = color;
-              context.fill();
-            }
-
-            function windColor( wind ) {
-              if ( wind === 0 ) {
-                return 'rgba(255,0,0,0.8)';
-              }
-              else {
-                var letter;
-                switch( Math.abs( wind ) ) {
-                  case 1:
-                    letter = '255';
-                    break;
-                  case 2:
-                    letter = '192';
-                    break;
-                  case 3:
-                    letter = '128';
-                    break;
-                  case 4:
-                    letter = '64';
-                    break;
-                  default:
-                    letter = '0';
-                }
-                return wind > 0 ? 'rgba(0,' + letter + ',0,0.8)' : 'rgba(0,0,' + letter + ',0.8)';
-              }
-            }
-
-            if ( hits.length ) {
-              drawSegment( 0, hits[ 0 ].distance, windColor( 0 ) );
-              var w = 0;
-              for ( var j = 0; j < hits.length - 1; j++ ) {
-                w += hits[ j ].wind;
-                drawSegment( hits[ j ].distance, hits[ j + 1 ].distance, windColor( w ) );
-              }
-              w += hits[ hits.length - 1 ].wind;
-              drawSegment( hits[ hits.length - 1 ].distance, displayLength, windColor( w ) );
-            }
-            else {
-              drawSegment( 0, displayLength, windColor( 0 ) );
-            }
-          }
-        }
-        if ( hitDistance ) {
-          render();
-          var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
-
-          // use strokedShape
-          var segments = [];
-          _.each( strokedShape.subpaths, function( subpath ) {
-            _.each( subpath.segments, function( segment ) {
-              segments.push( segment );
-            } );
-          } );
-          var closestList = kite.Segment.closestToPoint( segments, pos, 1e-3 );
-
-          _.each( closestList, function( info ) {
-            context.beginPath();
-            context.moveTo( pos.x, pos.y );
-            context.lineTo( info.closestPoint.x, info.closestPoint.y );
-            context.strokeStyle = '#aaa';
+            context.arc( curvatureCenter.x, curvatureCenter.y, Math.abs( radiusOfCurvature ), 0, Math.PI * 2, false );
+            context.strokeStyle = '#f0f';
             context.lineWidth = 1;
             context.stroke();
-          } );
+          }
+        }
+
+        if ( segmentControlNet ) {
+          var pts = [];
+          if ( segment instanceof kite.Quadratic ) {
+            pts = [ segment.start, segment.control, segment.end ];
+          }
+          else if ( segment instanceof kite.Cubic ) {
+            pts = [ segment.start, segment.control1, segment.control2, segment.end ];
+          }
+          if ( pts.length ) {
+            // path along the net
+            context.beginPath();
+            context.moveTo( pts[ 0 ].x, pts[ 0 ].y );
+            for ( var qi = 1; qi < pts.length; qi++ ) { context.lineTo( pts[ qi ].x, pts[ qi ].y ); }
+            context.strokeStyle = '#0f0';
+            context.lineWidth = 1;
+            context.stroke();
+
+            // control points
+            for ( var qi = 1; qi < pts.length - 1; qi++ ) {
+              context.beginPath();
+              context.arc( pts[ qi ].x, pts[ qi ].y, 3, 0, Math.PI * 2, false );
+              context.fillStyle = '#00f';
+              context.fill();
+            }
+          }
         }
       } );
-
-      // var lastTime = 0;
-      // var timeElapsed = 0;
-      // function tick() {
-      //   window.requestAnimationFrame( tick, main[0] );
-
-      //   var timeNow = new Date().getTime();
-      //   if ( lastTime != 0 ) {
-      //     timeElapsed = (timeNow - lastTime) / 1000.0;
-      //   }
-      //   lastTime = timeNow;
-
-
-      // }
-      // window.requestAnimationFrame( tick, main[0] );
     } );
+
+    if ( shapeBounds ) {
+      var b = strokedShape.bounds;
+      context.beginPath();
+      context.rect( b.minX, b.minY, b.width, b.height );
+      context.strokeStyle = 'rgba(255,0,255,0.8)';
+      context.lineWidth = 1;
+      context.stroke();
+    }
+
+    if ( shapeRotBounds ) {
+      var c = strokedShape.getBoundsWithTransform( rotationMatrix );
+      context.save();
+      inverseRotationMatrix.canvasAppendTransform( context );
+      context.beginPath();
+      context.rect( c.minX, c.minY, c.width, c.height );
+      context.strokeStyle = 'rgba(0,255,255,0.8)';
+      context.lineWidth = 1;
+      context.stroke();
+      context.restore();
+    }
+
+    if ( fill ) {
+      context.beginPath();
+      transformedShape.writeToContext( context );
+      context.fillStyle = 'rgba(255,255,0,0.5)';
+      context.fill();
+    }
+  }
+
+  function updateListener( id, callback, event ) {
+    event = event || 'click';
+    document.getElementById( id ).addEventListener( event, function() {
+      callback();
+      render();
+    } );
+  }
+
+  /*---------------------------------------------------------------------------*
+   * Basic segments
+   *----------------------------------------------------------------------------*/
+  updateListener( 'line', function() {
+    shape = new kite.Shape().moveTo( -100, -100 ).lineTo( -50, 50 );
   } );
+  updateListener( 'quadratic', function() {
+    shape = new kite.Shape().moveTo( -100, -100 ).quadraticCurveTo( -50, 50, 50, 50 );
+  } );
+  updateListener( 'cubic', function() {
+    shape = new kite.Shape().moveTo( -100, -100 ).cubicCurveTo( -50, 50, 50, 50, 0, 100 );
+  } );
+  updateListener( 'arc', function() {
+    shape = new kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, false );
+  } );
+  updateListener( 'ellipticalArc', function() {
+    shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 4, Math.PI / 4, -Math.PI / 2, false );
+  } );
+
+  /*---------------------------------------------------------------------------*
+   * Shapes
+   *----------------------------------------------------------------------------*/
+
+  updateListener( 'lines', function() {
+    shape = new kite.Shape().moveTo( -100, -100 ).lineTo( -50, 50 ).lineTo( 50, 50 ).lineTo( 30, 0 );
+  } );
+  updateListener( 'arc1', function() {
+    shape = new kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, false );
+  } );
+  updateListener( 'arc2', function() {
+    shape = new kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, true );
+  } );
+  updateListener( 'arc3', function() {
+    shape = new kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, false );
+  } );
+  updateListener( 'arc4', function() {
+    shape = new kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, true );
+  } );
+  updateListener( 'narc1', function() {
+    shape = new kite.Shape().arc( 0, 0, -100, Math.PI / 4, -Math.PI / 2, false );
+  } );
+  updateListener( 'ellipse1', function() {
+    shape = new kite.Shape().ellipse( 0, 0, 100, 50, 0 );
+  } );
+  updateListener( 'ellipse2', function() {
+    shape = new kite.Shape().ellipse( 0, 0, 100, 50, Math.PI / 2 );
+  } );
+  updateListener( 'ellipse3', function() {
+    shape = new kite.Shape().ellipse( 0, 0, 100, 50, Math.PI / 4 );
+  } );
+  updateListener( 'circle', function() {
+    shape = new kite.Shape().arc( 0, 0, 100, 0, Math.PI * 2, false );
+  } );
+  updateListener( 'rect', function() {
+    shape = new kite.Shape().rect( -100, -75, 200, 150 );
+  } );
+  updateListener( 'earc1', function() {
+    shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
+  } );
+  updateListener( 'earc2', function() {
+    shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, true );
+  } );
+  updateListener( 'earc3', function() {
+    shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, -Math.PI / 3, Math.PI / 6, false );
+  } );
+  updateListener( 'earc4', function() {
+    shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, -Math.PI / 3, Math.PI / 6, true );
+  } );
+  updateListener( 'nxearc1', function() {
+    shape = new kite.Shape().ellipticalArc( 0, 0, -100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
+  } );
+  updateListener( 'nyearc1', function() {
+    shape = new kite.Shape().ellipticalArc( 0, 0, 100, -50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
+  } );
+  updateListener( 'nxyearc1', function() {
+    shape = new kite.Shape().ellipticalArc( 0, 0, -100, -50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
+  } );
+  updateListener( 'rrect', function() {
+    shape = new kite.Shape().roundRect( -50, -50, 100, 100, 30, 30 );
+  } );
+  updateListener( 'errect', function() {
+    shape = new kite.Shape().roundRect( -50, -50, 100, 100, 20, 40 );
+  } );
+  updateListener( 'bucket', function() {
+    shape = new kite.Shape().moveTo( -60, 0 )
+      .lineTo( -48, 42 )
+      .cubicCurveTo( -36, 51, 36, 51, 48, 42 )
+      .lineTo( 60, 0 )
+      .ellipticalArc( 0, 0, 60, 7.5, 0, 0, -Math.PI, false )
+      .close();
+    var point = dot.v2( -131.07772925764198, -274.65043668122274 );
+    var ray = new dot.Ray2( point, dot.v2( 1, 0 ) );
+    console.log( shape.intersection( ray ) );
+  } );
+  updateListener( 'polarrow', function() {
+    var tipAngle = Math.PI;
+    var baseAngle = Math.PI * ( 1 + 1 / 8 );
+    var tailAngle = Math.PI * 2;
+    var middleRadius = 70;
+    var halfHeadWidth = 40 / 2;
+    var halfTailWidth = 20 / 2;
+    shape = new kite.Shape().moveTo( tipAngle, middleRadius )
+      .lineTo( baseAngle, middleRadius + halfHeadWidth )
+      .lineTo( baseAngle, middleRadius + halfTailWidth )
+      .lineTo( tailAngle, middleRadius + halfTailWidth )
+      .lineTo( tailAngle, middleRadius - halfTailWidth )
+      .lineTo( baseAngle, middleRadius - halfTailWidth )
+      .lineTo( baseAngle, middleRadius - halfHeadWidth )
+      .close();
+
+    shape = shape.polarToCartesian();
+  } );
+  updateListener( 'spline', function() {
+    shape = new kite.Shape().cardinalSpline( [
+      dot.v2( -100, 0 ),
+      dot.v2( 100, 0 ),
+      dot.v2( -100, 200 ),
+      dot.v2( 100, 200 )
+    ], { isClosedLineSegments: true, tension: -1 } ).close().cardinalSpline( [
+      dot.v2( 200, 0 ),
+      dot.v2( 400, 0 ),
+      dot.v2( 200, 200 ),
+      dot.v2( 400, 200 )
+    ], { isClosedLineSegments: true, tension: 0 } ).close().cardinalSpline( [
+      dot.v2( 500, 0 ),
+      dot.v2( 700, 0 ),
+      dot.v2( 500, 200 ),
+      dot.v2( 700, 200 )
+    ], { isClosedLineSegments: true, tension: 1 } ).close();
+  } );
+  updateListener( 'svgPath', function() {
+    var s;
+    var el = document.getElementById( 'svgPath' );
+    try {
+      shape = new kite.Shape( el.value );
+      el.style.backgroundColor = '#dfd';
+    }
+    catch( e ) {
+      console.log( e );
+      console.log( e.stack );
+      el.style.backgroundColor = '#fdd';
+    }
+  }, 'input' );
+
+  /*---------------------------------------------------------------------------*
+   * Line Cap
+   *----------------------------------------------------------------------------*/
+
+  updateListener( 'cap-butt', function() {
+    strokeStyles.lineCap = 'butt';
+  } );
+  updateListener( 'cap-square', function() {
+    strokeStyles.lineCap = 'square';
+  } );
+  updateListener( 'cap-round', function() {
+    strokeStyles.lineCap = 'round';
+  } );
+
+  /*---------------------------------------------------------------------------*
+   * Line Join
+   *----------------------------------------------------------------------------*/
+
+  updateListener( 'join-miter', function() {
+    strokeStyles.lineJoin = 'miter';
+  } );
+  updateListener( 'join-bevel', function() {
+    strokeStyles.lineJoin = 'bevel';
+  } );
+  updateListener( 'join-round', function() {
+    strokeStyles.lineJoin = 'round';
+  } );
+
+  /*---------------------------------------------------------------------------*
+   * Close
+   *----------------------------------------------------------------------------*/
+
+  updateListener( 'close', function() {
+    close = !close;
+  } );
+
+  /*---------------------------------------------------------------------------*
+   * Point
+   *----------------------------------------------------------------------------*/
+
+  updateListener( 'point', function() {
+    point = parseFloat( document.getElementById( 'point' ).value, 10 );
+  }, 'input' );
+  updateListener( 'subdivideT', function() {
+    subdivideT = parseFloat( document.getElementById( 'subdivideT' ).value, 10 );
+  }, 'input' );
+
+  updateListener( 'point-position', function() {
+    pointPosition = !pointPosition;
+  } );
+  updateListener( 'point-tangent', function() {
+    pointTangent = !pointTangent;
+  } );
+  updateListener( 'point-curvature', function() {
+    pointCurvature = !pointCurvature;
+  } );
+  updateListener( 'point-subdivide', function() {
+    pointSubdivide = !pointSubdivide;
+  } );
+  updateListener( 'point-monotone', function() {
+    pointMonotone = !pointMonotone;
+  } );
+  updateListener( 'point-net', function() {
+    segmentControlNet = !segmentControlNet;
+  } );
+
+  /*---------------------------------------------------------------------------*
+   * Bounds
+   *----------------------------------------------------------------------------*/
+
+  updateListener( 'bounds-shape', function() {
+    shapeBounds = !shapeBounds;
+  } );
+
+  updateListener( 'bounds-shape-rot', function() {
+    shapeRotBounds = !shapeRotBounds;
+  } );
+
+  /*---------------------------------------------------------------------------*
+   * Fill
+   *----------------------------------------------------------------------------*/
+
+  updateListener( 'fill', function() {
+    fill = !fill;
+  } );
+
+  /*---------------------------------------------------------------------------*
+   * Stroke
+   *----------------------------------------------------------------------------*/
+
+  updateListener( 'stroke-kite', function() {
+    kiteStroked = !kiteStroked;
+  } );
+
+  updateListener( 'endpoints', function() {
+    endpoints = !endpoints;
+  } );
+
+  /*---------------------------------------------------------------------------*
+   * Transform
+   *----------------------------------------------------------------------------*/
+
+  updateListener( 'transform-active', function() {
+    transformActive = !transformActive;
+  } );
+  updateListener( 'transform-reflect', function() {
+    reflection = !reflection;
+  } );
+  updateListener( 'translation', function() {
+    translation = parseFloat( document.getElementById( 'translation' ).value );
+  }, 'input' );
+  updateListener( 'rotation', function() {
+    rotation = parseFloat( document.getElementById( 'rotation' ).value ) * Math.PI / 180;
+  }, 'input' );
+  updateListener( 'scaling', function() {
+    scaling = parseFloat( document.getElementById( 'scaling' ).value );
+  }, 'input' );
+  updateListener( 'shear', function() {
+    shear = parseFloat( document.getElementById( 'shear' ).value );
+  }, 'input' );
+  updateListener( 'offset', function() {
+    offset = parseFloat( document.getElementById( 'offset' ).value );
+  }, 'input' );
+
+  /*---------------------------------------------------------------------------*
+   * Hit testing
+   *----------------------------------------------------------------------------*/
+
+  document.getElementById( 'hit-fill' ).addEventListener( 'click', function() {
+    for ( var x = -200; x <= 200; x++ ) {
+      for ( var y = -200; y <= 200; y++ ) {
+        if ( !transformedShape.containsPoint( new dot.Vector2( x + 0.5, y + 0.5 ) ) ) {
+          context.beginPath();
+          context.fillStyle = 'rgba(255,0,0,0.5)';
+          context.fillRect( x, y, 1, 1 );
+        }
+      }
+    }
+  } );
+
+  document.getElementById( 'hit-stroke' ).addEventListener( 'click', function() {
+    var shp = transformedShape.getStrokedShape( strokeStyles );
+    for ( var x = -200; x <= 200; x++ ) {
+      for ( var y = -200; y <= 200; y++ ) {
+        if ( !shp.containsPoint( new dot.Vector2( x + 0.5, y + 0.5 ) ) ) {
+          context.beginPath();
+          context.fillStyle = 'rgba(255,0,0,0.5)';
+          context.fillRect( x, y, 1, 1 );
+        }
+      }
+    }
+  } );
+
+  updateListener( 'hit-mouse', function() {
+    hitMouse = !hitMouse;
+  } );
+  updateListener( 'hit-mouseSpan', function() {
+    hitMouseSpan = !hitMouseSpan;
+  } );
+  updateListener( 'hit-distance', function() {
+    hitDistance = !hitDistance;
+  } );
+
+  canvas.addEventListener( 'mousemove', function( domEvent ) {
+    if ( hitMouse ) {
+      render();
+      var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
+
+      var resolution = 192;
+      var displayLength = 500;
+      var multiplier = Math.PI * 2 / resolution;
+      for ( var i = 0; i < resolution; i++ ) {
+        var angle = multiplier * i;
+        var ray = new dot.Ray2( pos, dot.Vector2.createPolar( 1, angle ) );
+
+        var a = pos.plus( dot.Vector2.createPolar( displayLength, ( i - 0.5 ) * multiplier ) );
+        var b = pos.plus( dot.Vector2.createPolar( displayLength, ( i + 0.5 ) * multiplier ) );
+        var end = ray.pointAtDistance( 200 );
+
+        var wind = strokedShape.windingIntersection( ray );
+
+        context.beginPath();
+        context.moveTo( pos.x, pos.y );
+        context.lineTo( a.x, a.y );
+        context.lineTo( b.x, b.y );
+        context.fillStyle = wind === 0 ? 'rgba(255,0,0,0.5)' : 'rgba(0,255,0,0.5)';
+        context.fill();
+      }
+    }
+    if ( hitMouseSpan ) {
+      render();
+      var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
+
+      var resolution = 192;
+      var displayLength = 1000;
+      var multiplier = Math.PI * 2 / resolution;
+
+      for ( var i = 0; i < resolution; i++ ) {
+        var angle = multiplier * i;
+        var minAngle = ( i - 0.5 ) * multiplier;
+        var maxAngle = ( i + 0.5 ) * multiplier;
+        var ray = new dot.Ray2( pos, dot.Vector2.createPolar( 1, angle ) );
+
+        var hits = strokedShape.intersection( ray );
+
+        function drawSegment( a, b, color ) {
+          context.beginPath();
+          var p1 = pos.plus( dot.Vector2.createPolar( a, minAngle ) );
+          var p2 = pos.plus( dot.Vector2.createPolar( a, maxAngle ) );
+          var p3 = pos.plus( dot.Vector2.createPolar( b, maxAngle ) );
+          var p4 = pos.plus( dot.Vector2.createPolar( b, minAngle ) );
+
+          context.moveTo( p1.x, p1.y );
+          context.lineTo( p2.x, p2.y );
+          context.lineTo( p3.x, p3.y );
+          context.lineTo( p4.x, p4.y );
+
+          context.fillStyle = color;
+          context.fill();
+        }
+
+        function windColor( wind ) {
+          if ( wind === 0 ) {
+            return 'rgba(255,0,0,0.8)';
+          }
+          else {
+            var letter;
+            switch( Math.abs( wind ) ) {
+              case 1:
+                letter = '255';
+                break;
+              case 2:
+                letter = '192';
+                break;
+              case 3:
+                letter = '128';
+                break;
+              case 4:
+                letter = '64';
+                break;
+              default:
+                letter = '0';
+            }
+            return wind > 0 ? 'rgba(0,' + letter + ',0,0.8)' : 'rgba(0,0,' + letter + ',0.8)';
+          }
+        }
+
+        if ( hits.length ) {
+          drawSegment( 0, hits[ 0 ].distance, windColor( 0 ) );
+          var w = 0;
+          for ( var j = 0; j < hits.length - 1; j++ ) {
+            w += hits[ j ].wind;
+            drawSegment( hits[ j ].distance, hits[ j + 1 ].distance, windColor( w ) );
+          }
+          w += hits[ hits.length - 1 ].wind;
+          drawSegment( hits[ hits.length - 1 ].distance, displayLength, windColor( w ) );
+        }
+        else {
+          drawSegment( 0, displayLength, windColor( 0 ) );
+        }
+      }
+    }
+    if ( hitDistance ) {
+      render();
+      var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
+
+      // use strokedShape
+      var segments = [];
+      _.each( strokedShape.subpaths, function( subpath ) {
+        _.each( subpath.segments, function( segment ) {
+          segments.push( segment );
+        } );
+      } );
+      var closestList = kite.Segment.closestToPoint( segments, pos, 1e-3 );
+
+      _.each( closestList, function( info ) {
+        context.beginPath();
+        context.moveTo( pos.x, pos.y );
+        context.lineTo( info.closestPoint.x, info.closestPoint.y );
+        context.strokeStyle = '#aaa';
+        context.lineWidth = 1;
+        context.stroke();
+      } );
+    }
+  } );
+
+  // var lastTime = 0;
+  // var timeElapsed = 0;
+  // function tick() {
+  //   window.requestAnimationFrame( tick, main[0] );
+
+  //   var timeNow = new Date().getTime();
+  //   if ( lastTime != 0 ) {
+  //     timeElapsed = (timeNow - lastTime) / 1000.0;
+  //   }
+  //   lastTime = timeNow;
+
+
+  // }
+  // window.requestAnimationFrame( tick, main[0] );
 </script>
 </body>
 </html>

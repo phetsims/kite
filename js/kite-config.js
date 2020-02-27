@@ -1,3 +1,4 @@
+
 // Copyright 2016-2019, University of Colorado Boulder
 
 /**
@@ -7,7 +8,7 @@
  */
 
 require.config( {
-  // depends on all of Kite, Dot, Axon and phet-core
+// depends on all of Kite, Dot, Axon and phet-core
   deps: [ 'kite-main' ],
 
   paths: {
@@ -27,6 +28,6 @@ require.config( {
     REPOSITORY: '..'
   },
 
-  // optional cache bust to make browser refresh load all included scripts, can be disabled with ?cacheBust=false
+// optional cache bust to make browser refresh load all included scripts, can be disabled with ?cacheBust=false
   urlArgs: 'bust=' + ( new Date() ).getTime()
 } );

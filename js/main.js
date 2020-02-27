@@ -10,34 +10,28 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( require => {
 
-  'use strict';
+import kite from './kite.js';
+import './ops/Boundary.js';
+import './ops/BoundsIntersection.js';
+import './ops/Edge.js';
+import './ops/Face.js';
+import './ops/Graph.js';
+import './ops/HalfEdge.js';
+import './ops/Loop.js';
+import './ops/Vertex.js';
+import './parser/svgPath.js';
+import './segments/Arc.js';
+import './segments/Cubic.js';
+import './segments/EllipticalArc.js';
+import './segments/Line.js';
+import './segments/Quadratic.js';
+import './segments/Segment.js';
+import './Shape.js';
+import './util/LineStyles.js';
+import './util/Overlap.js';
+import './util/SegmentIntersection.js';
+import './util/Subpath.js';
 
-  const kite = require( 'KITE/kite' );
-
-  require( 'KITE/Shape' );
-  require( 'KITE/ops/Boundary' );
-  require( 'KITE/ops/BoundsIntersection' );
-  require( 'KITE/ops/Edge' );
-  require( 'KITE/ops/Face' );
-  require( 'KITE/ops/Graph' );
-  require( 'KITE/ops/HalfEdge' );
-  require( 'KITE/ops/Loop' );
-  require( 'KITE/ops/Vertex' );
-  require( 'KITE/segments/Arc' );
-  require( 'KITE/segments/Cubic' );
-  require( 'KITE/segments/EllipticalArc' );
-  require( 'KITE/segments/Line' );
-  require( 'KITE/segments/Quadratic' );
-  require( 'KITE/segments/Segment' );
-  require( 'KITE/util/LineStyles' );
-  require( 'KITE/util/Overlap' );
-  require( 'KITE/util/SegmentIntersection' );
-  require( 'KITE/util/Subpath' );
-
-  require( 'KITE/parser/svgPath' );
-
-  // note: the kite variable is filled in as modules are visited
-  return kite;
-} );
+// note: the kite variable is filled in as modules are visited
+export default kite;

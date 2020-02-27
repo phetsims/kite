@@ -10,21 +10,17 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-define( require => {
-  'use strict';
+import Namespace from '../../phet-core/js/Namespace.js';
 
-  const Namespace = require( 'PHET_CORE/Namespace' );
+const kite = new Namespace( 'kite' );
 
-  const kite = new Namespace( 'kite' );
-
-  // Since SVG doesn't support parsing scientific notation (e.g. 7e5), we need to output fixed decimal-point strings.
-  // Since this needs to be done quickly, and we don't particularly care about slight rounding differences (it's
-  // being used for display purposes only, and is never shown to the user), we use the built-in JS toFixed instead of
-  // Dot's version of toFixed. See https://github.com/phetsims/kite/issues/50
-  kite.register( 'svgNumber', function( n ) {
-    return n.toFixed( 20 );
-  } );
-
-  // will be filled in by other modules
-  return kite;
+// Since SVG doesn't support parsing scientific notation (e.g. 7e5), we need to output fixed decimal-point strings.
+// Since this needs to be done quickly, and we don't particularly care about slight rounding differences (it's
+// being used for display purposes only, and is never shown to the user), we use the built-in JS toFixed instead of
+// Dot's version of toFixed. See https://github.com/phetsims/kite/issues/50
+kite.register( 'svgNumber', function( n ) {
+  return n.toFixed( 20 );
 } );
+
+// will be filled in by other modules
+export default kite;
