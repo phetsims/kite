@@ -1,4 +1,4 @@
-// Copyright 2017-2019, University of Colorado Boulder
+// Copyright 2017-2020, University of Colorado Boulder
 
 /**
  * Represents a single direction/side of an Edge. There are two half-edges for each edge, representing each direction.
