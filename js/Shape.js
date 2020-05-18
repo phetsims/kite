@@ -807,8 +807,8 @@ inherit( Object, Shape, {
    * @param {number} rotation - Rotation of the ellipse (its semi-major axis)
    * @param {boolean} largeArc - Whether the arc will go the longest route around the ellipse.
    * @param {boolean} sweep - Whether the arc made goes from start to end "clockwise" (opposite of anticlockwise flag)
-   * @param {number} x - End point X location
-   * @param {number} y - End point Y location
+   * @param {number} x - End point X position
+   * @param {number} y - End point Y position
    * @returns {Shape} - this Shape for chaining
    */
   ellipticalArcToRelative: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
@@ -827,8 +827,8 @@ inherit( Object, Shape, {
    * @param {number} rotation - Rotation of the ellipse (its semi-major axis)
    * @param {boolean} largeArc - Whether the arc will go the longest route around the ellipse.
    * @param {boolean} sweep - Whether the arc made goes from start to end "clockwise" (opposite of anticlockwise flag)
-   * @param {number} x - End point X location
-   * @param {number} y - End point Y location
+   * @param {number} x - End point X position
+   * @param {number} y - End point Y position
    * @returns {Shape} - this Shape for chaining
    */
   ellipticalArcTo: function( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
@@ -1300,7 +1300,7 @@ inherit( Object, Shape, {
    *
    * @param {Ray2} ray
    * @returns {Array.<Intersection>} - See Segment.js for details. For this function, intersections will be returned
-   *                                   sorted by the distance from the ray's location.
+   *                                   sorted by the distance from the ray's position.
    */
   intersection: function( ray ) {
     let hits = [];
@@ -2040,8 +2040,8 @@ Shape.roundRectangle = Shape.roundRect;
  *   topRight: cornerRadius
  * } );
  *
- * @param {number} x - Left edge location
- * @param {number} y - Top edge location
+ * @param {number} x - Left edge position
+ * @param {number} y - Top edge position
  * @param {number} width - Width of rectangle
  * @param {number} height - Height of rectangle
  * @param {Object} [cornerRadii] - Optional object with potential radii for each corner.
