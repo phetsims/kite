@@ -1,5 +1,7 @@
 // Copyright 2013-2016, University of Colorado Boulder
 
+/* eslint-env node */
+
 const pegjs = require( 'pegjs' );
 const fs = require( 'fs' );
 
