@@ -617,7 +617,7 @@ Segment.polynomialGetOverlapCubic = function( p0s, p1s, p2s, p3s, q0s, q1s, q2s,
     return Segment.polynomialGetOverlapQuadratic( p0s, p1s, p2s, q0s, q1s, q2s );
   }
 
-  const a = Utils.sign( p3s / q3s ) * Math.pow( Math.abs( p3s / q3s ), 1 / 3 );
+  const a = Math.sign( p3s / q3s ) * Math.pow( Math.abs( p3s / q3s ), 1 / 3 );
   if ( a === 0 ) {
     return null; // If there would be solutions, then q3s would have been non-zero
   }
