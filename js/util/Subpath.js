@@ -12,66 +12,58 @@
 import TinyEmitter from '../../../axon/js/TinyEmitter.js';
 import Bounds2 from '../../../dot/js/Bounds2.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import inherit from '../../../phet-core/js/inherit.js';
 import kite from '../kite.js';
 import Arc from '../segments/Arc.js';
 import Line from '../segments/Line.js';
 import Segment from '../segments/Segment.js';
 import LineStyles from './LineStyles.js';
 
-/**
- * @public
- * @constructor
- *
- * NOTE: No arguments required (they are usually used for copy() usage or creation with new segments)
- *
- * @param {Array.<Segment>} [segments]
- * @param {Array.<Vector2>} [points]
- * @param {boolean} [closed]
- */
-function Subpath( segments, points, closed ) {
-  this.invalidatedEmitter = new TinyEmitter();
-  const self = this;
+class Subpath {
+  /**
+   * @public
+   *
+   * NOTE: No arguments required (they are usually used for copy() usage or creation with new segments)
+   *
+   * @param {Array.<Segment>} [segments]
+   * @param {Array.<Vector2>} [points]
+   * @param {boolean} [closed]
+   */
+  constructor( segments, points, closed ) {
+    this.invalidatedEmitter = new TinyEmitter();
+    // @public {Array.<Segment>}
+    this.segments = [];
 
-  // @public {Array.<Segment>}
-  this.segments = [];
+    // @public {Array.<Vector2>} recombine points if necessary, based off of start points of segments + the end point
+    // of the last segment
+    this.points = points || ( ( segments && segments.length ) ? _.map( segments, segment => segment.start ).concat( segments[ segments.length - 1 ].end ) : [] );
 
-  // @public {Array.<Vector2>} recombine points if necessary, based off of start points of segments + the end point
-  // of the last segment
-  this.points = points || ( ( segments && segments.length ) ? _.map( segments, function( segment ) {
-    return segment.start;
-  } ).concat( segments[ segments.length - 1 ].end ) : [] );
+    // @public {boolean}
+    this.closed = !!closed;
 
-  // @public {boolean}
-  this.closed = !!closed;
+    // cached stroked shape (so hit testing can be done quickly on stroked shapes)
+    this._strokedSubpaths = null; // @private {Array.<Subpath>|null}
+    this._strokedSubpathsComputed = false; // @private {boolean}
+    this._strokedStyles = null; // @private {LineStyles|null}
 
-  // cached stroked shape (so hit testing can be done quickly on stroked shapes)
-  this._strokedSubpaths = null; // @private {Array.<Subpath>|null}
-  this._strokedSubpathsComputed = false; // @private {boolean}
-  this._strokedStyles = null; // @private {LineStyles|null}
+    // {Bounds2|null} - If non-null, the bounds of the subpath
+    this._bounds = null;
 
-  // {Bounds2|null} - If non-null, the bounds of the subpath
-  this._bounds = null;
+    // @private {function} - Invalidation listener
+    this._invalidateListener = this.invalidate.bind( this );
 
-  // @private {function} - Invalidation listener
-  this._invalidateListener = this.invalidate.bind( this );
+    // @private {boolean} - So we can invalidate all of the points without firing invalidation tons of times
+    this._invalidatingPoints = false;
 
-  // @private {boolean} - So we can invalidate all of the points without firing invalidation tons of times
-  this._invalidatingPoints = false;
-
-  // Add all segments directly (hooks up invalidation listeners properly)
-  if ( segments ) {
-    for ( let i = 0; i < segments.length; i++ ) {
-      _.each( segments[ i ].getNondegenerateSegments(), function( segment ) {
-        self.addSegmentDirectly( segment );
-      } );
+    // Add all segments directly (hooks up invalidation listeners properly)
+    if ( segments ) {
+      for ( let i = 0; i < segments.length; i++ ) {
+        _.each( segments[ i ].getNondegenerateSegments(), segment => {
+          this.addSegmentDirectly( segment );
+        } );
+      }
     }
   }
-}
 
-kite.register( 'Subpath', Subpath );
-
-inherit( Object, Subpath, {
 
   /**
    * Returns the bounds of this subpath. It is the bounding-box union of the bounds of each segment contained.
@@ -79,17 +71,17 @@ inherit( Object, Subpath, {
    *
    * @returns {Bounds2}
    */
-  getBounds: function() {
+  getBounds() {
     if ( this._bounds === null ) {
       const bounds = Bounds2.NOTHING.copy();
-      _.each( this.segments, function( segment ) {
+      _.each( this.segments, segment => {
         bounds.includeBounds( segment.getBounds() );
       } );
       this._bounds = bounds;
     }
     return this._bounds;
-  },
-  get bounds() { return this.getBounds(); },
+  }
+  get bounds() { return this.getBounds(); }
 
   /**
    * Returns the (sometimes approximate) arc length of the subpath.
@@ -100,13 +92,13 @@ inherit( Object, Subpath, {
    * @param {number} [maxLevels]
    * @returns {number}
    */
-  getArcLength: function( distanceEpsilon, curveEpsilon, maxLevels ) {
+  getArcLength( distanceEpsilon, curveEpsilon, maxLevels ) {
     let length = 0;
     for ( let i = 0; i < this.segments.length; i++ ) {
       length += this.segments[ i ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels );
     }
     return length;
-  },
+  }
 
   /**
    * Returns an immutable copy of this subpath
@@ -114,15 +106,15 @@ inherit( Object, Subpath, {
    *
    * @returns {Subpath}
    */
-  copy: function() {
+  copy() {
     return new Subpath( this.segments.slice( 0 ), this.points.slice( 0 ), this.closed );
-  },
+  }
 
   /**
    * Invalidates all segments (then ourself), since some points in segments may have been changed.
    * @public
    */
-  invalidatePoints: function() {
+  invalidatePoints() {
     this._invalidatingPoints = true;
 
     const numSegments = this.segments.length;
@@ -132,19 +124,19 @@ inherit( Object, Subpath, {
 
     this._invalidatingPoints = false;
     this.invalidate();
-  },
+  }
 
   /**
    * Trigger invalidation (usually for our Shape)
    * @public (kite-internal)
    */
-  invalidate: function() {
+  invalidate() {
     if ( !this._invalidatingPoints ) {
       this._bounds = null;
       this._strokedSubpathsComputed = false;
       this.invalidatedEmitter.emit();
     }
-  },
+  }
 
   /**
    * Adds a point to this subpath
@@ -153,11 +145,11 @@ inherit( Object, Subpath, {
    * @param {Vector2} point
    * @returns {Subpath}
    */
-  addPoint: function( point ) {
+  addPoint( point ) {
     this.points.push( point );
 
     return this; // allow chaining
-  },
+  }
 
   /**
    * Adds a segment directly
@@ -166,7 +158,7 @@ inherit( Object, Subpath, {
    * @param {Segment} segment
    * @returns {Subpath}
    */
-  addSegmentDirectly: function( segment ) {
+  addSegmentDirectly( segment ) {
     assert && assert( segment.start.isFinite(), 'Segment start is infinite' );
     assert && assert( segment.end.isFinite(), 'Segment end is infinite' );
     assert && assert( segment.startTangent.isFinite(), 'Segment startTangent is infinite' );
@@ -179,7 +171,7 @@ inherit( Object, Subpath, {
     segment.invalidationEmitter.addListener( this._invalidateListener );
 
     return this; // allow chaining
-  },
+  }
 
   /**
    * Adds a segment to this subpath
@@ -188,7 +180,7 @@ inherit( Object, Subpath, {
    * @param {Segment} segment
    * @returns {Subpath}
    */
-  addSegment: function( segment ) {
+  addSegment( segment ) {
     const nondegenerateSegments = segment.getNondegenerateSegments();
     const numNondegenerateSegments = nondegenerateSegments.length;
     for ( let i = 0; i < numNondegenerateSegments; i++ ) {
@@ -197,14 +189,14 @@ inherit( Object, Subpath, {
     this.invalidate(); // need to invalidate after addSegmentDirectly
 
     return this; // allow chaining
-  },
+  }
 
   /**
    * Adds a line segment from the start to end (if non-zero length) and marks the subpath as closed.
    * NOTE: normally you just want to mark the subpath as closed, and not generate the closing segment this way?
    * @public
    */
-  addClosingSegment: function() {
+  addClosingSegment() {
     if ( this.hasClosingSegment() ) {
       const closingSegment = this.getClosingSegment();
       this.addSegmentDirectly( closingSegment );
@@ -212,18 +204,18 @@ inherit( Object, Subpath, {
       this.addPoint( this.getFirstPoint() );
       this.closed = true;
     }
-  },
+  }
 
   /**
    * Sets this subpath to be a closed path
    * @public
    */
-  close: function() {
+  close() {
     this.closed = true;
 
     // If needed, add a connecting "closing" segment
     this.addClosingSegment();
-  },
+  }
 
   /**
    * Returns the numbers of points in this subpath
@@ -231,9 +223,9 @@ inherit( Object, Subpath, {
    *
    * @returns {number}
    */
-  getLength: function() {
+  getLength() {
     return this.points.length;
-  },
+  }
 
   /**
    * Returns the first point of this subpath
@@ -241,9 +233,9 @@ inherit( Object, Subpath, {
    *
    * @returns {Vector2}
    */
-  getFirstPoint: function() {
+  getFirstPoint() {
     return _.first( this.points );
-  },
+  }
 
   /**
    * Returns the last point of this subpath
@@ -251,9 +243,9 @@ inherit( Object, Subpath, {
    *
    * @returns {Vector2}
    */
-  getLastPoint: function() {
+  getLastPoint() {
     return _.last( this.points );
-  },
+  }
 
   /**
    * Returns the first segment of this subpath
@@ -261,9 +253,9 @@ inherit( Object, Subpath, {
    *
    * @returns {Segment}
    */
-  getFirstSegment: function() {
+  getFirstSegment() {
     return _.first( this.segments );
-  },
+  }
 
   /**
    * Returns the last segment of this subpath
@@ -271,9 +263,9 @@ inherit( Object, Subpath, {
    *
    * @returns {Segment}
    */
-  getLastSegment: function() {
+  getLastSegment() {
     return _.last( this.segments );
-  },
+  }
 
   /**
    * Returns segments that include the "filled" area, which may include an extra closing segment if necessary.
@@ -281,13 +273,13 @@ inherit( Object, Subpath, {
    *
    * @returns {Array.<Segment>}
    */
-  getFillSegments: function() {
+  getFillSegments() {
     const segments = this.segments.slice();
     if ( this.hasClosingSegment() ) {
       segments.push( this.getClosingSegment() );
     }
     return segments;
-  },
+  }
 
   /**
    * Determines if this subpath is drawable, i.e. if it contains asny segments
@@ -295,9 +287,9 @@ inherit( Object, Subpath, {
    *
    * @returns {boolean}
    */
-  isDrawable: function() {
+  isDrawable() {
     return this.segments.length > 0;
-  },
+  }
 
   /**
    * Determines if this subpath is a closed path, i.e. if the flag is set to closed
@@ -305,9 +297,9 @@ inherit( Object, Subpath, {
    *
    * @returns {boolean}
    */
-  isClosed: function() {
+  isClosed() {
     return this.closed;
-  },
+  }
 
   /**
    * Determines if this subpath is a closed path, i.e. if it has a closed segment
@@ -315,9 +307,9 @@ inherit( Object, Subpath, {
    *
    * @returns {boolean}
    */
-  hasClosingSegment: function() {
+  hasClosingSegment() {
     return !this.getFirstPoint().equalsEpsilon( this.getLastPoint(), 0.000000001 );
-  },
+  }
 
   /**
    * Returns a line that would closed this subpath
@@ -325,10 +317,10 @@ inherit( Object, Subpath, {
    *
    * @returns {Line}
    */
-  getClosingSegment: function() {
+  getClosingSegment() {
     assert && assert( this.hasClosingSegment(), 'Implicit closing segment unnecessary on a fully closed path' );
     return new Line( this.getLastPoint(), this.getFirstPoint() );
-  },
+  }
 
   /**
    * Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
@@ -336,7 +328,7 @@ inherit( Object, Subpath, {
    *
    * @param {CanvasRenderingContext2D} context
    */
-  writeToContext: function( context ) {
+  writeToContext( context ) {
     if ( this.isDrawable() ) {
       const startPoint = this.getFirstSegment().start;
       context.moveTo( startPoint.x, startPoint.y ); // the segments assume the current context position is at their start
@@ -357,7 +349,7 @@ inherit( Object, Subpath, {
         context.closePath();
       }
     }
-  },
+  }
 
   /**
    * Converts this subpath to a new subpath made of many line segments (approximating the current subpath)
@@ -373,12 +365,10 @@ inherit( Object, Subpath, {
    *                                     instead of using our brute-force logic
    * @returns {Subpath}
    */
-  toPiecewiseLinear: function( options ) {
+  toPiecewiseLinear( options ) {
     assert && assert( !options.pointMap, 'For use with pointMap, please use nonlinearTransformed' );
-    return new Subpath( _.flatten( _.map( this.segments, function( segment ) {
-      return segment.toPiecewiseLinearSegments( options );
-    } ) ), null, this.closed );
-  },
+    return new Subpath( _.flatten( _.map( this.segments, segment => segment.toPiecewiseLinearSegments( options ) ) ), null, this.closed );
+  }
 
   /**
    * Returns a copy of this Subpath transformed with the given matrix.
@@ -387,13 +377,13 @@ inherit( Object, Subpath, {
    * @param {Matrix3} matrix
    * @returns {Subpath}
    */
-  transformed: function( matrix ) {
+  transformed( matrix ) {
     return new Subpath(
-      _.map( this.segments, function( segment ) { return segment.transformed( matrix ); } ),
-      _.map( this.points, function( point ) { return matrix.timesVector2( point ); } ),
+      _.map( this.segments, segment => segment.transformed( matrix ) ),
+      _.map( this.points, point => matrix.timesVector2( point ) ),
       this.closed
     );
-  },
+  }
 
   /**
    * Converts this subpath to a new subpath made of many line segments (approximating the current subpath) with the
@@ -410,8 +400,8 @@ inherit( Object, Subpath, {
    *                                     instead of using our brute-force logic
    * @returns {Subpath}
    */
-  nonlinearTransformed: function( options ) {
-    return new Subpath( _.flatten( _.map( this.segments, function( segment ) {
+  nonlinearTransformed( options ) {
+    return new Subpath( _.flatten( _.map( this.segments, segment => {
       // check for this segment's support for the specific transform or discretization being applied
       if ( options.methodName && segment[ options.methodName ] ) {
         return segment[ options.methodName ]( options );
@@ -420,7 +410,7 @@ inherit( Object, Subpath, {
         return segment.toPiecewiseLinearSegments( options );
       }
     } ) ), null, this.closed );
-  },
+  }
 
   /**
    * Returns the bounds of this subpath when transform by a matrix.
@@ -429,14 +419,14 @@ inherit( Object, Subpath, {
    * @param {Matrix3} matrix
    * @returns {bounds}
    */
-  getBoundsWithTransform: function( matrix ) {
+  getBoundsWithTransform( matrix ) {
     const bounds = Bounds2.NOTHING.copy();
     const numSegments = this.segments.length;
     for ( let i = 0; i < numSegments; i++ ) {
       bounds.includeBounds( this.segments[ i ].getBoundsWithTransform( matrix ) );
     }
     return bounds;
-  },
+  }
 
   /**
    * Returns a subpath that is offset from this subpath by a distance
@@ -447,7 +437,7 @@ inherit( Object, Subpath, {
    * @param {number} distance
    * @returns {Subpath}
    */
-  offset: function( distance ) {
+  offset( distance ) {
     if ( !this.isDrawable() ) {
       return new Subpath( [], null, this.closed );
     }
@@ -481,7 +471,7 @@ inherit( Object, Subpath, {
     }
 
     return new Subpath( segments, null, this.closed );
-  },
+  }
 
   /**
    * Returns an array of subpaths (one if open, two if closed) that represent a stroked copy of this subpath.
@@ -490,7 +480,7 @@ inherit( Object, Subpath, {
    * @param {LineStyles} lineStyles
    * @returns {Array.<Subpath>}
    */
-  stroked: function( lineStyles ) {
+  stroked( lineStyles ) {
     // non-drawable subpaths convert to empty subpaths
     if ( !this.isDrawable() ) {
       return [];
@@ -579,7 +569,7 @@ inherit( Object, Subpath, {
     this._strokedStyles = lineStyles.copy(); // shallow copy, since we consider linestyles to be mutable
 
     return subpaths;
-  },
+  }
 
   /**
    * Returns a copy of this subpath with the dash "holes" removed (has many subpaths usually).
@@ -593,7 +583,7 @@ inherit( Object, Subpath, {
    *                                between segments
    * @returns {Array.<Subpath>}
    */
-  dashed: function( lineDash, lineDashOffset, distanceEpsilon, curveEpsilon ) {
+  dashed( lineDash, lineDashOffset, distanceEpsilon, curveEpsilon ) {
     // Combine segment arrays (collapsing the two-most-adjacent arrays into one, with concatenation)
     function combineSegmentArrays( left, right ) {
       const combined = left[ left.length - 1 ].concat( right[ 0 ] );
@@ -669,10 +659,8 @@ inherit( Object, Subpath, {
     }
 
     // Convert to subpaths
-    return _.flatten( dashItems.map( function( dashItem ) { return dashItem.segmentArrays; } ) ).map( function( segments ) {
-      return new Subpath( segments );
-    } );
-  },
+    return _.flatten( dashItems.map( dashItem => dashItem.segmentArrays ) ).map( segments => new Subpath( segments ) );
+  }
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
@@ -680,36 +668,32 @@ inherit( Object, Subpath, {
    *
    * @returns {Object}
    */
-  serialize: function() {
+  serialize() {
     return {
       type: 'Subpath',
-      segments: this.segments.map( function( segment ) {
-        return segment.serialize();
-      } ),
-      points: this.points.map( function( point ) {
-        return {
-          x: point.x,
-          y: point.y
-        };
-      } ),
+      segments: this.segments.map( segment => segment.serialize() ),
+      points: this.points.map( point => ( {
+        x: point.x,
+        y: point.y
+      } ) ),
       closed: this.closed
     };
   }
-} );
 
-/**
- * Returns a Subpath from the serialized representation.
- * @public
- *
- * @param {Object} obj
- * @returns {Subpath}
- */
-Subpath.deserialize = function( obj ) {
-  assert && assert( obj.type === 'Subpath' );
+  /**
+   * Returns a Subpath from the serialized representation.
+   * @public
+   *
+   * @param {Object} obj
+   * @returns {Subpath}
+   */
+  static deserialize( obj ) {
+    assert && assert( obj.type === 'Subpath' );
 
-  return new Subpath( obj.segments.map( Segment.deserialize ), obj.points.map( function( pt ) {
-    return new Vector2( pt.x, pt.y );
-  } ), obj.closed );
-};
+    return new Subpath( obj.segments.map( Segment.deserialize ), obj.points.map( pt => new Vector2( pt.x, pt.y ) ), obj.closed );
+  }
+}
+
+kite.register( 'Subpath', Subpath );
 
 export default Subpath;

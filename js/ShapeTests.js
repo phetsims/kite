@@ -11,11 +11,11 @@ import Bounds2 from '../../dot/js/Bounds2.js';
 import Matrix3 from '../../dot/js/Matrix3.js';
 import Ray2 from '../../dot/js/Ray2.js';
 import Vector2 from '../../dot/js/Vector2.js';
+import Shape from './Shape.js';
 import Arc from './segments/Arc.js';
 import Cubic from './segments/Cubic.js';
 import Line from './segments/Line.js';
 import Quadratic from './segments/Quadratic.js';
-import Shape from './Shape.js';
 
 QUnit.module( 'Shape' );
 
@@ -173,7 +173,7 @@ function testDifference( assert, aShape, bShape, threshold, message ) {
   dataEquals( assert, normalData, testData, threshold, message );
 }
 
-QUnit.test( 'Triangle union', function( assert ) {
+QUnit.test( 'Triangle union', assert => {
   testUnion( assert,
     new Shape().moveTo( 10, 10 ).lineTo( 90, 10 ).lineTo( 50, 90 ).close(),
     new Shape().moveTo( 10, 90 ).lineTo( 90, 90 ).lineTo( 50, 10 ).close(),
@@ -181,7 +181,7 @@ QUnit.test( 'Triangle union', function( assert ) {
   );
 } );
 
-QUnit.test( 'CAG union #1', function( assert ) {
+QUnit.test( 'CAG union #1', assert => {
   testUnion( assert,
     new Shape().moveTo( 0, 0 ).lineTo( 10, 10 ).lineTo( 20, 0 ).close()
       .moveTo( 4, 2 ).lineTo( 16, 2 ).lineTo( 10, 6 ).close(),
@@ -193,7 +193,7 @@ QUnit.test( 'CAG union #1', function( assert ) {
   );
 } );
 
-QUnit.test( 'CAG union #2', function( assert ) {
+QUnit.test( 'CAG union #2', assert => {
   testUnion( assert,
     new Shape().moveTo( 0, 0 ).lineTo( 10, 0 ).lineTo( 10, 10 ).lineTo( 0, 10 ).close()
       .moveTo( 5, 10 ).lineTo( 15, 10 ).lineTo( 15, 20 ).lineTo( 5, 20 ).close(),
@@ -203,7 +203,7 @@ QUnit.test( 'CAG union #2', function( assert ) {
   );
 } );
 
-QUnit.test( 'Difference test', function( assert ) {
+QUnit.test( 'Difference test', assert => {
   testDifference( assert,
     new Shape().rect( 0, 0, 100, 10 ).rect( 0, 20, 100, 10 ).rect( 0, 40, 100, 10 ).rect( 0, 60, 100, 10 ).rect( 0, 80, 100, 10 ),
     new Shape().rect( 0, 0, 10, 100 ).rect( 20, 0, 10, 100 ).rect( 40, 0, 10, 100 ).rect( 60, 0, 10, 100 ).rect( 80, 0, 10, 100 ),
@@ -211,7 +211,7 @@ QUnit.test( 'Difference test', function( assert ) {
   );
 } );
 
-QUnit.test( 'CAG multiple test', function( assert ) {
+QUnit.test( 'CAG multiple test', assert => {
   let a = new Shape();
   let b = new Shape();
   let c = new Shape();
@@ -236,7 +236,7 @@ QUnit.test( 'CAG multiple test', function( assert ) {
   testDifference( assert, ab, c, 1, 'CAG multiple #2' );
 } );
 
-QUnit.test( 'Testing cubic overlap', function( assert ) {
+QUnit.test( 'Testing cubic overlap', assert => {
   const a = new Shape();
   const b = new Shape();
 
@@ -251,7 +251,7 @@ QUnit.test( 'Testing cubic overlap', function( assert ) {
   testUnion( assert, a, b, 1, 'Cubic overlap union' );
 } );
 
-QUnit.test( 'Testing quadratic overlap', function( assert ) {
+QUnit.test( 'Testing quadratic overlap', assert => {
   const a = new Shape();
   const b = new Shape();
 
@@ -266,7 +266,7 @@ QUnit.test( 'Testing quadratic overlap', function( assert ) {
   testUnion( assert, a, b, 1, 'Quadratic overlap union' );
 } );
 
-QUnit.test( 'Cubic self-intersection', function( assert ) {
+QUnit.test( 'Cubic self-intersection', assert => {
   const a = new Shape();
   const b = new Shape();
 
@@ -276,7 +276,7 @@ QUnit.test( 'Cubic self-intersection', function( assert ) {
   testUnion( assert, a, b, 1, 'Cubic self-intersection' );
 } );
 
-QUnit.test( 'Cubic self-intersection + overlapping unused edge', function( assert ) {
+QUnit.test( 'Cubic self-intersection + overlapping unused edge', assert => {
   const a = new Shape();
   const b = new Shape();
 
@@ -286,7 +286,7 @@ QUnit.test( 'Cubic self-intersection + overlapping unused edge', function( asser
   testUnion( assert, a, b, 1, 'Cubic self-intersection' );
 } );
 
-QUnit.test( 'Removal of bridge edges', function( assert ) {
+QUnit.test( 'Removal of bridge edges', assert => {
   const a = new Shape();
   const b = new Shape();
 
@@ -296,7 +296,7 @@ QUnit.test( 'Removal of bridge edges', function( assert ) {
   testUnion( assert, a, b, 1, 'Removal of bridge edges' );
 } );
 
-QUnit.test( 'Double circle', function( assert ) {
+QUnit.test( 'Double circle', assert => {
   const a = new Shape();
   const b = new Shape();
 
@@ -307,7 +307,7 @@ QUnit.test( 'Double circle', function( assert ) {
   testDifference( assert, a, b, 1, 'Double circle difference' );
 } );
 
-QUnit.test( 'Half circle join', function( assert ) {
+QUnit.test( 'Half circle join', assert => {
   const a = new Shape();
   const b = new Shape();
 
@@ -317,7 +317,7 @@ QUnit.test( 'Half circle join', function( assert ) {
   testUnion( assert, a, b, 1, 'Half circle union' );
 } );
 
-QUnit.test( 'Partial circle overlap', function( assert ) {
+QUnit.test( 'Partial circle overlap', assert => {
   const a = new Shape();
   const b = new Shape();
 
@@ -327,7 +327,7 @@ QUnit.test( 'Partial circle overlap', function( assert ) {
   testUnion( assert, a, b, 1, 'Partial circle union' );
 } );
 
-QUnit.test( 'Circle overlap', function( assert ) {
+QUnit.test( 'Circle overlap', assert => {
   const a = new Shape();
   const b = new Shape();
 
@@ -337,7 +337,7 @@ QUnit.test( 'Circle overlap', function( assert ) {
   testUnion( assert, a, b, 1, 'Circle overlap union' );
 } );
 
-QUnit.test( 'Circle adjacent', function( assert ) {
+QUnit.test( 'Circle adjacent', assert => {
   const a = new Shape();
   const b = new Shape();
 
@@ -347,14 +347,14 @@ QUnit.test( 'Circle adjacent', function( assert ) {
   testUnion( assert, a, b, 1, 'Circle adjacent union' );
 } );
 
-QUnit.test( '4 adjacent circles', function( assert ) {
+QUnit.test( '4 adjacent circles', assert => {
   const a = new Shape().circle( -5, 0, 5 ).circle( 5, 0, 5 );
   const b = new Shape().circle( 0, -5, 5 ).circle( 0, 5, 5 );
 
   testUnion( assert, a, b, 1, '4 adjacent circles union' );
 } );
 
-QUnit.test( 'stroked line 1', function( assert ) {
+QUnit.test( 'stroked line 1', assert => {
 
   const a = Shape.deserialize( {
     'type': 'Shape',
@@ -437,7 +437,7 @@ QUnit.test( 'stroked line 1', function( assert ) {
   testUnion( assert, a, b, 1, 'stroked line 1 union' );
 } );
 
-QUnit.test( 'Shared endpoint test', function( assert ) {
+QUnit.test( 'Shared endpoint test', assert => {
   const a = Shape.deserialize( {
     'type': 'Shape',
     'subpaths': [
@@ -559,7 +559,7 @@ QUnit.test( 'Shared endpoint test', function( assert ) {
   testUnion( assert, a, b, 1, 'shared endpoint test 1' );
 } );
 
-QUnit.test( 'Line segment winding', function( assert ) {
+QUnit.test( 'Line segment winding', assert => {
   const line = new Line( new Vector2( 0, 0 ), new Vector2( 2, 2 ) );
 
   assert.equal( line.windingIntersection( new Ray2( new Vector2( 0, 1 ), new Vector2( 1, 0 ) ) ), 1 );
@@ -569,7 +569,7 @@ QUnit.test( 'Line segment winding', function( assert ) {
   assert.equal( line.windingIntersection( new Ray2( new Vector2( 0, 1 ), new Vector2( 1, 1 ).normalized() ) ), 0 );
 } );
 
-QUnit.test( 'Rectangle hit testing', function( assert ) {
+QUnit.test( 'Rectangle hit testing', assert => {
   const shape = Shape.rectangle( 0, 0, 1, 1 );
 
   assert.equal( shape.containsPoint( new Vector2( 0.2, 0.3 ) ), true, '0.2, 0.3' );
@@ -579,31 +579,31 @@ QUnit.test( 'Rectangle hit testing', function( assert ) {
 } );
 
 //See https://github.com/phetsims/kite/issues/34
-QUnit.test( 'Trapezoid hit testing', function( assert ) {
+QUnit.test( 'Trapezoid hit testing', assert => {
   const shape = new Shape( 'M 415 298.5 L 414.99999999999994 94.5 L 468.596798162286 101.08659447295564 L 468.59679816228606 291.91340552704435 Z' );
   assert.equal( shape.containsPoint( new Vector2( 441, 125 ) ), true, 'trapezoid should report that an interior point is "containsPoint" true' );
 } );
 
-QUnit.test( 'Un-closed shape hit testing', function( assert ) {
+QUnit.test( 'Un-closed shape hit testing', assert => {
   const shape = new Shape().moveTo( 0, 0 ).lineTo( 10, 10 ).lineTo( 0, 10 );
 
   assert.equal( shape.containsPoint( new Vector2( 1, 2 ) ), true, '1, 2' );
   assert.equal( shape.containsPoint( new Vector2( 10, 2 ) ), false, '10, 2' );
 } );
 
-QUnit.test( 'Zero-size rectangle', function( assert ) {
+QUnit.test( 'Zero-size rectangle', assert => {
   const shape = new Shape().rect( 20, 50, 0, 0 );
 
   assert.ok( shape.bounds.isFinite() || shape.bounds.isEmpty() ); // relies on the boundary case from dot
 } );
 
-QUnit.test( 'Zero-size line segment', function( assert ) {
+QUnit.test( 'Zero-size line segment', assert => {
   const shape = new Shape().moveTo( 20, 50 ).lineTo( 20, 50 ).close();
 
   assert.ok( shape.bounds.isFinite() || shape.bounds.isEmpty() ); // relies on the boundary case from dot
 } );
 
-QUnit.test( 'Bucket hit region', function( assert ) {
+QUnit.test( 'Bucket hit region', assert => {
   const shape = new Shape().moveTo( -60, 0 )
     .lineTo( -48, 42 )
     .cubicCurveTo( -36, 51, 36, 51, 48, 42 )
@@ -616,7 +616,7 @@ QUnit.test( 'Bucket hit region', function( assert ) {
   assert.equal( 0, shape.windingIntersection( ray ), 'The winding intersection should be zero' );
 } );
 
-QUnit.test( 'intersectsBounds', function( assert ) {
+QUnit.test( 'intersectsBounds', assert => {
   assert.ok( !Shape.circle( 0, 0, 2 ).intersectsBounds( new Bounds2( -1, -1, 1, 1 ) ),
     'Circle surrounds the bounds but should not intersect' );
   assert.ok( Shape.circle( 0, 0, 1.3 ).intersectsBounds( new Bounds2( -1, -1, 1, 1 ) ),
@@ -629,7 +629,7 @@ QUnit.test( 'intersectsBounds', function( assert ) {
     'Line goes above bounds' );
 } );
 
-QUnit.test( 'interiorIntersectsLineSegment', function( assert ) {
+QUnit.test( 'interiorIntersectsLineSegment', assert => {
   const circle = Shape.circle( 0, 0, 10 ); // radius 10 at 0,0
 
   assert.ok( circle.interiorIntersectsLineSegment( new Vector2( -1, 0 ), new Vector2( 1, 0 ) ),
@@ -646,7 +646,7 @@ QUnit.test( 'interiorIntersectsLineSegment', function( assert ) {
     'Glancing with two intersection points' );
 } );
 
-QUnit.test( 'Cubic overlap', function( assert ) {
+QUnit.test( 'Cubic overlap', assert => {
   const cubic = new Cubic( new Vector2( 0, 0 ), new Vector2( 0, 3 ), new Vector2( 10, 7 ), new Vector2( 10, 9 ) );
   const otherCubic = new Cubic( new Vector2( 10, 0 ), new Vector2( 0, 3 ), new Vector2( 10, 7 ), new Vector2( 10, 9 ) );
 
@@ -670,7 +670,7 @@ QUnit.test( 'Cubic overlap', function( assert ) {
   assert.equal( negativeTest.length, 0, 'negativeTest' );
 } );
 
-QUnit.test( 'Quadratic overlap', function( assert ) {
+QUnit.test( 'Quadratic overlap', assert => {
   const quadratic = new Quadratic( new Vector2( 0, 0 ), new Vector2( 0, 3 ), new Vector2( 10, 9 ) );
   const otherQuadratic = new Quadratic( new Vector2( 10, 0 ), new Vector2( 0, 3 ), new Vector2( 10, 9 ) );
 
@@ -694,7 +694,7 @@ QUnit.test( 'Quadratic overlap', function( assert ) {
   assert.equal( negativeTest.length, 0, 'negativeTest' );
 } );
 
-QUnit.test( 'Linear overlap', function( assert ) {
+QUnit.test( 'Linear overlap', assert => {
   const line = new Line( new Vector2( 0, 0 ), new Vector2( 10, 9 ) );
   const otherLine = new Line( new Vector2( 10, 0 ), new Vector2( 10, 9 ) );
 
@@ -718,7 +718,7 @@ QUnit.test( 'Linear overlap', function( assert ) {
   assert.equal( negativeTest.length, 0, 'negativeTest' );
 } );
 
-QUnit.test( 'Closure of common Shape commands', function( assert ) {
+QUnit.test( 'Closure of common Shape commands', assert => {
   assert.ok( new Shape().circle( 0, 0, 10 ).subpaths[ 0 ].closed, 'circle should result in a closed subpath' );
   assert.ok( new Shape().ellipse( 0, 0, 10, 20, Math.PI / 4 ).subpaths[ 0 ].closed, 'ellipse should result in a closed subpath' );
   assert.ok( new Shape().rect( 0, 0, 100, 50 ).subpaths[ 0 ].closed, 'rect should result in a closed subpath' );
@@ -727,7 +727,7 @@ QUnit.test( 'Closure of common Shape commands', function( assert ) {
   assert.ok( Shape.regularPolygon( 6, 10 ).subpaths[ 0 ].closed, 'regularPolygon should result in a closed subpath' );
 } );
 
-QUnit.test( 'Circle-circle intersection', function( assert ) {
+QUnit.test( 'Circle-circle intersection', assert => {
   // Accuracy assertions are contained in the intersection function
 
   assert.equal( Arc.getCircleIntersectionPoint( new Vector2( 0, 0 ), 10, new Vector2( 20, 0 ), 10 ).length, 1, 'two 10-radii adjacent' );
@@ -748,7 +748,7 @@ QUnit.test( 'Circle-circle intersection', function( assert ) {
   }
 } );
 
-QUnit.test( 'Close linear overlap', function( assert ) {
+QUnit.test( 'Close linear overlap', assert => {
   const a = new Line( new Vector2( 0, 0 ), new Vector2( 6.123233995736766e-16, -10 ) );
   const b = new Line( new Vector2( -1.8369701987210296e-15, -10 ), new Vector2( 0, 0 ) );
 

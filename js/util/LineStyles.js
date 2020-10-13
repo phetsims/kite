@@ -9,7 +9,6 @@
  */
 
 import Utils from '../../../dot/js/Utils.js';
-import inherit from '../../../phet-core/js/inherit.js';
 import merge from '../../../phet-core/js/merge.js';
 import kite from '../kite.js';
 import Arc from '../segments/Arc.js';
@@ -27,62 +26,59 @@ const DEFAULT_OPTIONS = {
   miterLimit: 10
 };
 
-/**
- * @public
- * @constructor
- *
- * @param {Object} [options]
- */
-function LineStyles( options ) {
-  options = merge( {}, DEFAULT_OPTIONS, options );
+class LineStyles {
+  /**
+   * @public
+   *
+   * @param {Object} [options]
+   */
+  constructor( options ) {
+    options = merge( {}, DEFAULT_OPTIONS, options );
 
-  // @public {number} - The width of the line (will be offset to each side by lineWidth/2)
-  this.lineWidth = options.lineWidth;
+    // @public {number} - The width of the line (will be offset to each side by lineWidth/2)
+    this.lineWidth = options.lineWidth;
 
-  // @public {string} - 'butt', 'round' or 'square' - Controls appearance at endpoints for non-closed subpaths.
-  // - butt: straight-line at end point, going through the endpoint (perpendicular to the tangent)
-  // - round: circular border with radius lineWidth/2 around endpoints
-  // - square: straight-line past the end point (by lineWidth/2)
-  // See: https://svgwg.org/svg2-draft/painting.html#LineCaps
-  this.lineCap = options.lineCap;
+    // @public {string} - 'butt', 'round' or 'square' - Controls appearance at endpoints for non-closed subpaths.
+    // - butt: straight-line at end point, going through the endpoint (perpendicular to the tangent)
+    // - round: circular border with radius lineWidth/2 around endpoints
+    // - square: straight-line past the end point (by lineWidth/2)
+    // See: https://svgwg.org/svg2-draft/painting.html#LineCaps
+    this.lineCap = options.lineCap;
 
-  // @public {string} - 'miter', 'round' or 'bevel' - Controls appearance at joints between segments (at the point)
-  // - miter: Use sharp corners (which aren't too sharp, see miterLimit). Extends edges until they meed.
-  // - round: circular border with radius lineWidth/2 around joints
-  // - bevel: directly joins the gap with a line segment.
-  // See: https://svgwg.org/svg2-draft/painting.html#LineJoin
-  this.lineJoin = options.lineJoin;
+    // @public {string} - 'miter', 'round' or 'bevel' - Controls appearance at joints between segments (at the point)
+    // - miter: Use sharp corners (which aren't too sharp, see miterLimit). Extends edges until they meed.
+    // - round: circular border with radius lineWidth/2 around joints
+    // - bevel: directly joins the gap with a line segment.
+    // See: https://svgwg.org/svg2-draft/painting.html#LineJoin
+    this.lineJoin = options.lineJoin;
 
-  // @public {Array.<number>} - Even values in the array are the "dash" length, odd values are the "gap" length.
-  // NOTE: If there is an odd number of entries, it behaves like lineDash.concat( lineDash ).
-  // See: https://svgwg.org/svg2-draft/painting.html#StrokeDashing
-  this.lineDash = options.lineDash;
+    // @public {Array.<number>} - Even values in the array are the "dash" length, odd values are the "gap" length.
+    // NOTE: If there is an odd number of entries, it behaves like lineDash.concat( lineDash ).
+    // See: https://svgwg.org/svg2-draft/painting.html#StrokeDashing
+    this.lineDash = options.lineDash;
 
-  // @public {number} - Offset from the start of the subpath where the start of the line-dash array starts.
-  this.lineDashOffset = options.lineDashOffset;
+    // @public {number} - Offset from the start of the subpath where the start of the line-dash array starts.
+    this.lineDashOffset = options.lineDashOffset;
 
-  // @public {number} - When to cut off lineJoin:miter to look like lineJoin:bevel. See https://svgwg.org/svg2-draft/painting.html
-  this.miterLimit = options.miterLimit;
+    // @public {number} - When to cut off lineJoin:miter to look like lineJoin:bevel. See https://svgwg.org/svg2-draft/painting.html
+    this.miterLimit = options.miterLimit;
 
-  assert && assert( typeof this.lineWidth === 'number', 'lineWidth should be a number: ' + this.lineWidth );
-  assert && assert( isFinite( this.lineWidth ), 'lineWidth should be a finite number: ' + this.lineWidth );
-  assert && assert( this.lineWidth >= 0, 'lineWidth should be non-negative: ' + this.lineWidth );
-  assert && assert( this.lineCap === 'butt' || this.lineCap === 'round' || this.lineCap === 'square',
-    'Invalid lineCap: ' + this.lineCap );
-  assert && assert( this.lineJoin === 'miter' || this.lineJoin === 'round' || this.lineJoin === 'bevel',
-    'Invalid lineJoin: ' + this.lineJoin );
-  assert && assert( Array.isArray( this.lineDash ), 'lineDash should be an array: ' + this.lineDash );
-  assert && assert( _.every( this.lineDash, function( dash ) { return ( typeof dash === 'number' ) && isFinite( dash ) && dash >= 0; } ),
-    'Every lineDash should be a non-negative finite number: ' + this.lineDash );
-  assert && assert( typeof this.lineDashOffset === 'number', 'lineDashOffset should be a number: ' + this.lineDashOffset );
-  assert && assert( isFinite( this.lineDashOffset ), 'lineDashOffset should be a finite number: ' + this.lineDashOffset );
-  assert && assert( typeof this.miterLimit === 'number', 'miterLimit should be a number: ' + this.miterLimit );
-  assert && assert( isFinite( this.miterLimit ), 'miterLimit should be a finite number: ' + this.miterLimit );
-}
+    assert && assert( typeof this.lineWidth === 'number', 'lineWidth should be a number: ' + this.lineWidth );
+    assert && assert( isFinite( this.lineWidth ), 'lineWidth should be a finite number: ' + this.lineWidth );
+    assert && assert( this.lineWidth >= 0, 'lineWidth should be non-negative: ' + this.lineWidth );
+    assert && assert( this.lineCap === 'butt' || this.lineCap === 'round' || this.lineCap === 'square',
+      'Invalid lineCap: ' + this.lineCap );
+    assert && assert( this.lineJoin === 'miter' || this.lineJoin === 'round' || this.lineJoin === 'bevel',
+      'Invalid lineJoin: ' + this.lineJoin );
+    assert && assert( Array.isArray( this.lineDash ), 'lineDash should be an array: ' + this.lineDash );
+    assert && assert( _.every( this.lineDash, dash => ( typeof dash === 'number' ) && isFinite( dash ) && dash >= 0 ),
+      'Every lineDash should be a non-negative finite number: ' + this.lineDash );
+    assert && assert( typeof this.lineDashOffset === 'number', 'lineDashOffset should be a number: ' + this.lineDashOffset );
+    assert && assert( isFinite( this.lineDashOffset ), 'lineDashOffset should be a finite number: ' + this.lineDashOffset );
+    assert && assert( typeof this.miterLimit === 'number', 'miterLimit should be a number: ' + this.miterLimit );
+    assert && assert( isFinite( this.miterLimit ), 'miterLimit should be a finite number: ' + this.miterLimit );
+  }
 
-kite.register( 'LineStyles', LineStyles );
-
-inherit( Object, LineStyles, {
   /**
    * Determines of this lineStyles is equal to the other LineStyles
    * @public
@@ -90,7 +86,7 @@ inherit( Object, LineStyles, {
    * @param {LineStyles} other
    * @returns {boolean}
    */
-  equals: function( other ) {
+  equals( other ) {
     const typical = this.lineWidth === other.lineWidth &&
                     this.lineCap === other.lineCap &&
                     this.lineJoin === other.lineJoin &&
@@ -113,7 +109,7 @@ inherit( Object, LineStyles, {
     }
 
     return true;
-  },
+  }
 
   /**
    * Returns a copy of this LineStyles.
@@ -121,7 +117,7 @@ inherit( Object, LineStyles, {
    *
    * @returns {LineStyles}
    */
-  copy: function() {
+  copy() {
     return new LineStyles( {
       lineWidth: this.lineWidth,
       lineCap: this.lineCap,
@@ -130,7 +126,7 @@ inherit( Object, LineStyles, {
       lineDashOffset: this.lineDashOffset,
       miterLimit: this.miterLimit
     } );
-  },
+  }
 
   /**
    * Creates an array of Segments that make up a line join, to the left side.
@@ -144,7 +140,7 @@ inherit( Object, LineStyles, {
    * @param {Vector2} toTangent
    * @returns {Array.<Line>}
    */
-  leftJoin: function( center, fromTangent, toTangent ) {
+  leftJoin( center, fromTangent, toTangent ) {
     fromTangent = fromTangent.normalized();
     toTangent = toTangent.normalized();
 
@@ -188,7 +184,7 @@ inherit( Object, LineStyles, {
       // TODO: can we prevent self-intersection here?
       return bevel;
     }
-  },
+  }
 
   /**
    * Creates an array of Segments that make up a line join, to the right side.
@@ -201,9 +197,9 @@ inherit( Object, LineStyles, {
    * @param {Vector2} toTangent
    * @returns {Array.<Line>}
    */
-  rightJoin: function( center, fromTangent, toTangent ) {
+  rightJoin( center, fromTangent, toTangent ) {
     return this.leftJoin( center, toTangent.negated(), fromTangent.negated() );
-  },
+  }
 
   /**
    * Creates an array of Segments that make up a line cap from the endpoint 'center' in the direction of the tangent
@@ -213,7 +209,7 @@ inherit( Object, LineStyles, {
    * @param {Vector2} tangent
    * @returns {Array.<Segment>}
    */
-  cap: function( center, tangent ) {
+  cap( center, tangent ) {
     tangent = tangent.normalized();
 
     const fromPoint = center.plus( tangent.perpendicular.times( -this.lineWidth / 2 ) );
@@ -241,8 +237,11 @@ inherit( Object, LineStyles, {
         throw new Error( 'invalid lineCap: ' + this.lineCap );
     }
   }
-} );
+}
 
+kite.register( 'LineStyles', LineStyles );
+
+// @public {Object}
 LineStyles.DEFAULT_OPTIONS = DEFAULT_OPTIONS;
 
-export default kite.LineStyles;
+export default LineStyles;
