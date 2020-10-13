@@ -9,34 +9,30 @@
  */
 
 import Vector2 from '../../../dot/js/Vector2.js';
-import cleanArray from '../../../phet-core/js/cleanArray.js';
-import inherit from '../../../phet-core/js/inherit.js';
 import Poolable from '../../../phet-core/js/Poolable.js';
+import cleanArray from '../../../phet-core/js/cleanArray.js';
 import kite from '../kite.js';
 import Line from '../segments/Line.js';
 
 let globaId = 0;
 
-/**
- * @public (kite-internal)
- * @constructor
- *
- * NOTE: Use Vertex.createFromPool for most usage instead of using the constructor directly.
- *
- * @param {Vector2} point - The point where the vertex should be located.
- */
-function Vertex( point ) {
-  // @public {number}
-  this.id = ++globaId;
+class Vertex {
+  /**
+   * @public (kite-internal)
+   *
+   * NOTE: Use Vertex.createFromPool for most usage instead of using the constructor directly.
+   *
+   * @param {Vector2} point - The point where the vertex should be located.
+   */
+  constructor( point ) {
+    // @public {number}
+    this.id = ++globaId;
 
-  // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
-  // definitions.
-  this.initialize( point );
-}
+    // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
+    // definitions.
+    this.initialize( point );
+  }
 
-kite.register( 'Vertex', Vertex );
-
-inherit( Object, Vertex, {
   /**
    * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
    * support pooling.
@@ -45,7 +41,7 @@ inherit( Object, Vertex, {
    * @param {Vector2} point
    * @returns {Vertex} - This reference for chaining
    */
-  initialize: function( point ) {
+  initialize( point ) {
     assert && assert( point instanceof Vector2 );
 
     // @public {Vector2}
@@ -64,24 +60,24 @@ inherit( Object, Vertex, {
     this.lowIndex = 0;
 
     return this;
-  },
+  }
 
   /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
    * @public
    */
-  dispose: function() {
+  dispose() {
     this.point = Vector2.ZERO;
     cleanArray( this.incidentHalfEdges );
     this.freeToPool();
-  },
+  }
 
   /**
    * Sorts the edges in increasing angle order.
    * @public
    */
-  sortEdges: function() {
+  sortEdges() {
     const vectors = []; // x coordinate will be "angle", y coordinate will be curvature
     for ( var i = 0; i < this.incidentHalfEdges.length; i++ ) {
       const halfEdge = this.incidentHalfEdges[ i ];
@@ -113,16 +109,17 @@ inherit( Object, Vertex, {
 
     this.incidentHalfEdges.sort( Vertex.edgeComparison );
   }
-}, {
+
   /**
    * Comparse two edges for sortEdges. Should have executed that first, as it relies on information looked up in that
    * process.
+   * @public
    *
    * @param {Edge} halfEdgeA
    * @param {Edge} halfEdgeB
    * @returns {number}
    */
-  edgeComparison: function( halfEdgeA, halfEdgeB ) {
+  static edgeComparison( halfEdgeA, halfEdgeB ) {
     const angleA = halfEdgeA.sortVector.x;
     const angleB = halfEdgeB.sortVector.x;
 
@@ -144,10 +141,12 @@ inherit( Object, Vertex, {
       }
     }
   }
-} );
+}
+
+kite.register( 'Vertex', Vertex );
 
 Poolable.mixInto( Vertex, {
   initialize: Vertex.prototype.initialize
 } );
 
-export default kite.Vertex;
+export default Vertex;

@@ -14,35 +14,31 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import cleanArray from '../../../phet-core/js/cleanArray.js';
-import inherit from '../../../phet-core/js/inherit.js';
 import Poolable from '../../../phet-core/js/Poolable.js';
+import cleanArray from '../../../phet-core/js/cleanArray.js';
 import kite from '../kite.js';
 import Subpath from '../util/Subpath.js';
 
 let globaId = 0;
 
-/**
- * @public (kite-internal)
- * @constructor
- *
- * NOTE: Use Loop.createFromPool for most usage instead of using the constructor directly.
- *
- * @param {number} shapeId
- * @param {boolean} closed
- */
-function Loop( shapeId, closed ) {
-  // @public {number}
-  this.id = ++globaId;
+class Loop {
+  /**
+   * @public (kite-internal)
+   *
+   * NOTE: Use Loop.createFromPool for most usage instead of using the constructor directly.
+   *
+   * @param {number} shapeId
+   * @param {boolean} closed
+   */
+  constructor( shapeId, closed ) {
+    // @public {number}
+    this.id = ++globaId;
 
-  // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
-  // definitions.
-  this.initialize( shapeId, closed );
-}
+    // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
+    // definitions.
+    this.initialize( shapeId, closed );
+  }
 
-kite.register( 'Loop', Loop );
-
-inherit( Object, Loop, {
   /**
    * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
    * support pooling.
@@ -52,7 +48,7 @@ inherit( Object, Loop, {
    * @param {boolean} closed
    * @returns {Loop} - This reference for chaining
    */
-  initialize: function( shapeId, closed ) {
+  initialize( shapeId, closed ) {
     assert && assert( typeof shapeId === 'number' );
     assert && assert( typeof closed === 'boolean' );
 
@@ -66,7 +62,7 @@ inherit( Object, Loop, {
     this.halfEdges = cleanArray( this.halfEdges );
 
     return this;
-  },
+  }
 
   /**
    * Returns a Subpath equivalent to this loop.
@@ -74,27 +70,29 @@ inherit( Object, Loop, {
    *
    * @returns {Subpath}
    */
-  toSubpath: function() {
+  toSubpath() {
     const segments = [];
     for ( let i = 0; i < this.halfEdges.length; i++ ) {
       segments.push( this.halfEdges[ i ].getDirectionalSegment() );
     }
     return new Subpath( segments, undefined, this.closed );
-  },
+  }
 
   /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
    * @public
    */
-  dispose: function() {
+  dispose() {
     cleanArray( this.halfEdges );
     this.freeToPool();
   }
-} );
+}
+
+kite.register( 'Loop', Loop );
 
 Poolable.mixInto( Loop, {
   initialize: Loop.prototype.initialize
 } );
 
-export default kite.Loop;
+export default Loop;

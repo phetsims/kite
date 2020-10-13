@@ -10,34 +10,30 @@
 import Bounds2 from '../../../dot/js/Bounds2.js';
 import Ray2 from '../../../dot/js/Ray2.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import cleanArray from '../../../phet-core/js/cleanArray.js';
-import inherit from '../../../phet-core/js/inherit.js';
 import Poolable from '../../../phet-core/js/Poolable.js';
+import cleanArray from '../../../phet-core/js/cleanArray.js';
 import kite from '../kite.js';
 import Subpath from '../util/Subpath.js';
 
 let globaId = 0;
 
-/**
- * @public (kite-internal)
- * @constructor
- *
- * NOTE: Use Boundary.createFromPool for most usage instead of using the constructor directly.
- *
- * @param {Array.<HalfEdge>} halfEdges
- */
-function Boundary( halfEdges ) {
-  // @public {number}
-  this.id = ++globaId;
+class Boundary {
+  /**
+   * @public (kite-internal)
+   *
+   * NOTE: Use Boundary.createFromPool for most usage instead of using the constructor directly.
+   *
+   * @param {Array.<HalfEdge>} halfEdges
+   */
+  constructor( halfEdges ) {
+    // @public {number}
+    this.id = ++globaId;
 
-  // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
-  // definitions.
-  this.initialize( halfEdges );
-}
+    // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
+    // definitions.
+    this.initialize( halfEdges );
+  }
 
-kite.register( 'Boundary', Boundary );
-
-inherit( Object, Boundary, {
   /**
    * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
    * support pooling.
@@ -46,7 +42,7 @@ inherit( Object, Boundary, {
    * @param {Array.<HalfEdge>} halfEdges
    * @returns {Boundary} - This reference for chaining
    */
-  initialize: function( halfEdges ) {
+  initialize( halfEdges ) {
     // @public {Array.<HalfEdge>}
     this.halfEdges = halfEdges;
 
@@ -60,18 +56,18 @@ inherit( Object, Boundary, {
     this.childBoundaries = cleanArray( this.childBoundaries );
 
     return this;
-  },
+  }
 
   /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
    * @public
    */
-  dispose: function() {
+  dispose() {
     this.halfEdges = [];
     cleanArray( this.childBoundaries );
     this.freeToPool();
-  },
+  }
 
   /**
    * Returns whether this boundary is essentially "counter-clockwise" (in the non-reversed coordinate system) with
@@ -83,9 +79,9 @@ inherit( Object, Boundary, {
    *
    * @returns {number}
    */
-  isInner: function() {
+  isInner() {
     return this.signedArea > 0;
-  },
+  }
 
   /**
    * Returns the signed area of this boundary, given its half edges.
@@ -95,13 +91,13 @@ inherit( Object, Boundary, {
    *
    * @returns {number}
    */
-  computeSignedArea: function() {
+  computeSignedArea() {
     let signedArea = 0;
     for ( let i = 0; i < this.halfEdges.length; i++ ) {
       signedArea += this.halfEdges[ i ].signedAreaFragment;
     }
     return signedArea;
-  },
+  }
 
   /**
    * Returns the bounds of the boundary (the union of each of the boundary's segments' bounds).
@@ -109,14 +105,14 @@ inherit( Object, Boundary, {
    *
    * @returns {Bounds2}
    */
-  computeBounds: function() {
+  computeBounds() {
     const bounds = Bounds2.NOTHING.copy();
 
     for ( let i = 0; i < this.halfEdges.length; i++ ) {
       bounds.includeBounds( this.halfEdges[ i ].edge.segment.getBounds() );
     }
     return bounds;
-  },
+  }
 
   /**
    * Returns a point on the boundary which, when the shape (and point) are transformed with the given transform, would
@@ -130,7 +126,7 @@ inherit( Object, Boundary, {
    * @param {Transform3} transform - Transform used because we want the inverse also.
    * @returns {Vector2}
    */
-  computeExtremePoint: function( transform ) {
+  computeExtremePoint( transform ) {
     assert && assert( this.halfEdges.length > 0, 'There is no extreme point if we have no edges' );
 
     // Transform all of the segments into the new transformed coordinate space.
@@ -170,7 +166,7 @@ inherit( Object, Boundary, {
     }
 
     throw new Error( 'Should not reach here if we have segments' );
-  },
+  }
 
   /**
    * Returns a ray (position and direction) pointing away from our boundary at an "extreme" point, so that the ray
@@ -189,11 +185,11 @@ inherit( Object, Boundary, {
    * @param {Transform3} transform
    * @returns {Ray2}
    */
-  computeExtremeRay: function( transform ) {
+  computeExtremeRay( transform ) {
     const extremePoint = this.computeExtremePoint( transform );
     const orientation = transform.inverseDelta2( new Vector2( 0, -1 ) ).normalized();
     return new Ray2( extremePoint.plus( orientation.timesScalar( 1e-4 ) ), orientation );
-  },
+  }
 
   /**
    * Returns whether this boundary includes the specified half-edge.
@@ -202,14 +198,14 @@ inherit( Object, Boundary, {
    * @param {HalfEdge} halfEdge
    * @returns {boolean}
    */
-  hasHalfEdge: function( halfEdge ) {
+  hasHalfEdge( halfEdge ) {
     for ( let i = 0; i < this.halfEdges.length; i++ ) {
       if ( this.halfEdges[ i ] === halfEdge ) {
         return true;
       }
     }
     return false;
-  },
+  }
 
   /**
    * Converts this boundary to a Subpath, so that we can construct things like Shape objects from it.
@@ -217,17 +213,19 @@ inherit( Object, Boundary, {
    *
    * @returns {Subpath}
    */
-  toSubpath: function() {
+  toSubpath() {
     const segments = [];
     for ( let i = 0; i < this.halfEdges.length; i++ ) {
       segments.push( this.halfEdges[ i ].getDirectionalSegment() );
     }
     return new Subpath( segments, null, true );
   }
-} );
+}
+
+kite.register( 'Boundary', Boundary );
 
 Poolable.mixInto( Boundary, {
   initialize: Boundary.prototype.initialize
 } );
 
-export default kite.Boundary;
+export default Boundary;

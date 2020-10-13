@@ -28,7 +28,6 @@ import Transform3 from '../../../dot/js/Transform3.js';
 import Utils from '../../../dot/js/Utils.js';
 import arrayRemove from '../../../phet-core/js/arrayRemove.js';
 import cleanArray from '../../../phet-core/js/cleanArray.js';
-import inherit from '../../../phet-core/js/inherit.js';
 import merge from '../../../phet-core/js/merge.js';
 import kite from '../kite.js';
 import Arc from '../segments/Arc.js';
@@ -46,38 +45,35 @@ import Vertex from './Vertex.js';
 
 let bridgeId = 0;
 
-/**
- * @public (kite-internal)
- * @constructor
- */
-function Graph() {
-  // @public {Array.<Vertex>}
-  this.vertices = [];
+class Graph {
+  /**
+   * @public (kite-internal)
+   */
+  constructor() {
+    // @public {Array.<Vertex>}
+    this.vertices = [];
 
-  // @public {Array.<Edge>}
-  this.edges = [];
+    // @public {Array.<Edge>}
+    this.edges = [];
 
-  // @public {Array.<Boundary>}
-  this.innerBoundaries = [];
-  this.outerBoundaries = [];
-  this.boundaries = [];
+    // @public {Array.<Boundary>}
+    this.innerBoundaries = [];
+    this.outerBoundaries = [];
+    this.boundaries = [];
 
-  // @public {Array.<number>}
-  this.shapeIds = [];
+    // @public {Array.<number>}
+    this.shapeIds = [];
 
-  // @public {Array.<Loop>}
-  this.loops = [];
+    // @public {Array.<Loop>}
+    this.loops = [];
 
-  // @public {Face}
-  this.unboundedFace = Face.createFromPool( null );
+    // @public {Face}
+    this.unboundedFace = Face.createFromPool( null );
 
-  // @public {Array.<Face>}
-  this.faces = [ this.unboundedFace ];
-}
+    // @public {Array.<Face>}
+    this.faces = [ this.unboundedFace ];
+  }
 
-kite.register( 'Graph', Graph );
-
-inherit( Object, Graph, {
 
   /**
    * Adds a Shape (with a given ID for CAG purposes) to the graph.
@@ -89,11 +85,11 @@ inherit( Object, Graph, {
    * @param {Shape} shape
    * @param {Object} [options] - See addSubpath
    */
-  addShape: function( shapeId, shape, options ) {
+  addShape( shapeId, shape, options ) {
     for ( let i = 0; i < shape.subpaths.length; i++ ) {
       this.addSubpath( shapeId, shape.subpaths[ i ], options );
     }
-  },
+  }
 
   /**
    * Adds a subpath of a Shape (with a given ID for CAG purposes) to the graph.
@@ -103,7 +99,7 @@ inherit( Object, Graph, {
    * @param {Subpath} subpath
    * @param {Object} [options]
    */
-  addSubpath: function( shapeId, subpath, options ) {
+  addSubpath( shapeId, subpath, options ) {
     assert && assert( typeof shapeId === 'number' );
     assert && assert( subpath instanceof Subpath );
 
@@ -171,13 +167,13 @@ inherit( Object, Graph, {
 
     this.loops.push( loop );
     this.vertices.push.apply( this.vertices, vertices );
-  },
+  }
 
   /**
    * Simplifies edges/vertices, computes boundaries and faces (with the winding map).
    * @public
    */
-  computeSimplifiedFaces: function() {
+  computeSimplifiedFaces() {
     // Before we find any intersections (self-intersection or between edges), we'll want to identify and fix up
     // any cases where there are an infinite number of intersections between edges (they are continuously
     // overlapping). For any overlap, we'll split it into one "overlap" edge and any remaining edges. After this
@@ -221,7 +217,7 @@ inherit( Object, Graph, {
     // Compute the winding numbers of each face for each shapeId, to determine whether the input would have that
     // face "filled". It should then be ready for future processing.
     this.computeWindingMap();
-  },
+  }
 
   /**
    * Sets whether each face should be filled or unfilled based on a filter function.
@@ -252,12 +248,12 @@ inherit( Object, Graph, {
    *
    * @param {function} windingMapFilter
    */
-  computeFaceInclusion: function( windingMapFilter ) {
+  computeFaceInclusion( windingMapFilter ) {
     for ( let i = 0; i < this.faces.length; i++ ) {
       const face = this.faces[ i ];
       face.filled = windingMapFilter( face.windingMap );
     }
-  },
+  }
 
   /**
    * Create a new Graph object based only on edges in this graph that separate a "filled" face from an "unfilled"
@@ -267,7 +263,7 @@ inherit( Object, Graph, {
    * This is a convenient way to "collapse" adjacent filled and unfilled faces together, and compute the curves and
    * holes properly, given a filled "normal" graph.
    */
-  createFilledSubGraph: function() {
+  createFilledSubGraph() {
     const graph = new Graph();
 
     const vertexMap = {}; // old id => newVertex
@@ -302,7 +298,7 @@ inherit( Object, Graph, {
     graph.fillAlternatingFaces();
 
     return graph;
-  },
+  }
 
   /**
    * Returns a Shape that creates a subpath for each filled face (with the desired holes).
@@ -312,7 +308,7 @@ inherit( Object, Graph, {
    *
    * @returns {Shape}
    */
-  facesToShape: function() {
+  facesToShape() {
     const subpaths = [];
     for ( let i = 0; i < this.faces.length; i++ ) {
       const face = this.faces[ i ];
@@ -324,13 +320,13 @@ inherit( Object, Graph, {
       }
     }
     return new kite.Shape( subpaths );
-  },
+  }
 
   /**
    * Releases owned objects to their pools, and clears references that may have been picked up from external sources.
    * @public
    */
-  dispose: function() {
+  dispose() {
 
     // this.boundaries should contain all elements of innerBoundaries and outerBoundaries
     while ( this.boundaries.length ) {
@@ -351,7 +347,7 @@ inherit( Object, Graph, {
     while ( this.edges.length ) {
       this.edges.pop().dispose();
     }
-  },
+  }
 
   /**
    * Adds an edge to the graph (and sets up connection information).
@@ -359,7 +355,7 @@ inherit( Object, Graph, {
    *
    * @param {Edge} edge
    */
-  addEdge: function( edge ) {
+  addEdge( edge ) {
     assert && assert( edge instanceof Edge );
     assert && assert( !_.includes( edge.startVertex.incidentHalfEdges, edge.reversedHalf ), 'Should not already be connected' );
     assert && assert( !_.includes( edge.endVertex.incidentHalfEdges, edge.forwardHalf ), 'Should not already be connected' );
@@ -367,7 +363,7 @@ inherit( Object, Graph, {
     this.edges.push( edge );
     edge.startVertex.incidentHalfEdges.push( edge.reversedHalf );
     edge.endVertex.incidentHalfEdges.push( edge.forwardHalf );
-  },
+  }
 
   /**
    * Removes an edge from the graph (and disconnects incident information).
@@ -375,13 +371,13 @@ inherit( Object, Graph, {
    *
    * @param {Edge} edge
    */
-  removeEdge: function( edge ) {
+  removeEdge( edge ) {
     assert && assert( edge instanceof Edge );
 
     arrayRemove( this.edges, edge );
     arrayRemove( edge.startVertex.incidentHalfEdges, edge.reversedHalf );
     arrayRemove( edge.endVertex.incidentHalfEdges, edge.forwardHalf );
-  },
+  }
 
   /**
    * Replaces a single edge (in loops) with a series of edges (possibly empty).
@@ -390,7 +386,7 @@ inherit( Object, Graph, {
    * @param {Edge} edge
    * @param {Array.<HalfEdge>} forwardHalfEdges
    */
-  replaceEdgeInLoops: function( edge, forwardHalfEdges ) {
+  replaceEdgeInLoops( edge, forwardHalfEdges ) {
     // Compute reversed half-edges
     const reversedHalfEdges = [];
     for ( var i = 0; i < forwardHalfEdges.length; i++ ) {
@@ -409,7 +405,7 @@ inherit( Object, Graph, {
         }
       }
     }
-  },
+  }
 
   /**
    * Tries to combine adjacent edges (with a 2-order vertex) into one edge where possible.
@@ -417,7 +413,7 @@ inherit( Object, Graph, {
    *
    * This helps to combine things like collinear lines, where there's a vertex that can basically be removed.
    */
-  collapseAdjacentEdges: function() {
+  collapseAdjacentEdges() {
     let needsLoop = true;
     while ( needsLoop ) {
       needsLoop = false;
@@ -463,13 +459,13 @@ inherit( Object, Graph, {
           }
         }
     }
-  },
+  }
 
   /**
    * Gets rid of overlapping segments by combining overlaps into a shared edge.
    * @private
    */
-  eliminateOverlap: function() {
+  eliminateOverlap() {
     let needsLoop = true;
     while ( needsLoop ) {
       needsLoop = false;
@@ -517,7 +513,7 @@ inherit( Object, Graph, {
           }
         }
     }
-  },
+  }
 
   /**
    * Splits/combines edges when there is an overlap of two edges (two edges who have an infinite number of
@@ -526,8 +522,12 @@ inherit( Object, Graph, {
    *
    * Generally this creates an edge for the "shared" part of both segments, and then creates edges for the parts
    * outside of the shared region, connecting them together.
+   *
+   * @param {Edge} aEdge
+   * @param {Edge} bEdge
+   * @param {Overlap} overlap
    */
-  splitOverlap: function( aEdge, bEdge, overlap ) {
+  splitOverlap( aEdge, bEdge, overlap ) {
     const aSegment = aEdge.segment;
     const bSegment = bEdge.segment;
 
@@ -632,13 +632,13 @@ inherit( Object, Graph, {
 
     aEdge.dispose();
     bEdge.dispose();
-  },
+  }
 
   /**
    * Handles splitting of self-intersection of segments (happens with Cubics).
    * @private
    */
-  eliminateSelfIntersection: function() {
+  eliminateSelfIntersection() {
     assert && assert( this.boundaries.length === 0, 'Only handles simpler level primitive splitting right now' );
 
     for ( let i = this.edges.length - 1; i >= 0; i-- ) {
@@ -673,13 +673,13 @@ inherit( Object, Graph, {
         }
       }
     }
-  },
+  }
 
   /**
    * Replace intersections between different segments by splitting them and creating a vertex.
    * @private
    */
-  eliminateIntersection: function() {
+  eliminateIntersection() {
     let needsLoop = true;
     while ( needsLoop ) {
       needsLoop = false;
@@ -693,7 +693,7 @@ inherit( Object, Graph, {
             const bSegment = bEdge.segment;
 
             let intersections = Segment.intersect( aSegment, bSegment );
-            intersections = intersections.filter( function( intersection ) {
+            intersections = intersections.filter( intersection => {
               const aT = intersection.aT;
               const bT = intersection.bT;
               const aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
@@ -711,7 +711,7 @@ inherit( Object, Graph, {
           }
         }
     }
-  },
+  }
 
   /**
    * Handles splitting two intersecting edges.
@@ -725,7 +725,7 @@ inherit( Object, Graph, {
    *
    * @returns {boolean} - true if something was split.
    */
-  simpleSplit: function( aEdge, bEdge, aT, bT, point ) {
+  simpleSplit( aEdge, bEdge, aT, bT, point ) {
     let changed = false;
 
     const aInternal = aT > 1e-6 && aT < ( 1 - 1e-6 );
@@ -753,7 +753,7 @@ inherit( Object, Graph, {
     }
 
     return changed;
-  },
+  }
 
   /**
    * Splits an edge into two edges at a specific parametric t value.
@@ -763,7 +763,7 @@ inherit( Object, Graph, {
    * @param {number} t
    * @param {Vertex} vertex - The vertex that is placed at the split location
    */
-  splitEdge: function( edge, t, vertex ) {
+  splitEdge( edge, t, vertex ) {
     assert && assert( this.boundaries.length === 0, 'Only handles simpler level primitive splitting right now' );
     assert && assert( edge.startVertex !== vertex );
     assert && assert( edge.endVertex !== vertex );
@@ -784,16 +784,15 @@ inherit( Object, Graph, {
     this.replaceEdgeInLoops( edge, [ firstEdge.forwardHalf, secondEdge.forwardHalf ] );
 
     edge.dispose();
-  },
+  }
 
   /**
    * Combine vertices that are almost exactly in the same place (removing edges and vertices where necessary).
    * @private
    */
-  collapseVertices: function() {
-    const self = this;
-    assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
-    assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
+  collapseVertices() {
+    assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.startVertex ) ) );
+    assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.endVertex ) ) );
 
     let needsLoop = true;
     while ( needsLoop ) {
@@ -853,9 +852,9 @@ inherit( Object, Graph, {
         }
     }
 
-    assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
-    assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
-  },
+    assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.startVertex ) ) );
+    assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.endVertex ) ) );
+  }
 
   /**
    * Scan a given vertex for bridges recursively with a depth-first search.
@@ -874,7 +873,7 @@ inherit( Object, Graph, {
    * @param {Array.<Edge>} bridges - Appends bridge edges to here.
    * @param {Vertex} vertex
    */
-  markBridges: function( bridges, vertex ) {
+  markBridges( bridges, vertex ) {
     vertex.visited = true;
     vertex.visitIndex = vertex.lowIndex = bridgeId++;
 
@@ -898,14 +897,14 @@ inherit( Object, Graph, {
         vertex.lowIndex = Math.min( vertex.lowIndex, childVertex.visitIndex );
       }
     }
-  },
+  }
 
   /**
    * Removes edges that are the only edge holding two connected components together. Based on our problem, the
    * face on either side of the "bridge" edges would always be the same, so we can safely remove them.
    * @private
    */
-  removeBridges: function() {
+  removeBridges() {
     const bridges = [];
 
     for ( var i = 0; i < this.vertices.length; i++ ) {
@@ -922,16 +921,15 @@ inherit( Object, Graph, {
       this.replaceEdgeInLoops( bridgeEdge, [] );
       bridgeEdge.dispose();
     }
-  },
+  }
 
   /**
    * Removes vertices that have order less than 2 (so either a vertex with one or zero edges adjacent).
    * @private
    */
-  removeLowOrderVertices: function() {
-    const self = this;
-    assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
-    assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
+  removeLowOrderVertices() {
+    assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.startVertex ) ) );
+    assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.endVertex ) ) );
 
     let needsLoop = true;
     while ( needsLoop ) {
@@ -959,25 +957,25 @@ inherit( Object, Graph, {
           }
         }
     }
-    assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.startVertex ); } ) );
-    assert && assert( _.every( this.edges, function( edge ) { return _.includes( self.vertices, edge.endVertex ); } ) );
-  },
+    assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.startVertex ) ) );
+    assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.endVertex ) ) );
+  }
 
   /**
    * Sorts incident half-edges for each vertex.
    * @private
    */
-  orderVertexEdges: function() {
+  orderVertexEdges() {
     for ( let i = 0; i < this.vertices.length; i++ ) {
       this.vertices[ i ].sortEdges();
     }
-  },
+  }
 
   /**
    * Creates boundaries and faces by following each half-edge counter-clockwise
    * @private
    */
-  extractFaces: function() {
+  extractFaces() {
     const halfEdges = [];
     for ( var i = 0; i < this.edges.length; i++ ) {
       halfEdges.push( this.edges[ i ].forwardHalf );
@@ -1004,7 +1002,7 @@ inherit( Object, Graph, {
     for ( i = 0; i < this.innerBoundaries.length; i++ ) {
       this.faces.push( Face.createFromPool( this.innerBoundaries[ i ] ) );
     }
-  },
+  }
 
   /**
    * Given the inner and outer boundaries, it compues a tree representation to determine what boundaries are
@@ -1013,7 +1011,7 @@ inherit( Object, Graph, {
    *
    * This information is stored in the childBoundaries array of Boundary, and is then read out to set up faces.
    */
-  computeBoundaryTree: function() {
+  computeBoundaryTree() {
     // TODO: detect "indeterminate" for robustness (and try new angles?)
     const unboundedHoles = []; // {Array.<Boundary>}
 
@@ -1064,13 +1062,13 @@ inherit( Object, Graph, {
         face.boundary.childBoundaries.forEach( face.recursivelyAddHoles.bind( face ) );
       }
     }
-  },
+  }
 
   /**
    * Computes the winding map for each face, starting with 0 on the unbounded face (for each shapeId).
    * @private
    */
-  computeWindingMap: function() {
+  computeWindingMap() {
     const edges = this.edges.slice();
 
     // Winding numbers for "outside" are 0.
@@ -1124,7 +1122,7 @@ inherit( Object, Graph, {
         }
       }
     }
-  },
+  }
 
   /**
    * Computes the differential in winding numbers (forward face winding number minus the reversed face winding number)
@@ -1135,7 +1133,7 @@ inherit( Object, Graph, {
    * @param {number} shapeId
    * @returns {number} - The difference between forward face and reversed face winding numbers.
    */
-  computeDifferential: function( edge, shapeId ) {
+  computeDifferential( edge, shapeId ) {
     let differential = 0; // forward face - reversed face
     for ( let m = 0; m < this.loops.length; m++ ) {
       const loop = this.loops[ m ];
@@ -1155,7 +1153,7 @@ inherit( Object, Graph, {
       }
     }
     return differential;
-  },
+  }
 
   /**
    * Sets the unbounded face as unfilled, and then sets each face's fill so that edges separate one filled face with
@@ -1165,7 +1163,7 @@ inherit( Object, Graph, {
    * NOTE: Best to call this on the result from createFilledSubGraph(), since it should have guaranteed properties
    *       to make this consistent. Notably, all vertices need to have an even order (number of edges)
    */
-  fillAlternatingFaces: function() {
+  fillAlternatingFaces() {
     let nullFaceFilledCount = 0;
     for ( var i = 0; i < this.faces.length; i++ ) {
       this.faces[ i ].filled = null;
@@ -1194,7 +1192,7 @@ inherit( Object, Graph, {
         }
       }
     }
-  },
+  }
 
   /**
    * Returns the boundary that contains the specified half-edge.
@@ -1205,7 +1203,7 @@ inherit( Object, Graph, {
    * @param {HalfEdge} halfEdge
    * @returns {Boundary}
    */
-  getBoundaryOfHalfEdge: function( halfEdge ) {
+  getBoundaryOfHalfEdge( halfEdge ) {
     for ( let i = 0; i < this.boundaries.length; i++ ) {
       const boundary = this.boundaries[ i ];
 
@@ -1216,289 +1214,289 @@ inherit( Object, Graph, {
 
     throw new Error( 'Could not find boundary' );
   }
-} );
 
-/**
- * "Union" binary winding map filter for use with Graph.binaryResult.
- * @public
- *
- * This combines both shapes together so that a point is in the resulting shape if it was in either of the input
- * shapes.
- *
- * @param {Object} windingMap - See computeFaceInclusion for more details
- * @returns {boolean}
- */
-Graph.BINARY_NONZERO_UNION = function( windingMap ) {
-  return windingMap[ '0' ] !== 0 || windingMap[ '1' ] !== 0;
-};
-
-/**
- * "Intersection" binary winding map filter for use with Graph.binaryResult.
- * @public
- *
- * This combines both shapes together so that a point is in the resulting shape if it was in both of the input
- * shapes.
- *
- * @param {Object} windingMap - See computeFaceInclusion for more details
- * @returns {boolean}
- */
-Graph.BINARY_NONZERO_INTERSECTION = function( windingMap ) {
-  return windingMap[ '0' ] !== 0 && windingMap[ '1' ] !== 0;
-};
-
-/**
- * "Difference" binary winding map filter for use with Graph.binaryResult.
- * @public
- *
- * This combines both shapes together so that a point is in the resulting shape if it was in the first shape AND
- * was NOT in the second shape.
- *
- * @param {Object} windingMap - See computeFaceInclusion for more details
- * @returns {boolean}
- */
-Graph.BINARY_NONZERO_DIFFERENCE = function( windingMap ) {
-  return windingMap[ '0' ] !== 0 && windingMap[ '1' ] === 0;
-};
-
-/**
- * "XOR" binary winding map filter for use with Graph.binaryResult.
- * @public
- *
- * This combines both shapes together so that a point is in the resulting shape if it is only in exactly one of the
- * input shapes. It's like the union minus intersection.
- *
- * @param {Object} windingMap - See computeFaceInclusion for more details
- * @returns {boolean}
- */
-Graph.BINARY_NONZERO_XOR = function( windingMap ) {
-  return ( ( windingMap[ '0' ] !== 0 ) ^ ( windingMap[ '1' ] !== 0 ) ) === 1;
-};
-
-/**
- * Returns the resulting Shape obtained by combining the two shapes given with the filter.
- * @public
- *
- * @param {Shape} shapeA
- * @param {Shape} shapeB
- * @param {function} windingMapFilter - See computeFaceInclusion for details on the format
- * @returns {Shape}
- */
-Graph.binaryResult = function( shapeA, shapeB, windingMapFilter ) {
-  const graph = new Graph();
-  graph.addShape( 0, shapeA );
-  graph.addShape( 1, shapeB );
-
-  graph.computeSimplifiedFaces();
-  graph.computeFaceInclusion( windingMapFilter );
-  const subgraph = graph.createFilledSubGraph();
-  const shape = subgraph.facesToShape();
-
-  graph.dispose();
-  subgraph.dispose();
-
-  return shape;
-};
-
-/**
- * Returns the union of an array of shapes.
- * @public
- *
- * @param {Array.<Shape>}
- * @returns {Shape}
- */
-Graph.unionNonZero = function( shapes ) {
-  const graph = new Graph();
-  for ( let i = 0; i < shapes.length; i++ ) {
-    graph.addShape( i, shapes[ i ] );
+  /**
+   * "Union" binary winding map filter for use with Graph.binaryResult.
+   * @public
+   *
+   * This combines both shapes together so that a point is in the resulting shape if it was in either of the input
+   * shapes.
+   *
+   * @param {Object} windingMap - See computeFaceInclusion for more details
+   * @returns {boolean}
+   */
+  static BINARY_NONZERO_UNION( windingMap ) {
+    return windingMap[ '0' ] !== 0 || windingMap[ '1' ] !== 0;
   }
 
-  graph.computeSimplifiedFaces();
-  graph.computeFaceInclusion( function( windingMap ) {
-    for ( let j = 0; j < shapes.length; j++ ) {
-      if ( windingMap[ j ] !== 0 ) {
-        return true;
-      }
-    }
-    return false;
-  } );
-  const subgraph = graph.createFilledSubGraph();
-  const shape = subgraph.facesToShape();
-
-  graph.dispose();
-  subgraph.dispose();
-
-  return shape;
-};
-
-/**
- * Returns the intersection of an array of shapes.
- * @public
- *
- * @param {Array.<Shape>}
- * @returns {Shape}
- */
-Graph.intersectionNonZero = function( shapes ) {
-  const graph = new Graph();
-  for ( let i = 0; i < shapes.length; i++ ) {
-    graph.addShape( i, shapes[ i ] );
+  /**
+   * "Intersection" binary winding map filter for use with Graph.binaryResult.
+   * @public
+   *
+   * This combines both shapes together so that a point is in the resulting shape if it was in both of the input
+   * shapes.
+   *
+   * @param {Object} windingMap - See computeFaceInclusion for more details
+   * @returns {boolean}
+   */
+  static BINARY_NONZERO_INTERSECTION( windingMap ) {
+    return windingMap[ '0' ] !== 0 && windingMap[ '1' ] !== 0;
   }
 
-  graph.computeSimplifiedFaces();
-  graph.computeFaceInclusion( function( windingMap ) {
-    for ( let j = 0; j < shapes.length; j++ ) {
-      if ( windingMap[ j ] === 0 ) {
-        return false;
-      }
-    }
-    return true;
-  } );
-  const subgraph = graph.createFilledSubGraph();
-  const shape = subgraph.facesToShape();
-
-  graph.dispose();
-  subgraph.dispose();
-
-  return shape;
-};
-
-/**
- * Returns the xor of an array of shapes.
- * @public
- *
- * TODO: reduce code duplication?
- *
- * @param {Array.<Shape>}
- * @returns {Shape}
- */
-Graph.xorNonZero = function( shapes ) {
-  const graph = new Graph();
-  for ( let i = 0; i < shapes.length; i++ ) {
-    graph.addShape( i, shapes[ i ] );
+  /**
+   * "Difference" binary winding map filter for use with Graph.binaryResult.
+   * @public
+   *
+   * This combines both shapes together so that a point is in the resulting shape if it was in the first shape AND
+   * was NOT in the second shape.
+   *
+   * @param {Object} windingMap - See computeFaceInclusion for more details
+   * @returns {boolean}
+   */
+  static BINARY_NONZERO_DIFFERENCE( windingMap ) {
+    return windingMap[ '0' ] !== 0 && windingMap[ '1' ] === 0;
   }
 
-  graph.computeSimplifiedFaces();
-  graph.computeFaceInclusion( function( windingMap ) {
-    let included = false;
-    for ( let j = 0; j < shapes.length; j++ ) {
-      if ( windingMap[ j ] !== 0 ) {
-        included = !included;
-      }
-    }
-    return included;
-  } );
-  const subgraph = graph.createFilledSubGraph();
-  const shape = subgraph.facesToShape();
-
-  graph.dispose();
-  subgraph.dispose();
-
-  return shape;
-};
-
-/**
- * Returns a simplified Shape obtained from running it through the simplification steps with non-zero output.
- * @public
- *
- * @param {Shape} shape
- * @returns {Shape}
- */
-Graph.simplifyNonZero = function( shape ) {
-  const graph = new Graph();
-  graph.addShape( 0, shape );
-
-  graph.computeSimplifiedFaces();
-  graph.computeFaceInclusion( function( map ) {
-    return map[ '0' ] !== 0;
-  } );
-  const subgraph = graph.createFilledSubGraph();
-  const resultShape = subgraph.facesToShape();
-
-  graph.dispose();
-  subgraph.dispose();
-
-  return resultShape;
-};
-
-/**
- * Returns a clipped version of `shape` that contains only the parts that are within the area defined by
- * `clipAreaShape`
- * @public
- *
- * @param {Shape} clipAreaShape
- * @param {Shape} shape
- * @param {Object} [options]
- * @returns {Shape}
- */
-Graph.clipShape = function( clipAreaShape, shape, options ) {
-  let i;
-  let j;
-  let loop;
-
-  const SHAPE_ID = 0;
-  const CLIP_SHAPE_ID = 1;
-
-  options = merge( {
-    // {boolean} - Respectively whether segments should be in the returned shape if they are in the exterior of the
-    // clipAreaShape (outside), on the boundary, or in the interior.
-    includeExterior: false,
-    includeBoundary: true,
-    includeInterior: true
-  }, options );
-
-  const simplifiedClipAreaShape = Graph.simplifyNonZero( clipAreaShape );
-
-  const graph = new Graph();
-  graph.addShape( SHAPE_ID, shape, {
-    ensureClosed: false // don't add closing segments, since we'll be recreating subpaths/etc.
-  } );
-  graph.addShape( CLIP_SHAPE_ID, simplifiedClipAreaShape );
-
-  // A subset of simplifications (we want to keep low-order vertices, etc.)
-  graph.eliminateOverlap();
-  graph.eliminateSelfIntersection();
-  graph.eliminateIntersection();
-  graph.collapseVertices();
-
-  // Mark clip edges with data=true
-  for ( i = 0; i < graph.loops.length; i++ ) {
-    loop = graph.loops[ i ];
-    if ( loop.shapeId === CLIP_SHAPE_ID ) {
-      for ( j = 0; j < loop.halfEdges.length; j++ ) {
-        loop.halfEdges[ j ].edge.data = true;
-      }
-    }
+  /**
+   * "XOR" binary winding map filter for use with Graph.binaryResult.
+   * @public
+   *
+   * This combines both shapes together so that a point is in the resulting shape if it is only in exactly one of the
+   * input shapes. It's like the union minus intersection.
+   *
+   * @param {Object} windingMap - See computeFaceInclusion for more details
+   * @returns {boolean}
+   */
+  static BINARY_NONZERO_XOR( windingMap ) {
+    return ( ( windingMap[ '0' ] !== 0 ) ^ ( windingMap[ '1' ] !== 0 ) ) === 1;
   }
 
-  const subpaths = [];
-  for ( i = 0; i < graph.loops.length; i++ ) {
-    loop = graph.loops[ i ];
-    if ( loop.shapeId === SHAPE_ID ) {
-      let segments = [];
-      for ( j = 0; j < loop.halfEdges.length; j++ ) {
-        const halfEdge = loop.halfEdges[ j ];
+  /**
+   * Returns the resulting Shape obtained by combining the two shapes given with the filter.
+   * @public
+   *
+   * @param {Shape} shapeA
+   * @param {Shape} shapeB
+   * @param {function} windingMapFilter - See computeFaceInclusion for details on the format
+   * @returns {Shape}
+   */
+  static binaryResult( shapeA, shapeB, windingMapFilter ) {
+    const graph = new Graph();
+    graph.addShape( 0, shapeA );
+    graph.addShape( 1, shapeB );
 
-        const included = halfEdge.edge.data ? options.includeBoundary : (
-          simplifiedClipAreaShape.containsPoint( halfEdge.edge.segment.positionAt( 0.5 ) ) ? options.includeInterior : options.includeExterior
-        );
-        if ( included ) {
-          segments.push( halfEdge.getDirectionalSegment() );
+    graph.computeSimplifiedFaces();
+    graph.computeFaceInclusion( windingMapFilter );
+    const subgraph = graph.createFilledSubGraph();
+    const shape = subgraph.facesToShape();
+
+    graph.dispose();
+    subgraph.dispose();
+
+    return shape;
+  }
+
+  /**
+   * Returns the union of an array of shapes.
+   * @public
+   *
+   * @param {Array.<Shape>} shapes
+   * @returns {Shape}
+   */
+  static unionNonZero( shapes ) {
+    const graph = new Graph();
+    for ( let i = 0; i < shapes.length; i++ ) {
+      graph.addShape( i, shapes[ i ] );
+    }
+
+    graph.computeSimplifiedFaces();
+    graph.computeFaceInclusion( windingMap => {
+      for ( let j = 0; j < shapes.length; j++ ) {
+        if ( windingMap[ j ] !== 0 ) {
+          return true;
         }
-          // If we have an excluded segment in-between included segments, we'll need to split into more subpaths to handle
-        // the gap.
-        else if ( segments.length ) {
+      }
+      return false;
+    } );
+    const subgraph = graph.createFilledSubGraph();
+    const shape = subgraph.facesToShape();
+
+    graph.dispose();
+    subgraph.dispose();
+
+    return shape;
+  }
+
+  /**
+   * Returns the intersection of an array of shapes.
+   * @public
+   *
+   * @param {Array.<Shape>} shapes
+   * @returns {Shape}
+   */
+  static intersectionNonZero( shapes ) {
+    const graph = new Graph();
+    for ( let i = 0; i < shapes.length; i++ ) {
+      graph.addShape( i, shapes[ i ] );
+    }
+
+    graph.computeSimplifiedFaces();
+    graph.computeFaceInclusion( windingMap => {
+      for ( let j = 0; j < shapes.length; j++ ) {
+        if ( windingMap[ j ] === 0 ) {
+          return false;
+        }
+      }
+      return true;
+    } );
+    const subgraph = graph.createFilledSubGraph();
+    const shape = subgraph.facesToShape();
+
+    graph.dispose();
+    subgraph.dispose();
+
+    return shape;
+  }
+
+  /**
+   * Returns the xor of an array of shapes.
+   * @public
+   *
+   * TODO: reduce code duplication?
+   *
+   * @param {Array.<Shape>} shapes
+   * @returns {Shape}
+   */
+  static xorNonZero( shapes ) {
+    const graph = new Graph();
+    for ( let i = 0; i < shapes.length; i++ ) {
+      graph.addShape( i, shapes[ i ] );
+    }
+
+    graph.computeSimplifiedFaces();
+    graph.computeFaceInclusion( windingMap => {
+      let included = false;
+      for ( let j = 0; j < shapes.length; j++ ) {
+        if ( windingMap[ j ] !== 0 ) {
+          included = !included;
+        }
+      }
+      return included;
+    } );
+    const subgraph = graph.createFilledSubGraph();
+    const shape = subgraph.facesToShape();
+
+    graph.dispose();
+    subgraph.dispose();
+
+    return shape;
+  }
+
+  /**
+   * Returns a simplified Shape obtained from running it through the simplification steps with non-zero output.
+   * @public
+   *
+   * @param {Shape} shape
+   * @returns {Shape}
+   */
+  static simplifyNonZero( shape ) {
+    const graph = new Graph();
+    graph.addShape( 0, shape );
+
+    graph.computeSimplifiedFaces();
+    graph.computeFaceInclusion( map => map[ '0' ] !== 0 );
+    const subgraph = graph.createFilledSubGraph();
+    const resultShape = subgraph.facesToShape();
+
+    graph.dispose();
+    subgraph.dispose();
+
+    return resultShape;
+  }
+
+  /**
+   * Returns a clipped version of `shape` that contains only the parts that are within the area defined by
+   * `clipAreaShape`
+   * @public
+   *
+   * @param {Shape} clipAreaShape
+   * @param {Shape} shape
+   * @param {Object} [options]
+   * @returns {Shape}
+   */
+  static clipShape( clipAreaShape, shape, options ) {
+    let i;
+    let j;
+    let loop;
+
+    const SHAPE_ID = 0;
+    const CLIP_SHAPE_ID = 1;
+
+    options = merge( {
+      // {boolean} - Respectively whether segments should be in the returned shape if they are in the exterior of the
+      // clipAreaShape (outside), on the boundary, or in the interior.
+      includeExterior: false,
+      includeBoundary: true,
+      includeInterior: true
+    }, options );
+
+    const simplifiedClipAreaShape = Graph.simplifyNonZero( clipAreaShape );
+
+    const graph = new Graph();
+    graph.addShape( SHAPE_ID, shape, {
+      ensureClosed: false // don't add closing segments, since we'll be recreating subpaths/etc.
+    } );
+    graph.addShape( CLIP_SHAPE_ID, simplifiedClipAreaShape );
+
+    // A subset of simplifications (we want to keep low-order vertices, etc.)
+    graph.eliminateOverlap();
+    graph.eliminateSelfIntersection();
+    graph.eliminateIntersection();
+    graph.collapseVertices();
+
+    // Mark clip edges with data=true
+    for ( i = 0; i < graph.loops.length; i++ ) {
+      loop = graph.loops[ i ];
+      if ( loop.shapeId === CLIP_SHAPE_ID ) {
+        for ( j = 0; j < loop.halfEdges.length; j++ ) {
+          loop.halfEdges[ j ].edge.data = true;
+        }
+      }
+    }
+
+    const subpaths = [];
+    for ( i = 0; i < graph.loops.length; i++ ) {
+      loop = graph.loops[ i ];
+      if ( loop.shapeId === SHAPE_ID ) {
+        let segments = [];
+        for ( j = 0; j < loop.halfEdges.length; j++ ) {
+          const halfEdge = loop.halfEdges[ j ];
+
+          const included = halfEdge.edge.data ? options.includeBoundary : (
+            simplifiedClipAreaShape.containsPoint( halfEdge.edge.segment.positionAt( 0.5 ) ) ? options.includeInterior : options.includeExterior
+          );
+          if ( included ) {
+            segments.push( halfEdge.getDirectionalSegment() );
+          }
+            // If we have an excluded segment in-between included segments, we'll need to split into more subpaths to handle
+          // the gap.
+          else if ( segments.length ) {
+            subpaths.push( new Subpath( segments, undefined, loop.closed ) );
+            segments = [];
+          }
+        }
+        if ( segments.length ) {
           subpaths.push( new Subpath( segments, undefined, loop.closed ) );
-          segments = [];
         }
       }
-      if ( segments.length ) {
-        subpaths.push( new Subpath( segments, undefined, loop.closed ) );
-      }
     }
+
+    graph.dispose();
+
+    return new kite.Shape( subpaths );
   }
+}
 
-  graph.dispose();
+kite.register( 'Graph', Graph );
 
-  return new kite.Shape( subpaths );
-};
-
-export default kite.Graph;
+export default Graph;

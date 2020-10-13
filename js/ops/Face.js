@@ -11,33 +11,29 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import cleanArray from '../../../phet-core/js/cleanArray.js';
-import inherit from '../../../phet-core/js/inherit.js';
 import Poolable from '../../../phet-core/js/Poolable.js';
+import cleanArray from '../../../phet-core/js/cleanArray.js';
 import kite from '../kite.js';
 
 let globaId = 0;
 
-/**
- * @public (kite-internal)
- * @constructor
- *
- * NOTE: Use Face.createFromPool for most usage instead of using the constructor directly.
- *
- * @param {Boundary|null} boundary - Null if it's the unbounded face
- */
-function Face( boundary ) {
-  // @public {number}
-  this.id = ++globaId;
+class Face {
+  /**
+   * @public (kite-internal)
+   *
+   * NOTE: Use Face.createFromPool for most usage instead of using the constructor directly.
+   *
+   * @param {Boundary|null} boundary - Null if it's the unbounded face
+   */
+  constructor( boundary ) {
+    // @public {number}
+    this.id = ++globaId;
 
-  // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
-  // definitions.
-  this.initialize( boundary );
-}
+    // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
+    // definitions.
+    this.initialize( boundary );
+  }
 
-kite.register( 'Face', Face );
-
-inherit( Object, Face, {
   /**
    * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
    * support pooling.
@@ -46,7 +42,7 @@ inherit( Object, Face, {
    * @param {Boundary} boundary
    * @returns {Face} - This reference for chaining
    */
-  initialize: function( boundary ) {
+  initialize( boundary ) {
     assert && assert( boundary === null || boundary.isInner() );
 
     // @public {Boundary|null} - "inner" types, null when disposed (in pool)
@@ -66,20 +62,20 @@ inherit( Object, Face, {
     }
 
     return this;
-  },
+  }
 
   /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
    * @public
    */
-  dispose: function() {
+  dispose() {
     this.boundary = null;
     cleanArray( this.holes );
     this.windingMap = null;
     this.filled = null;
     this.freeToPool();
-  },
+  }
 
   /**
    * Marks all half-edges on the boundary as belonging to this face.
@@ -87,13 +83,13 @@ inherit( Object, Face, {
    *
    * @param {Boundary} boundary
    */
-  addBoundaryFaceReferences: function( boundary ) {
+  addBoundaryFaceReferences( boundary ) {
     for ( let i = 0; i < boundary.halfEdges.length; i++ ) {
       assert && assert( boundary.halfEdges[ i ].face === null );
 
       boundary.halfEdges[ i ].face = this;
     }
-  },
+  }
 
   /**
    * Processes the boundary-graph for a given outer boundary, and turns it into holes for this face.
@@ -103,9 +99,9 @@ inherit( Object, Face, {
    * (which will be, in this case, our face's boundary). Since it's a tree, we can walk the tree recursively to add
    * all necessary holes.
    *
-   * @param {Boundary} boundary
+   * @param {Boundary} outerBoundary
    */
-  recursivelyAddHoles: function( outerBoundary ) {
+  recursivelyAddHoles( outerBoundary ) {
     assert && assert( !outerBoundary.isInner() );
 
     this.holes.push( outerBoundary );
@@ -114,10 +110,12 @@ inherit( Object, Face, {
       this.recursivelyAddHoles( outerBoundary.childBoundaries[ i ] );
     }
   }
-} );
+}
+
+kite.register( 'Face', Face );
 
 Poolable.mixInto( Face, {
   initialize: Face.prototype.initialize
 } );
 
-export default kite.Face;
+export default Face;

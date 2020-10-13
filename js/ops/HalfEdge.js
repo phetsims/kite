@@ -8,28 +8,24 @@
  */
 
 import Vector2 from '../../../dot/js/Vector2.js';
-import inherit from '../../../phet-core/js/inherit.js';
 import Poolable from '../../../phet-core/js/Poolable.js';
 import kite from '../kite.js';
 
-/**
- * @public (kite-internal)
- * @constructor
- *
- * NOTE: Use HalfEdge.createFromPool for most usage instead of using the constructor directly.
- *
- * @param {Edge} edge
- * @param {boolean} isReversed
- */
-function HalfEdge( edge, isReversed ) {
-  // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
-  // definitions.
-  this.initialize( edge, isReversed );
-}
+class HalfEdge {
+  /**
+   * @public (kite-internal)
+   *
+   * NOTE: Use HalfEdge.createFromPool for most usage instead of using the constructor directly.
+   *
+   * @param {Edge} edge
+   * @param {boolean} isReversed
+   */
+  constructor( edge, isReversed ) {
+    // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
+    // definitions.
+    this.initialize( edge, isReversed );
+  }
 
-kite.register( 'HalfEdge', HalfEdge );
-
-inherit( Object, HalfEdge, {
   /**
    * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
    * support pooling.
@@ -39,7 +35,7 @@ inherit( Object, HalfEdge, {
    * @param {boolean} isReversed
    * @returns {HalfEdge} - This reference for chaining
    */
-  initialize: function( edge, isReversed ) {
+  initialize( edge, isReversed ) {
     assert && assert( edge instanceof kite.Edge );
     assert && assert( typeof isReversed === 'boolean' );
 
@@ -69,21 +65,21 @@ inherit( Object, HalfEdge, {
     this.updateReferences(); // Initializes vertex references
 
     return this;
-  },
+  }
 
   /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
    * @public
    */
-  dispose: function() {
+  dispose() {
     this.edge = null;
     this.face = null;
     this.startVertex = null;
     this.endVertex = null;
     this.data = null;
     this.freeToPool();
-  },
+  }
 
   /**
    * Returns the next half-edge, walking around counter-clockwise as possible. Assumes edges have been sorted.
@@ -92,7 +88,7 @@ inherit( Object, HalfEdge, {
    * @param {function} [filter] - function( {Edge} ) => {boolean}. If it returns false, the edge will be skipped, and
    *                              not returned by getNext
    */
-  getNext: function( filter ) {
+  getNext( filter ) {
     // Starting at 1, forever incrementing (we will bail out with normal conditions)
     for ( let i = 1; ; i++ ) {
       let index = this.endVertex.incidentHalfEdges.indexOf( this ) - i;
@@ -106,18 +102,18 @@ inherit( Object, HalfEdge, {
       assert && assert( this.endVertex === halfEdge.startVertex );
       return halfEdge;
     }
-  },
+  }
 
   /**
    * Update possibly reversed vertex references.
    * @private
    */
-  updateReferences: function() {
+  updateReferences() {
     this.startVertex = this.isReversed ? this.edge.endVertex : this.edge.startVertex;
     this.endVertex = this.isReversed ? this.edge.startVertex : this.edge.endVertex;
     assert && assert( this.startVertex );
     assert && assert( this.endVertex );
-  },
+  }
 
   /**
    * Returns the tangent of the edge at the end vertex (in the direction away from the vertex).
@@ -125,14 +121,14 @@ inherit( Object, HalfEdge, {
    *
    * @returns {Vector2}
    */
-  getEndTangent: function() {
+  getEndTangent() {
     if ( this.isReversed ) {
       return this.edge.segment.startTangent;
     }
     else {
       return this.edge.segment.endTangent.negated();
     }
-  },
+  }
 
   /**
    * Returns the curvature of the edge at the end vertex.
@@ -140,14 +136,14 @@ inherit( Object, HalfEdge, {
    *
    * @returns {number}
    */
-  getEndCurvature: function() {
+  getEndCurvature() {
     if ( this.isReversed ) {
       return -this.edge.segment.curvatureAt( 0 );
     }
     else {
       return this.edge.segment.curvatureAt( 1 );
     }
-  },
+  }
 
   /**
    * Returns the opposite half-edge for the same edge.
@@ -155,9 +151,9 @@ inherit( Object, HalfEdge, {
    *
    * @returns {HalfEdge}
    */
-  getReversed: function() {
+  getReversed() {
     return this.isReversed ? this.edge.forwardHalf : this.edge.reversedHalf;
-  },
+  }
 
   /**
    * Returns a segment that starts at our startVertex and ends at our endVertex (may be reversed to accomplish that).
@@ -165,7 +161,7 @@ inherit( Object, HalfEdge, {
    *
    * @returns {Segment}
    */
-  getDirectionalSegment: function() {
+  getDirectionalSegment() {
     if ( this.isReversed ) {
       return this.edge.segment.reversed();
     }
@@ -173,10 +169,12 @@ inherit( Object, HalfEdge, {
       return this.edge.segment;
     }
   }
-} );
+}
+
+kite.register( 'HalfEdge', HalfEdge );
 
 Poolable.mixInto( HalfEdge, {
   initialize: HalfEdge.prototype.initialize
 } );
 
-export default kite.HalfEdge;
+export default HalfEdge;

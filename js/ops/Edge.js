@@ -6,7 +6,6 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import inherit from '../../../phet-core/js/inherit.js';
 import Poolable from '../../../phet-core/js/Poolable.js';
 import kite from '../kite.js';
 import Line from '../segments/Line.js';
@@ -16,28 +15,25 @@ import Vertex from './Vertex.js';
 
 let globaId = 0;
 
-/**
- * @public (kite-internal)
- * @constructor
- *
- * NOTE: Use Edge.createFromPool for most usage instead of using the constructor directly.
- *
- * @param {Segment} segment
- * @param {Vertex} startVertex
- * @param {Vertex} endVertex
- */
-function Edge( segment, startVertex, endVertex ) {
-  // @public {number}
-  this.id = ++globaId;
+class Edge {
+  /**
+   * @public (kite-internal)
+   *
+   * NOTE: Use Edge.createFromPool for most usage instead of using the constructor directly.
+   *
+   * @param {Segment} segment
+   * @param {Vertex} startVertex
+   * @param {Vertex} endVertex
+   */
+  constructor( segment, startVertex, endVertex ) {
+    // @public {number}
+    this.id = ++globaId;
 
-  // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
-  // definitions.
-  this.initialize( segment, startVertex, endVertex );
-}
+    // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
+    // definitions.
+    this.initialize( segment, startVertex, endVertex );
+  }
 
-kite.register( 'Edge', Edge );
-
-inherit( Object, Edge, {
   /**
    * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
    * support pooling.
@@ -48,7 +44,7 @@ inherit( Object, Edge, {
    * @param {Vertex} endVertex
    * @returns {Edge} - This reference for chaining
    */
-  initialize: function( segment, startVertex, endVertex ) {
+  initialize( segment, startVertex, endVertex ) {
     assert && assert( segment instanceof Segment );
     assert && assert( startVertex instanceof Vertex );
     assert && assert( endVertex instanceof Vertex );
@@ -76,14 +72,14 @@ inherit( Object, Edge, {
     this.data = null;
 
     return this;
-  },
+  }
 
   /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
    * @public
    */
-  dispose: function() {
+  dispose() {
     this.segment = null;
     this.startVertex = null;
     this.endVertex = null;
@@ -97,7 +93,7 @@ inherit( Object, Edge, {
     this.data = null;
 
     this.freeToPool();
-  },
+  }
 
   /**
    * Returns the other vertex associated with an edge.
@@ -106,27 +102,29 @@ inherit( Object, Edge, {
    * @param {Vertex} vertex
    * @returns {Vertex}
    */
-  getOtherVertex: function( vertex ) {
+  getOtherVertex( vertex ) {
     assert && assert( vertex === this.startVertex || vertex === this.endVertex );
 
     return this.startVertex === vertex ? this.endVertex : this.startVertex;
-  },
+  }
 
   /**
    * Update possibly reversed vertex references (since they may be updated)
    * @public
    */
-  updateReferences: function() {
+  updateReferences() {
     this.forwardHalf.updateReferences();
     this.reversedHalf.updateReferences();
 
     assert && assert( !( this.segment instanceof Line ) || this.startVertex !== this.endVertex,
       'No line segments for same vertices' );
   }
-} );
+}
+
+kite.register( 'Edge', Edge );
 
 Poolable.mixInto( Edge, {
   initialize: Edge.prototype.initialize
 } );
 
-export default kite.Edge;
+export default Edge;
