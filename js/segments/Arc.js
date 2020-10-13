@@ -9,7 +9,6 @@
 import Bounds2 from '../../../dot/js/Bounds2.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import inherit from '../../../phet-core/js/inherit.js';
 import kite from '../kite.js';
 import Overlap from '../util/Overlap.js';
 import RayIntersection from '../util/RayIntersection.js';
@@ -20,39 +19,35 @@ import Segment from './Segment.js';
 // TODO: See if we should use this more
 const TWO_PI = Math.PI * 2;
 
-/**
- * @constructor
- *
- * If the startAngle/endAngle difference is ~2pi, this will be a full circle
- *
- * See http://www.w3.org/TR/2dcontext/#dom-context-2d-arc for detailed information on the parameters.
- *
- * @param {Vector2} center - Center of the arc (every point on the arc is equally far from the center)
- * @param {number} radius - How far from the center the arc will be
- * @param {number} startAngle - Angle (radians) of the start of the arc
- * @param {number} endAngle - Angle (radians) of the end of the arc
- * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
- */
-function Arc( center, radius, startAngle, endAngle, anticlockwise ) {
-  Segment.call( this );
+class Arc extends Segment {
+  /**
+   * If the startAngle/endAngle difference is ~2pi, this will be a full circle
+   *
+   * See http://www.w3.org/TR/2dcontext/#dom-context-2d-arc for detailed information on the parameters.
+   *
+   * @param {Vector2} center - Center of the arc (every point on the arc is equally far from the center)
+   * @param {number} radius - How far from the center the arc will be
+   * @param {number} startAngle - Angle (radians) of the start of the arc
+   * @param {number} endAngle - Angle (radians) of the end of the arc
+   * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
+   */
+  constructor( center, radius, startAngle, endAngle, anticlockwise ) {
+    super();
 
-  // @private {Vector2}
-  this._center = center;
+    // @private {Vector2}
+    this._center = center;
 
-  // @private {number}
-  this._radius = radius;
-  this._startAngle = startAngle;
-  this._endAngle = endAngle;
+    // @private {number}
+    this._radius = radius;
+    this._startAngle = startAngle;
+    this._endAngle = endAngle;
 
-  // @private {boolean}
-  this._anticlockwise = anticlockwise;
+    // @private {boolean}
+    this._anticlockwise = anticlockwise;
 
-  this.invalidate();
-}
+    this.invalidate();
+  }
 
-kite.register( 'Arc', Arc );
-
-inherit( Segment, Arc, {
   /**
    * Sets the center of the Arc.
    * @public
@@ -60,7 +55,7 @@ inherit( Segment, Arc, {
    * @param {Vector2} center
    * @returns {Arc}
    */
-  setCenter: function( center ) {
+  setCenter( center ) {
     assert && assert( center instanceof Vector2, 'Arc center should be a Vector2: ' + center );
     assert && assert( center.isFinite(), 'Arc center should be finite: ' + center.toString() );
 
@@ -69,8 +64,8 @@ inherit( Segment, Arc, {
       this.invalidate();
     }
     return this; // allow chaining
-  },
-  set center( value ) { this.setCenter( value ); },
+  }
+  set center( value ) { this.setCenter( value ); }
 
   /**
    * Returns the center of this Arc.
@@ -78,10 +73,10 @@ inherit( Segment, Arc, {
    *
    * @returns {Vector2}
    */
-  getCenter: function() {
+  getCenter() {
     return this._center;
-  },
-  get center() { return this.getCenter(); },
+  }
+  get center() { return this.getCenter(); }
 
   /**
    * Sets the radius of the Arc.
@@ -90,7 +85,7 @@ inherit( Segment, Arc, {
    * @param {number} radius
    * @returns {Arc}
    */
-  setRadius: function( radius ) {
+  setRadius( radius ) {
     assert && assert( typeof radius === 'number', 'Arc radius should be a number: ' + radius );
     assert && assert( isFinite( radius ), 'Arc radius should be a finite number: ' + radius );
 
@@ -99,8 +94,8 @@ inherit( Segment, Arc, {
       this.invalidate();
     }
     return this; // allow chaining
-  },
-  set radius( value ) { this.setRadius( value ); },
+  }
+  set radius( value ) { this.setRadius( value ); }
 
   /**
    * Returns the radius of this Arc.
@@ -108,10 +103,10 @@ inherit( Segment, Arc, {
    *
    * @returns {number}
    */
-  getRadius: function() {
+  getRadius() {
     return this._radius;
-  },
-  get radius() { return this.getRadius(); },
+  }
+  get radius() { return this.getRadius(); }
 
   /**
    * Sets the startAngle of the Arc.
@@ -120,7 +115,7 @@ inherit( Segment, Arc, {
    * @param {number} startAngle
    * @returns {Arc}
    */
-  setStartAngle: function( startAngle ) {
+  setStartAngle( startAngle ) {
     assert && assert( typeof startAngle === 'number', 'Arc startAngle should be a number: ' + startAngle );
     assert && assert( isFinite( startAngle ), 'Arc startAngle should be a finite number: ' + startAngle );
 
@@ -129,8 +124,8 @@ inherit( Segment, Arc, {
       this.invalidate();
     }
     return this; // allow chaining
-  },
-  set startAngle( value ) { this.setStartAngle( value ); },
+  }
+  set startAngle( value ) { this.setStartAngle( value ); }
 
   /**
    * Returns the startAngle of this Arc.
@@ -138,10 +133,10 @@ inherit( Segment, Arc, {
    *
    * @returns {number}
    */
-  getStartAngle: function() {
+  getStartAngle() {
     return this._startAngle;
-  },
-  get startAngle() { return this.getStartAngle(); },
+  }
+  get startAngle() { return this.getStartAngle(); }
 
   /**
    * Sets the endAngle of the Arc.
@@ -150,7 +145,7 @@ inherit( Segment, Arc, {
    * @param {number} endAngle
    * @returns {Arc}
    */
-  setEndAngle: function( endAngle ) {
+  setEndAngle( endAngle ) {
     assert && assert( typeof endAngle === 'number', 'Arc endAngle should be a number: ' + endAngle );
     assert && assert( isFinite( endAngle ), 'Arc endAngle should be a finite number: ' + endAngle );
 
@@ -159,8 +154,8 @@ inherit( Segment, Arc, {
       this.invalidate();
     }
     return this; // allow chaining
-  },
-  set endAngle( value ) { this.setEndAngle( value ); },
+  }
+  set endAngle( value ) { this.setEndAngle( value ); }
 
   /**
    * Returns the endAngle of this Arc.
@@ -168,10 +163,10 @@ inherit( Segment, Arc, {
    *
    * @returns {number}
    */
-  getEndAngle: function() {
+  getEndAngle() {
     return this._endAngle;
-  },
-  get endAngle() { return this.getEndAngle(); },
+  }
+  get endAngle() { return this.getEndAngle(); }
 
   /**
    * Sets the anticlockwise of the Arc.
@@ -180,7 +175,7 @@ inherit( Segment, Arc, {
    * @param {boolean} anticlockwise
    * @returns {Arc}
    */
-  setAnticlockwise: function( anticlockwise ) {
+  setAnticlockwise( anticlockwise ) {
     assert && assert( typeof anticlockwise === 'boolean', 'Arc anticlockwise should be a boolean: ' + anticlockwise );
 
     if ( this._anticlockwise !== anticlockwise ) {
@@ -188,8 +183,8 @@ inherit( Segment, Arc, {
       this.invalidate();
     }
     return this; // allow chaining
-  },
-  set anticlockwise( value ) { this.setAnticlockwise( value ); },
+  }
+  set anticlockwise( value ) { this.setAnticlockwise( value ); }
 
   /**
    * Returns the anticlockwise of this Arc.
@@ -197,10 +192,10 @@ inherit( Segment, Arc, {
    *
    * @returns {boolean}
    */
-  getAnticlockwise: function() {
+  getAnticlockwise() {
     return this._anticlockwise;
-  },
-  get anticlockwise() { return this.getAnticlockwise(); },
+  }
+  get anticlockwise() { return this.getAnticlockwise(); }
 
   /**
    * Returns the position parametrically, with 0 <= t <= 1.
@@ -214,12 +209,12 @@ inherit( Segment, Arc, {
    * @param {number} t
    * @returns {Vector2}
    */
-  positionAt: function( t ) {
+  positionAt( t ) {
     assert && assert( t >= 0, 'positionAt t should be non-negative' );
     assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
 
     return this.positionAtAngle( this.angleAt( t ) );
-  },
+  }
 
   /**
    * Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with 0 <= t <= 1.
@@ -233,12 +228,12 @@ inherit( Segment, Arc, {
    * @param {number} t
    * @returns {Vector2}
    */
-  tangentAt: function( t ) {
+  tangentAt( t ) {
     assert && assert( t >= 0, 'tangentAt t should be non-negative' );
     assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
     return this.tangentAtAngle( this.angleAt( t ) );
-  },
+  }
 
   /**
    * Returns the signed curvature of the segment at the parametric value t, where 0 <= t <= 1.
@@ -255,13 +250,13 @@ inherit( Segment, Arc, {
    * @param {number} t
    * @returns {number}
    */
-  curvatureAt: function( t ) {
+  curvatureAt( t ) {
     assert && assert( t >= 0, 'curvatureAt t should be non-negative' );
     assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
 
     // Since it is an arc of as circle, the curvature is independent of t
     return ( this._anticlockwise ? -1 : 1 ) / this._radius;
-  },
+  }
 
   /**
    * Returns an array with up to 2 sub-segments, split at the parametric t value. Together (in order) they should make
@@ -273,7 +268,7 @@ inherit( Segment, Arc, {
    * @param {number} t
    * @returns {Array.<Segment>}
    */
-  subdivided: function( t ) {
+  subdivided( t ) {
     assert && assert( t >= 0, 'subdivided t should be non-negative' );
     assert && assert( t <= 1, 'subdivided t should be no greater than 1' );
 
@@ -290,13 +285,13 @@ inherit( Segment, Arc, {
       new kite.Arc( this._center, this._radius, angle0, angleT, this._anticlockwise ),
       new kite.Arc( this._center, this._radius, angleT, angle1, this._anticlockwise )
     ];
-  },
+  }
 
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    * @public
    */
-  invalidate: function() {
+  invalidate() {
     // Lazily-computed derived information
     this._start = null; // {Vector2|null}
     this._end = null; // {Vector2|null}
@@ -335,7 +330,7 @@ inherit( Segment, Arc, {
       'Not handling arcs with start/end angles that show differences in-between browser handling' );
 
     this.invalidationEmitter.emit();
-  },
+  }
 
   /**
    * Gets the start position of this arc.
@@ -343,13 +338,13 @@ inherit( Segment, Arc, {
    *
    * @returns {Vector2}
    */
-  getStart: function() {
+  getStart() {
     if ( this._start === null ) {
       this._start = this.positionAtAngle( this._startAngle );
     }
     return this._start;
-  },
-  get start() { return this.getStart(); },
+  }
+  get start() { return this.getStart(); }
 
   /**
    * Gets the end position of this arc.
@@ -357,13 +352,13 @@ inherit( Segment, Arc, {
    *
    * @returns {Vector2}
    */
-  getEnd: function() {
+  getEnd() {
     if ( this._end === null ) {
       this._end = this.positionAtAngle( this._endAngle );
     }
     return this._end;
-  },
-  get end() { return this.getEnd(); },
+  }
+  get end() { return this.getEnd(); }
 
   /**
    * Gets the unit vector tangent to this arc at the start point.
@@ -371,13 +366,13 @@ inherit( Segment, Arc, {
    *
    * @returns {Vector2}
    */
-  getStartTangent: function() {
+  getStartTangent() {
     if ( this._startTangent === null ) {
       this._startTangent = this.tangentAtAngle( this._startAngle );
     }
     return this._startTangent;
-  },
-  get startTangent() { return this.getStartTangent(); },
+  }
+  get startTangent() { return this.getStartTangent(); }
 
   /**
    * Gets the unit vector tangent to the arc at the end point.
@@ -385,13 +380,13 @@ inherit( Segment, Arc, {
    *
    * @returns {Vector2}
    */
-  getEndTangent: function() {
+  getEndTangent() {
     if ( this._endTangent === null ) {
       this._endTangent = this.tangentAtAngle( this._endAngle );
     }
     return this._endTangent;
-  },
-  get endTangent() { return this.getEndTangent(); },
+  }
+  get endTangent() { return this.getEndTangent(); }
 
   /**
    * Gets the end angle in radians.
@@ -399,13 +394,13 @@ inherit( Segment, Arc, {
    *
    * @returns {number}
    */
-  getActualEndAngle: function() {
+  getActualEndAngle() {
     if ( this._actualEndAngle === null ) {
       this._actualEndAngle = Arc.computeActualEndAngle( this._startAngle, this._endAngle, this._anticlockwise );
     }
     return this._actualEndAngle;
-  },
-  get actualEndAngle() { return this.getActualEndAngle(); },
+  }
+  get actualEndAngle() { return this.getActualEndAngle(); }
 
   /**
    * Returns a boolean value that indicates if the arc wraps up by more than two Pi.
@@ -413,13 +408,13 @@ inherit( Segment, Arc, {
    *
    * @returns {boolean}
    */
-  getIsFullPerimeter: function() {
+  getIsFullPerimeter() {
     if ( this._isFullPerimeter === null ) {
       this._isFullPerimeter = ( !this._anticlockwise && this._endAngle - this._startAngle >= Math.PI * 2 ) || ( this._anticlockwise && this._startAngle - this._endAngle >= Math.PI * 2 );
     }
     return this._isFullPerimeter;
-  },
-  get isFullPerimeter() { return this.getIsFullPerimeter(); },
+  }
+  get isFullPerimeter() { return this.getIsFullPerimeter(); }
 
   /**
    * Returns an angle difference that represents how "much" of the circle our arc covers.
@@ -430,7 +425,7 @@ inherit( Segment, Arc, {
    *
    * @returns {number}
    */
-  getAngleDifference: function() {
+  getAngleDifference() {
     if ( this._angleDifference === null ) {
       // compute an angle difference that represents how "much" of the circle our arc covers
       this._angleDifference = this._anticlockwise ? this._startAngle - this._endAngle : this._endAngle - this._startAngle;
@@ -440,8 +435,8 @@ inherit( Segment, Arc, {
       assert && assert( this._angleDifference >= 0 ); // now it should always be zero or positive
     }
     return this._angleDifference;
-  },
-  get angleDifference() { return this.getAngleDifference(); },
+  }
+  get angleDifference() { return this.getAngleDifference(); }
 
   /**
    * Returns the bounds of this segment.
@@ -449,7 +444,7 @@ inherit( Segment, Arc, {
    *
    * @returns {Bounds2}
    */
-  getBounds: function() {
+  getBounds() {
     if ( this._bounds === null ) {
       // acceleration for intersection
       this._bounds = Bounds2.NOTHING.copy().withPoint( this.getStart() )
@@ -465,8 +460,8 @@ inherit( Segment, Arc, {
       }
     }
     return this._bounds;
-  },
-  get bounds() { return this.getBounds(); },
+  }
+  get bounds() { return this.getBounds(); }
 
   /**
    * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
@@ -475,14 +470,14 @@ inherit( Segment, Arc, {
    *
    * @returns {Array.<Segment>}
    */
-  getNondegenerateSegments: function() {
+  getNondegenerateSegments() {
     if ( this._radius <= 0 || this._startAngle === this._endAngle ) {
       return [];
     }
     else {
       return [ this ]; // basically, Arcs aren't really degenerate that easily
     }
-  },
+  }
 
   /**
    * Attempts to expand the private _bounds bounding box to include a point at a specific angle, making sure that
@@ -492,12 +487,12 @@ inherit( Segment, Arc, {
    *
    * @param {number} angle
    */
-  includeBoundsAtAngle: function( angle ) {
+  includeBoundsAtAngle( angle ) {
     if ( this.containsAngle( angle ) ) {
       // the boundary point is in the arc
       this._bounds = this._bounds.withPoint( this._center.plus( Vector2.createPolar( this._radius, angle ) ) );
     }
-  },
+  }
 
   /**
    * Maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
@@ -506,7 +501,7 @@ inherit( Segment, Arc, {
    * @param {number} angle
    * @returns {number}
    */
-  mapAngle: function( angle ) {
+  mapAngle( angle ) {
     if ( Math.abs( Utils.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
       return this._startAngle;
     }
@@ -517,7 +512,7 @@ inherit( Segment, Arc, {
     return ( this._startAngle > this.getActualEndAngle() ) ?
            Utils.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
            Utils.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
-  },
+  }
 
   /**
    * Returns the parametrized value t for a given angle. The value t should range from 0 to 1 (inclusive).
@@ -526,13 +521,13 @@ inherit( Segment, Arc, {
    * @param {number} angle
    * @returns {number}
    */
-  tAtAngle: function( angle ) {
+  tAtAngle( angle ) {
     const t = ( this.mapAngle( angle ) - this._startAngle ) / ( this.getActualEndAngle() - this._startAngle );
 
     assert && assert( t >= 0 && t <= 1, 'tAtAngle out of range: ' + t );
 
     return t;
-  },
+  }
 
   /**
    * Returns the angle for the parametrized t value. The t value should range from 0 to 1 (inclusive).
@@ -541,10 +536,10 @@ inherit( Segment, Arc, {
    * @param {number} t
    * @returns {number}
    */
-  angleAt: function( t ) {
+  angleAt( t ) {
     //TODO: add asserts
     return this._startAngle + ( this.getActualEndAngle() - this._startAngle ) * t;
-  },
+  }
 
   /**
    * Returns the position of this arc at angle.
@@ -553,9 +548,9 @@ inherit( Segment, Arc, {
    * @param {number} angle
    * @returns {Vector2}
    */
-  positionAtAngle: function( angle ) {
+  positionAtAngle( angle ) {
     return this._center.plus( Vector2.createPolar( this._radius, angle ) );
-  },
+  }
 
   /**
    * Returns the normalized tangent of this arc.
@@ -565,11 +560,11 @@ inherit( Segment, Arc, {
    * @param {number} angle
    * @returns {Vector2}
    */
-  tangentAtAngle: function( angle ) {
+  tangentAtAngle( angle ) {
     const normal = Vector2.createPolar( 1, angle );
 
     return this._anticlockwise ? normal.perpendicular : normal.perpendicular.negated();
-  },
+  }
 
   /**
    * Returns whether the given angle is contained by the arc (whether a ray from the arc's origin going in that angle
@@ -579,7 +574,7 @@ inherit( Segment, Arc, {
    * @param {number} angle
    * @returns {boolean}
    */
-  containsAngle: function( angle ) {
+  containsAngle( angle ) {
     // transform the angle into the appropriate coordinate form
     // TODO: check anticlockwise version!
     const normalizedAngle = this._anticlockwise ? angle - this._endAngle : angle - this._startAngle;
@@ -588,7 +583,7 @@ inherit( Segment, Arc, {
     const positiveMinAngle = Utils.moduloBetweenDown( normalizedAngle, 0, Math.PI * 2 );
 
     return positiveMinAngle <= this.angleDifference;
-  },
+  }
 
   /**
    * Returns a string containing the SVG path. assumes that the start point is already provided,
@@ -597,7 +592,7 @@ inherit( Segment, Arc, {
    *
    * @returns {string}
    */
-  getSVGPathFragment: function() {
+  getSVGPathFragment() {
     if ( assert ) {
       var oldPathFragment = this._svgPathFragment;
       this._svgPathFragment = null;
@@ -638,7 +633,7 @@ inherit( Segment, Arc, {
       }
     }
     return this._svgPathFragment;
-  },
+  }
 
   /**
    * Returns an array of arcs that will draw an offset on the logical left side
@@ -647,9 +642,9 @@ inherit( Segment, Arc, {
    * @param {number} lineWidth
    * @returns {Array.<Arc>}
    */
-  strokeLeft: function( lineWidth ) {
+  strokeLeft( lineWidth ) {
     return [ new kite.Arc( this._center, this._radius + ( this._anticlockwise ? 1 : -1 ) * lineWidth / 2, this._startAngle, this._endAngle, this._anticlockwise ) ];
-  },
+  }
 
   /**
    * Returns an array of arcs that will draw an offset curve on the logical right side
@@ -658,9 +653,9 @@ inherit( Segment, Arc, {
    * @param {number} lineWidth
    * @returns {Array.<Arc>}
    */
-  strokeRight: function( lineWidth ) {
+  strokeRight( lineWidth ) {
     return [ new kite.Arc( this._center, this._radius + ( this._anticlockwise ? -1 : 1 ) * lineWidth / 2, this._endAngle, this._startAngle, !this._anticlockwise ) ];
-  },
+  }
 
   /**
    * Returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
@@ -669,12 +664,11 @@ inherit( Segment, Arc, {
    *
    * @returns {Array.<number>}
    */
-  getInteriorExtremaTs: function() {
-    const self = this;
+  getInteriorExtremaTs() {
     const result = [];
-    _.each( [ 0, Math.PI / 2, Math.PI, 3 * Math.PI / 2 ], function( angle ) {
-      if ( self.containsAngle( angle ) ) {
-        const t = self.tAtAngle( angle );
+    _.each( [ 0, Math.PI / 2, Math.PI, 3 * Math.PI / 2 ], angle => {
+      if ( this.containsAngle( angle ) ) {
+        const t = this.tAtAngle( angle );
         const epsilon = 0.0000000001; // TODO: general kite epsilon?, also do 1e-Number format
         if ( t > epsilon && t < 1 - epsilon ) {
           result.push( t );
@@ -682,7 +676,7 @@ inherit( Segment, Arc, {
       }
     } );
     return result.sort(); // modifies original, which is OK
-  },
+  }
 
   /**
    * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
@@ -692,7 +686,7 @@ inherit( Segment, Arc, {
    * @param {Ray2} ray
    * @returns {Array.<RayIntersection>} - See Segment.js for details
    */
-  intersection: function( ray ) {
+  intersection( ray ) {
     const result = []; // hits in order
 
     // left here, if in the future we want to better-handle boundary points
@@ -746,7 +740,7 @@ inherit( Segment, Arc, {
     }
 
     return result;
-  },
+  }
 
   /**
    * Returns the resultant winding number of this ray intersecting this arc.
@@ -755,14 +749,14 @@ inherit( Segment, Arc, {
    * @param {Ray2} ray
    * @returns {number}
    */
-  windingIntersection: function( ray ) {
+  windingIntersection( ray ) {
     let wind = 0;
     const hits = this.intersection( ray );
-    _.each( hits, function( hit ) {
+    _.each( hits, hit => {
       wind += hit.wind;
     } );
     return wind;
-  },
+  }
 
   /**
    * Draws this arc to the 2D Canvas context, assuming the context's current location is already at the start point
@@ -770,9 +764,9 @@ inherit( Segment, Arc, {
    *
    * @param {CanvasRenderingContext2D} context
    */
-  writeToContext: function( context ) {
+  writeToContext( context ) {
     context.arc( this._center.x, this._center.y, this._radius, this._startAngle, this._endAngle, this._anticlockwise );
-  },
+  }
 
   /**
    * Returns a new copy of this arc, transformed by the given matrix.
@@ -783,7 +777,7 @@ inherit( Segment, Arc, {
    * @param {Matrix3} matrix
    * @returns {Arc|EllipticalArc}
    */
-  transformed: function( matrix ) {
+  transformed( matrix ) {
     // so we can handle reflections in the transform, we do the general case handling for start/end angles
     const startAngle = matrix.timesVector2( Vector2.createPolar( 1, this._startAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle;
     let endAngle = matrix.timesVector2( Vector2.createPolar( 1, this._endAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle;
@@ -805,7 +799,7 @@ inherit( Segment, Arc, {
       const radius = scaleVector.x * this._radius;
       return new kite.Arc( matrix.timesVector2( this._center ), radius, startAngle, endAngle, anticlockwise );
     }
-  },
+  }
 
   /**
    * Returns the contribution to the signed area computed using Green's Theorem, with P=-y/2 and Q=x/2.
@@ -815,7 +809,7 @@ inherit( Segment, Arc, {
    *
    * @returns {number}
    */
-  getSignedAreaFragment: function() {
+  getSignedAreaFragment() {
     const t0 = this._startAngle;
     const t1 = this.getActualEndAngle();
 
@@ -823,7 +817,7 @@ inherit( Segment, Arc, {
     return 0.5 * this._radius * ( this._radius * ( t1 - t0 ) +
                                   this._center.x * ( Math.sin( t1 ) - Math.sin( t0 ) ) -
                                   this._center.y * ( Math.cos( t1 ) - Math.cos( t0 ) ) );
-  },
+  }
 
   /**
    * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
@@ -831,9 +825,9 @@ inherit( Segment, Arc, {
    *
    * @returns {Arc}
    */
-  reversed: function() {
+  reversed() {
     return new kite.Arc( this._center, this._radius, this._endAngle, this._startAngle, !this._anticlockwise );
-  },
+  }
 
   /**
    * Returns the arc length of the segment.
@@ -842,19 +836,20 @@ inherit( Segment, Arc, {
    *
    * @returns {number}
    */
-  getArcLength: function() {
+  getArcLength() {
     return this.getAngleDifference() * this._radius;
-  },
+  }
 
   /**
    * We can handle this simply by returning ourselves.
+   * @public
    * @override
    *
    * @returns {Array.<Segment>}
    */
-  toPiecewiseLinearOrArcSegments: function() {
+  toPiecewiseLinearOrArcSegments() {
     return [ this ];
-  },
+  }
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
@@ -862,7 +857,7 @@ inherit( Segment, Arc, {
    *
    * @returns {Object}
    */
-  serialize: function() {
+  serialize() {
     return {
       type: 'Arc',
       centerX: this._center.x,
@@ -873,280 +868,283 @@ inherit( Segment, Arc, {
       anticlockwise: this._anticlockwise
     };
   }
-} );
 
-/**
- * Returns an Arc from the serialized representation.
- * @public
- *
- * @param {Object} obj
- * @returns {Arc}
- */
-Arc.deserialize = function( obj ) {
-  assert && assert( obj.type === 'Arc' );
+  /**
+   * Returns an Arc from the serialized representation.
+   * @public
+   *
+   * @param {Object} obj
+   * @returns {Arc}
+   */
+  static deserialize( obj ) {
+    assert && assert( obj.type === 'Arc' );
 
-  return new Arc( new Vector2( obj.centerX, obj.centerY ), obj.radius, obj.startAngle, obj.endAngle, obj.anticlockwise );
-};
-
-/**
- * Determines the actual end angle (compared to the start angle).
- * @public
- *
- * Normalizes the sign of the angles, so that the sign of ( endAngle - startAngle ) matches whether it is
- * anticlockwise.
- *
- * @param {number} startAngle
- * @param {number} endAngle
- * @param {boolean} anticlockwise
- * @returns {number}
- */
-Arc.computeActualEndAngle = function( startAngle, endAngle, anticlockwise ) {
-  if ( anticlockwise ) {
-    // angle is 'decreasing'
-    // -2pi <= end - start < 2pi
-    if ( startAngle > endAngle ) {
-      return endAngle;
-    }
-    else if ( startAngle < endAngle ) {
-      return endAngle - 2 * Math.PI;
-    }
-    else {
-      // equal
-      return startAngle;
-    }
+    return new Arc( new Vector2( obj.centerX, obj.centerY ), obj.radius, obj.startAngle, obj.endAngle, obj.anticlockwise );
   }
-  else {
-    // angle is 'increasing'
-    // -2pi < end - start <= 2pi
-    if ( startAngle < endAngle ) {
-      return endAngle;
-    }
-    else if ( startAngle > endAngle ) {
-      return endAngle + Math.PI * 2;
+
+  /**
+   * Determines the actual end angle (compared to the start angle).
+   * @public
+   *
+   * Normalizes the sign of the angles, so that the sign of ( endAngle - startAngle ) matches whether it is
+   * anticlockwise.
+   *
+   * @param {number} startAngle
+   * @param {number} endAngle
+   * @param {boolean} anticlockwise
+   * @returns {number}
+   */
+  static computeActualEndAngle( startAngle, endAngle, anticlockwise ) {
+    if ( anticlockwise ) {
+      // angle is 'decreasing'
+      // -2pi <= end - start < 2pi
+      if ( startAngle > endAngle ) {
+        return endAngle;
+      }
+      else if ( startAngle < endAngle ) {
+        return endAngle - 2 * Math.PI;
+      }
+      else {
+        // equal
+        return startAngle;
+      }
     }
     else {
-      // equal
-      return startAngle;
+      // angle is 'increasing'
+      // -2pi < end - start <= 2pi
+      if ( startAngle < endAngle ) {
+        return endAngle;
+      }
+      else if ( startAngle > endAngle ) {
+        return endAngle + Math.PI * 2;
+      }
+      else {
+        // equal
+        return startAngle;
+      }
     }
   }
-};
 
-/**
- * Computes the potential overlap between [0,end1] and [start2,end2] (with t-values [0,1] and [tStart2,tEnd2]).
- * @private
- *
- * @param {number} end1 - Relative end angle of the first segment
- * @param {number} start2 - Relative start angle of the second segment
- * @param {number} end2 - Relative end angle of the second segment
- * @param {number} tStart2 - The parametric value of the second segment's start
- * @param {number} tEnd2 - The parametric value of the second segment's end
- * @returns {Array.<Overlap>}
- */
-Arc.getPartialOverlap = function( end1, start2, end2, tStart2, tEnd2 ) {
-  assert && assert( end1 > 0 && end1 <= TWO_PI + 1e-10 );
-  assert && assert( start2 >= 0 && start2 < TWO_PI + 1e-10 );
-  assert && assert( end2 >= 0 && end2 <= TWO_PI + 1e-10 );
-  assert && assert( tStart2 >= 0 && tStart2 <= 1 );
-  assert && assert( tEnd2 >= 0 && tEnd2 <= 1 );
+  /**
+   * Computes the potential overlap between [0,end1] and [start2,end2] (with t-values [0,1] and [tStart2,tEnd2]).
+   * @private
+   *
+   * @param {number} end1 - Relative end angle of the first segment
+   * @param {number} start2 - Relative start angle of the second segment
+   * @param {number} end2 - Relative end angle of the second segment
+   * @param {number} tStart2 - The parametric value of the second segment's start
+   * @param {number} tEnd2 - The parametric value of the second segment's end
+   * @returns {Array.<Overlap>}
+   */
+  static getPartialOverlap( end1, start2, end2, tStart2, tEnd2 ) {
+    assert && assert( end1 > 0 && end1 <= TWO_PI + 1e-10 );
+    assert && assert( start2 >= 0 && start2 < TWO_PI + 1e-10 );
+    assert && assert( end2 >= 0 && end2 <= TWO_PI + 1e-10 );
+    assert && assert( tStart2 >= 0 && tStart2 <= 1 );
+    assert && assert( tEnd2 >= 0 && tEnd2 <= 1 );
 
-  const reversed2 = end2 < start2;
-  const min2 = reversed2 ? end2 : start2;
-  const max2 = reversed2 ? start2 : end2;
+    const reversed2 = end2 < start2;
+    const min2 = reversed2 ? end2 : start2;
+    const max2 = reversed2 ? start2 : end2;
 
-  const overlapMin = min2;
-  const overlapMax = Math.min( end1, max2 );
+    const overlapMin = min2;
+    const overlapMax = Math.min( end1, max2 );
 
-  // If there's not a small amount of overlap
-  if ( overlapMax < overlapMin + 1e-8 ) {
-    return [];
-  }
-  else {
-    return [ Overlap.createLinear(
-      // minimum
-      Utils.clamp( Utils.linear( 0, end1, 0, 1, overlapMin ), 0, 1 ), // arc1 min
-      Utils.clamp( Utils.linear( start2, end2, tStart2, tEnd2, overlapMin ), 0, 1 ), // arc2 min
-      // maximum
-      Utils.clamp( Utils.linear( 0, end1, 0, 1, overlapMax ), 0, 1 ), // arc1 max
-      Utils.clamp( Utils.linear( start2, end2, tStart2, tEnd2, overlapMax ), 0, 1 ) // arc2 max
-    ) ];
-  }
-};
-
-/**
- * Determine whether two Arcs overlap over continuous sections, and if so finds the a,b pairs such that
- * p( t ) === q( a * t + b ).
- * @public
- *
- * @param {number} startAngle1 - Start angle of arc 1
- * @param {number} endAngle1 - "Actual" end angle of arc 1
- * @param {number} startAngle2 - Start angle of arc 2
- * @param {number} endAngle2 - "Actual" end angle of arc 2
- * @returns {Array.<Overlap>} - Any overlaps (from 0 to 2)
- */
-Arc.getAngularOverlaps = function( startAngle1, endAngle1, startAngle2, endAngle2 ) {
-  assert && assert( typeof startAngle1 === 'number' && isFinite( startAngle1 ) );
-  assert && assert( typeof endAngle1 === 'number' && isFinite( endAngle1 ) );
-  assert && assert( typeof startAngle2 === 'number' && isFinite( startAngle2 ) );
-  assert && assert( typeof endAngle2 === 'number' && isFinite( endAngle2 ) );
-
-  // Remap start of arc 1 to 0, and the end to be positive (sign1 )
-  let end1 = endAngle1 - startAngle1;
-  const sign1 = end1 < 0 ? -1 : 1;
-  end1 *= sign1;
-
-  // Remap arc 2 so the start point maps to the [0,2pi) range (and end-point may lie outside that)
-  const start2 = Utils.moduloBetweenDown( sign1 * ( startAngle2 - startAngle1 ), 0, TWO_PI );
-  const end2 = sign1 * ( endAngle2 - startAngle2 ) + start2;
-
-  let wrapT;
-  if ( end2 < -1e-10 ) {
-    wrapT = -start2 / ( end2 - start2 );
-    return Arc.getPartialOverlap( end1, start2, 0, 0, wrapT ).concat( Arc.getPartialOverlap( end1, TWO_PI, end2 + TWO_PI, wrapT, 1 ) );
-  }
-  else if ( end2 > TWO_PI + 1e-10 ) {
-    wrapT = ( TWO_PI - start2 ) / ( end2 - start2 );
-    return Arc.getPartialOverlap( end1, start2, TWO_PI, 0, wrapT ).concat( Arc.getPartialOverlap( end1, 0, end2 - TWO_PI, wrapT, 1 ) );
-  }
-  else {
-    return Arc.getPartialOverlap( end1, start2, end2, 0, 1 );
-  }
-};
-
-/**
- * Determine whether two Arcs overlap over continuous sections, and if so finds the a,b pairs such that
- * p( t ) === q( a * t + b ).
- * @public
- *
- * @param {Arc} arc1
- * @param {Arc} arc2
- * @returns {Array.<Overlap>} - Any overlaps (from 0 to 2)
- */
-Arc.getOverlaps = function( arc1, arc2 ) {
-  assert && assert( arc1 instanceof Arc );
-  assert && assert( arc2 instanceof Arc );
-
-  if ( arc1._center.distance( arc2._center ) > 1e-8 || Math.abs( arc1._radius - arc2._radius ) > 1e-8 ) {
-    return [];
+    // If there's not a small amount of overlap
+    if ( overlapMax < overlapMin + 1e-8 ) {
+      return [];
+    }
+    else {
+      return [ Overlap.createLinear(
+        // minimum
+        Utils.clamp( Utils.linear( 0, end1, 0, 1, overlapMin ), 0, 1 ), // arc1 min
+        Utils.clamp( Utils.linear( start2, end2, tStart2, tEnd2, overlapMin ), 0, 1 ), // arc2 min
+        // maximum
+        Utils.clamp( Utils.linear( 0, end1, 0, 1, overlapMax ), 0, 1 ), // arc1 max
+        Utils.clamp( Utils.linear( start2, end2, tStart2, tEnd2, overlapMax ), 0, 1 ) // arc2 max
+      ) ];
+    }
   }
 
-  return Arc.getAngularOverlaps( arc1._startAngle, arc1.getActualEndAngle(), arc2._startAngle, arc2.getActualEndAngle() );
-};
+  /**
+   * Determine whether two Arcs overlap over continuous sections, and if so finds the a,b pairs such that
+   * p( t ) === q( a * t + b ).
+   * @public
+   *
+   * @param {number} startAngle1 - Start angle of arc 1
+   * @param {number} endAngle1 - "Actual" end angle of arc 1
+   * @param {number} startAngle2 - Start angle of arc 2
+   * @param {number} endAngle2 - "Actual" end angle of arc 2
+   * @returns {Array.<Overlap>} - Any overlaps (from 0 to 2)
+   */
+  static getAngularOverlaps( startAngle1, endAngle1, startAngle2, endAngle2 ) {
+    assert && assert( typeof startAngle1 === 'number' && isFinite( startAngle1 ) );
+    assert && assert( typeof endAngle1 === 'number' && isFinite( endAngle1 ) );
+    assert && assert( typeof startAngle2 === 'number' && isFinite( startAngle2 ) );
+    assert && assert( typeof endAngle2 === 'number' && isFinite( endAngle2 ) );
 
-/**
- * Returns the points of intersections between two circles.
- * @public
- *
- * @param {Vector2} center1 - Center of the first circle
- * @param {number} radius1 - Radius of the first circle
- * @param {Vector2} center2 - Center of the second circle
- * @param {number} radius2 - Radius of the second circle
- */
-Arc.getCircleIntersectionPoint = function( center1, radius1, center2, radius2 ) {
-  assert && assert( center1 instanceof Vector2 );
-  assert && assert( typeof radius1 === 'number' && isFinite( radius1 ) && radius1 >= 0 );
-  assert && assert( center2 instanceof Vector2 );
-  assert && assert( typeof radius2 === 'number' && isFinite( radius2 ) && radius2 >= 0 );
+    // Remap start of arc 1 to 0, and the end to be positive (sign1 )
+    let end1 = endAngle1 - startAngle1;
+    const sign1 = end1 < 0 ? -1 : 1;
+    end1 *= sign1;
 
-  const delta = center2.minus( center1 );
-  const d = delta.magnitude;
-  let results = [];
-  if ( d < 1e-10 || d > radius1 + radius2 + 1e-10 ) {
-    // No intersections
+    // Remap arc 2 so the start point maps to the [0,2pi) range (and end-point may lie outside that)
+    const start2 = Utils.moduloBetweenDown( sign1 * ( startAngle2 - startAngle1 ), 0, TWO_PI );
+    const end2 = sign1 * ( endAngle2 - startAngle2 ) + start2;
+
+    let wrapT;
+    if ( end2 < -1e-10 ) {
+      wrapT = -start2 / ( end2 - start2 );
+      return Arc.getPartialOverlap( end1, start2, 0, 0, wrapT ).concat( Arc.getPartialOverlap( end1, TWO_PI, end2 + TWO_PI, wrapT, 1 ) );
+    }
+    else if ( end2 > TWO_PI + 1e-10 ) {
+      wrapT = ( TWO_PI - start2 ) / ( end2 - start2 );
+      return Arc.getPartialOverlap( end1, start2, TWO_PI, 0, wrapT ).concat( Arc.getPartialOverlap( end1, 0, end2 - TWO_PI, wrapT, 1 ) );
+    }
+    else {
+      return Arc.getPartialOverlap( end1, start2, end2, 0, 1 );
+    }
   }
-  else if ( d > radius1 + radius2 - 1e-10 ) {
-    results = [
-      center1.blend( center2, radius1 / d )
-    ];
+
+  /**
+   * Determine whether two Arcs overlap over continuous sections, and if so finds the a,b pairs such that
+   * p( t ) === q( a * t + b ).
+   * @public
+   *
+   * @param {Arc} arc1
+   * @param {Arc} arc2
+   * @returns {Array.<Overlap>} - Any overlaps (from 0 to 2)
+   */
+  static getOverlaps( arc1, arc2 ) {
+    assert && assert( arc1 instanceof Arc );
+    assert && assert( arc2 instanceof Arc );
+
+    if ( arc1._center.distance( arc2._center ) > 1e-8 || Math.abs( arc1._radius - arc2._radius ) > 1e-8 ) {
+      return [];
+    }
+
+    return Arc.getAngularOverlaps( arc1._startAngle, arc1.getActualEndAngle(), arc2._startAngle, arc2.getActualEndAngle() );
   }
-  else {
-    const xPrime = 0.5 * ( d * d - radius2 * radius2 + radius1 * radius1 ) / d;
-    const bit = d * d - radius2 * radius2 + radius1 * radius1;
-    const discriminant = 4 * d * d * radius1 * radius1 - bit * bit;
-    const base = center1.blend( center2, xPrime / d );
-    if ( discriminant >= 1e-10 ) {
-      const yPrime = Math.sqrt( discriminant ) / d / 2;
-      const perpendicular = delta.perpendicular.setMagnitude( yPrime );
+
+  /**
+   * Returns the points of intersections between two circles.
+   * @public
+   *
+   * @param {Vector2} center1 - Center of the first circle
+   * @param {number} radius1 - Radius of the first circle
+   * @param {Vector2} center2 - Center of the second circle
+   * @param {number} radius2 - Radius of the second circle
+   */
+  static getCircleIntersectionPoint( center1, radius1, center2, radius2 ) {
+    assert && assert( center1 instanceof Vector2 );
+    assert && assert( typeof radius1 === 'number' && isFinite( radius1 ) && radius1 >= 0 );
+    assert && assert( center2 instanceof Vector2 );
+    assert && assert( typeof radius2 === 'number' && isFinite( radius2 ) && radius2 >= 0 );
+
+    const delta = center2.minus( center1 );
+    const d = delta.magnitude;
+    let results = [];
+    if ( d < 1e-10 || d > radius1 + radius2 + 1e-10 ) {
+      // No intersections
+    }
+    else if ( d > radius1 + radius2 - 1e-10 ) {
       results = [
-        base.plus( perpendicular ),
-        base.minus( perpendicular )
+        center1.blend( center2, radius1 / d )
       ];
     }
-    else if ( discriminant > -1e-10 ) {
-      results = [ base ];
+    else {
+      const xPrime = 0.5 * ( d * d - radius2 * radius2 + radius1 * radius1 ) / d;
+      const bit = d * d - radius2 * radius2 + radius1 * radius1;
+      const discriminant = 4 * d * d * radius1 * radius1 - bit * bit;
+      const base = center1.blend( center2, xPrime / d );
+      if ( discriminant >= 1e-10 ) {
+        const yPrime = Math.sqrt( discriminant ) / d / 2;
+        const perpendicular = delta.perpendicular.setMagnitude( yPrime );
+        results = [
+          base.plus( perpendicular ),
+          base.minus( perpendicular )
+        ];
+      }
+      else if ( discriminant > -1e-10 ) {
+        results = [ base ];
+      }
     }
-  }
-  if ( assert ) {
-    results.forEach( function( result ) {
-      assert( Math.abs( result.distance( center1 ) - radius1 ) < 1e-8 );
-      assert( Math.abs( result.distance( center2 ) - radius2 ) < 1e-8 );
-    } );
-  }
-  return results;
-};
-
-/**
- * Returns any intersection between the two line segments.
- *
- * @param {Arc} a
- * @param {Arc} b
- * @returns {Array.<SegmentIntersection>}
- */
-Arc.intersect = function( a, b ) {
-  assert && assert( a instanceof Arc );
-  assert && assert( b instanceof Arc );
-
-  const points = Arc.getCircleIntersectionPoint( a._center, a._radius, b._center, b._radius );
-  const results = [];
-
-  for ( let i = 0; i < points.length; i++ ) {
-    const point = points[ i ];
-    const angleA = point.minus( a._center ).angle;
-    const angleB = point.minus( b._center ).angle;
-
-    if ( a.containsAngle( angleA ) && b.containsAngle( angleB ) ) {
-      results.push( new SegmentIntersection( point, a.tAtAngle( angleA ), b.tAtAngle( angleB ) ) );
+    if ( assert ) {
+      results.forEach( result => {
+        assert( Math.abs( result.distance( center1 ) - radius1 ) < 1e-8 );
+        assert( Math.abs( result.distance( center2 ) - radius2 ) < 1e-8 );
+      } );
     }
+    return results;
   }
 
-  return results;
-};
+  /**
+   * Returns any intersection between the two line segments.
+   * @public
+   *
+   * @param {Arc} a
+   * @param {Arc} b
+   * @returns {Array.<SegmentIntersection>}
+   */
+  static intersect( a, b ) {
+    assert && assert( a instanceof Arc );
+    assert && assert( b instanceof Arc );
 
-/**
- * Creates an Arc (or if straight enough a Line) segment that goes from the startPoint to the endPoint, touching
- * the middlePoint somewhere between the two.
- * @public
- *
- * @param {Vector2} startPoint
- * @param {Vector2} middlePoint
- * @param {Vector2} endPoint
- * @returns {Segment}
- */
-Arc.createFromPoints = function( startPoint, middlePoint, endPoint ) {
-  const center = Utils.circleCenterFromPoints( startPoint, middlePoint, endPoint );
+    const points = Arc.getCircleIntersectionPoint( a._center, a._radius, b._center, b._radius );
+    const results = [];
 
-  // Close enough
-  if ( center === null ) {
-    return new Line( startPoint, endPoint );
+    for ( let i = 0; i < points.length; i++ ) {
+      const point = points[ i ];
+      const angleA = point.minus( a._center ).angle;
+      const angleB = point.minus( b._center ).angle;
+
+      if ( a.containsAngle( angleA ) && b.containsAngle( angleB ) ) {
+        results.push( new SegmentIntersection( point, a.tAtAngle( angleA ), b.tAtAngle( angleB ) ) );
+      }
+    }
+
+    return results;
   }
-  else {
-    const startDiff = startPoint.minus( center );
-    const middleDiff = middlePoint.minus( center );
-    const endDiff = endPoint.minus( center );
-    const startAngle = startDiff.angle;
-    const middleAngle = middleDiff.angle;
-    const endAngle = endDiff.angle;
 
-    const radius = ( startDiff.magnitude + middleDiff.magnitude + endDiff.magnitude ) / 3;
+  /**
+   * Creates an Arc (or if straight enough a Line) segment that goes from the startPoint to the endPoint, touching
+   * the middlePoint somewhere between the two.
+   * @public
+   *
+   * @param {Vector2} startPoint
+   * @param {Vector2} middlePoint
+   * @param {Vector2} endPoint
+   * @returns {Segment}
+   */
+  static createFromPoints( startPoint, middlePoint, endPoint ) {
+    const center = Utils.circleCenterFromPoints( startPoint, middlePoint, endPoint );
 
-    // Try anticlockwise first. TODO: Don't require creation of extra Arcs
-    const arc = new Arc( center, radius, startAngle, endAngle, false );
-    if ( arc.containsAngle( middleAngle ) ) {
-      return arc;
+    // Close enough
+    if ( center === null ) {
+      return new Line( startPoint, endPoint );
     }
     else {
-      return new Arc( center, radius, startAngle, endAngle, true );
+      const startDiff = startPoint.minus( center );
+      const middleDiff = middlePoint.minus( center );
+      const endDiff = endPoint.minus( center );
+      const startAngle = startDiff.angle;
+      const middleAngle = middleDiff.angle;
+      const endAngle = endDiff.angle;
+
+      const radius = ( startDiff.magnitude + middleDiff.magnitude + endDiff.magnitude ) / 3;
+
+      // Try anticlockwise first. TODO: Don't require creation of extra Arcs
+      const arc = new Arc( center, radius, startAngle, endAngle, false );
+      if ( arc.containsAngle( middleAngle ) ) {
+        return arc;
+      }
+      else {
+        return new Arc( center, radius, startAngle, endAngle, true );
+      }
     }
   }
-};
+}
+
+kite.register( 'Arc', Arc );
 
 export default Arc;

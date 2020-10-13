@@ -16,7 +16,6 @@ import Matrix3 from '../../../dot/js/Matrix3.js';
 import Transform3 from '../../../dot/js/Transform3.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import inherit from '../../../phet-core/js/inherit.js';
 import kite from '../kite.js';
 import RayIntersection from '../util/RayIntersection.js';
 import Arc from './Arc.js';
@@ -25,41 +24,37 @@ import Segment from './Segment.js';
 // constants
 const toDegrees = Utils.toDegrees;
 
-/**
- * @constructor
- *
- * If the startAngle/endAngle difference is ~2pi, this will be a full ellipse
- *
- * @param {Vector2} center - Center of the ellipse
- * @param {number} radiusX - Semi-major radius
- * @param {number} radiusY - Semi-minor radius
- * @param {number} rotation - Rotation of the semi-major axis
- * @param {number} startAngle - Angle (radians) of the start of the arc
- * @param {number} endAngle - Angle (radians) of the end of the arc
- * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
- */
-function EllipticalArc( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
-  Segment.call( this );
+class EllipticalArc extends Segment {
+  /**
+   * If the startAngle/endAngle difference is ~2pi, this will be a full ellipse
+   *
+   * @param {Vector2} center - Center of the ellipse
+   * @param {number} radiusX - Semi-major radius
+   * @param {number} radiusY - Semi-minor radius
+   * @param {number} rotation - Rotation of the semi-major axis
+   * @param {number} startAngle - Angle (radians) of the start of the arc
+   * @param {number} endAngle - Angle (radians) of the end of the arc
+   * @param {boolean} anticlockwise - Decides which direction the arc takes around the center
+   */
+  constructor( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
+    super();
 
-  // @private {Vector2}
-  this._center = center;
+    // @private {Vector2}
+    this._center = center;
 
-  // @private {number}
-  this._radiusX = radiusX;
-  this._radiusY = radiusY;
-  this._rotation = rotation;
-  this._startAngle = startAngle;
-  this._endAngle = endAngle;
+    // @private {number}
+    this._radiusX = radiusX;
+    this._radiusY = radiusY;
+    this._rotation = rotation;
+    this._startAngle = startAngle;
+    this._endAngle = endAngle;
 
-  // @private {boolean}
-  this._anticlockwise = anticlockwise;
+    // @private {boolean}
+    this._anticlockwise = anticlockwise;
 
-  this.invalidate();
-}
+    this.invalidate();
+  }
 
-kite.register( 'EllipticalArc', EllipticalArc );
-
-inherit( Segment, EllipticalArc, {
   /**
    * Sets the center of the EllipticalArc.
    * @public
@@ -67,7 +62,7 @@ inherit( Segment, EllipticalArc, {
    * @param {Vector2} center
    * @returns {EllipticalArc}
    */
-  setCenter: function( center ) {
+  setCenter( center ) {
     assert && assert( center instanceof Vector2, 'EllipticalArc center should be a Vector2: ' + center );
     assert && assert( center.isFinite(), 'EllipticalArc center should be finite: ' + center.toString() );
 
@@ -76,8 +71,8 @@ inherit( Segment, EllipticalArc, {
       this.invalidate();
     }
     return this; // allow chaining
-  },
-  set center( value ) { this.setCenter( value ); },
+  }
+  set center( value ) { this.setCenter( value ); }
 
   /**
    * Returns the center of this EllipticalArc.
@@ -85,10 +80,10 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {Vector2}
    */
-  getCenter: function() {
+  getCenter() {
     return this._center;
-  },
-  get center() { return this.getCenter(); },
+  }
+  get center() { return this.getCenter(); }
 
   /**
    * Sets the semi-major radius of the EllipticalArc.
@@ -97,7 +92,7 @@ inherit( Segment, EllipticalArc, {
    * @param {number} radiusX
    * @returns {EllipticalArc}
    */
-  setRadiusX: function( radiusX ) {
+  setRadiusX( radiusX ) {
     assert && assert( typeof radiusX === 'number', 'EllipticalArc radiusX should be a number: ' + radiusX );
     assert && assert( isFinite( radiusX ), 'EllipticalArc radiusX should be a finite number: ' + radiusX );
 
@@ -106,8 +101,8 @@ inherit( Segment, EllipticalArc, {
       this.invalidate();
     }
     return this; // allow chaining
-  },
-  set radiusX( value ) { this.setRadiusX( value ); },
+  }
+  set radiusX( value ) { this.setRadiusX( value ); }
 
   /**
    * Returns the semi-major radius of this EllipticalArc.
@@ -115,10 +110,10 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {number}
    */
-  getRadiusX: function() {
+  getRadiusX() {
     return this._radiusX;
-  },
-  get radiusX() { return this.getRadiusX(); },
+  }
+  get radiusX() { return this.getRadiusX(); }
 
   /**
    * Sets the semi-minor radius of the EllipticalArc.
@@ -127,7 +122,7 @@ inherit( Segment, EllipticalArc, {
    * @param {number} radiusY
    * @returns {EllipticalArc}
    */
-  setRadiusY: function( radiusY ) {
+  setRadiusY( radiusY ) {
     assert && assert( typeof radiusY === 'number', 'EllipticalArc radiusY should be a number: ' + radiusY );
     assert && assert( isFinite( radiusY ), 'EllipticalArc radiusY should be a finite number: ' + radiusY );
 
@@ -136,8 +131,8 @@ inherit( Segment, EllipticalArc, {
       this.invalidate();
     }
     return this; // allow chaining
-  },
-  set radiusY( value ) { this.setRadiusY( value ); },
+  }
+  set radiusY( value ) { this.setRadiusY( value ); }
 
   /**
    * Returns the semi-minor radius of this EllipticalArc.
@@ -145,10 +140,10 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {number}
    */
-  getRadiusY: function() {
+  getRadiusY() {
     return this._radiusY;
-  },
-  get radiusY() { return this.getRadiusY(); },
+  }
+  get radiusY() { return this.getRadiusY(); }
 
   /**
    * Sets the rotation of the EllipticalArc.
@@ -157,7 +152,7 @@ inherit( Segment, EllipticalArc, {
    * @param {number} rotation
    * @returns {EllipticalArc}
    */
-  setRotation: function( rotation ) {
+  setRotation( rotation ) {
     assert && assert( typeof rotation === 'number', 'EllipticalArc rotation should be a number: ' + rotation );
     assert && assert( isFinite( rotation ), 'EllipticalArc rotation should be a finite number: ' + rotation );
 
@@ -166,8 +161,8 @@ inherit( Segment, EllipticalArc, {
       this.invalidate();
     }
     return this; // allow chaining
-  },
-  set rotation( value ) { this.setRotation( value ); },
+  }
+  set rotation( value ) { this.setRotation( value ); }
 
   /**
    * Returns the rotation of this EllipticalArc.
@@ -175,10 +170,10 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {number}
    */
-  getRotation: function() {
+  getRotation() {
     return this._rotation;
-  },
-  get rotation() { return this.getRotation(); },
+  }
+  get rotation() { return this.getRotation(); }
 
   /**
    * Sets the startAngle of the EllipticalArc.
@@ -187,7 +182,7 @@ inherit( Segment, EllipticalArc, {
    * @param {number} startAngle
    * @returns {EllipticalArc}
    */
-  setStartAngle: function( startAngle ) {
+  setStartAngle( startAngle ) {
     assert && assert( typeof startAngle === 'number', 'EllipticalArc startAngle should be a number: ' + startAngle );
     assert && assert( isFinite( startAngle ), 'EllipticalArc startAngle should be a finite number: ' + startAngle );
 
@@ -196,8 +191,8 @@ inherit( Segment, EllipticalArc, {
       this.invalidate();
     }
     return this; // allow chaining
-  },
-  set startAngle( value ) { this.setStartAngle( value ); },
+  }
+  set startAngle( value ) { this.setStartAngle( value ); }
 
   /**
    * Returns the startAngle of this EllipticalArc.
@@ -205,10 +200,10 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {number}
    */
-  getStartAngle: function() {
+  getStartAngle() {
     return this._startAngle;
-  },
-  get startAngle() { return this.getStartAngle(); },
+  }
+  get startAngle() { return this.getStartAngle(); }
 
   /**
    * Sets the endAngle of the EllipticalArc.
@@ -217,7 +212,7 @@ inherit( Segment, EllipticalArc, {
    * @param {number} endAngle
    * @returns {EllipticalArc}
    */
-  setEndAngle: function( endAngle ) {
+  setEndAngle( endAngle ) {
     assert && assert( typeof endAngle === 'number', 'EllipticalArc endAngle should be a number: ' + endAngle );
     assert && assert( isFinite( endAngle ), 'EllipticalArc endAngle should be a finite number: ' + endAngle );
 
@@ -226,8 +221,8 @@ inherit( Segment, EllipticalArc, {
       this.invalidate();
     }
     return this; // allow chaining
-  },
-  set endAngle( value ) { this.setEndAngle( value ); },
+  }
+  set endAngle( value ) { this.setEndAngle( value ); }
 
   /**
    * Returns the endAngle of this EllipticalArc.
@@ -235,10 +230,10 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {number}
    */
-  getEndAngle: function() {
+  getEndAngle() {
     return this._endAngle;
-  },
-  get endAngle() { return this.getEndAngle(); },
+  }
+  get endAngle() { return this.getEndAngle(); }
 
   /**
    * Sets the anticlockwise of the EllipticalArc.
@@ -247,7 +242,7 @@ inherit( Segment, EllipticalArc, {
    * @param {boolean} anticlockwise
    * @returns {EllipticalArc}
    */
-  setAnticlockwise: function( anticlockwise ) {
+  setAnticlockwise( anticlockwise ) {
     assert && assert( typeof anticlockwise === 'boolean', 'EllipticalArc anticlockwise should be a boolean: ' + anticlockwise );
 
     if ( this._anticlockwise !== anticlockwise ) {
@@ -255,8 +250,8 @@ inherit( Segment, EllipticalArc, {
       this.invalidate();
     }
     return this; // allow chaining
-  },
-  set anticlockwise( value ) { this.setAnticlockwise( value ); },
+  }
+  set anticlockwise( value ) { this.setAnticlockwise( value ); }
 
   /**
    * Returns the anticlockwise of this EllipticalArc.
@@ -264,10 +259,10 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {boolean}
    */
-  getAnticlockwise: function() {
+  getAnticlockwise() {
     return this._anticlockwise;
-  },
-  get anticlockwise() { return this.getAnticlockwise(); },
+  }
+  get anticlockwise() { return this.getAnticlockwise(); }
 
   /**
    * Returns the position parametrically, with 0 <= t <= 1.
@@ -281,12 +276,12 @@ inherit( Segment, EllipticalArc, {
    * @param {number} t
    * @returns {Vector2}
    */
-  positionAt: function( t ) {
+  positionAt( t ) {
     assert && assert( t >= 0, 'positionAt t should be non-negative' );
     assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
 
     return this.positionAtAngle( this.angleAt( t ) );
-  },
+  }
 
   /**
    * Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with 0 <= t <= 1.
@@ -300,12 +295,12 @@ inherit( Segment, EllipticalArc, {
    * @param {number} t
    * @returns {Vector2}
    */
-  tangentAt: function( t ) {
+  tangentAt( t ) {
     assert && assert( t >= 0, 'tangentAt t should be non-negative' );
     assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
     return this.tangentAtAngle( this.angleAt( t ) );
-  },
+  }
 
   /**
    * Returns the signed curvature of the segment at the parametric value t, where 0 <= t <= 1.
@@ -322,7 +317,7 @@ inherit( Segment, EllipticalArc, {
    * @param {number} t
    * @returns {number}
    */
-  curvatureAt: function( t ) {
+  curvatureAt( t ) {
     assert && assert( t >= 0, 'curvatureAt t should be non-negative' );
     assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
 
@@ -332,7 +327,7 @@ inherit( Segment, EllipticalArc, {
     const bq = this._radiusY * Math.cos( angle );
     const denominator = Math.pow( bq * bq + aq * aq, 3 / 2 );
     return ( this._anticlockwise ? -1 : 1 ) * this._radiusX * this._radiusY / denominator;
-  },
+  }
 
   /**
    * Returns an array with up to 2 sub-segments, split at the parametric t value. Together (in order) they should make
@@ -344,7 +339,7 @@ inherit( Segment, EllipticalArc, {
    * @param {number} t
    * @returns {Array.<Segment>}
    */
-  subdivided: function( t ) {
+  subdivided( t ) {
     assert && assert( t >= 0, 'subdivided t should be non-negative' );
     assert && assert( t <= 1, 'subdivided t should be no greater than 1' );
 
@@ -361,13 +356,13 @@ inherit( Segment, EllipticalArc, {
       new kite.EllipticalArc( this._center, this._radiusX, this._radiusY, this._rotation, angle0, angleT, this._anticlockwise ),
       new kite.EllipticalArc( this._center, this._radiusX, this._radiusY, this._rotation, angleT, angle1, this._anticlockwise )
     ];
-  },
+  }
 
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    * @public
    */
-  invalidate: function() {
+  invalidate() {
 
     assert && assert( this._center instanceof Vector2, 'Arc center should be a Vector2' );
     assert && assert( this._center.isFinite(), 'Arc center should be finite (not NaN or infinite)' );
@@ -437,7 +432,7 @@ inherit( Segment, EllipticalArc, {
       'Not handling elliptical arcs with start/end angles that show differences in-between browser handling' );
 
     this.invalidationEmitter.emit();
-  },
+  }
 
   /**
    * Computes a transform that maps a unit circle into this ellipse's location.
@@ -448,13 +443,13 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {Transform3}
    */
-  getUnitTransform: function() {
+  getUnitTransform() {
     if ( this._unitTransform === null ) {
       this._unitTransform = EllipticalArc.computeUnitTransform( this._center, this._radiusX, this._radiusY, this._rotation );
     }
     return this._unitTransform;
-  },
-  get unitTransform() { return this.getUnitTransform(); },
+  }
+  get unitTransform() { return this.getUnitTransform(); }
 
   /**
    * Gets the start point of this ellipticalArc
@@ -462,13 +457,13 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {Vector2}
    */
-  getStart: function() {
+  getStart() {
     if ( this._start === null ) {
       this._start = this.positionAtAngle( this._startAngle );
     }
     return this._start;
-  },
-  get start() { return this.getStart(); },
+  }
+  get start() { return this.getStart(); }
 
   /**
    * Gets the end point of this ellipticalArc
@@ -476,13 +471,13 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {Vector2}
    */
-  getEnd: function() {
+  getEnd() {
     if ( this._end === null ) {
       this._end = this.positionAtAngle( this._endAngle );
     }
     return this._end;
-  },
-  get end() { return this.getEnd(); },
+  }
+  get end() { return this.getEnd(); }
 
   /**
    * Gets the tangent vector (normalized) to this ellipticalArc at the start, pointing in the direction of motion (from start to end)
@@ -490,13 +485,13 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {Vector2}
    */
-  getStartTangent: function() {
+  getStartTangent() {
     if ( this._startTangent === null ) {
       this._startTangent = this.tangentAtAngle( this._startAngle );
     }
     return this._startTangent;
-  },
-  get startTangent() { return this.getStartTangent(); },
+  }
+  get startTangent() { return this.getStartTangent(); }
 
   /**
    * Gets the tangent vector (normalized) to this ellipticalArc at the end point, pointing in the direction of motion (from start to end)
@@ -504,13 +499,13 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {Vector2}
    */
-  getEndTangent: function() {
+  getEndTangent() {
     if ( this._endTangent === null ) {
       this._endTangent = this.tangentAtAngle( this._endAngle );
     }
     return this._endTangent;
-  },
-  get endTangent() { return this.getEndTangent(); },
+  }
+  get endTangent() { return this.getEndTangent(); }
 
   /**
    * Gets the end angle in radians
@@ -518,13 +513,13 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {number}
    */
-  getActualEndAngle: function() {
+  getActualEndAngle() {
     if ( this._actualEndAngle === null ) {
       this._actualEndAngle = Arc.computeActualEndAngle( this._startAngle, this._endAngle, this._anticlockwise );
     }
     return this._actualEndAngle;
-  },
-  get actualEndAngle() { return this.getActualEndAngle(); },
+  }
+  get actualEndAngle() { return this.getActualEndAngle(); }
 
   /**
    * Returns a boolean value that indicates if the arc wraps up by more than two Pi
@@ -532,13 +527,13 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {boolean}
    */
-  getIsFullPerimeter: function() {
+  getIsFullPerimeter() {
     if ( this._isFullPerimeter === null ) {
       this._isFullPerimeter = ( !this._anticlockwise && this._endAngle - this._startAngle >= Math.PI * 2 ) || ( this._anticlockwise && this._startAngle - this._endAngle >= Math.PI * 2 );
     }
     return this._isFullPerimeter;
-  },
-  get isFullPerimeter() { return this.getIsFullPerimeter(); },
+  }
+  get isFullPerimeter() { return this.getIsFullPerimeter(); }
 
   /**
    * Returns an angle difference that represents how "much" of the circle our arc covers
@@ -549,7 +544,7 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {number}
    */
-  getAngleDifference: function() {
+  getAngleDifference() {
     if ( this._angleDifference === null ) {
       // compute an angle difference that represents how "much" of the circle our arc covers
       this._angleDifference = this._anticlockwise ? this._startAngle - this._endAngle : this._endAngle - this._startAngle;
@@ -559,8 +554,8 @@ inherit( Segment, EllipticalArc, {
       assert && assert( this._angleDifference >= 0 ); // now it should always be zero or positive
     }
     return this._angleDifference;
-  },
-  get angleDifference() { return this.getAngleDifference(); },
+  }
+  get angleDifference() { return this.getAngleDifference(); }
 
   /**
    * A unit arg segment that we can map to our ellipse. useful for hit testing and such.
@@ -568,13 +563,13 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {Arc}
    */
-  getUnitArcSegment: function() {
+  getUnitArcSegment() {
     if ( this._unitArcSegment === null ) {
       this._unitArcSegment = new kite.Arc( Vector2.ZERO, 1, this._startAngle, this._endAngle, this._anticlockwise );
     }
     return this._unitArcSegment;
-  },
-  get unitArcSegment() { return this.getUnitArcSegment(); },
+  }
+  get unitArcSegment() { return this.getUnitArcSegment(); }
 
   /**
    * Returns the bounds of this segment.
@@ -582,7 +577,7 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {Bounds2}
    */
-  getBounds: function() {
+  getBounds() {
     if ( this._bounds === null ) {
       this._bounds = Bounds2.NOTHING.withPoint( this.getStart() )
         .withPoint( this.getEnd() );
@@ -606,8 +601,8 @@ inherit( Segment, EllipticalArc, {
       }
     }
     return this._bounds;
-  },
-  get bounds() { return this.getBounds(); },
+  }
+  get bounds() { return this.getBounds(); }
 
   /**
    * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
@@ -616,7 +611,7 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {Array.<Segment>}
    */
-  getNondegenerateSegments: function() {
+  getNondegenerateSegments() {
     if ( this._radiusX <= 0 || this._radiusY <= 0 || this._startAngle === this._endAngle ) {
       return [];
     }
@@ -634,7 +629,7 @@ inherit( Segment, EllipticalArc, {
     else {
       return [ this ];
     }
-  },
+  }
 
   /**
    * Attempts to expand the private _bounds bounding box to include a point at a specific angle, making sure that
@@ -644,12 +639,12 @@ inherit( Segment, EllipticalArc, {
    *
    * @param {number} angle
    */
-  includeBoundsAtAngle: function( angle ) {
+  includeBoundsAtAngle( angle ) {
     if ( this.unitArcSegment.containsAngle( angle ) ) {
       // the boundary point is in the arc
       this._bounds = this._bounds.withPoint( this.positionAtAngle( angle ) );
     }
-  },
+  }
 
   /**
    * Maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
@@ -660,7 +655,7 @@ inherit( Segment, EllipticalArc, {
    * @param {number} angle
    * @returns {number}
    */
-  mapAngle: function( angle ) {
+  mapAngle( angle ) {
     if ( Math.abs( Utils.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
       return this._startAngle;
     }
@@ -671,7 +666,7 @@ inherit( Segment, EllipticalArc, {
     return ( this._startAngle > this.getActualEndAngle() ) ?
            Utils.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
            Utils.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
-  },
+  }
 
   /**
    * Returns the parametrized value t for a given angle. The value t should range from 0 to 1 (inclusive).
@@ -682,9 +677,9 @@ inherit( Segment, EllipticalArc, {
    * @param {number} angle
    * @returns {number}
    */
-  tAtAngle: function( angle ) {
+  tAtAngle( angle ) {
     return ( this.mapAngle( angle ) - this._startAngle ) / ( this.getActualEndAngle() - this._startAngle );
-  },
+  }
 
   /**
    * Returns the angle for the parametrized t value. The t value should range from 0 to 1 (inclusive).
@@ -693,9 +688,9 @@ inherit( Segment, EllipticalArc, {
    * @param {number} t
    * @returns {number}
    */
-  angleAt: function( t ) {
+  angleAt( t ) {
     return this._startAngle + ( this.getActualEndAngle() - this._startAngle ) * t;
-  },
+  }
 
   /**
    * Returns the position of this arc at angle.
@@ -704,9 +699,9 @@ inherit( Segment, EllipticalArc, {
    * @param {number} angle
    * @returns {Vector2}
    */
-  positionAtAngle: function( angle ) {
+  positionAtAngle( angle ) {
     return this.getUnitTransform().transformPosition2( Vector2.createPolar( 1, angle ) );
-  },
+  }
 
   /**
    * Returns the normalized tangent of this arc.
@@ -716,11 +711,11 @@ inherit( Segment, EllipticalArc, {
    * @param {number} angle
    * @returns {Vector2}
    */
-  tangentAtAngle: function( angle ) {
+  tangentAtAngle( angle ) {
     const normal = this.getUnitTransform().transformNormal2( Vector2.createPolar( 1, angle ) );
 
     return this._anticlockwise ? normal.perpendicular : normal.perpendicular.negated();
-  },
+  }
 
   /**
    * Returns an array of straight lines that will draw an offset on the logical left (right) side for reverse false (true)
@@ -731,7 +726,7 @@ inherit( Segment, EllipticalArc, {
    * @param {boolean} reverse
    * @returns {Array.<Line>}
    */
-  offsetTo: function( r, reverse ) {
+  offsetTo( r, reverse ) {
     // how many segments to create (possibly make this more adaptive?)
     const quantity = 32;
 
@@ -751,7 +746,7 @@ inherit( Segment, EllipticalArc, {
     }
 
     return result;
-  },
+  }
 
   /**
    * Returns a string containing the SVG path. assumes that the start point is already provided,
@@ -760,7 +755,7 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {string}
    */
-  getSVGPathFragment: function() {
+  getSVGPathFragment() {
     if ( assert ) {
       var oldPathFragment = this._svgPathFragment;
       this._svgPathFragment = null;
@@ -803,7 +798,7 @@ inherit( Segment, EllipticalArc, {
       }
     }
     return this._svgPathFragment;
-  },
+  }
 
   /**
    * Returns an array of straight lines  that will draw an offset on the logical left side.
@@ -812,9 +807,9 @@ inherit( Segment, EllipticalArc, {
    * @param {number} lineWidth
    * @returns {Array.<Line>}
    */
-  strokeLeft: function( lineWidth ) {
+  strokeLeft( lineWidth ) {
     return this.offsetTo( -lineWidth / 2, false );
-  },
+  }
 
   /**
    * Returns an array of straight lines that will draw an offset curve on the logical right side.
@@ -823,9 +818,9 @@ inherit( Segment, EllipticalArc, {
    * @param {number} lineWidth
    * @returns {Array.<Line>}
    */
-  strokeRight: function( lineWidth ) {
+  strokeRight( lineWidth ) {
     return this.offsetTo( lineWidth / 2, true );
-  },
+  }
 
   /**
    * Returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
@@ -834,12 +829,11 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {Array.<number>}
    */
-  getInteriorExtremaTs: function() {
-    const self = this;
+  getInteriorExtremaTs() {
     const result = [];
-    _.each( this.possibleExtremaAngles, function( angle ) {
-      if ( self.unitArcSegment.containsAngle( angle ) ) {
-        const t = self.tAtAngle( angle );
+    _.each( this.possibleExtremaAngles, angle => {
+      if ( this.unitArcSegment.containsAngle( angle ) ) {
+        const t = this.tAtAngle( angle );
         const epsilon = 0.0000000001; // TODO: general kite epsilon?
         if ( t > epsilon && t < 1 - epsilon ) {
           result.push( t );
@@ -847,7 +841,7 @@ inherit( Segment, EllipticalArc, {
       }
     } );
     return result.sort(); // modifies original, which is OK
-  },
+  }
 
   /**
    * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
@@ -857,19 +851,19 @@ inherit( Segment, EllipticalArc, {
    * @param {Ray2} ray
    * @returns {Array.<RayIntersection>}
    */
-  intersection: function( ray ) {
+  intersection( ray ) {
     // be lazy. transform it into the space of a non-elliptical arc.
     const unitTransform = this.getUnitTransform();
     const rayInUnitCircleSpace = unitTransform.inverseRay2( ray );
     const hits = this.getUnitArcSegment().intersection( rayInUnitCircleSpace );
 
-    return _.map( hits, function( hit ) {
+    return _.map( hits, hit => {
       const transformedPoint = unitTransform.transformPosition2( hit.point );
       const distance = ray.position.distance( transformedPoint );
       const normal = unitTransform.inverseNormal2( hit.normal );
       return new RayIntersection( distance, transformedPoint, normal, hit.wind, hit.t );
     } );
-  },
+  }
 
   /**
    * Returns the resultant winding number of this ray intersecting this arc.
@@ -878,11 +872,11 @@ inherit( Segment, EllipticalArc, {
    * @param {Ray2} ray
    * @returns {number}
    */
-  windingIntersection: function( ray ) {
+  windingIntersection( ray ) {
     // be lazy. transform it into the space of a non-elliptical arc.
     const rayInUnitCircleSpace = this.getUnitTransform().inverseRay2( ray );
     return this.getUnitArcSegment().windingIntersection( rayInUnitCircleSpace );
-  },
+  }
 
   /**
    * Draws this arc to the 2D Canvas context, assuming the context's current location is already at the start point
@@ -890,7 +884,7 @@ inherit( Segment, EllipticalArc, {
    *
    * @param {CanvasRenderingContext2D} context
    */
-  writeToContext: function( context ) {
+  writeToContext( context ) {
     if ( context.ellipse ) {
       context.ellipse( this._center.x, this._center.y, this._radiusX, this._radiusY, this._rotation, this._startAngle, this._endAngle, this._anticlockwise );
     }
@@ -900,7 +894,7 @@ inherit( Segment, EllipticalArc, {
       context.arc( 0, 0, 1, this._startAngle, this._endAngle, this._anticlockwise );
       this.getUnitTransform().getInverse().canvasAppendTransform( context );
     }
-  },
+  }
 
   /**
    * Returns this elliptical arc transformed by a matrix
@@ -909,7 +903,7 @@ inherit( Segment, EllipticalArc, {
    * @param {Matrix3} matrix
    * @returns {EllipticalArc}
    */
-  transformed: function( matrix ) {
+  transformed( matrix ) {
     const transformedSemiMajorAxis = matrix.timesVector2( Vector2.createPolar( this._radiusX, this._rotation ) ).minus( matrix.timesVector2( Vector2.ZERO ) );
     const transformedSemiMinorAxis = matrix.timesVector2( Vector2.createPolar( this._radiusY, this._rotation + Math.PI / 2 ) ).minus( matrix.timesVector2( Vector2.ZERO ) );
     const rotation = transformedSemiMajorAxis.angle;
@@ -929,7 +923,7 @@ inherit( Segment, EllipticalArc, {
     }
 
     return new kite.EllipticalArc( matrix.timesVector2( this._center ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
-  },
+  }
 
   /**
    * Returns the contribution to the signed area computed using Green's Theorem, with P=-y/2 and Q=x/2.
@@ -939,7 +933,7 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {number}
    */
-  getSignedAreaFragment: function() {
+  getSignedAreaFragment() {
     const t0 = this._startAngle;
     const t1 = this.getActualEndAngle();
 
@@ -954,7 +948,7 @@ inherit( Segment, EllipticalArc, {
                    this._radiusY * this._center.x * ( sin1 - sin0 ) ) +
                    Math.sin( this._rotation ) * ( this._radiusX * this._center.x * ( cos1 - cos0 ) +
                    this._radiusY * this._center.y * ( sin1 - sin0 ) ) );
-  },
+  }
 
   /**
    * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
@@ -962,9 +956,9 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {EllipticalArc}
    */
-  reversed: function() {
+  reversed() {
     return new kite.EllipticalArc( this._center, this._radiusX, this._radiusY, this._rotation, this._endAngle, this._startAngle, !this._anticlockwise );
-  },
+  }
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
@@ -972,7 +966,7 @@ inherit( Segment, EllipticalArc, {
    *
    * @returns {Object}
    */
-  serialize: function() {
+  serialize() {
     return {
       type: 'EllipticalArc',
       centerX: this._center.x,
@@ -985,68 +979,70 @@ inherit( Segment, EllipticalArc, {
       anticlockwise: this._anticlockwise
     };
   }
-} );
 
-/**
- * Returns an EllipticalArc from the serialized representation.
- * @public
- *
- * @param {Object} obj
- * @returns {EllipticalArc}
- */
-EllipticalArc.deserialize = function( obj ) {
-  assert && assert( obj.type === 'EllipticalArc' );
+  /**
+   * Returns an EllipticalArc from the serialized representation.
+   * @public
+   *
+   * @param {Object} obj
+   * @returns {EllipticalArc}
+   */
+  static deserialize( obj ) {
+    assert && assert( obj.type === 'EllipticalArc' );
 
-  return new EllipticalArc( new Vector2( obj.centerX, obj.centerY ), obj.radiusX, obj.radiusY, obj.rotation, obj.startAngle, obj.endAngle, obj.anticlockwise );
-};
-
-/**
- * Determine whether two Arcs overlap over continuous sections, and if so finds the a,b pairs such that
- * p( t ) === q( a * t + b ).
- * @public
- *
- * @param {EllipticalArc} arc1
- * @param {EllipticalArc} arc2
- * @returns {Array.<Overlap>} - Any overlaps (from 0 to 2)
- */
-EllipticalArc.getOverlaps = function( arc1, arc2 ) {
-  // Different centers can't overlap continuously
-  if ( arc1._center.distance( arc2._center ) > 1e-8 ) {
-    return [];
+    return new EllipticalArc( new Vector2( obj.centerX, obj.centerY ), obj.radiusX, obj.radiusY, obj.rotation, obj.startAngle, obj.endAngle, obj.anticlockwise );
   }
 
-  assert && assert( arc1._radiusX >= arc1._radiusY, 'Assume radiusX is the larger radius' );
-  assert && assert( arc2._radiusX >= arc2._radiusY, 'Assume radiusX is the larger radius' );
+  /**
+   * Determine whether two Arcs overlap over continuous sections, and if so finds the a,b pairs such that
+   * p( t ) === q( a * t + b ).
+   * @public
+   *
+   * @param {EllipticalArc} arc1
+   * @param {EllipticalArc} arc2
+   * @returns {Array.<Overlap>} - Any overlaps (from 0 to 2)
+   */
+  static getOverlaps( arc1, arc2 ) {
+    // Different centers can't overlap continuously
+    if ( arc1._center.distance( arc2._center ) > 1e-8 ) {
+      return [];
+    }
 
-  // Since radiusX >= radiusY, we don't need to check for reversals (x1=y2 and y1=x2).
-  if ( Math.abs( arc1._radiusX - arc2._radiusX ) > 1e-8 ||
-       Math.abs( arc1._radiusY - arc2._radiusY ) > 1e-8 ||
-       // Difference between rotations should be an approximate multiple of pi. We add pi/2 before modulo, so the
-       // result of that should be ~pi/2 (don't need to check both endpoints)
-       Math.abs( Utils.moduloBetweenDown( arc1._rotation - arc2._rotation + Math.PI / 2, 0, Math.PI ) - Math.PI / 2 ) > 1e-10 ) {
-    return [];
+    assert && assert( arc1._radiusX >= arc1._radiusY, 'Assume radiusX is the larger radius' );
+    assert && assert( arc2._radiusX >= arc2._radiusY, 'Assume radiusX is the larger radius' );
+
+    // Since radiusX >= radiusY, we don't need to check for reversals (x1=y2 and y1=x2).
+    if ( Math.abs( arc1._radiusX - arc2._radiusX ) > 1e-8 ||
+         Math.abs( arc1._radiusY - arc2._radiusY ) > 1e-8 ||
+         // Difference between rotations should be an approximate multiple of pi. We add pi/2 before modulo, so the
+         // result of that should be ~pi/2 (don't need to check both endpoints)
+         Math.abs( Utils.moduloBetweenDown( arc1._rotation - arc2._rotation + Math.PI / 2, 0, Math.PI ) - Math.PI / 2 ) > 1e-10 ) {
+      return [];
+    }
+
+    return Arc.getAngularOverlaps( arc1._startAngle + arc1._rotation, arc1.getActualEndAngle() + arc1._rotation,
+      arc2._startAngle + arc2._rotation, arc2.getActualEndAngle() + arc2._rotation );
   }
 
-  return Arc.getAngularOverlaps( arc1._startAngle + arc1._rotation, arc1.getActualEndAngle() + arc1._rotation,
-    arc2._startAngle + arc2._rotation, arc2.getActualEndAngle() + arc2._rotation );
-};
+  /**
+   * Transforms the unit circle into our ellipse.
+   * @public
+   *
+   * adapted from http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
+   *
+   * @param {Vector2} center
+   * @param {number} radiusX
+   * @param {number} radiusY
+   * @param {number} rotation
+   * @returns {Transform3}
+   */
+  static computeUnitTransform( center, radiusX, radiusY, rotation ) {
+    return new Transform3( Matrix3.translation( center.x, center.y ) // TODO: convert to Matrix3.translation( this._center) when available
+      .timesMatrix( Matrix3.rotation2( rotation ) )
+      .timesMatrix( Matrix3.scaling( radiusX, radiusY ) ) );
+  }
+}
 
-/**
- * Transforms the unit circle into our ellipse.
- * @public
- *
- * adapted from http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
- *
- * @param {Vector2} center
- * @param {number} radiusX
- * @param {number} radiusY
- * @param {number} rotation
- * @returns {Transform3}
- */
-EllipticalArc.computeUnitTransform = function( center, radiusX, radiusY, rotation ) {
-  return new Transform3( Matrix3.translation( center.x, center.y ) // TODO: convert to Matrix3.translation( this._center) when available
-    .timesMatrix( Matrix3.rotation2( rotation ) )
-    .timesMatrix( Matrix3.scaling( radiusX, radiusY ) ) );
-};
+kite.register( 'EllipticalArc', EllipticalArc );
 
 export default EllipticalArc;
