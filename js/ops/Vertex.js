@@ -145,8 +145,6 @@ class Vertex {
 
 kite.register( 'Vertex', Vertex );
 
-Poolable.mixInto( Vertex, {
-  initialize: Vertex.prototype.initialize
-} );
+Poolable.mixInto( Vertex );
 
 export default Vertex;

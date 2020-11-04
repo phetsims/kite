@@ -224,8 +224,6 @@ class Boundary {
 
 kite.register( 'Boundary', Boundary );
 
-Poolable.mixInto( Boundary, {
-  initialize: Boundary.prototype.initialize
-} );
+Poolable.mixInto( Boundary );
 
 export default Boundary;

@@ -313,8 +313,6 @@ class BoundsIntersection {
 
 kite.register( 'BoundsIntersection', BoundsIntersection );
 
-Poolable.mixInto( BoundsIntersection, {
-  initialize: BoundsIntersection.prototype.initialize
-} );
+Poolable.mixInto( BoundsIntersection );
 
 export default BoundsIntersection;

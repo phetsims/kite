@@ -123,8 +123,6 @@ class Edge {
 
 kite.register( 'Edge', Edge );
 
-Poolable.mixInto( Edge, {
-  initialize: Edge.prototype.initialize
-} );
+Poolable.mixInto( Edge );
 
 export default Edge;

@@ -91,8 +91,6 @@ class Loop {
 
 kite.register( 'Loop', Loop );
 
-Poolable.mixInto( Loop, {
-  initialize: Loop.prototype.initialize
-} );
+Poolable.mixInto( Loop );
 
 export default Loop;

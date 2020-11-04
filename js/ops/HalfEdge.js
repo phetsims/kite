@@ -173,8 +173,6 @@ class HalfEdge {
 
 kite.register( 'HalfEdge', HalfEdge );
 
-Poolable.mixInto( HalfEdge, {
-  initialize: HalfEdge.prototype.initialize
-} );
+Poolable.mixInto( HalfEdge );
 
 export default HalfEdge;

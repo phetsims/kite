@@ -114,8 +114,6 @@ class Face {
 
 kite.register( 'Face', Face );
 
-Poolable.mixInto( Face, {
-  initialize: Face.prototype.initialize
-} );
+Poolable.mixInto( Face );
 
 export default Face;
