@@ -21,7 +21,6 @@
 import TinyEmitter from '../../axon/js/TinyEmitter.js';
 import Bounds2 from '../../dot/js/Bounds2.js';
 import Ray2 from '../../dot/js/Ray2.js';
-import Utils from '../../dot/js/Utils.js';
 import Vector2 from '../../dot/js/Vector2.js';
 import merge from '../../phet-core/js/merge.js';
 import kite from './kite.js';
@@ -344,7 +343,7 @@ class Shape {
    */
   zigZagToPoint( endPoint, amplitude, numberZigZags, symmetrical ) {
 
-    assert && assert( Utils.isInteger( numberZigZags ), 'numberZigZags must be an integer: ' + numberZigZags );
+    assert && assert( Number.isInteger( numberZigZags ), 'numberZigZags must be an integer: ' + numberZigZags );
 
     this.ensure( endPoint );
     const startPoint = this.getLastPoint();
