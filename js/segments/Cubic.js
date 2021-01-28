@@ -612,7 +612,7 @@ class Cubic extends Segment {
       // if we can reduce to a quadratic Bezier, always do this (and make sure it is non-degenerate)
       return reduced.getNondegenerateSegments();
     }
-    else if ( arePointsCollinear( start, control1, end ) && arePointsCollinear( start, control2, end ) ) {
+    else if ( arePointsCollinear( start, control1, end ) && arePointsCollinear( start, control2, end ) && !start.equalsEpsilon( end, 1e-7 ) ) {
       const extremaPoints = this.getXExtremaT().concat( this.getYExtremaT() ).sort().map( t => this.positionAt( t ) );
 
       const segments = [];
