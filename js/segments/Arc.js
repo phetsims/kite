@@ -65,6 +65,7 @@ class Arc extends Segment {
     }
     return this; // allow chaining
   }
+
   set center( value ) { this.setCenter( value ); }
 
   /**
@@ -76,6 +77,7 @@ class Arc extends Segment {
   getCenter() {
     return this._center;
   }
+
   get center() { return this.getCenter(); }
 
   /**
@@ -95,6 +97,7 @@ class Arc extends Segment {
     }
     return this; // allow chaining
   }
+
   set radius( value ) { this.setRadius( value ); }
 
   /**
@@ -106,6 +109,7 @@ class Arc extends Segment {
   getRadius() {
     return this._radius;
   }
+
   get radius() { return this.getRadius(); }
 
   /**
@@ -125,6 +129,7 @@ class Arc extends Segment {
     }
     return this; // allow chaining
   }
+
   set startAngle( value ) { this.setStartAngle( value ); }
 
   /**
@@ -136,6 +141,7 @@ class Arc extends Segment {
   getStartAngle() {
     return this._startAngle;
   }
+
   get startAngle() { return this.getStartAngle(); }
 
   /**
@@ -155,6 +161,7 @@ class Arc extends Segment {
     }
     return this; // allow chaining
   }
+
   set endAngle( value ) { this.setEndAngle( value ); }
 
   /**
@@ -166,6 +173,7 @@ class Arc extends Segment {
   getEndAngle() {
     return this._endAngle;
   }
+
   get endAngle() { return this.getEndAngle(); }
 
   /**
@@ -184,6 +192,7 @@ class Arc extends Segment {
     }
     return this; // allow chaining
   }
+
   set anticlockwise( value ) { this.setAnticlockwise( value ); }
 
   /**
@@ -195,6 +204,7 @@ class Arc extends Segment {
   getAnticlockwise() {
     return this._anticlockwise;
   }
+
   get anticlockwise() { return this.getAnticlockwise(); }
 
   /**
@@ -344,6 +354,7 @@ class Arc extends Segment {
     }
     return this._start;
   }
+
   get start() { return this.getStart(); }
 
   /**
@@ -358,6 +369,7 @@ class Arc extends Segment {
     }
     return this._end;
   }
+
   get end() { return this.getEnd(); }
 
   /**
@@ -372,6 +384,7 @@ class Arc extends Segment {
     }
     return this._startTangent;
   }
+
   get startTangent() { return this.getStartTangent(); }
 
   /**
@@ -386,6 +399,7 @@ class Arc extends Segment {
     }
     return this._endTangent;
   }
+
   get endTangent() { return this.getEndTangent(); }
 
   /**
@@ -400,6 +414,7 @@ class Arc extends Segment {
     }
     return this._actualEndAngle;
   }
+
   get actualEndAngle() { return this.getActualEndAngle(); }
 
   /**
@@ -414,6 +429,7 @@ class Arc extends Segment {
     }
     return this._isFullPerimeter;
   }
+
   get isFullPerimeter() { return this.getIsFullPerimeter(); }
 
   /**
@@ -436,6 +452,7 @@ class Arc extends Segment {
     }
     return this._angleDifference;
   }
+
   get angleDifference() { return this.getAngleDifference(); }
 
   /**
@@ -461,6 +478,7 @@ class Arc extends Segment {
     }
     return this._bounds;
   }
+
   get bounds() { return this.getBounds(); }
 
   /**

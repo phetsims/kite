@@ -72,6 +72,7 @@ class EllipticalArc extends Segment {
     }
     return this; // allow chaining
   }
+
   set center( value ) { this.setCenter( value ); }
 
   /**
@@ -83,6 +84,7 @@ class EllipticalArc extends Segment {
   getCenter() {
     return this._center;
   }
+
   get center() { return this.getCenter(); }
 
   /**
@@ -102,6 +104,7 @@ class EllipticalArc extends Segment {
     }
     return this; // allow chaining
   }
+
   set radiusX( value ) { this.setRadiusX( value ); }
 
   /**
@@ -113,6 +116,7 @@ class EllipticalArc extends Segment {
   getRadiusX() {
     return this._radiusX;
   }
+
   get radiusX() { return this.getRadiusX(); }
 
   /**
@@ -132,6 +136,7 @@ class EllipticalArc extends Segment {
     }
     return this; // allow chaining
   }
+
   set radiusY( value ) { this.setRadiusY( value ); }
 
   /**
@@ -143,6 +148,7 @@ class EllipticalArc extends Segment {
   getRadiusY() {
     return this._radiusY;
   }
+
   get radiusY() { return this.getRadiusY(); }
 
   /**
@@ -162,6 +168,7 @@ class EllipticalArc extends Segment {
     }
     return this; // allow chaining
   }
+
   set rotation( value ) { this.setRotation( value ); }
 
   /**
@@ -173,6 +180,7 @@ class EllipticalArc extends Segment {
   getRotation() {
     return this._rotation;
   }
+
   get rotation() { return this.getRotation(); }
 
   /**
@@ -192,6 +200,7 @@ class EllipticalArc extends Segment {
     }
     return this; // allow chaining
   }
+
   set startAngle( value ) { this.setStartAngle( value ); }
 
   /**
@@ -203,6 +212,7 @@ class EllipticalArc extends Segment {
   getStartAngle() {
     return this._startAngle;
   }
+
   get startAngle() { return this.getStartAngle(); }
 
   /**
@@ -222,6 +232,7 @@ class EllipticalArc extends Segment {
     }
     return this; // allow chaining
   }
+
   set endAngle( value ) { this.setEndAngle( value ); }
 
   /**
@@ -233,6 +244,7 @@ class EllipticalArc extends Segment {
   getEndAngle() {
     return this._endAngle;
   }
+
   get endAngle() { return this.getEndAngle(); }
 
   /**
@@ -251,6 +263,7 @@ class EllipticalArc extends Segment {
     }
     return this; // allow chaining
   }
+
   set anticlockwise( value ) { this.setAnticlockwise( value ); }
 
   /**
@@ -262,6 +275,7 @@ class EllipticalArc extends Segment {
   getAnticlockwise() {
     return this._anticlockwise;
   }
+
   get anticlockwise() { return this.getAnticlockwise(); }
 
   /**
@@ -449,6 +463,7 @@ class EllipticalArc extends Segment {
     }
     return this._unitTransform;
   }
+
   get unitTransform() { return this.getUnitTransform(); }
 
   /**
@@ -463,6 +478,7 @@ class EllipticalArc extends Segment {
     }
     return this._start;
   }
+
   get start() { return this.getStart(); }
 
   /**
@@ -477,6 +493,7 @@ class EllipticalArc extends Segment {
     }
     return this._end;
   }
+
   get end() { return this.getEnd(); }
 
   /**
@@ -491,6 +508,7 @@ class EllipticalArc extends Segment {
     }
     return this._startTangent;
   }
+
   get startTangent() { return this.getStartTangent(); }
 
   /**
@@ -505,6 +523,7 @@ class EllipticalArc extends Segment {
     }
     return this._endTangent;
   }
+
   get endTangent() { return this.getEndTangent(); }
 
   /**
@@ -519,6 +538,7 @@ class EllipticalArc extends Segment {
     }
     return this._actualEndAngle;
   }
+
   get actualEndAngle() { return this.getActualEndAngle(); }
 
   /**
@@ -533,6 +553,7 @@ class EllipticalArc extends Segment {
     }
     return this._isFullPerimeter;
   }
+
   get isFullPerimeter() { return this.getIsFullPerimeter(); }
 
   /**
@@ -555,6 +576,7 @@ class EllipticalArc extends Segment {
     }
     return this._angleDifference;
   }
+
   get angleDifference() { return this.getAngleDifference(); }
 
   /**
@@ -569,6 +591,7 @@ class EllipticalArc extends Segment {
     }
     return this._unitArcSegment;
   }
+
   get unitArcSegment() { return this.getUnitArcSegment(); }
 
   /**
@@ -602,6 +625,7 @@ class EllipticalArc extends Segment {
     }
     return this._bounds;
   }
+
   get bounds() { return this.getBounds(); }
 
   /**

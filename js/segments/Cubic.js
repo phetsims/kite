@@ -72,6 +72,7 @@ class Cubic extends Segment {
     }
     return this; // allow chaining
   }
+
   set start( value ) { this.setStart( value ); }
 
   /**
@@ -83,6 +84,7 @@ class Cubic extends Segment {
   getStart() {
     return this._start;
   }
+
   get start() { return this.getStart(); }
 
   /**
@@ -102,6 +104,7 @@ class Cubic extends Segment {
     }
     return this; // allow chaining
   }
+
   set control1( value ) { this.setControl1( value ); }
 
   /**
@@ -113,6 +116,7 @@ class Cubic extends Segment {
   getControl1() {
     return this._control1;
   }
+
   get control1() { return this.getControl1(); }
 
   /**
@@ -132,6 +136,7 @@ class Cubic extends Segment {
     }
     return this; // allow chaining
   }
+
   set control2( value ) { this.setControl2( value ); }
 
   /**
@@ -143,6 +148,7 @@ class Cubic extends Segment {
   getControl2() {
     return this._control2;
   }
+
   get control2() { return this.getControl2(); }
 
   /**
@@ -162,6 +168,7 @@ class Cubic extends Segment {
     }
     return this; // allow chaining
   }
+
   set end( value ) { this.setEnd( value ); }
 
   /**
@@ -173,6 +180,7 @@ class Cubic extends Segment {
   getEnd() {
     return this._end;
   }
+
   get end() { return this.getEnd(); }
 
   /**
@@ -348,6 +356,7 @@ class Cubic extends Segment {
     }
     return this._startTangent;
   }
+
   get startTangent() { return this.getStartTangent(); }
 
   /**
@@ -362,6 +371,7 @@ class Cubic extends Segment {
     }
     return this._endTangent;
   }
+
   get endTangent() { return this.getEndTangent(); }
 
   /**
@@ -377,6 +387,7 @@ class Cubic extends Segment {
     }
     return this._r;
   }
+
   get r() { return this.getR(); }
 
   /**
@@ -392,6 +403,7 @@ class Cubic extends Segment {
     }
     return this._s;
   }
+
   get s() { return this.getS(); }
 
   /**
@@ -407,6 +419,7 @@ class Cubic extends Segment {
     assert && assert( this._tCusp !== null );
     return this._tCusp;
   }
+
   get tCusp() { return this.getTCusp(); }
 
   /**
@@ -422,6 +435,7 @@ class Cubic extends Segment {
     assert && assert( this._tDeterminant !== null );
     return this._tDeterminant;
   }
+
   get tDeterminant() { return this.getTDeterminant(); }
 
   /**
@@ -437,6 +451,7 @@ class Cubic extends Segment {
     assert && assert( this._tInflection1 !== null );
     return this._tInflection1;
   }
+
   get tInflection1() { return this.getTInflection1(); }
 
   /**
@@ -452,6 +467,7 @@ class Cubic extends Segment {
     assert && assert( this._tInflection2 !== null );
     return this._tInflection2;
   }
+
   get tInflection2() { return this.getTInflection2(); }
 
   /**
@@ -482,6 +498,7 @@ class Cubic extends Segment {
     }
     return this._xExtremaT;
   }
+
   get xExtremaT() { return this.getXExtremaT(); }
 
   /**
@@ -497,6 +514,7 @@ class Cubic extends Segment {
     }
     return this._yExtremaT;
   }
+
   get yExtremaT() { return this.getYExtremaT(); }
 
   /**
@@ -528,6 +546,7 @@ class Cubic extends Segment {
     }
     return this._bounds;
   }
+
   get bounds() { return this.getBounds(); }
 
   /**

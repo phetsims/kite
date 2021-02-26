@@ -1513,6 +1513,7 @@ class Shape {
     }
     return this._bounds;
   }
+
   get bounds() { return this.getBounds(); }
 
   /**

@@ -60,6 +60,7 @@ class Quadratic extends Segment {
     }
     return this; // allow chaining
   }
+
   set start( value ) { this.setStart( value ); }
 
   /**
@@ -71,6 +72,7 @@ class Quadratic extends Segment {
   getStart() {
     return this._start;
   }
+
   get start() { return this.getStart(); }
 
   /**
@@ -90,6 +92,7 @@ class Quadratic extends Segment {
     }
     return this; // allow chaining
   }
+
   set control( value ) { this.setControl( value ); }
 
   /**
@@ -101,6 +104,7 @@ class Quadratic extends Segment {
   getControl() {
     return this._control;
   }
+
   get control() { return this.getControl(); }
 
   /**
@@ -120,6 +124,7 @@ class Quadratic extends Segment {
     }
     return this; // allow chaining
   }
+
   set end( value ) { this.setEnd( value ); }
 
   /**
@@ -131,6 +136,7 @@ class Quadratic extends Segment {
   getEnd() {
     return this._end;
   }
+
   get end() { return this.getEnd(); }
 
   /**
@@ -281,6 +287,7 @@ class Quadratic extends Segment {
     }
     return this._startTangent;
   }
+
   get startTangent() { return this.getStartTangent(); }
 
   /**
@@ -299,6 +306,7 @@ class Quadratic extends Segment {
     }
     return this._endTangent;
   }
+
   get endTangent() { return this.getEndTangent(); }
 
   /**
@@ -313,6 +321,7 @@ class Quadratic extends Segment {
     }
     return this._tCriticalX;
   }
+
   get tCriticalX() { return this.getTCriticalX(); }
 
 
@@ -328,6 +337,7 @@ class Quadratic extends Segment {
     }
     return this._tCriticalY;
   }
+
   get tCriticalY() { return this.getTCriticalY(); }
 
   /**
@@ -412,6 +422,7 @@ class Quadratic extends Segment {
     }
     return this._bounds;
   }
+
   get bounds() { return this.getBounds(); }
 
   // see http://www.visgraf.impa.br/sibgrapi96/trabs/pdf/a14.pdf

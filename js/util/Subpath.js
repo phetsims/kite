@@ -81,6 +81,7 @@ class Subpath {
     }
     return this._bounds;
   }
+
   get bounds() { return this.getBounds(); }
 
   /**

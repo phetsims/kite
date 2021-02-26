@@ -51,6 +51,7 @@ class Line extends Segment {
     }
     return this; // allow chaining
   }
+
   set start( value ) { this.setStart( value ); }
 
   /**
@@ -62,6 +63,7 @@ class Line extends Segment {
   getStart() {
     return this._start;
   }
+
   get start() { return this.getStart(); }
 
   /**
@@ -81,6 +83,7 @@ class Line extends Segment {
     }
     return this; // allow chaining
   }
+
   set end( value ) { this.setEnd( value ); }
 
   /**
@@ -92,6 +95,7 @@ class Line extends Segment {
   getEnd() {
     return this._end;
   }
+
   get end() { return this.getEnd(); }
 
   /**
@@ -213,6 +217,7 @@ class Line extends Segment {
     }
     return this._tangent;
   }
+
   get startTangent() { return this.getStartTangent(); }
 
   /**
@@ -225,6 +230,7 @@ class Line extends Segment {
   getEndTangent() {
     return this.getStartTangent();
   }
+
   get endTangent() { return this.getEndTangent(); }
 
   /**
@@ -240,6 +246,7 @@ class Line extends Segment {
     }
     return this._bounds;
   }
+
   get bounds() { return this.getBounds(); }
 
   /**
@@ -308,6 +315,7 @@ class Line extends Segment {
     const offset = this.getEndTangent().perpendicular.negated().times( lineWidth / 2 );
     return [ new kite.Line( this._start.plus( offset ), this._end.plus( offset ) ) ];
   }
+
   /**
    * Returns an array of Line that will draw an offset curve on the logical right side
    * @public
