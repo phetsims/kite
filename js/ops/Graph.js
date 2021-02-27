@@ -1268,7 +1268,7 @@ class Graph {
    * @returns {boolean}
    */
   static BINARY_NONZERO_XOR( windingMap ) {
-    return ( ( windingMap[ '0' ] !== 0 ) ^ ( windingMap[ '1' ] !== 0 ) ) === 1;
+    return ( ( windingMap[ '0' ] !== 0 ) ^ ( windingMap[ '1' ] !== 0 ) ) === 1; // eslint-disable-line no-bitwise
   }
 
   /**
