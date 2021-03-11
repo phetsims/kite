@@ -19,10 +19,10 @@ module.exports = function( grunt ) {
       let source = pegjs.buildParser( pegInput ).toSource();
 
       // replace fixed strings at the start/end with our prefix/suffix, so that it will work nicely with require.js
-      const prefix = '/' + '*\n' +
+      const prefix = '/*\n' +
                    ' * NOTE: Generated from svgPath.pegjs using PEG.js, with added kite namespace and require.js compatibility.\n' +
                    ' * See svgPath.pegjs for more documentation, or run \'grunt generate-svgPath-parser\' to regenerate.\n' +
-                   ' *' + '/\n' +
+                   ' */\n' +
                    '\n' +
                    'define( require => {\n' +
                    '  const kite = require( \'KITE/kite\' );\n';
