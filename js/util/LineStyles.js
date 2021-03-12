@@ -156,11 +156,11 @@ class LineStyles {
     if ( fromTangent.perpendicular.dot( toTangent ) > 1e-12 ) {
       switch( this.lineJoin ) {
         case 'round':
-          var fromAngle = fromTangent.angle + Math.PI / 2;
-          var toAngle = toTangent.angle + Math.PI / 2;
+          var fromAngle = fromTangent.angle + Math.PI / 2; // eslint-disable-line no-var
+          var toAngle = toTangent.angle + Math.PI / 2; // eslint-disable-line no-var
           return [ new Arc( center, this.lineWidth / 2, fromAngle, toAngle, true ) ];
         case 'miter':
-          var theta = fromTangent.angleBetween( toTangent.negated() );
+          var theta = fromTangent.angleBetween( toTangent.negated() ); // eslint-disable-line no-var
           if ( 1 / Math.sin( theta / 2 ) <= this.miterLimit && theta < Math.PI - 0.00001 ) {
             // draw the miter
             const miterPoint = lineLineIntersection( fromPoint, fromPoint.plus( fromTangent ), toPoint, toPoint.plus( toTangent ) );
@@ -219,15 +219,15 @@ class LineStyles {
       case 'butt':
         return [ new Line( fromPoint, toPoint ) ];
       case 'round':
-        var tangentAngle = tangent.angle;
+        var tangentAngle = tangent.angle; // eslint-disable-line no-var
         return [ new Arc( center, this.lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true ) ];
       case 'square':
-        var toLeft = tangent.perpendicular.negated().times( this.lineWidth / 2 );
-        var toRight = tangent.perpendicular.times( this.lineWidth / 2 );
-        var toFront = tangent.times( this.lineWidth / 2 );
+        var toLeft = tangent.perpendicular.negated().times( this.lineWidth / 2 ); // eslint-disable-line no-var
+        var toRight = tangent.perpendicular.times( this.lineWidth / 2 ); // eslint-disable-line no-var
+        var toFront = tangent.times( this.lineWidth / 2 ); // eslint-disable-line no-var
 
-        var left = center.plus( toLeft ).plus( toFront );
-        var right = center.plus( toRight ).plus( toFront );
+        var left = center.plus( toLeft ).plus( toFront ); // eslint-disable-line no-var
+        var right = center.plus( toRight ).plus( toFront ); // eslint-disable-line no-var
         return [
           new Line( fromPoint, left ),
           new Line( left, right ),

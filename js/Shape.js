@@ -1082,7 +1082,7 @@ class Shape {
     const segmentNumber = ( options.isClosedLineSegments ) ? pointNumber : pointNumber - 1;
 
     for ( let i = 0; i < segmentNumber; i++ ) {
-      var cardinalPoints; // {Array.<Vector2>} cardinal points Array
+      let cardinalPoints; // {Array.<Vector2>} cardinal points Array
       if ( i === 0 && !options.isClosedLineSegments ) {
         cardinalPoints = [
           positions[ 0 ],
@@ -1442,13 +1442,13 @@ class Shape {
     let subpaths = [];
     const bounds = Bounds2.NOTHING.copy();
     let subLen = this.subpaths.length;
-    for ( var i = 0; i < subLen; i++ ) {
+    for ( let i = 0; i < subLen; i++ ) {
       const subpath = this.subpaths[ i ];
       const strokedSubpath = subpath.stroked( lineStyles );
       subpaths = subpaths.concat( strokedSubpath );
     }
     subLen = subpaths.length;
-    for ( i = 0; i < subLen; i++ ) {
+    for ( let i = 0; i < subLen; i++ ) {
       bounds.includeBounds( subpaths[ i ].bounds );
     }
     return new Shape( subpaths, bounds );
@@ -1466,11 +1466,11 @@ class Shape {
     const subpaths = [];
     const bounds = Bounds2.NOTHING.copy();
     let subLen = this.subpaths.length;
-    for ( var i = 0; i < subLen; i++ ) {
+    for ( let i = 0; i < subLen; i++ ) {
       subpaths.push( this.subpaths[ i ].offset( distance ) );
     }
     subLen = subpaths.length;
-    for ( i = 0; i < subLen; i++ ) {
+    for ( let i = 0; i < subLen; i++ ) {
       bounds.includeBounds( subpaths[ i ].bounds );
     }
     return new Shape( subpaths, bounds );
@@ -1530,7 +1530,7 @@ class Shape {
     // Check if all of our segments end vertically or horizontally AND our drawable subpaths are all closed. If so,
     // we can apply a bounds dilation.
     let areStrokedBoundsDilated = true;
-    for ( var i = 0; i < this.subpaths.length; i++ ) {
+    for ( let i = 0; i < this.subpaths.length; i++ ) {
       const subpath = this.subpaths[ i ];
 
       // If a subpath with any segments is NOT closed, line-caps will apply. We can't make the simplification in this
@@ -1539,7 +1539,7 @@ class Shape {
         areStrokedBoundsDilated = false;
         break;
       }
-      for ( var j = 0; j < subpath.segments.length; j++ ) {
+      for ( let j = 0; j < subpath.segments.length; j++ ) {
         const segment = subpath.segments[ j ];
         if ( !segment.areStrokedBoundsDilated() ) {
           areStrokedBoundsDilated = false;
@@ -1553,9 +1553,9 @@ class Shape {
     }
     else {
       const bounds = this.bounds.copy();
-      for ( i = 0; i < this.subpaths.length; i++ ) {
+      for ( let i = 0; i < this.subpaths.length; i++ ) {
         const subpaths = this.subpaths[ i ].stroked( lineStyles );
-        for ( j = 0; j < subpaths.length; j++ ) {
+        for ( let j = 0; j < subpaths.length; j++ ) {
           bounds.includeBounds( subpaths[ j ].bounds );
         }
       }

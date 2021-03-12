@@ -173,12 +173,12 @@ class BoundsIntersection {
 
     // NOTE: Doesn't have to be the fastest, won't be a crazy huge amount of these unless something went
     //       seriously wrong (degenerate case?)
-    for ( var i = 0; i < intersections.length; i++ ) {
+    for ( let i = 0; i < intersections.length; i++ ) {
       const intersection = intersections[ i ];
       let wasAdded = false;
       nextComparison:
-        for ( var j = 0; j < groups.length; j++ ) {
-          var group = groups[ j ];
+        for ( let j = 0; j < groups.length; j++ ) {
+          const group = groups[ j ];
           for ( let k = 0; k < group.length; k++ ) {
             const otherIntersection = group[ k ];
             if ( intersection.distance( otherIntersection ) < 1e-13 ) {
@@ -196,12 +196,12 @@ class BoundsIntersection {
     const results = [];
 
     // For each group, average its parametric values, and create a "result intersection" from it.
-    for ( i = 0; i < groups.length; i++ ) {
-      group = groups[ i ];
+    for ( let i = 0; i < groups.length; i++ ) {
+      const group = groups[ i ];
 
       let aT = 0;
       let bT = 0;
-      for ( j = 0; j < group.length; j++ ) {
+      for ( let j = 0; j < group.length; j++ ) {
         aT += group[ j ].atMin + group[ j ].atMax;
         bT += group[ j ].btMin + group[ j ].btMax;
       }
@@ -216,7 +216,7 @@ class BoundsIntersection {
     }
 
     // Clean up
-    for ( i = 0; i < intersections.length; i++ ) {
+    for ( let i = 0; i < intersections.length; i++ ) {
       intersections[ i ].freeToPool();
     }
     BoundsIntersection.cleanPool();
@@ -244,8 +244,8 @@ class BoundsIntersection {
 
     // Set up initial candidiate intersection ranges
     let intersections = [];
-    for ( var i = 0; i < aInternals.length; i++ ) {
-      for ( var j = 0; j < bInternals.length; j++ ) {
+    for ( let i = 0; i < aInternals.length; i++ ) {
+      for ( let j = 0; j < bInternals.length; j++ ) {
         const atMin = aInternals[ i ][ 0 ];
         const atMax = aInternals[ i ][ 1 ];
         const btMin = bInternals[ j ][ 0 ];
@@ -264,9 +264,9 @@ class BoundsIntersection {
 
     // Subdivide continuously
     // TODO: is 50 the proper number of iterations?
-    for ( i = 0; i < 50; i++ ) {
+    for ( let i = 0; i < 50; i++ ) {
       const newIntersections = [];
-      for ( j = intersections.length - 1; j >= 0; j-- ) {
+      for ( let j = intersections.length - 1; j >= 0; j-- ) {
         intersections[ j ].pushSubdivisions( newIntersections );
       }
       intersections = newIntersections;

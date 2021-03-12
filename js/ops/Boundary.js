@@ -131,17 +131,17 @@ class Boundary {
 
     // Transform all of the segments into the new transformed coordinate space.
     const transformedSegments = [];
-    for ( var i = 0; i < this.halfEdges.length; i++ ) {
+    for ( let i = 0; i < this.halfEdges.length; i++ ) {
       transformedSegments.push( this.halfEdges[ i ].edge.segment.transformed( transform.getMatrix() ) );
     }
 
     // Find the bounds of the entire transformed boundary
     const transformedBounds = Bounds2.NOTHING.copy();
-    for ( i = 0; i < transformedSegments.length; i++ ) {
+    for ( let i = 0; i < transformedSegments.length; i++ ) {
       transformedBounds.includeBounds( transformedSegments[ i ].getBounds() );
     }
 
-    for ( i = 0; i < transformedSegments.length; i++ ) {
+    for ( let i = 0; i < transformedSegments.length; i++ ) {
       const segment = transformedSegments[ i ];
 
       // See if this is one of our potential segments whose bounds have the minimal y value. This indicates at least

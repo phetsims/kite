@@ -389,11 +389,11 @@ class Graph {
   replaceEdgeInLoops( edge, forwardHalfEdges ) {
     // Compute reversed half-edges
     const reversedHalfEdges = [];
-    for ( var i = 0; i < forwardHalfEdges.length; i++ ) {
+    for ( let i = 0; i < forwardHalfEdges.length; i++ ) {
       reversedHalfEdges.push( forwardHalfEdges[ forwardHalfEdges.length - 1 - i ].getReversed() );
     }
 
-    for ( i = 0; i < this.loops.length; i++ ) {
+    for ( let i = 0; i < this.loops.length; i++ ) {
       const loop = this.loops[ i ];
 
       for ( let j = loop.halfEdges.length - 1; j >= 0; j-- ) {
@@ -617,10 +617,10 @@ class Graph {
     const aForwardHalfEdges = [];
     const bForwardHalfEdges = [];
 
-    for ( var i = 0; i < aEdges.length; i++ ) {
+    for ( let i = 0; i < aEdges.length; i++ ) {
       aForwardHalfEdges.push( aEdges[ i ].forwardHalf );
     }
-    for ( i = 0; i < bEdges.length; i++ ) {
+    for ( let i = 0; i < bEdges.length; i++ ) {
       // Handle reversing the "middle" edge
       const isForward = bEdges[ i ] !== middleEdge || overlap.a > 0;
       bForwardHalfEdges.push( isForward ? bEdges[ i ].forwardHalf : bEdges[ i ].reversedHalf );
@@ -907,14 +907,14 @@ class Graph {
   removeBridges() {
     const bridges = [];
 
-    for ( var i = 0; i < this.vertices.length; i++ ) {
+    for ( let i = 0; i < this.vertices.length; i++ ) {
       const vertex = this.vertices[ i ];
       if ( !vertex.visited ) {
         this.markBridges( bridges, vertex );
       }
     }
 
-    for ( i = 0; i < bridges.length; i++ ) {
+    for ( let i = 0; i < bridges.length; i++ ) {
       const bridgeEdge = bridges[ i ];
 
       this.removeEdge( bridgeEdge );
@@ -977,7 +977,7 @@ class Graph {
    */
   extractFaces() {
     const halfEdges = [];
-    for ( var i = 0; i < this.edges.length; i++ ) {
+    for ( let i = 0; i < this.edges.length; i++ ) {
       halfEdges.push( this.edges[ i ].forwardHalf );
       halfEdges.push( this.edges[ i ].reversedHalf );
     }
@@ -999,7 +999,7 @@ class Graph {
       this.boundaries.push( boundary );
     }
 
-    for ( i = 0; i < this.innerBoundaries.length; i++ ) {
+    for ( let i = 0; i < this.innerBoundaries.length; i++ ) {
       this.faces.push( Face.createFromPool( this.innerBoundaries[ i ] ) );
     }
   }
@@ -1020,7 +1020,7 @@ class Graph {
     // We have a mostly-arbitrary angle here that hopefully won't be used.
     const transform = new Transform3( Matrix3.rotation2( 1.5729657 ) );
 
-    for ( var i = 0; i < this.outerBoundaries.length; i++ ) {
+    for ( let i = 0; i < this.outerBoundaries.length; i++ ) {
       const outerBoundary = this.outerBoundaries[ i ];
 
       const ray = outerBoundary.computeExtremeRay( transform );
@@ -1056,7 +1056,7 @@ class Graph {
     }
 
     unboundedHoles.forEach( this.unboundedFace.recursivelyAddHoles.bind( this.unboundedFace ) );
-    for ( i = 0; i < this.faces.length; i++ ) {
+    for ( let i = 0; i < this.faces.length; i++ ) {
       const face = this.faces[ i ];
       if ( face.boundary !== null ) {
         face.boundary.childBoundaries.forEach( face.recursivelyAddHoles.bind( face ) );
@@ -1165,7 +1165,7 @@ class Graph {
    */
   fillAlternatingFaces() {
     let nullFaceFilledCount = 0;
-    for ( var i = 0; i < this.faces.length; i++ ) {
+    for ( let i = 0; i < this.faces.length; i++ ) {
       this.faces[ i ].filled = null;
       nullFaceFilledCount++;
     }
@@ -1174,7 +1174,7 @@ class Graph {
     nullFaceFilledCount--;
 
     while ( nullFaceFilledCount ) {
-      for ( i = 0; i < this.edges.length; i++ ) {
+      for ( let i = 0; i < this.edges.length; i++ ) {
         const edge = this.edges[ i ];
         const forwardFace = edge.forwardHalf.face;
         const reversedFace = edge.reversedHalf.face;

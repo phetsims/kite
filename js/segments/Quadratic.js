@@ -495,7 +495,7 @@ class Quadratic extends Segment {
    */
   getSVGPathFragment() {
     if ( assert ) {
-      var oldPathFragment = this._svgPathFragment;
+      var oldPathFragment = this._svgPathFragment; // eslint-disable-line no-var
       this._svgPathFragment = null;
     }
     if ( !this._svgPathFragment ) {

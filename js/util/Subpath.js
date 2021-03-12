@@ -606,7 +606,7 @@ class Subpath {
 
     // Compute all of the dashes
     const dashItems = [];
-    for ( var i = 0; i < this.segments.length; i++ ) {
+    for ( let i = 0; i < this.segments.length; i++ ) {
       const segment = this.segments[ i ];
       const dashItem = segment.getDashValues( lineDash, lineDashOffset, distanceEpsilon, curveEpsilon );
       dashItems.push( dashItem );
@@ -631,9 +631,9 @@ class Subpath {
     }
 
     // Combine adjacent which both are filled on the middle
-    for ( i = dashItems.length - 1; i >= 1; i-- ) {
-      var leftItem = dashItems[ i - 1 ];
-      var rightItem = dashItems[ i ];
+    for ( let i = dashItems.length - 1; i >= 1; i-- ) {
+      const leftItem = dashItems[ i - 1 ];
+      const rightItem = dashItems[ i ];
       if ( canBeCombined( leftItem, rightItem ) ) {
         dashItems.splice( i - 1, 2, {
           segmentArrays: combineSegmentArrays( leftItem.segmentArrays, rightItem.segmentArrays ),
@@ -645,8 +645,8 @@ class Subpath {
 
     // Combine adjacent start/end if applicable
     if ( dashItems.length > 1 && canBeCombined( dashItems[ dashItems.length - 1 ], dashItems[ 0 ] ) ) {
-      leftItem = dashItems.pop();
-      rightItem = dashItems.shift();
+      const leftItem = dashItems.pop();
+      const rightItem = dashItems.shift();
       dashItems.push( {
         segmentArrays: combineSegmentArrays( leftItem.segmentArrays, rightItem.segmentArrays ),
         hasLeftFilled: leftItem.hasLeftFilled,

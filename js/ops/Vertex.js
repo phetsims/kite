@@ -79,7 +79,7 @@ class Vertex {
    */
   sortEdges() {
     const vectors = []; // x coordinate will be "angle", y coordinate will be curvature
-    for ( var i = 0; i < this.incidentHalfEdges.length; i++ ) {
+    for ( let i = 0; i < this.incidentHalfEdges.length; i++ ) {
       const halfEdge = this.incidentHalfEdges[ i ];
       // NOTE: If it is expensive to precompute curvature, we could save it until edgeComparison needs it.
       vectors.push( halfEdge.sortVector.setXY( halfEdge.getEndTangent().angle, halfEdge.getEndCurvature() ) );
@@ -91,13 +91,13 @@ class Vertex {
     let atCutAngle = false;
     while ( !atCutAngle ) {
       atCutAngle = true;
-      for ( i = 0; i < vectors.length; i++ ) {
+      for ( let i = 0; i < vectors.length; i++ ) {
         if ( vectors[ i ].x < cutoff ) {
           atCutAngle = false;
         }
       }
       if ( !atCutAngle ) {
-        for ( i = 0; i < vectors.length; i++ ) {
+        for ( let i = 0; i < vectors.length; i++ ) {
           const vector = vectors[ i ];
           vector.x -= 1.62594024516; // Definitely not choosing random digits by typing! (shouldn't matter)
           if ( vector.x < -Math.PI - 1e-4 ) {
