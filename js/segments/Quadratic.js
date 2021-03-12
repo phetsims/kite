@@ -51,8 +51,8 @@ class Quadratic extends Segment {
    * @returns {Quadratic}
    */
   setStart( start ) {
-    assert && assert( start instanceof Vector2, 'Quadratic start should be a Vector2: ' + start );
-    assert && assert( start.isFinite(), 'Quadratic start should be finite: ' + start.toString() );
+    assert && assert( start instanceof Vector2, `Quadratic start should be a Vector2: ${start}` );
+    assert && assert( start.isFinite(), `Quadratic start should be finite: ${start.toString()}` );
 
     if ( !this._start.equals( start ) ) {
       this._start = start;
@@ -83,8 +83,8 @@ class Quadratic extends Segment {
    * @returns {Quadratic}
    */
   setControl( control ) {
-    assert && assert( control instanceof Vector2, 'Quadratic control should be a Vector2: ' + control );
-    assert && assert( control.isFinite(), 'Quadratic control should be finite: ' + control.toString() );
+    assert && assert( control instanceof Vector2, `Quadratic control should be a Vector2: ${control}` );
+    assert && assert( control.isFinite(), `Quadratic control should be finite: ${control.toString()}` );
 
     if ( !this._control.equals( control ) ) {
       this._control = control;
@@ -115,8 +115,8 @@ class Quadratic extends Segment {
    * @returns {Quadratic}
    */
   setEnd( end ) {
-    assert && assert( end instanceof Vector2, 'Quadratic end should be a Vector2: ' + end );
-    assert && assert( end.isFinite(), 'Quadratic end should be finite: ' + end.toString() );
+    assert && assert( end instanceof Vector2, `Quadratic end should be a Vector2: ${end}` );
+    assert && assert( end.isFinite(), `Quadratic end should be finite: ${end.toString()}` );
 
     if ( !this._end.equals( end ) ) {
       this._end = end;
@@ -252,12 +252,12 @@ class Quadratic extends Segment {
    * @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    */
   invalidate() {
-    assert && assert( this._start instanceof Vector2, 'Quadratic start should be a Vector2: ' + this._start );
-    assert && assert( this._start.isFinite(), 'Quadratic start should be finite: ' + this._start.toString() );
-    assert && assert( this._control instanceof Vector2, 'Quadratic control should be a Vector2: ' + this._control );
-    assert && assert( this._control.isFinite(), 'Quadratic control should be finite: ' + this._control.toString() );
-    assert && assert( this._end instanceof Vector2, 'Quadratic end should be a Vector2: ' + this._end );
-    assert && assert( this._end.isFinite(), 'Quadratic end should be finite: ' + this._end.toString() );
+    assert && assert( this._start instanceof Vector2, `Quadratic start should be a Vector2: ${this._start}` );
+    assert && assert( this._start.isFinite(), `Quadratic start should be finite: ${this._start.toString()}` );
+    assert && assert( this._control instanceof Vector2, `Quadratic control should be a Vector2: ${this._control}` );
+    assert && assert( this._control.isFinite(), `Quadratic control should be finite: ${this._control.toString()}` );
+    assert && assert( this._end instanceof Vector2, `Quadratic end should be a Vector2: ${this._end}` );
+    assert && assert( this._end.isFinite(), `Quadratic end should be finite: ${this._end.toString()}` );
 
     // Lazily-computed derived information
     this._startTangent = null; // {Vector2|null}
@@ -499,8 +499,8 @@ class Quadratic extends Segment {
       this._svgPathFragment = null;
     }
     if ( !this._svgPathFragment ) {
-      this._svgPathFragment = 'Q ' + kite.svgNumber( this._control.x ) + ' ' + kite.svgNumber( this._control.y ) + ' ' +
-                              kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
+      this._svgPathFragment = `Q ${kite.svgNumber( this._control.x )} ${kite.svgNumber( this._control.y )} ${
+                              kite.svgNumber( this._end.x )} ${kite.svgNumber( this._end.y )}`;
     }
     if ( assert ) {
       if ( oldPathFragment ) {

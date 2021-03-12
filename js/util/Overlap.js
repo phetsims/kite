@@ -78,10 +78,10 @@ class Overlap {
     if ( this.qt1 < 0 && this.qt1 > -1e-8 ) { this.qt1 = 0; }
     if ( this.qt1 > 1 && this.qt1 < 1 + 1e-8 ) { this.qt1 = 1; }
 
-    assert && assert( this.t0 >= 0 && this.t0 <= 1, 't0 out of range: ' + this.t0 );
-    assert && assert( this.t1 >= 0 && this.t1 <= 1, 't1 out of range: ' + this.t1 );
-    assert && assert( this.qt0 >= 0 && this.qt0 <= 1, 'qt0 out of range: ' + this.qt0 );
-    assert && assert( this.qt1 >= 0 && this.qt1 <= 1, 'qt1 out of range: ' + this.qt1 );
+    assert && assert( this.t0 >= 0 && this.t0 <= 1, `t0 out of range: ${this.t0}` );
+    assert && assert( this.t1 >= 0 && this.t1 <= 1, `t1 out of range: ${this.t1}` );
+    assert && assert( this.qt0 >= 0 && this.qt0 <= 1, `qt0 out of range: ${this.qt0}` );
+    assert && assert( this.qt1 >= 0 && this.qt1 <= 1, `qt1 out of range: ${this.qt1}` );
   }
 
   /**

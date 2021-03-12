@@ -113,7 +113,7 @@ class Shape {
       assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' );
       // parse the SVG path
       _.each( svgPath.parse( subpaths ), item => {
-        assert && assert( Shape.prototype[ item.cmd ] !== undefined, 'method ' + item.cmd + ' from parsed SVG does not exist' );
+        assert && assert( Shape.prototype[ item.cmd ] !== undefined, `method ${item.cmd} from parsed SVG does not exist` );
         this[ item.cmd ].apply( this, item.args );
       } );
     }
@@ -166,8 +166,8 @@ class Shape {
    * @returns {Shape}
    */
   moveTo( x, y ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
     return this.moveToPoint( v( x, y ) );
   }
 
@@ -180,8 +180,8 @@ class Shape {
    * @returns {Shape}
    */
   moveToRelative( x, y ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
     return this.moveToPointRelative( v( x, y ) );
   }
 
@@ -219,8 +219,8 @@ class Shape {
    * @returns {Shape}
    */
   lineTo( x, y ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
     return this.lineToPoint( v( x, y ) );
   }
 
@@ -233,8 +233,8 @@ class Shape {
    * @returns {Shape}
    */
   lineToRelative( x, y ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
     return this.lineToPointRelative( v( x, y ) );
   }
 
@@ -343,7 +343,7 @@ class Shape {
    */
   zigZagToPoint( endPoint, amplitude, numberZigZags, symmetrical ) {
 
-    assert && assert( Number.isInteger( numberZigZags ), 'numberZigZags must be an integer: ' + numberZigZags );
+    assert && assert( Number.isInteger( numberZigZags ), `numberZigZags must be an integer: ${numberZigZags}` );
 
     this.ensure( endPoint );
     const startPoint = this.getLastPoint();
@@ -391,10 +391,10 @@ class Shape {
    * @returns {Shape}
    */
   quadraticCurveTo( cpx, cpy, x, y ) {
-    assert && assert( typeof cpx === 'number' && isFinite( cpx ), 'cpx must be a finite number: ' + cpx );
-    assert && assert( typeof cpy === 'number' && isFinite( cpy ), 'cpy must be a finite number: ' + cpy );
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+    assert && assert( typeof cpx === 'number' && isFinite( cpx ), `cpx must be a finite number: ${cpx}` );
+    assert && assert( typeof cpy === 'number' && isFinite( cpy ), `cpy must be a finite number: ${cpy}` );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
     return this.quadraticCurveToPoint( v( cpx, cpy ), v( x, y ) );
   }
 
@@ -410,10 +410,10 @@ class Shape {
    * @returns {Shape}
    */
   quadraticCurveToRelative( cpx, cpy, x, y ) {
-    assert && assert( typeof cpx === 'number' && isFinite( cpx ), 'cpx must be a finite number: ' + cpx );
-    assert && assert( typeof cpy === 'number' && isFinite( cpy ), 'cpy must be a finite number: ' + cpy );
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+    assert && assert( typeof cpx === 'number' && isFinite( cpx ), `cpx must be a finite number: ${cpx}` );
+    assert && assert( typeof cpy === 'number' && isFinite( cpy ), `cpy must be a finite number: ${cpy}` );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
     return this.quadraticCurveToPointRelative( v( cpx, cpy ), v( x, y ) );
   }
 
@@ -443,8 +443,8 @@ class Shape {
    * @returns {Shape}
    */
   smoothQuadraticCurveTo( x, y ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
     return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ) );
   }
 
@@ -458,8 +458,8 @@ class Shape {
    * @returns {Shape}
    */
   smoothQuadraticCurveToRelative( x, y ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
     return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ).plus( this.getRelativePoint() ) );
   }
 
@@ -500,12 +500,12 @@ class Shape {
    * @returns {Shape}
    */
   cubicCurveTo( cp1x, cp1y, cp2x, cp2y, x, y ) {
-    assert && assert( typeof cp1x === 'number' && isFinite( cp1x ), 'cp1x must be a finite number: ' + cp1x );
-    assert && assert( typeof cp1y === 'number' && isFinite( cp1y ), 'cp1y must be a finite number: ' + cp1y );
-    assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), 'cp2x must be a finite number: ' + cp2x );
-    assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), 'cp2y must be a finite number: ' + cp2y );
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+    assert && assert( typeof cp1x === 'number' && isFinite( cp1x ), `cp1x must be a finite number: ${cp1x}` );
+    assert && assert( typeof cp1y === 'number' && isFinite( cp1y ), `cp1y must be a finite number: ${cp1y}` );
+    assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), `cp2x must be a finite number: ${cp2x}` );
+    assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), `cp2y must be a finite number: ${cp2y}` );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
     return this.cubicCurveToPoint( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) );
   }
 
@@ -521,12 +521,12 @@ class Shape {
    * @returns {Shape}
    */
   cubicCurveToRelative( cp1x, cp1y, cp2x, cp2y, x, y ) {
-    assert && assert( typeof cp1x === 'number' && isFinite( cp1x ), 'cp1x must be a finite number: ' + cp1x );
-    assert && assert( typeof cp1y === 'number' && isFinite( cp1y ), 'cp1y must be a finite number: ' + cp1y );
-    assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), 'cp2x must be a finite number: ' + cp2x );
-    assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), 'cp2y must be a finite number: ' + cp2y );
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+    assert && assert( typeof cp1x === 'number' && isFinite( cp1x ), `cp1x must be a finite number: ${cp1x}` );
+    assert && assert( typeof cp1y === 'number' && isFinite( cp1y ), `cp1y must be a finite number: ${cp1y}` );
+    assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), `cp2x must be a finite number: ${cp2x}` );
+    assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), `cp2y must be a finite number: ${cp2y}` );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
     return this.cubicCurveToPointRelative( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) );
   }
 
@@ -553,10 +553,10 @@ class Shape {
    * @returns {Shape}
    */
   smoothCubicCurveTo( cp2x, cp2y, x, y ) {
-    assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), 'cp2x must be a finite number: ' + cp2x );
-    assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), 'cp2y must be a finite number: ' + cp2y );
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+    assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), `cp2x must be a finite number: ${cp2x}` );
+    assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), `cp2y must be a finite number: ${cp2y}` );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
     return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ), v( x, y ) );
   }
 
@@ -570,10 +570,10 @@ class Shape {
    * @returns {Shape}
    */
   smoothCubicCurveToRelative( cp2x, cp2y, x, y ) {
-    assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), 'cp2x must be a finite number: ' + cp2x );
-    assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), 'cp2y must be a finite number: ' + cp2y );
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
+    assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), `cp2x must be a finite number: ${cp2x}` );
+    assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), `cp2y must be a finite number: ${cp2y}` );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
     return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ).plus( this.getRelativePoint() ), v( x, y ).plus( this.getRelativePoint() ) );
   }
 
@@ -614,8 +614,8 @@ class Shape {
    * @returns {Shape}
    */
   arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) {
-    assert && assert( typeof centerX === 'number' && isFinite( centerX ), 'centerX must be a finite number: ' + centerX );
-    assert && assert( typeof centerY === 'number' && isFinite( centerY ), 'centerY must be a finite number: ' + centerY );
+    assert && assert( typeof centerX === 'number' && isFinite( centerX ), `centerX must be a finite number: ${centerX}` );
+    assert && assert( typeof centerY === 'number' && isFinite( centerY ), `centerY must be a finite number: ${centerY}` );
     return this.arcPoint( v( centerX, centerY ), radius, startAngle, endAngle, anticlockwise );
   }
 
@@ -675,8 +675,8 @@ class Shape {
    * @returns {Shape}
    */
   ellipticalArc( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
-    assert && assert( typeof centerX === 'number' && isFinite( centerX ), 'centerX must be a finite number: ' + centerX );
-    assert && assert( typeof centerY === 'number' && isFinite( centerY ), 'centerY must be a finite number: ' + centerY );
+    assert && assert( typeof centerX === 'number' && isFinite( centerX ), `centerX must be a finite number: ${centerX}` );
+    assert && assert( typeof centerY === 'number' && isFinite( centerY ), `centerY must be a finite number: ${centerY}` );
     return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
   }
 
@@ -914,8 +914,8 @@ class Shape {
       return this.arcPoint( center, radius, 0, Math.PI * 2, false ).close();
     }
     else {
-      assert && assert( typeof centerX === 'number' && isFinite( centerX ), 'centerX must be a finite number: ' + centerX );
-      assert && assert( typeof centerY === 'number' && isFinite( centerY ), 'centerY must be a finite number: ' + centerY );
+      assert && assert( typeof centerX === 'number' && isFinite( centerX ), `centerX must be a finite number: ${centerX}` );
+      assert && assert( typeof centerY === 'number' && isFinite( centerY ), `centerY must be a finite number: ${centerY}` );
 
       // circle( centerX, centerY, radius )
       return this.arcPoint( v( centerX, centerY ), radius, 0, Math.PI * 2, false ).close();
@@ -949,8 +949,8 @@ class Shape {
       return this.ellipticalArcPoint( center, radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false ).close();
     }
     else {
-      assert && assert( typeof centerX === 'number' && isFinite( centerX ), 'centerX must be a finite number: ' + centerX );
-      assert && assert( typeof centerY === 'number' && isFinite( centerY ), 'centerY must be a finite number: ' + centerY );
+      assert && assert( typeof centerX === 'number' && isFinite( centerX ), `centerX must be a finite number: ${centerX}` );
+      assert && assert( typeof centerY === 'number' && isFinite( centerY ), `centerY must be a finite number: ${centerY}` );
 
       // ellipse( centerX, centerY, radiusX, radiusY, rotation )
       return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false ).close();
@@ -968,10 +968,10 @@ class Shape {
    * @returns {Shape}
    */
   rect( x, y, width, height ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), 'x must be a finite number: ' + x );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'y must be a finite number: ' + y );
-    assert && assert( typeof width === 'number' && isFinite( width ), 'width must be a finite number: ' + width );
-    assert && assert( typeof height === 'number' && isFinite( height ), 'height must be a finite number: ' + height );
+    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+    assert && assert( typeof width === 'number' && isFinite( width ), `width must be a finite number: ${width}` );
+    assert && assert( typeof height === 'number' && isFinite( height ), `height must be a finite number: ${height}` );
 
     const subpath = new Subpath();
     this.addSubpath( subpath );
@@ -1170,10 +1170,10 @@ class Shape {
         // since the commands after this are relative to the previous 'point', we need to specify a move to the initial point
         const startPoint = subpath.segments[ 0 ].start;
 
-        string += 'M ' + kite.svgNumber( startPoint.x ) + ' ' + kite.svgNumber( startPoint.y ) + ' ';
+        string += `M ${kite.svgNumber( startPoint.x )} ${kite.svgNumber( startPoint.y )} `;
 
         for ( let k = 0; k < subpath.segments.length; k++ ) {
-          string += subpath.segments[ k ].getSVGPathFragment() + ' ';
+          string += `${subpath.segments[ k ].getSVGPathFragment()} `;
         }
 
         if ( subpath.isClosed() ) {
@@ -1708,7 +1708,7 @@ class Shape {
    */
   toString() {
     // TODO: consider a more verbose but safer way?
-    return 'new kite.Shape( \'' + this.getSVGPath() + '\' )';
+    return `new kite.Shape( '${this.getSVGPath()}' )`;
   }
 
   /*---------------------------------------------------------------------------*

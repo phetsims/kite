@@ -63,8 +63,8 @@ class Cubic extends Segment {
    * @returns {Cubic}
    */
   setStart( start ) {
-    assert && assert( start instanceof Vector2, 'Cubic start should be a Vector2: ' + start );
-    assert && assert( start.isFinite(), 'Cubic start should be finite: ' + start.toString() );
+    assert && assert( start instanceof Vector2, `Cubic start should be a Vector2: ${start}` );
+    assert && assert( start.isFinite(), `Cubic start should be finite: ${start.toString()}` );
 
     if ( !this._start.equals( start ) ) {
       this._start = start;
@@ -95,8 +95,8 @@ class Cubic extends Segment {
    * @returns {Cubic}
    */
   setControl1( control1 ) {
-    assert && assert( control1 instanceof Vector2, 'Cubic control1 should be a Vector2: ' + control1 );
-    assert && assert( control1.isFinite(), 'Cubic control1 should be finite: ' + control1.toString() );
+    assert && assert( control1 instanceof Vector2, `Cubic control1 should be a Vector2: ${control1}` );
+    assert && assert( control1.isFinite(), `Cubic control1 should be finite: ${control1.toString()}` );
 
     if ( !this._control1.equals( control1 ) ) {
       this._control1 = control1;
@@ -127,8 +127,8 @@ class Cubic extends Segment {
    * @returns {Cubic}
    */
   setControl2( control2 ) {
-    assert && assert( control2 instanceof Vector2, 'Cubic control2 should be a Vector2: ' + control2 );
-    assert && assert( control2.isFinite(), 'Cubic control2 should be finite: ' + control2.toString() );
+    assert && assert( control2 instanceof Vector2, `Cubic control2 should be a Vector2: ${control2}` );
+    assert && assert( control2.isFinite(), `Cubic control2 should be finite: ${control2.toString()}` );
 
     if ( !this._control2.equals( control2 ) ) {
       this._control2 = control2;
@@ -159,8 +159,8 @@ class Cubic extends Segment {
    * @returns {Cubic}
    */
   setEnd( end ) {
-    assert && assert( end instanceof Vector2, 'Cubic end should be a Vector2: ' + end );
-    assert && assert( end.isFinite(), 'Cubic end should be finite: ' + end.toString() );
+    assert && assert( end instanceof Vector2, `Cubic end should be a Vector2: ${end}` );
+    assert && assert( end.isFinite(), `Cubic end should be finite: ${end.toString()}` );
 
     if ( !this._end.equals( end ) ) {
       this._end = end;
@@ -312,14 +312,14 @@ class Cubic extends Segment {
    * @public
    */
   invalidate() {
-    assert && assert( this._start instanceof Vector2, 'Cubic start should be a Vector2: ' + this._start );
-    assert && assert( this._start.isFinite(), 'Cubic start should be finite: ' + this._start.toString() );
-    assert && assert( this._control1 instanceof Vector2, 'Cubic control1 should be a Vector2: ' + this._control1 );
-    assert && assert( this._control1.isFinite(), 'Cubic control1 should be finite: ' + this._control1.toString() );
-    assert && assert( this._control2 instanceof Vector2, 'Cubic control2 should be a Vector2: ' + this._control2 );
-    assert && assert( this._control2.isFinite(), 'Cubic control2 should be finite: ' + this._control2.toString() );
-    assert && assert( this._end instanceof Vector2, 'Cubic end should be a Vector2: ' + this._end );
-    assert && assert( this._end.isFinite(), 'Cubic end should be finite: ' + this._end.toString() );
+    assert && assert( this._start instanceof Vector2, `Cubic start should be a Vector2: ${this._start}` );
+    assert && assert( this._start.isFinite(), `Cubic start should be finite: ${this._start.toString()}` );
+    assert && assert( this._control1 instanceof Vector2, `Cubic control1 should be a Vector2: ${this._control1}` );
+    assert && assert( this._control1.isFinite(), `Cubic control1 should be finite: ${this._control1.toString()}` );
+    assert && assert( this._control2 instanceof Vector2, `Cubic control2 should be a Vector2: ${this._control2}` );
+    assert && assert( this._control2.isFinite(), `Cubic control2 should be finite: ${this._control2.toString()}` );
+    assert && assert( this._end instanceof Vector2, `Cubic end should be a Vector2: ${this._end}` );
+    assert && assert( this._end.isFinite(), `Cubic end should be finite: ${this._end.toString()}` );
 
     // Lazily-computed derived information
     this._startTangent = null; // {Vector2|null}
@@ -721,9 +721,9 @@ class Cubic extends Segment {
       this._svgPathFragment = null;
     }
     if ( !this._svgPathFragment ) {
-      this._svgPathFragment = 'C ' + kite.svgNumber( this._control1.x ) + ' ' + kite.svgNumber( this._control1.y ) + ' ' +
-                              kite.svgNumber( this._control2.x ) + ' ' + kite.svgNumber( this._control2.y ) + ' ' +
-                              kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
+      this._svgPathFragment = `C ${kite.svgNumber( this._control1.x )} ${kite.svgNumber( this._control1.y )} ${
+                              kite.svgNumber( this._control2.x )} ${kite.svgNumber( this._control2.y )} ${
+                              kite.svgNumber( this._end.x )} ${kite.svgNumber( this._end.y )}`;
     }
     if ( assert ) {
       if ( oldPathFragment ) {

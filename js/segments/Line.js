@@ -42,8 +42,8 @@ class Line extends Segment {
    * @returns {Line}
    */
   setStart( start ) {
-    assert && assert( start instanceof Vector2, 'Line start should be a Vector2: ' + start );
-    assert && assert( start.isFinite(), 'Line start should be finite: ' + start.toString() );
+    assert && assert( start instanceof Vector2, `Line start should be a Vector2: ${start}` );
+    assert && assert( start.isFinite(), `Line start should be finite: ${start.toString()}` );
 
     if ( !this._start.equals( start ) ) {
       this._start = start;
@@ -74,8 +74,8 @@ class Line extends Segment {
    * @returns {Line}
    */
   setEnd( end ) {
-    assert && assert( end instanceof Vector2, 'Line end should be a Vector2: ' + end );
-    assert && assert( end.isFinite(), 'Line end should be finite: ' + end.toString() );
+    assert && assert( end instanceof Vector2, `Line end should be a Vector2: ${end}` );
+    assert && assert( end.isFinite(), `Line end should be finite: ${end.toString()}` );
 
     if ( !this._end.equals( end ) ) {
       this._end = end;
@@ -190,10 +190,10 @@ class Line extends Segment {
    * @public
    */
   invalidate() {
-    assert && assert( this._start instanceof Vector2, 'Line start should be a Vector2: ' + this._start );
-    assert && assert( this._start.isFinite(), 'Line start should be finite: ' + this._start.toString() );
-    assert && assert( this._end instanceof Vector2, 'Line end should be a Vector2: ' + this._end );
-    assert && assert( this._end.isFinite(), 'Line end should be finite: ' + this._end.toString() );
+    assert && assert( this._start instanceof Vector2, `Line start should be a Vector2: ${this._start}` );
+    assert && assert( this._start.isFinite(), `Line start should be finite: ${this._start.toString()}` );
+    assert && assert( this._end instanceof Vector2, `Line end should be a Vector2: ${this._end}` );
+    assert && assert( this._end.isFinite(), `Line end should be finite: ${this._end.toString()}` );
 
     // Lazily-computed derived information
     this._tangent = null; // {Vector2|null}
@@ -294,7 +294,7 @@ class Line extends Segment {
       this._svgPathFragment = null;
     }
     if ( !this._svgPathFragment ) {
-      this._svgPathFragment = 'L ' + kite.svgNumber( this._end.x ) + ' ' + kite.svgNumber( this._end.y );
+      this._svgPathFragment = `L ${kite.svgNumber( this._end.x )} ${kite.svgNumber( this._end.y )}`;
     }
     if ( assert ) {
       if ( oldPathFragment ) {

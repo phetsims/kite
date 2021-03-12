@@ -56,8 +56,8 @@ class Arc extends Segment {
    * @returns {Arc}
    */
   setCenter( center ) {
-    assert && assert( center instanceof Vector2, 'Arc center should be a Vector2: ' + center );
-    assert && assert( center.isFinite(), 'Arc center should be finite: ' + center.toString() );
+    assert && assert( center instanceof Vector2, `Arc center should be a Vector2: ${center}` );
+    assert && assert( center.isFinite(), `Arc center should be finite: ${center.toString()}` );
 
     if ( !this._center.equals( center ) ) {
       this._center = center;
@@ -88,8 +88,8 @@ class Arc extends Segment {
    * @returns {Arc}
    */
   setRadius( radius ) {
-    assert && assert( typeof radius === 'number', 'Arc radius should be a number: ' + radius );
-    assert && assert( isFinite( radius ), 'Arc radius should be a finite number: ' + radius );
+    assert && assert( typeof radius === 'number', `Arc radius should be a number: ${radius}` );
+    assert && assert( isFinite( radius ), `Arc radius should be a finite number: ${radius}` );
 
     if ( this._radius !== radius ) {
       this._radius = radius;
@@ -120,8 +120,8 @@ class Arc extends Segment {
    * @returns {Arc}
    */
   setStartAngle( startAngle ) {
-    assert && assert( typeof startAngle === 'number', 'Arc startAngle should be a number: ' + startAngle );
-    assert && assert( isFinite( startAngle ), 'Arc startAngle should be a finite number: ' + startAngle );
+    assert && assert( typeof startAngle === 'number', `Arc startAngle should be a number: ${startAngle}` );
+    assert && assert( isFinite( startAngle ), `Arc startAngle should be a finite number: ${startAngle}` );
 
     if ( this._startAngle !== startAngle ) {
       this._startAngle = startAngle;
@@ -152,8 +152,8 @@ class Arc extends Segment {
    * @returns {Arc}
    */
   setEndAngle( endAngle ) {
-    assert && assert( typeof endAngle === 'number', 'Arc endAngle should be a number: ' + endAngle );
-    assert && assert( isFinite( endAngle ), 'Arc endAngle should be a finite number: ' + endAngle );
+    assert && assert( typeof endAngle === 'number', `Arc endAngle should be a number: ${endAngle}` );
+    assert && assert( isFinite( endAngle ), `Arc endAngle should be a finite number: ${endAngle}` );
 
     if ( this._endAngle !== endAngle ) {
       this._endAngle = endAngle;
@@ -184,7 +184,7 @@ class Arc extends Segment {
    * @returns {Arc}
    */
   setAnticlockwise( anticlockwise ) {
-    assert && assert( typeof anticlockwise === 'boolean', 'Arc anticlockwise should be a boolean: ' + anticlockwise );
+    assert && assert( typeof anticlockwise === 'boolean', `Arc anticlockwise should be a boolean: ${anticlockwise}` );
 
     if ( this._anticlockwise !== anticlockwise ) {
       this._anticlockwise = anticlockwise;
@@ -315,13 +315,13 @@ class Arc extends Segment {
 
     assert && assert( this._center instanceof Vector2, 'Arc center should be a Vector2' );
     assert && assert( this._center.isFinite(), 'Arc center should be finite (not NaN or infinite)' );
-    assert && assert( typeof this._radius === 'number', 'Arc radius should be a number: ' + this._radius );
-    assert && assert( isFinite( this._radius ), 'Arc radius should be a finite number: ' + this._radius );
-    assert && assert( typeof this._startAngle === 'number', 'Arc startAngle should be a number: ' + this._startAngle );
-    assert && assert( isFinite( this._startAngle ), 'Arc startAngle should be a finite number: ' + this._startAngle );
-    assert && assert( typeof this._endAngle === 'number', 'Arc endAngle should be a number: ' + this._endAngle );
-    assert && assert( isFinite( this._endAngle ), 'Arc endAngle should be a finite number: ' + this._endAngle );
-    assert && assert( typeof this._anticlockwise === 'boolean', 'Arc anticlockwise should be a boolean: ' + this._anticlockwise );
+    assert && assert( typeof this._radius === 'number', `Arc radius should be a number: ${this._radius}` );
+    assert && assert( isFinite( this._radius ), `Arc radius should be a finite number: ${this._radius}` );
+    assert && assert( typeof this._startAngle === 'number', `Arc startAngle should be a number: ${this._startAngle}` );
+    assert && assert( isFinite( this._startAngle ), `Arc startAngle should be a finite number: ${this._startAngle}` );
+    assert && assert( typeof this._endAngle === 'number', `Arc endAngle should be a number: ${this._endAngle}` );
+    assert && assert( isFinite( this._endAngle ), `Arc endAngle should be a finite number: ${this._endAngle}` );
+    assert && assert( typeof this._anticlockwise === 'boolean', `Arc anticlockwise should be a boolean: ${this._anticlockwise}` );
 
     // Remap negative radius to a positive radius
     if ( this._radius < 0 ) {
@@ -542,7 +542,7 @@ class Arc extends Segment {
   tAtAngle( angle ) {
     const t = ( this.mapAngle( angle ) - this._startAngle ) / ( this.getActualEndAngle() - this._startAngle );
 
-    assert && assert( t >= 0 && t <= 1, 'tAtAngle out of range: ' + t );
+    assert && assert( t >= 0 && t <= 1, `tAtAngle out of range: ${t}` );
 
     return t;
   }
@@ -624,8 +624,8 @@ class Arc extends Segment {
       let largeArcFlag;
       if ( this.angleDifference < Math.PI * 2 - epsilon ) {
         largeArcFlag = this.angleDifference < Math.PI ? '0' : '1';
-        this._svgPathFragment = 'A ' + kite.svgNumber( this._radius ) + ' ' + kite.svgNumber( this._radius ) + ' 0 ' + largeArcFlag +
-                                ' ' + sweepFlag + ' ' + kite.svgNumber( this.end.x ) + ' ' + kite.svgNumber( this.end.y );
+        this._svgPathFragment = `A ${kite.svgNumber( this._radius )} ${kite.svgNumber( this._radius )} 0 ${largeArcFlag
+                                } ${sweepFlag} ${kite.svgNumber( this.end.x )} ${kite.svgNumber( this.end.y )}`;
       }
       else {
         // circle (or almost-circle) case needs to be handled differently
@@ -637,12 +637,12 @@ class Arc extends Segment {
 
         largeArcFlag = '0'; // since we split it in 2, it's always the small arc
 
-        const firstArc = 'A ' + kite.svgNumber( this._radius ) + ' ' + kite.svgNumber( this._radius ) + ' 0 ' +
-                         largeArcFlag + ' ' + sweepFlag + ' ' + kite.svgNumber( splitPoint.x ) + ' ' + kite.svgNumber( splitPoint.y );
-        const secondArc = 'A ' + kite.svgNumber( this._radius ) + ' ' + kite.svgNumber( this._radius ) + ' 0 ' +
-                          largeArcFlag + ' ' + sweepFlag + ' ' + kite.svgNumber( this.end.x ) + ' ' + kite.svgNumber( this.end.y );
+        const firstArc = `A ${kite.svgNumber( this._radius )} ${kite.svgNumber( this._radius )} 0 ${
+                         largeArcFlag} ${sweepFlag} ${kite.svgNumber( splitPoint.x )} ${kite.svgNumber( splitPoint.y )}`;
+        const secondArc = `A ${kite.svgNumber( this._radius )} ${kite.svgNumber( this._radius )} 0 ${
+                          largeArcFlag} ${sweepFlag} ${kite.svgNumber( this.end.x )} ${kite.svgNumber( this.end.y )}`;
 
-        this._svgPathFragment = firstArc + ' ' + secondArc;
+        this._svgPathFragment = `${firstArc} ${secondArc}`;
       }
     }
     if ( assert ) {

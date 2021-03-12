@@ -63,20 +63,20 @@ class LineStyles {
     // @public {number} - When to cut off lineJoin:miter to look like lineJoin:bevel. See https://svgwg.org/svg2-draft/painting.html
     this.miterLimit = options.miterLimit;
 
-    assert && assert( typeof this.lineWidth === 'number', 'lineWidth should be a number: ' + this.lineWidth );
-    assert && assert( isFinite( this.lineWidth ), 'lineWidth should be a finite number: ' + this.lineWidth );
-    assert && assert( this.lineWidth >= 0, 'lineWidth should be non-negative: ' + this.lineWidth );
+    assert && assert( typeof this.lineWidth === 'number', `lineWidth should be a number: ${this.lineWidth}` );
+    assert && assert( isFinite( this.lineWidth ), `lineWidth should be a finite number: ${this.lineWidth}` );
+    assert && assert( this.lineWidth >= 0, `lineWidth should be non-negative: ${this.lineWidth}` );
     assert && assert( this.lineCap === 'butt' || this.lineCap === 'round' || this.lineCap === 'square',
-      'Invalid lineCap: ' + this.lineCap );
+      `Invalid lineCap: ${this.lineCap}` );
     assert && assert( this.lineJoin === 'miter' || this.lineJoin === 'round' || this.lineJoin === 'bevel',
-      'Invalid lineJoin: ' + this.lineJoin );
-    assert && assert( Array.isArray( this.lineDash ), 'lineDash should be an array: ' + this.lineDash );
+      `Invalid lineJoin: ${this.lineJoin}` );
+    assert && assert( Array.isArray( this.lineDash ), `lineDash should be an array: ${this.lineDash}` );
     assert && assert( _.every( this.lineDash, dash => ( typeof dash === 'number' ) && isFinite( dash ) && dash >= 0 ),
-      'Every lineDash should be a non-negative finite number: ' + this.lineDash );
-    assert && assert( typeof this.lineDashOffset === 'number', 'lineDashOffset should be a number: ' + this.lineDashOffset );
-    assert && assert( isFinite( this.lineDashOffset ), 'lineDashOffset should be a finite number: ' + this.lineDashOffset );
-    assert && assert( typeof this.miterLimit === 'number', 'miterLimit should be a number: ' + this.miterLimit );
-    assert && assert( isFinite( this.miterLimit ), 'miterLimit should be a finite number: ' + this.miterLimit );
+      `Every lineDash should be a non-negative finite number: ${this.lineDash}` );
+    assert && assert( typeof this.lineDashOffset === 'number', `lineDashOffset should be a number: ${this.lineDashOffset}` );
+    assert && assert( isFinite( this.lineDashOffset ), `lineDashOffset should be a finite number: ${this.lineDashOffset}` );
+    assert && assert( typeof this.miterLimit === 'number', `miterLimit should be a number: ${this.miterLimit}` );
+    assert && assert( isFinite( this.miterLimit ), `miterLimit should be a finite number: ${this.miterLimit}` );
   }
 
   /**
@@ -176,7 +176,7 @@ class LineStyles {
         case 'bevel':
           return bevel;
         default:
-          throw new Error( 'invalid lineJoin: ' + this.lineJoin );
+          throw new Error( `invalid lineJoin: ${this.lineJoin}` );
       }
     }
     else {
@@ -234,7 +234,7 @@ class LineStyles {
           new Line( right, toPoint )
         ];
       default:
-        throw new Error( 'invalid lineCap: ' + this.lineCap );
+        throw new Error( `invalid lineCap: ${this.lineCap}` );
     }
   }
 }
