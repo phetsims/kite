@@ -418,8 +418,7 @@ class Graph {
     while ( needsLoop ) {
       needsLoop = false;
 
-      collapsed:
-        for ( let i = 0; i < this.vertices.length; i++ ) {
+      for ( let i = 0; i < this.vertices.length; i++ ) {
           const vertex = this.vertices[ i ];
           if ( vertex.incidentHalfEdges.length === 2 ) {
             const aEdge = vertex.incidentHalfEdges[ 0 ].edge;
@@ -453,7 +452,7 @@ class Graph {
                 this.addEdge( new Edge( newSegment, aVertex, bVertex ) );
 
                 needsLoop = true;
-                break collapsed;
+                break;
               }
             }
           }
@@ -935,8 +934,7 @@ class Graph {
     while ( needsLoop ) {
       needsLoop = false;
 
-      nextVertexLoop:
-        for ( let i = this.vertices.length - 1; i >= 0; i-- ) {
+      for ( let i = this.vertices.length - 1; i >= 0; i-- ) {
           const vertex = this.vertices[ i ];
 
           if ( vertex.incidentHalfEdges.length < 2 ) {
@@ -953,7 +951,7 @@ class Graph {
             vertex.dispose();
 
             needsLoop = true;
-            break nextVertexLoop;
+            break;
           }
         }
     }
