@@ -18,7 +18,7 @@ const kite = new Namespace( 'kite' );
 // Since this needs to be done quickly, and we don't particularly care about slight rounding differences (it's
 // being used for display purposes only, and is never shown to the user), we use the built-in JS toFixed instead of
 // Dot's version of toFixed. See https://github.com/phetsims/kite/issues/50
-kite.register( 'svgNumber', function( n ) {
+kite.register( 'svgNumber', n => {
   return n.toFixed( 20 );
 } );
 

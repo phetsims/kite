@@ -14,7 +14,7 @@ module.exports = function( grunt ) {
 
   grunt.registerTask( 'generate-svgPath-parser',
     'Uses js/parser/svgPath.pegjs to generate js/parser/svgPath.js',
-    function() {
+    () => {
       const pegInput = fs.readFileSync( 'js/parser/svgPath.pegjs', 'utf8' );
       let source = pegjs.buildParser( pegInput ).toSource();
 
