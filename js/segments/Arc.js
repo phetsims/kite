@@ -625,7 +625,7 @@ class Arc extends Segment {
       if ( this.angleDifference < Math.PI * 2 - epsilon ) {
         largeArcFlag = this.angleDifference < Math.PI ? '0' : '1';
         this._svgPathFragment = `A ${kite.svgNumber( this._radius )} ${kite.svgNumber( this._radius )} 0 ${largeArcFlag
-                                } ${sweepFlag} ${kite.svgNumber( this.end.x )} ${kite.svgNumber( this.end.y )}`;
+        } ${sweepFlag} ${kite.svgNumber( this.end.x )} ${kite.svgNumber( this.end.y )}`;
       }
       else {
         // circle (or almost-circle) case needs to be handled differently
@@ -638,9 +638,9 @@ class Arc extends Segment {
         largeArcFlag = '0'; // since we split it in 2, it's always the small arc
 
         const firstArc = `A ${kite.svgNumber( this._radius )} ${kite.svgNumber( this._radius )} 0 ${
-                         largeArcFlag} ${sweepFlag} ${kite.svgNumber( splitPoint.x )} ${kite.svgNumber( splitPoint.y )}`;
+          largeArcFlag} ${sweepFlag} ${kite.svgNumber( splitPoint.x )} ${kite.svgNumber( splitPoint.y )}`;
         const secondArc = `A ${kite.svgNumber( this._radius )} ${kite.svgNumber( this._radius )} 0 ${
-                          largeArcFlag} ${sweepFlag} ${kite.svgNumber( this.end.x )} ${kite.svgNumber( this.end.y )}`;
+          largeArcFlag} ${sweepFlag} ${kite.svgNumber( this.end.x )} ${kite.svgNumber( this.end.y )}`;
 
         this._svgPathFragment = `${firstArc} ${secondArc}`;
       }

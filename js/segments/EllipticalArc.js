@@ -794,7 +794,7 @@ class EllipticalArc extends Segment {
       if ( this.getAngleDifference() < Math.PI * 2 - epsilon ) {
         largeArcFlag = this.getAngleDifference() < Math.PI ? '0' : '1';
         this._svgPathFragment = `A ${kite.svgNumber( this._radiusX )} ${kite.svgNumber( this._radiusY )} ${degreesRotation
-                                } ${largeArcFlag} ${sweepFlag} ${kite.svgNumber( this.getEnd().x )} ${kite.svgNumber( this.getEnd().y )}`;
+        } ${largeArcFlag} ${sweepFlag} ${kite.svgNumber( this.getEnd().x )} ${kite.svgNumber( this.getEnd().y )}`;
       }
       else {
         // ellipse (or almost-ellipse) case needs to be handled differently
@@ -807,11 +807,11 @@ class EllipticalArc extends Segment {
         largeArcFlag = '0'; // since we split it in 2, it's always the small arc
 
         const firstArc = `A ${kite.svgNumber( this._radiusX )} ${kite.svgNumber( this._radiusY )} ${
-                         degreesRotation} ${largeArcFlag} ${sweepFlag} ${
-                         kite.svgNumber( splitPoint.x )} ${kite.svgNumber( splitPoint.y )}`;
+          degreesRotation} ${largeArcFlag} ${sweepFlag} ${
+          kite.svgNumber( splitPoint.x )} ${kite.svgNumber( splitPoint.y )}`;
         const secondArc = `A ${kite.svgNumber( this._radiusX )} ${kite.svgNumber( this._radiusY )} ${
-                          degreesRotation} ${largeArcFlag} ${sweepFlag} ${
-                          kite.svgNumber( this.getEnd().x )} ${kite.svgNumber( this.getEnd().y )}`;
+          degreesRotation} ${largeArcFlag} ${sweepFlag} ${
+          kite.svgNumber( this.getEnd().x )} ${kite.svgNumber( this.getEnd().y )}`;
 
         this._svgPathFragment = `${firstArc} ${secondArc}`;
       }

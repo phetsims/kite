@@ -500,7 +500,7 @@ class Quadratic extends Segment {
     }
     if ( !this._svgPathFragment ) {
       this._svgPathFragment = `Q ${kite.svgNumber( this._control.x )} ${kite.svgNumber( this._control.y )} ${
-                              kite.svgNumber( this._end.x )} ${kite.svgNumber( this._end.y )}`;
+        kite.svgNumber( this._end.x )} ${kite.svgNumber( this._end.y )}`;
     }
     if ( assert ) {
       if ( oldPathFragment ) {

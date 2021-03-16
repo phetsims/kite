@@ -722,8 +722,8 @@ class Cubic extends Segment {
     }
     if ( !this._svgPathFragment ) {
       this._svgPathFragment = `C ${kite.svgNumber( this._control1.x )} ${kite.svgNumber( this._control1.y )} ${
-                              kite.svgNumber( this._control2.x )} ${kite.svgNumber( this._control2.y )} ${
-                              kite.svgNumber( this._end.x )} ${kite.svgNumber( this._end.y )}`;
+        kite.svgNumber( this._control2.x )} ${kite.svgNumber( this._control2.y )} ${
+        kite.svgNumber( this._end.x )} ${kite.svgNumber( this._end.y )}`;
     }
     if ( assert ) {
       if ( oldPathFragment ) {

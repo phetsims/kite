@@ -419,44 +419,44 @@ class Graph {
       needsLoop = false;
 
       for ( let i = 0; i < this.vertices.length; i++ ) {
-          const vertex = this.vertices[ i ];
-          if ( vertex.incidentHalfEdges.length === 2 ) {
-            const aEdge = vertex.incidentHalfEdges[ 0 ].edge;
-            const bEdge = vertex.incidentHalfEdges[ 1 ].edge;
-            let aSegment = aEdge.segment;
-            let bSegment = bEdge.segment;
-            const aVertex = aEdge.getOtherVertex( vertex );
-            const bVertex = bEdge.getOtherVertex( vertex );
+        const vertex = this.vertices[ i ];
+        if ( vertex.incidentHalfEdges.length === 2 ) {
+          const aEdge = vertex.incidentHalfEdges[ 0 ].edge;
+          const bEdge = vertex.incidentHalfEdges[ 1 ].edge;
+          let aSegment = aEdge.segment;
+          let bSegment = bEdge.segment;
+          const aVertex = aEdge.getOtherVertex( vertex );
+          const bVertex = bEdge.getOtherVertex( vertex );
 
-            assert && assert( this.loops.length === 0 );
+          assert && assert( this.loops.length === 0 );
 
-            // TODO: Can we avoid this in the inner loop?
-            if ( aEdge.startVertex === vertex ) {
-              aSegment = aSegment.reversed();
-            }
-            if ( bEdge.endVertex === vertex ) {
-              bSegment = bSegment.reversed();
-            }
+          // TODO: Can we avoid this in the inner loop?
+          if ( aEdge.startVertex === vertex ) {
+            aSegment = aSegment.reversed();
+          }
+          if ( bEdge.endVertex === vertex ) {
+            bSegment = bSegment.reversed();
+          }
 
-            if ( aSegment instanceof Line && bSegment instanceof Line ) {
-              // See if the lines are collinear, so that we can combine them into one edge
-              if ( aSegment.tangentAt( 0 ).normalized().distance( bSegment.tangentAt( 0 ).normalized() ) < 1e-6 ) {
-                this.removeEdge( aEdge );
-                this.removeEdge( bEdge );
-                aEdge.dispose();
-                bEdge.dispose();
-                arrayRemove( this.vertices, vertex );
-                vertex.dispose();
+          if ( aSegment instanceof Line && bSegment instanceof Line ) {
+            // See if the lines are collinear, so that we can combine them into one edge
+            if ( aSegment.tangentAt( 0 ).normalized().distance( bSegment.tangentAt( 0 ).normalized() ) < 1e-6 ) {
+              this.removeEdge( aEdge );
+              this.removeEdge( bEdge );
+              aEdge.dispose();
+              bEdge.dispose();
+              arrayRemove( this.vertices, vertex );
+              vertex.dispose();
 
-                const newSegment = new Line( aVertex.point, bVertex.point );
-                this.addEdge( new Edge( newSegment, aVertex, bVertex ) );
+              const newSegment = new Line( aVertex.point, bVertex.point );
+              this.addEdge( new Edge( newSegment, aVertex, bVertex ) );
 
-                needsLoop = true;
-                break;
-              }
+              needsLoop = true;
+              break;
             }
           }
         }
+      }
     }
   }
 
@@ -935,25 +935,25 @@ class Graph {
       needsLoop = false;
 
       for ( let i = this.vertices.length - 1; i >= 0; i-- ) {
-          const vertex = this.vertices[ i ];
+        const vertex = this.vertices[ i ];
 
-          if ( vertex.incidentHalfEdges.length < 2 ) {
-            // Disconnect any existing edges
-            for ( let j = 0; j < vertex.incidentHalfEdges.length; j++ ) {
-              const edge = vertex.incidentHalfEdges[ j ].edge;
-              this.removeEdge( edge );
-              this.replaceEdgeInLoops( edge, [] ); // remove the edge from the loops
-              edge.dispose();
-            }
-
-            // Remove the vertex
-            this.vertices.splice( i, 1 );
-            vertex.dispose();
-
-            needsLoop = true;
-            break;
+        if ( vertex.incidentHalfEdges.length < 2 ) {
+          // Disconnect any existing edges
+          for ( let j = 0; j < vertex.incidentHalfEdges.length; j++ ) {
+            const edge = vertex.incidentHalfEdges[ j ].edge;
+            this.removeEdge( edge );
+            this.replaceEdgeInLoops( edge, [] ); // remove the edge from the loops
+            edge.dispose();
           }
+
+          // Remove the vertex
+          this.vertices.splice( i, 1 );
+          vertex.dispose();
+
+          needsLoop = true;
+          break;
         }
+      }
     }
     assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.startVertex ) ) );
     assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.endVertex ) ) );
