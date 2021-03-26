@@ -19,7 +19,7 @@ const kite = new Namespace( 'kite' );
 // being used for display purposes only, and is never shown to the user), we use the built-in JS toFixed instead of
 // Dot's version of toFixed. See https://github.com/phetsims/kite/issues/50
 kite.register( 'svgNumber', n => {
-  return n.toFixed( 20 );
+  return n.toFixed( 20 ); // eslint-disable-line bad-sim-text
 } );
 
 // will be filled in by other modules
