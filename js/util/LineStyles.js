@@ -150,17 +150,21 @@ class LineStyles {
 
     const bevel = ( fromPoint.equals( toPoint ) ? [] : [ new Line( fromPoint, toPoint ) ] );
 
+    let fromAngle;
+    let toAngle;
+    let theta;
+
     // only insert a join on the non-acute-angle side
     // epsilon present for https://github.com/phetsims/kite/issues/73, where we don't want to join barely-existing
     // joins.
     if ( fromTangent.perpendicular.dot( toTangent ) > 1e-12 ) {
       switch( this.lineJoin ) {
         case 'round':
-          var fromAngle = fromTangent.angle + Math.PI / 2; // eslint-disable-line no-var
-          var toAngle = toTangent.angle + Math.PI / 2; // eslint-disable-line no-var
+          fromAngle = fromTangent.angle + Math.PI / 2;
+          toAngle = toTangent.angle + Math.PI / 2;
           return [ new Arc( center, this.lineWidth / 2, fromAngle, toAngle, true ) ];
         case 'miter':
-          var theta = fromTangent.angleBetween( toTangent.negated() ); // eslint-disable-line no-var
+          theta = fromTangent.angleBetween( toTangent.negated() );
           if ( 1 / Math.sin( theta / 2 ) <= this.miterLimit && theta < Math.PI - 0.00001 ) {
             // draw the miter
             const miterPoint = lineLineIntersection( fromPoint, fromPoint.plus( fromTangent ), toPoint, toPoint.plus( toTangent ) );
@@ -215,19 +219,26 @@ class LineStyles {
     const fromPoint = center.plus( tangent.perpendicular.times( -this.lineWidth / 2 ) );
     const toPoint = center.plus( tangent.perpendicular.times( this.lineWidth / 2 ) );
 
+    let tangentAngle;
+    let toLeft;
+    let toRight;
+    let toFront;
+    let left;
+    let right;
+
     switch( this.lineCap ) {
       case 'butt':
         return [ new Line( fromPoint, toPoint ) ];
       case 'round':
-        var tangentAngle = tangent.angle; // eslint-disable-line no-var
+        tangentAngle = tangent.angle;
         return [ new Arc( center, this.lineWidth / 2, tangentAngle + Math.PI / 2, tangentAngle - Math.PI / 2, true ) ];
       case 'square':
-        var toLeft = tangent.perpendicular.negated().times( this.lineWidth / 2 ); // eslint-disable-line no-var
-        var toRight = tangent.perpendicular.times( this.lineWidth / 2 ); // eslint-disable-line no-var
-        var toFront = tangent.times( this.lineWidth / 2 ); // eslint-disable-line no-var
+        toLeft = tangent.perpendicular.negated().times( this.lineWidth / 2 );
+        toRight = tangent.perpendicular.times( this.lineWidth / 2 );
+        toFront = tangent.times( this.lineWidth / 2 );
 
-        var left = center.plus( toLeft ).plus( toFront ); // eslint-disable-line no-var
-        var right = center.plus( toRight ).plus( toFront ); // eslint-disable-line no-var
+        left = center.plus( toLeft ).plus( toFront );
+        right = center.plus( toRight ).plus( toFront );
         return [
           new Line( fromPoint, left ),
           new Line( left, right ),

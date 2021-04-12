@@ -716,8 +716,9 @@ class Cubic extends Segment {
    * @returns {string}
    */
   getSVGPathFragment() {
+    let oldPathFragment;
     if ( assert ) {
-      var oldPathFragment = this._svgPathFragment; // eslint-disable-line no-var
+      oldPathFragment = this._svgPathFragment;
       this._svgPathFragment = null;
     }
     if ( !this._svgPathFragment ) {
