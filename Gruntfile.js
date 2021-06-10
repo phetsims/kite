@@ -20,15 +20,15 @@ module.exports = function( grunt ) {
 
       // replace fixed strings at the start/end with our prefix/suffix, so that it will work nicely with require.js
       const prefix = '/*\n' +
-                   ' * NOTE: Generated from svgPath.pegjs using PEG.js, with added kite namespace and require.js compatibility.\n' +
-                   ' * See svgPath.pegjs for more documentation, or run \'grunt generate-svgPath-parser\' to regenerate.\n' +
-                   ' */\n' +
-                   '\n' +
-                   'define( require => {\n' +
-                   '  const kite = require( \'KITE/kite\' );\n';
+                     ' * NOTE: Generated from svgPath.pegjs using PEG.js, with added kite namespace and require.js compatibility.\n' +
+                     ' * See svgPath.pegjs for more documentation, or run \'grunt generate-svgPath-parser\' to regenerate.\n' +
+                     ' */\n' +
+                     '\n' +
+                     'define( require => {\n' +
+                     '  const kite = require( \'KITE/kite\' );\n';
       const suffix = '  kite.register( \'svgPath\', result );\n' +
-                   '  return kite.svgPath;\n' +
-                   '} );\n';
+                     '  return kite.svgPath;\n' +
+                     '} );\n';
       const toStripFromStart = '(function(){';
       const toStrimFromEnd = '  return result;\n})()';
 
