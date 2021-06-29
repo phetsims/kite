@@ -10,7 +10,7 @@ const Gruntfile = require( '../chipper/js/grunt/Gruntfile.js' ); // eslint-disab
 
 // Add repo-specific grunt tasks
 module.exports = function( grunt ) {
-  'use strict';
+  
 
   grunt.registerTask( 'generate-svgPath-parser',
     'Uses js/parser/svgPath.pegjs to generate js/parser/svgPath.js',
