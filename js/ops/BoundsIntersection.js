@@ -176,7 +176,7 @@ class BoundsIntersection {
     for ( let i = 0; i < intersections.length; i++ ) {
       const intersection = intersections[ i ];
       let wasAdded = false;
-      nextComparison:
+      nextComparison: // eslint-disable-line no-labels
         for ( let j = 0; j < groups.length; j++ ) {
           const group = groups[ j ];
           for ( let k = 0; k < group.length; k++ ) {
@@ -184,7 +184,7 @@ class BoundsIntersection {
             if ( intersection.distance( otherIntersection ) < 1e-13 ) {
               group.push( intersection );
               wasAdded = true;
-              break nextComparison;
+              break nextComparison; // eslint-disable-line no-labels
             }
           }
         }

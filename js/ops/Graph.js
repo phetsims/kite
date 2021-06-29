@@ -469,7 +469,7 @@ class Graph {
     while ( needsLoop ) {
       needsLoop = false;
 
-      overlap:
+      overlap: // eslint-disable-line no-labels
         for ( let i = 0; i < this.edges.length; i++ ) {
           const aEdge = this.edges[ i ];
           const aSegment = aEdge.segment;
@@ -504,7 +504,7 @@ class Graph {
                     this.splitOverlap( aEdge, bEdge, overlap );
 
                     needsLoop = true;
-                    break overlap;
+                    break overlap; // eslint-disable-line no-labels
                   }
                 }
               }
@@ -683,7 +683,7 @@ class Graph {
     while ( needsLoop ) {
       needsLoop = false;
 
-      intersect:
+      intersect: // eslint-disable-line no-labels
         for ( let i = 0; i < this.edges.length; i++ ) {
           const aEdge = this.edges[ i ];
           const aSegment = aEdge.segment;
@@ -705,7 +705,7 @@ class Graph {
               const intersection = intersections[ 0 ];
 
               needsLoop = this.simpleSplit( aEdge, bEdge, intersection.aT, intersection.bT, intersection.point );
-              break intersect;
+              break intersect; // eslint-disable-line no-labels
             }
           }
         }
@@ -796,7 +796,7 @@ class Graph {
     let needsLoop = true;
     while ( needsLoop ) {
       needsLoop = false;
-      nextLoop:
+      nextLoop: // eslint-disable-line no-labels
         for ( let i = 0; i < this.vertices.length; i++ ) {
           const aVertex = this.vertices[ i ];
           for ( let j = i + 1; j < this.vertices.length; j++ ) {
@@ -845,7 +845,7 @@ class Graph {
               bVertex.dispose();
 
               needsLoop = true;
-              break nextLoop;
+              break nextLoop; // eslint-disable-line no-labels
             }
           }
         }
