@@ -114,6 +114,7 @@ class Shape {
       // parse the SVG path
       _.each( svgPath.parse( subpaths ), item => {
         assert && assert( Shape.prototype[ item.cmd ] !== undefined, `method ${item.cmd} from parsed SVG does not exist` );
+        // eslint-disable-next-line prefer-spread
         this[ item.cmd ].apply( this, item.args );
       } );
     }

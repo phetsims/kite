@@ -166,7 +166,7 @@ class Graph {
     }
 
     this.loops.push( loop );
-    this.vertices.push.apply( this.vertices, vertices );
+    this.vertices.push( ...vertices );
   }
 
   /**
