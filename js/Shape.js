@@ -73,7 +73,7 @@ class Shape {
    *
    * All arguments optional, they are for the copy() method. if used, ensure that 'bounds' is consistent with 'subpaths'
    *
-   * @param {Array.<Subpath>} [subpaths]
+   * @param {Array.<Subpath>|string} [subpaths]
    * @param {Bounds2} [bounds]
    */
   constructor( subpaths, bounds ) {
