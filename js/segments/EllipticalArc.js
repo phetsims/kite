@@ -641,8 +641,8 @@ class EllipticalArc extends Segment {
     }
     else if ( this._radiusX === this._radiusY ) {
       // reduce to an Arc
-      const startAngle = this._startAngle - this._rotation;
-      let endAngle = this._endAngle - this._rotation;
+      const startAngle = this._startAngle + this._rotation;
+      let endAngle = this._endAngle + this._rotation;
 
       // preserve full circles
       if ( Math.abs( this._endAngle - this._startAngle ) === Math.PI * 2 ) {
