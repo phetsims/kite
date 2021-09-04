@@ -1,0 +1,14 @@
+{
+  "extends": "../chipper/tsconfig-core.json",
+  "references": [
+    {
+      "path": "../dot"
+    }
+  ],
+  "include": [
+    "js/**/*",
+  ],
+  "exclude": [
+    "js/**/*test*"
+  ]
+}
