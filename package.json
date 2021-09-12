@@ -20,7 +20,8 @@
       "dot": "DOT/main",
       "axon": "AXON/main",
       "phetCore": "PHET_CORE/main"
-    }
+    },
+    "supportsOutputJS": true
   },
   "eslintConfig": {
     "extends": "../chipper/eslint/sim_eslintrc.js"
