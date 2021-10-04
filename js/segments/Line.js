@@ -651,7 +651,7 @@ class Line extends Segment {
   }
 
   /**
-   * Returns any intersection between the two line segments.
+   * Returns any (finite) intersection between the two line segments.
    * @public
    *
    * @param {Segment} a

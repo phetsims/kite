@@ -14,6 +14,7 @@ import Vector2 from '../../dot/js/Vector2.js';
 import Shape from './Shape.js';
 import Arc from './segments/Arc.js';
 import Cubic from './segments/Cubic.js';
+import EllipticalArc from './segments/EllipticalArc.js';
 import Line from './segments/Line.js';
 import Quadratic from './segments/Quadratic.js';
 
@@ -753,4 +754,46 @@ QUnit.test( 'Close linear overlap', assert => {
   const b = new Line( new Vector2( -1.8369701987210296e-15, -10 ), new Vector2( 0, 0 ) );
 
   assert.ok( Line.getOverlaps( a, b ).length === 1, 'Should find one continuous overlap' );
+} );
+
+QUnit.test( 'Partial ellipse overlap union', assert => {
+  const a = new Shape();
+  const b = new Shape();
+
+  a.ellipticalArc( 50, 50, 30, 50, 0.124, 0, Math.PI, false ).close();
+  b.ellipticalArc( 50, 50, 30, 50, 0.124, Math.PI * 0.5, Math.PI * 2, false ).close();
+
+  testUnion( assert, a, b, 1, 'Partial ellipse union' );
+} );
+
+QUnit.test( 'Elliptical overlaps', assert => {
+  const a = new EllipticalArc( Vector2.ZERO, 60, 40, 0, 0, Math.PI, false );
+  const b = new EllipticalArc( Vector2.ZERO, 60, 40, 0, 0.5 * Math.PI, 1.5 * Math.PI, false );
+  const c = new EllipticalArc( Vector2.ZERO, 40, 60, -Math.PI / 2, 0, 2 * Math.PI, false );
+  const d = new EllipticalArc( Vector2.ZERO, 60, 40, 0, 0.8 * Math.PI, 2.2 * Math.PI, false );
+
+  assert.equal( EllipticalArc.getOverlaps( a, b ).length, 1, 'Normal partial overlap' );
+  assert.equal( EllipticalArc.getOverlaps( a, c ).length, 1, 'Overlap with opposite rotation' );
+  assert.equal( EllipticalArc.getOverlaps( a, d ).length, 2, 'Double overlap' );
+} );
+
+QUnit.test( 'Elliptical intersection at origin', assert => {
+  const a = new EllipticalArc( new Vector2( 20, 0 ), 20, 30, 0, 0.9 * Math.PI, 1.1 * Math.PI, false );
+  const b = new EllipticalArc( new Vector2( 0, 20 ), 30, 20, 0, 1.4 * Math.PI, 1.6 * Math.PI, false );
+
+  const intersections = EllipticalArc.intersect( a, b );
+
+  assert.equal( intersections.length, 1, 'Single intersection' );
+  if ( intersections.length ) {
+    assert.ok( intersections[ 0 ].point.equalsEpsilon( Vector2.ZERO, 1e-10 ), 'Intersection at 0' );
+  }
+} );
+
+QUnit.test( 'Elliptical intersection when split', assert => {
+  const arc = new EllipticalArc( new Vector2( 20, 0 ), 20, 30, 0, 0.3 * Math.PI, 1.1 * Math.PI, false );
+  const subarcs = arc.subdivided( 0.5 );
+
+  const intersections = EllipticalArc.intersect( subarcs[ 0 ], subarcs[ 1 ] );
+
+  assert.equal( intersections.length, 1, 'Single intersection' );
 } );

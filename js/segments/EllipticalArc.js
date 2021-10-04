@@ -16,8 +16,11 @@ import Matrix3 from '../../../dot/js/Matrix3.js';
 import Transform3 from '../../../dot/js/Transform3.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
+import Enumeration from '../../../phet-core/js/Enumeration.js';
 import kite from '../kite.js';
+import BoundsIntersection from '../ops/BoundsIntersection.js';
 import RayIntersection from '../util/RayIntersection.js';
+import SegmentIntersection from '../util/SegmentIntersection.js';
 import Arc from './Arc.js';
 import Segment from './Segment.js';
 
@@ -1019,34 +1022,110 @@ class EllipticalArc extends Segment {
   }
 
   /**
-   * Determine whether two Arcs overlap over continuous sections, and if so finds the a,b pairs such that
+   * Returns what type of overlap is possible based on the center/radii/rotation. We ignore the start/end angles and
+   * anticlockwise information, and determine if the FULL ellipses overlap.
+   * @public
+   *
+   * @param {EllipticalArc} a
+   * @param {EllipticalArc} b
+   * @param {number} [epsilon]
+   * @returns {EllipticalArc.OverlapType}
+   */
+  static getOverlapType( a, b, epsilon = 1e-10 ) {
+    assert && assert( a instanceof EllipticalArc );
+    assert && assert( b instanceof EllipticalArc );
+
+    // Different centers can't overlap continuously
+    if ( a._center.distance( b._center ) < epsilon ) {
+
+      const matchingRadii = Math.abs( a._radiusX - b._radiusX ) < epsilon && Math.abs( a._radiusY - b._radiusY ) < epsilon;
+      const oppositeRadii = Math.abs( a._radiusX - b._radiusY ) < epsilon && Math.abs( a._radiusY - b._radiusX ) < epsilon;
+
+      if ( matchingRadii ) {
+        // Difference between rotations should be an approximate multiple of pi. We add pi/2 before modulo, so the
+        // result of that should be ~pi/2 (don't need to check both endpoints)
+        if ( Math.abs( Utils.moduloBetweenDown( a._rotation - b._rotation + Math.PI / 2, 0, Math.PI ) - Math.PI / 2 ) < epsilon ) {
+          return EllipticalArc.OverlapType.MATCHING_OVERLAP;
+        }
+      }
+      if ( oppositeRadii ) {
+        // Difference between rotations should be an approximate multiple of pi (with pi/2 added).
+        if ( Math.abs( Utils.moduloBetweenDown( a._rotation - b._rotation, 0, Math.PI ) - Math.PI / 2 ) < epsilon ) {
+          return EllipticalArc.OverlapType.OPPOSITE_OVERLAP;
+        }
+      }
+    }
+
+    return EllipticalArc.OverlapType.NONE;
+  }
+
+  /**
+   * Determine whether two elliptical arcs overlap over continuous sections, and if so finds the a,b pairs such that
    * p( t ) === q( a * t + b ).
    * @public
    *
-   * @param {EllipticalArc} arc1
-   * @param {EllipticalArc} arc2
+   * @param {EllipticalArc} a
+   * @param {EllipticalArc} b
    * @returns {Array.<Overlap>} - Any overlaps (from 0 to 2)
    */
-  static getOverlaps( arc1, arc2 ) {
-    // Different centers can't overlap continuously
-    if ( arc1._center.distance( arc2._center ) > 1e-8 ) {
+  static getOverlaps( a, b ) {
+    assert && assert( a instanceof EllipticalArc );
+    assert && assert( b instanceof EllipticalArc );
+
+    const overlapType = EllipticalArc.getOverlapType( a, b );
+
+    if ( overlapType === EllipticalArc.OverlapType.NONE ) {
       return [];
     }
-
-    assert && assert( arc1._radiusX >= arc1._radiusY, 'Assume radiusX is the larger radius' );
-    assert && assert( arc2._radiusX >= arc2._radiusY, 'Assume radiusX is the larger radius' );
-
-    // Since radiusX >= radiusY, we don't need to check for reversals (x1=y2 and y1=x2).
-    if ( Math.abs( arc1._radiusX - arc2._radiusX ) > 1e-8 ||
-         Math.abs( arc1._radiusY - arc2._radiusY ) > 1e-8 ||
-         // Difference between rotations should be an approximate multiple of pi. We add pi/2 before modulo, so the
-         // result of that should be ~pi/2 (don't need to check both endpoints)
-         Math.abs( Utils.moduloBetweenDown( arc1._rotation - arc2._rotation + Math.PI / 2, 0, Math.PI ) - Math.PI / 2 ) > 1e-10 ) {
-      return [];
+    else {
+      return Arc.getAngularOverlaps( a._startAngle + a._rotation, a.getActualEndAngle() + a._rotation,
+        b._startAngle + b._rotation, b.getActualEndAngle() + b._rotation );
     }
+  }
 
-    return Arc.getAngularOverlaps( arc1._startAngle + arc1._rotation, arc1.getActualEndAngle() + arc1._rotation,
-      arc2._startAngle + arc2._rotation, arc2.getActualEndAngle() + arc2._rotation );
+  /**
+   * Returns any (finite) intersection between the two elliptical arc segments.
+   * @public
+   *
+   * @param {EllipticalArc} a
+   * @param {EllipticalArc} b
+   * @param {number} [epsilon]
+   * @returns {Array.<SegmentIntersection>}
+   */
+  static intersect( a, b, epsilon = 1e-10 ) {
+    assert && assert( a instanceof EllipticalArc );
+    assert && assert( b instanceof EllipticalArc );
+
+    const overlapType = EllipticalArc.getOverlapType( a, b, epsilon );
+
+    if ( overlapType === EllipticalArc.OverlapType.NONE ) {
+      return BoundsIntersection.intersect( a, b );
+    }
+    else {
+      // If we effectively have the same ellipse, just different sections of it. The only finite intersections could be
+      // at the endpoints, so we'll inspect those.
+
+      const results = [];
+      const aStart = a.positionAt( 0 );
+      const aEnd = a.positionAt( 1 );
+      const bStart = b.positionAt( 0 );
+      const bEnd = b.positionAt( 1 );
+
+      if ( aStart.equalsEpsilon( bStart, epsilon ) ) {
+        results.push( new SegmentIntersection( aStart.average( bStart ), 0, 0 ) );
+      }
+      if ( aStart.equalsEpsilon( bEnd, epsilon ) ) {
+        results.push( new SegmentIntersection( aStart.average( bEnd ), 0, 1 ) );
+      }
+      if ( aEnd.equalsEpsilon( bStart, epsilon ) ) {
+        results.push( new SegmentIntersection( aEnd.average( bStart ), 1, 0 ) );
+      }
+      if ( aEnd.equalsEpsilon( bEnd, epsilon ) ) {
+        results.push( new SegmentIntersection( aEnd.average( bEnd ), 1, 1 ) );
+      }
+
+      return results;
+    }
   }
 
   /**
@@ -1067,6 +1146,13 @@ class EllipticalArc extends Segment {
       .timesMatrix( Matrix3.scaling( radiusX, radiusY ) ) );
   }
 }
+
+// @public {Enumeration}
+EllipticalArc.OverlapType = Enumeration.byKeys( [
+  'MATCHING_OVERLAP', // radiusX of one equals radiusX of the other, with equivalent centers and rotations to work
+  'OPPOSITE_OVERLAP', // radiusX of one equals radiusY of the other, with equivalent centers and rotations to work
+  'NONE' // no overlap
+] );
 
 kite.register( 'EllipticalArc', EllipticalArc );
 

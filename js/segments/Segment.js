@@ -714,7 +714,7 @@ class Segment {
   }
 
   /**
-   * Returns all of the distinct (non-endpoint) intersections between the two segments.
+   * Returns all of the distinct (non-endpoint, non-finite) intersections between the two segments.
    * @public
    *
    * @param {Segment} a
@@ -734,6 +734,9 @@ class Segment {
     }
     else if ( kite.Arc && a instanceof kite.Arc && b instanceof kite.Arc ) {
       return kite.Arc.intersect( a, b );
+    }
+    else if ( kite.EllipticalArc && a instanceof kite.EllipticalArc && b instanceof kite.EllipticalArc ) {
+      return kite.EllipticalArc.intersect( a, b );
     }
     else {
       return BoundsIntersection.intersect( a, b );

@@ -1053,6 +1053,7 @@ class Arc extends Segment {
    * @param {number} radius1 - Radius of the first circle
    * @param {Vector2} center2 - Center of the second circle
    * @param {number} radius2 - Radius of the second circle
+   * @returns {Array.<Vector2>}
    */
   static getCircleIntersectionPoint( center1, radius1, center2, radius2 ) {
     assert && assert( center1 instanceof Vector2 );
@@ -1098,7 +1099,7 @@ class Arc extends Segment {
   }
 
   /**
-   * Returns any intersection between the two line segments.
+   * Returns any (finite) intersection between the two arc segments.
    * @public
    *
    * @param {Arc} a
@@ -1106,19 +1107,45 @@ class Arc extends Segment {
    * @returns {Array.<SegmentIntersection>}
    */
   static intersect( a, b ) {
+    const epsilon = 1e-8;
+
+    const results = [];
+
     assert && assert( a instanceof Arc );
     assert && assert( b instanceof Arc );
 
-    const points = Arc.getCircleIntersectionPoint( a._center, a._radius, b._center, b._radius );
-    const results = [];
+    // If we effectively have the same circle, just different sections of it. The only finite intersections could be
+    // at the endpoints, so we'll inspect those.
+    if ( a._center.equalsEpsilon( b._center, epsilon ) && Math.abs( a._radius - b._radius ) < epsilon ) {
+      const aStart = a.positionAt( 0 );
+      const aEnd = a.positionAt( 1 );
+      const bStart = b.positionAt( 0 );
+      const bEnd = b.positionAt( 1 );
 
-    for ( let i = 0; i < points.length; i++ ) {
-      const point = points[ i ];
-      const angleA = point.minus( a._center ).angle;
-      const angleB = point.minus( b._center ).angle;
+      if ( aStart.equalsEpsilon( bStart, epsilon ) ) {
+        results.push( new SegmentIntersection( aStart.average( bStart ), 0, 0 ) );
+      }
+      if ( aStart.equalsEpsilon( bEnd, epsilon ) ) {
+        results.push( new SegmentIntersection( aStart.average( bEnd ), 0, 1 ) );
+      }
+      if ( aEnd.equalsEpsilon( bStart, epsilon ) ) {
+        results.push( new SegmentIntersection( aEnd.average( bStart ), 1, 0 ) );
+      }
+      if ( aEnd.equalsEpsilon( bEnd, epsilon ) ) {
+        results.push( new SegmentIntersection( aEnd.average( bEnd ), 1, 1 ) );
+      }
+    }
+    else {
+      const points = Arc.getCircleIntersectionPoint( a._center, a._radius, b._center, b._radius );
 
-      if ( a.containsAngle( angleA ) && b.containsAngle( angleB ) ) {
-        results.push( new SegmentIntersection( point, a.tAtAngle( angleA ), b.tAtAngle( angleB ) ) );
+      for ( let i = 0; i < points.length; i++ ) {
+        const point = points[ i ];
+        const angleA = point.minus( a._center ).angle;
+        const angleB = point.minus( b._center ).angle;
+
+        if ( a.containsAngle( angleA ) && b.containsAngle( angleB ) ) {
+          results.push( new SegmentIntersection( point, a.tAtAngle( angleA ), b.tAtAngle( angleB ) ) );
+        }
       }
     }
 

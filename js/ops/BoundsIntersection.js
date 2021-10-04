@@ -150,7 +150,7 @@ class BoundsIntersection {
   }
 
   /**
-   * Determine points of intersection between two arbitrary segments.
+   * Determine (finite) points of intersection between two arbitrary segments.
    * @public
    *
    * Does repeated subdivision and excludes a-b region pairs that don't intersect. Doing this repeatedly narrows down
