@@ -307,11 +307,21 @@ new id 16
     context.stroke();
   }
 
+  window.bleh = () => {
+    const aShape = new kite.Shape( 'M 172.00000000000000000000 39.00000000000000000000 L 172.00000000000000000000 -51.00000000000000000000 L 225.00000000000000000000 -83.00000000000000000000 L 225.00000000000000000000 72.00000000000000000000 L 172.00000000000000000000 39.00000000000000000000 Z ' );
+    const bShape = new kite.Shape( 'M 239.85954693211317589885 9.90930831842961623579 A 79.71909386422636600855 39.85954693211318300428 450 0 1 160.14045306788682410115 9.90930831842964110479 A 79.71909386422636600855 39.85954693211318300428 450 0 1 239.85954693211317589885 9.90930831842959669586 Z ' );
+    aShape.shapeIntersection( bShape );
+
+  };
+
   window.debugGraph = function( graph ) {
     var bounds = dot.Bounds2.NOTHING.copy();
     for ( var i = 0; i < graph.edges.length; i++ ) {
       bounds.includeBounds( graph.edges[ i ].segment.getBounds() );
     }
+    // const epsilon = 0.002;
+    const epsilon = 0.03;
+    bounds = new dot.Bounds2( 225-epsilon, 72-epsilon, 225+epsilon, 72+epsilon );
 
     var debugSize = 512;
     var pad = 20;
@@ -452,7 +462,7 @@ new id 16
             context.beginPath();
             context.moveTo( segment.start.x, segment.start.y );
             segment.writeToContext( context );
-            context.strokeStyle = 'hsl(' + Math.floor( 120 * n / vertex.incidentHalfEdges.length ) + ',100%,50%)';
+            context.strokeStyle = 'hsl(' + Math.floor( 120 * n / ( vertex.incidentHalfEdges.length - 1 ) ) + ',100%,50%)';
             context.lineWidth = 2 / scale;
             context.stroke();
           }
