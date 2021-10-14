@@ -52,10 +52,27 @@ class Boundary {
     // @public {Bounds2}
     this.bounds = this.computeBounds();
 
-    // @public {Boundary}
+    // @public {Array.<Boundary>}
     this.childBoundaries = cleanArray( this.childBoundaries );
 
     return this;
+  }
+
+  /**
+   * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+   * @public
+   *
+   * @returns {Object}
+   */
+  serialize() {
+    return {
+      type: 'Boundary',
+      id: this.id,
+      halfEdges: this.halfEdges.map( halfEdge => halfEdge.id ),
+      signedArea: this.signedArea,
+      bounds: Bounds2.Bounds2IO.toStateObject( this.bounds ),
+      childBoundaries: this.childBoundaries.map( boundary => boundary.id )
+    };
   }
 
   /**

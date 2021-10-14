@@ -63,6 +63,24 @@ class Vertex {
   }
 
   /**
+   * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+   * @public
+   *
+   * @returns {Object}
+   */
+  serialize() {
+    return {
+      type: 'Vertex',
+      id: this.id,
+      point: Vector2.Vector2IO.toStateObject( this.point ),
+      incidentHalfEdges: this.incidentHalfEdges.map( halfEdge => halfEdge.id ),
+      visited: this.visited,
+      visitIndex: this.visitIndex,
+      lowIndex: this.lowIndex
+    };
+  }
+
+  /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
    * @public

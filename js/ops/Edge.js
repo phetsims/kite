@@ -68,10 +68,31 @@ class Edge {
     // @public {boolean} - Used for depth-first search
     this.visited = false;
 
-    // @public {*} - Available for arbitrary client usage.
+    // @public {*} - Available for arbitrary client usage. -- Keep JSONable
     this.data = null;
 
     return this;
+  }
+
+  /**
+   * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+   * @public
+   *
+   * @returns {Object}
+   */
+  serialize() {
+    return {
+      type: 'Edge',
+      id: this.id,
+      segment: this.segment.serialize(),
+      startVertex: this.startVertex === null ? null : this.startVertex.id,
+      endVertex: this.endVertex === null ? null : this.endVertex.id,
+      signedAreaFragment: this.signedAreaFragment,
+      forwardHalf: this.forwardHalf.serialize(),
+      reversedHalf: this.reversedHalf.serialize(),
+      visited: this.visited,
+      data: this.data
+    };
   }
 
   /**

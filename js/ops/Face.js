@@ -65,6 +65,23 @@ class Face {
   }
 
   /**
+   * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+   * @public
+   *
+   * @returns {Object}
+   */
+  serialize() {
+    return {
+      type: 'Face',
+      id: this.id,
+      boundary: this.boundary === null ? null : this.boundary.id,
+      holes: this.holes.map( boundary => boundary.id ),
+      windingMap: this.windingMap,
+      filled: this.filled
+    };
+  }
+
+  /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
    * @public

@@ -23,9 +23,11 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
+import Bounds2 from '../../../dot/js/Bounds2.js';
 import Matrix3 from '../../../dot/js/Matrix3.js';
 import Transform3 from '../../../dot/js/Transform3.js';
 import Utils from '../../../dot/js/Utils.js';
+import Vector2 from '../../../dot/js/Vector2.js';
 import arrayRemove from '../../../phet-core/js/arrayRemove.js';
 import cleanArray from '../../../phet-core/js/cleanArray.js';
 import merge from '../../../phet-core/js/merge.js';
@@ -74,6 +76,124 @@ class Graph {
     this.faces = [ this.unboundedFace ];
   }
 
+  /**
+   * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+   * @public
+   *
+   * @returns {Object}
+   */
+  serialize() {
+    return {
+      type: 'Graph',
+      vertices: this.vertices.map( vertex => vertex.serialize() ),
+      edges: this.edges.map( edge => edge.serialize() ),
+      boundaries: this.boundaries.map( boundary => boundary.serialize() ),
+      innerBoundaries: this.innerBoundaries.map( boundary => boundary.id ),
+      outerBoundaries: this.outerBoundaries.map( boundary => boundary.id ),
+      shapeIds: this.shapeIds,
+      loops: this.loops.map( loop => loop.serialize() ),
+      unboundedFace: this.unboundedFace.id,
+      faces: this.faces.map( face => face.serialize() )
+    };
+  }
+
+  /**
+   * Recreate a Graph based on serialized state from serialize()
+   * @public
+   *
+   * @param {Object} obj
+   */
+  static deserialize( obj ) {
+    const graph = new Graph();
+
+    const vertexMap = {};
+    const edgeMap = {};
+    const halfEdgeMap = {};
+    const boundaryMap = {};
+    const loopMap = {};
+    const faceMap = {};
+
+    graph.vertices = obj.vertices.map( data => {
+      const vertex = new Vertex( Vector2.Vector2IO.fromStateObject( data.point ) );
+      vertexMap[ data.id ] = vertex;
+      // incidentHalfEdges connected below
+      vertex.visited = data.visited;
+      vertex.visitIndex = data.visitIndex;
+      vertex.lowIndex = data.lowIndex;
+      return vertex;
+    } );
+
+    graph.edges = obj.edges.map( data => {
+      const edge = new Edge( Segment.deserialize( data.segment ), vertexMap[ data.startVertex ], vertexMap[ data.endVertex ] );
+      edgeMap[ data.id ] = edge;
+      edge.signedAreaFragment = data.signedAreaFragment;
+
+      const deserializeHalfEdge = ( halfEdge, halfEdgeData ) => {
+        halfEdgeMap[ halfEdgeData.id ] = halfEdge;
+        // face connected later
+        halfEdge.isReversed = halfEdgeData.isReversed;
+        halfEdge.signedAreaFragment = halfEdgeData.signedAreaFragment;
+        halfEdge.startVertex = vertexMap[ halfEdgeData.startVertex.id ];
+        halfEdge.endVertex = vertexMap[ halfEdgeData.endVertex.id ];
+        halfEdge.sortVector = Vector2.Vector2IO.fromStateObject( halfEdgeData.sortVector );
+        halfEdge.data = halfEdgeData.data;
+      };
+      deserializeHalfEdge( edge.forwardHalf, data.forwardHalf );
+      deserializeHalfEdge( edge.reversedHalf, data.reversedHalf );
+
+      edge.visited = data.visited;
+      edge.data = data.data;
+      return edge;
+    } );
+
+    // Connect Vertex incidentHalfEdges
+    obj.vertices.forEach( ( data, i ) => {
+      const vertex = graph.vertices[ i ];
+      vertex.incidentHalfEdges = data.incidentHalfEdges.map( id => halfEdgeMap[ id ] );
+    } );
+
+    graph.boundaries = obj.boundaries.map( data => {
+      const boundary = new Boundary( data.halfEdges.map( id => halfEdgeMap[ id ] ) );
+      boundaryMap[ data.id ] = boundary;
+      boundary.signedArea = data.signedArea;
+      boundary.bounds = Bounds2.Bounds2IO.fromStateObject( data.bounds );
+      // childBoundaries handled below
+      return boundary;
+    } );
+    obj.boundaries.forEach( ( data, i ) => {
+      const boundary = graph.boundaries[ i ];
+      boundary.childBoundaries = data.childBoundaries.map( id => boundaryMap[ id ] );
+    } );
+    graph.innerBoundaries = obj.innerBoundaries.map( id => boundaryMap[ id ] );
+    graph.outerBoundaries = obj.outerBoundaries.map( id => boundaryMap[ id ] );
+
+    graph.shapeIds = obj.shapeIds;
+
+    graph.loops = obj.loops.map( data => {
+      const loop = new Loop( data.shapeId, data.closed );
+      loopMap[ data.id ] = loop;
+      loop.halfEdges = data.halfEdges.map( id => halfEdgeMap[ id ] );
+      return loop;
+    } );
+
+    graph.faces = obj.faces.map( ( data, i ) => {
+      const face = i === 0 ? graph.unboundedFace : new Face( boundaryMap[ data.boundary ] );
+      faceMap[ data.id ] = face;
+      face.holes = data.holes.map( id => boundaryMap[ id ] );
+      face.windingMap = data.windingMap;
+      face.filled = data.filled;
+      return face;
+    } );
+
+    // Connected faces to halfEdges
+    obj.edges.forEach( ( data, i ) => {
+      const edge = graph.edges[ i ];
+      edge.forwardHalf.face = data.forwardHalf.face === null ? null : faceMap[ data.forwardHalf.face ];
+      edge.reversedHalf.face = data.reversedHalf.face === null ? null : faceMap[ data.reversedHalf.face ];
+    } );
+
+    return graph;
+  }
 
   /**
    * Adds a Shape (with a given ID for CAG purposes) to the graph.

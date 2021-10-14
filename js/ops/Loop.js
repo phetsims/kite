@@ -65,6 +65,22 @@ class Loop {
   }
 
   /**
+   * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+   * @public
+   *
+   * @returns {Object}
+   */
+  serialize() {
+    return {
+      type: 'Loop',
+      id: this.id,
+      shapeId: this.shapeId,
+      closed: this.closed,
+      halfEdges: this.halfEdges.map( halfEdge => halfEdge.id )
+    };
+  }
+
+  /**
    * Returns a Subpath equivalent to this loop.
    * @public
    *

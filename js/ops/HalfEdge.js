@@ -11,6 +11,8 @@ import Vector2 from '../../../dot/js/Vector2.js';
 import Poolable from '../../../phet-core/js/Poolable.js';
 import kite from '../kite.js';
 
+let globaId = 0;
+
 class HalfEdge {
   /**
    * @public (kite-internal)
@@ -21,6 +23,9 @@ class HalfEdge {
    * @param {boolean} isReversed
    */
   constructor( edge, isReversed ) {
+    // @public {number}
+    this.id = ++globaId;
+
     // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
     // definitions.
     this.initialize( edge, isReversed );
@@ -59,12 +64,33 @@ class HalfEdge {
     // Y is curvature at end. See Vertex edge sort for more information.
     this.sortVector = this.sortVector || new Vector2( 0, 0 );
 
-    // @public {*} - Available for arbitrary client usage.
+    // @public {*} - Available for arbitrary client usage. --- KEEP JSON
     this.data = null;
 
     this.updateReferences(); // Initializes vertex references
 
     return this;
+  }
+
+  /**
+   * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
+   * @public
+   *
+   * @returns {Object}
+   */
+  serialize() {
+    return {
+      type: 'HalfEdge',
+      id: this.id,
+      edge: this.edge.id,
+      face: this.face === null ? null : this.face.id,
+      isReversed: this.isReversed,
+      signedAreaFragment: this.signedAreaFragment,
+      startVertex: this.startVertex === null ? null : this.startVertex.id,
+      endVertex: this.endVertex === null ? null : this.endVertex.id,
+      sortVector: Vector2.Vector2IO.toStateObject( this.sortVector ),
+      data: this.data
+    };
   }
 
   /**
