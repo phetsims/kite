@@ -2,11 +2,11 @@
   "extends": "../chipper/tsconfig-core.json",
   "references": [
     {
-      "path": "../dot"
+      "path": "../dot/tsconfig-module.json"
     }
   ],
   "include": [
-    "js/**/*",
+    "js/**/*"
   ],
   "exclude": [
     "js/**/*test*"
