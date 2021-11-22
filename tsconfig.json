@@ -1,0 +1,11 @@
+{
+  "extends": "../chipper/tsconfig-core.json",
+  "references": [
+    {
+      "path": "../joist"
+    }
+  ],
+  "include": [
+    "js/**/*test*"
+  ]
+}
