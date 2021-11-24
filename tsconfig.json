@@ -6,6 +6,7 @@
     }
   ],
   "include": [
-    "js/**/*test*"
+    "js/**/*test*",
+    "js/**/*Test*"
   ]
 }
