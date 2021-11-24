@@ -9,6 +9,7 @@
     "js/**/*"
   ],
   "exclude": [
-    "js/**/*test*"
+    "js/**/*test*",
+    "js/**/*Test*"
   ]
 }
