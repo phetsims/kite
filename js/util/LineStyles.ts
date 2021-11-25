@@ -13,6 +13,8 @@ import merge from '../../../phet-core/js/merge.js';
 import kite from '../kite.js';
 import Arc from '../segments/Arc.js';
 import Line from '../segments/Line.js';
+import Vector2 from '../../../dot/js/Vector2.js';
+import Segment from '../segments/Segment.js';
 
 // constants
 const lineLineIntersection = Utils.lineLineIntersection;
@@ -26,42 +28,56 @@ const DEFAULT_OPTIONS = {
   miterLimit: 10
 };
 
+type LineCap = 'butt' | 'round' | 'square';
+type LineJoin = 'miter' | 'round' | 'bevel';
+type LineStylesOptions = {
+  lineWidth?: number;
+  lineCap?: LineCap;
+  lineJoin?: LineJoin;
+  lineDash?: number[];
+  lineDashOffset?: number;
+  miterLimit?: number;
+};
+
 class LineStyles {
-  /**
-   * @public
-   *
-   * @param {Object} [options]
-   */
-  constructor( options ) {
-    options = merge( {}, DEFAULT_OPTIONS, options );
 
-    // @public {number} - The width of the line (will be offset to each side by lineWidth/2)
-    this.lineWidth = options.lineWidth;
+  // The width of the line (will be offset to each side by lineWidth/2)
+  lineWidth: number;
 
-    // @public {string} - 'butt', 'round' or 'square' - Controls appearance at endpoints for non-closed subpaths.
-    // - butt: straight-line at end point, going through the endpoint (perpendicular to the tangent)
-    // - round: circular border with radius lineWidth/2 around endpoints
-    // - square: straight-line past the end point (by lineWidth/2)
-    // See: https://svgwg.org/svg2-draft/painting.html#LineCaps
-    this.lineCap = options.lineCap;
+  // 'butt', 'round' or 'square' - Controls appearance at endpoints for non-closed subpaths.
+  // - butt: straight-line at end point, going through the endpoint (perpendicular to the tangent)
+  // - round: circular border with radius lineWidth/2 around endpoints
+  // - square: straight-line past the end point (by lineWidth/2)
+  // See: https://svgwg.org/svg2-draft/painting.html#LineCaps
+  lineCap: LineCap;
 
-    // @public {string} - 'miter', 'round' or 'bevel' - Controls appearance at joints between segments (at the point)
-    // - miter: Use sharp corners (which aren't too sharp, see miterLimit). Extends edges until they meed.
-    // - round: circular border with radius lineWidth/2 around joints
-    // - bevel: directly joins the gap with a line segment.
-    // See: https://svgwg.org/svg2-draft/painting.html#LineJoin
-    this.lineJoin = options.lineJoin;
+  // 'miter', 'round' or 'bevel' - Controls appearance at joints between segments (at the point)
+  // - miter: Use sharp corners (which aren't too sharp, see miterLimit). Extends edges until they meed.
+  // - round: circular border with radius lineWidth/2 around joints
+  // - bevel: directly joins the gap with a line segment.
+  // See: https://svgwg.org/svg2-draft/painting.html#LineJoin
+  lineJoin: LineJoin;
 
-    // @public {Array.<number>} - Even values in the array are the "dash" length, odd values are the "gap" length.
-    // NOTE: If there is an odd number of entries, it behaves like lineDash.concat( lineDash ).
-    // See: https://svgwg.org/svg2-draft/painting.html#StrokeDashing
-    this.lineDash = options.lineDash;
+  // Even values in the array are the "dash" length, odd values are the "gap" length.
+  // NOTE: If there is an odd number of entries, it behaves like lineDash.concat( lineDash ).
+  // See: https://svgwg.org/svg2-draft/painting.html#StrokeDashing
+  lineDash: number[];
 
-    // @public {number} - Offset from the start of the subpath where the start of the line-dash array starts.
-    this.lineDashOffset = options.lineDashOffset;
+  // Offset from the start of the subpath where the start of the line-dash array starts.
+  lineDashOffset: number;
 
-    // @public {number} - When to cut off lineJoin:miter to look like lineJoin:bevel. See https://svgwg.org/svg2-draft/painting.html
-    this.miterLimit = options.miterLimit;
+  // When to cut off lineJoin:miter to look like lineJoin:bevel. See https://svgwg.org/svg2-draft/painting.html
+  miterLimit: number;
+
+  constructor( options?: LineStylesOptions ) {
+    const filledOptions = merge( {}, DEFAULT_OPTIONS, options ) as Required<LineStylesOptions>;
+
+    this.lineWidth = filledOptions.lineWidth;
+    this.lineCap = filledOptions.lineCap;
+    this.lineJoin = filledOptions.lineJoin;
+    this.lineDash = filledOptions.lineDash;
+    this.lineDashOffset = filledOptions.lineDashOffset;
+    this.miterLimit = filledOptions.miterLimit;
 
     assert && assert( typeof this.lineWidth === 'number', `lineWidth should be a number: ${this.lineWidth}` );
     assert && assert( isFinite( this.lineWidth ), `lineWidth should be a finite number: ${this.lineWidth}` );
@@ -81,12 +97,8 @@ class LineStyles {
 
   /**
    * Determines of this lineStyles is equal to the other LineStyles
-   * @public
-   *
-   * @param {LineStyles} other
-   * @returns {boolean}
    */
-  equals( other ) {
+  equals( other: LineStyles ): boolean {
     const typical = this.lineWidth === other.lineWidth &&
                     this.lineCap === other.lineCap &&
                     this.lineJoin === other.lineJoin &&
@@ -113,11 +125,8 @@ class LineStyles {
 
   /**
    * Returns a copy of this LineStyles.
-   * @public
-   *
-   * @returns {LineStyles}
    */
-  copy() {
+  copy(): LineStyles {
     return new LineStyles( {
       lineWidth: this.lineWidth,
       lineCap: this.lineCap,
@@ -130,17 +139,11 @@ class LineStyles {
 
   /**
    * Creates an array of Segments that make up a line join, to the left side.
-   * @public
    *
    * Joins two segments together on the logical "left" side, at 'center' (where they meet), and un-normalized tangent
    * vectors in the direction of the stroking. To join on the "right" side, switch the tangent order and negate them.
-   *
-   * @param {Vector2} center
-   * @param {Vector2} fromTangent
-   * @param {Vector2} toTangent
-   * @returns {Array.<Line>}
    */
-  leftJoin( center, fromTangent, toTangent ) {
+  leftJoin( center: Vector2, fromTangent: Vector2, toTangent: Vector2 ): Segment[] {
     fromTangent = fromTangent.normalized();
     toTangent = toTangent.normalized();
 
@@ -168,10 +171,17 @@ class LineStyles {
           if ( 1 / Math.sin( theta / 2 ) <= this.miterLimit && theta < Math.PI - 0.00001 ) {
             // draw the miter
             const miterPoint = lineLineIntersection( fromPoint, fromPoint.plus( fromTangent ), toPoint, toPoint.plus( toTangent ) );
-            return [
-              new Line( fromPoint, miterPoint ),
-              new Line( miterPoint, toPoint )
-            ];
+            if ( miterPoint ) {
+              return [
+                new Line( fromPoint, miterPoint ),
+                new Line( miterPoint, toPoint )
+              ];
+            }
+            else {
+              return [
+                new Line( fromPoint, toPoint )
+              ];
+            }
           }
           else {
             // angle too steep, use bevel instead. same as below, but copied for linter
@@ -192,28 +202,18 @@ class LineStyles {
 
   /**
    * Creates an array of Segments that make up a line join, to the right side.
-   * @public
    *
    * Joins two segments together on the logical "right" side, at 'center' (where they meet), and normalized tangent
    * vectors in the direction of the stroking. To join on the "left" side, switch the tangent order and negate them.
-   * @param {Vector2} center
-   * @param {Vector2} fromTangent
-   * @param {Vector2} toTangent
-   * @returns {Array.<Line>}
    */
-  rightJoin( center, fromTangent, toTangent ) {
+  rightJoin( center: Vector2, fromTangent: Vector2, toTangent: Vector2 ): Segment[] {
     return this.leftJoin( center, toTangent.negated(), fromTangent.negated() );
   }
 
   /**
    * Creates an array of Segments that make up a line cap from the endpoint 'center' in the direction of the tangent
-   * @public
-   *
-   * @param {Vector2} center
-   * @param {Vector2} tangent
-   * @returns {Array.<Segment>}
    */
-  cap( center, tangent ) {
+  cap( center: Vector2, tangent: Vector2 ): Segment[] {
     tangent = tangent.normalized();
 
     const fromPoint = center.plus( tangent.perpendicular.times( -this.lineWidth / 2 ) );
@@ -252,7 +252,4 @@ class LineStyles {
 
 kite.register( 'LineStyles', LineStyles );
 
-// @public {Object}
-LineStyles.DEFAULT_OPTIONS = DEFAULT_OPTIONS;
-
-export default LineStyles;
+export { LineStyles as default, LineCap, LineJoin, DEFAULT_OPTIONS };
