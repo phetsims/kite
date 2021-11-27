@@ -252,4 +252,5 @@ class LineStyles {
 
 kite.register( 'LineStyles', LineStyles );
 
-export { LineStyles as default, LineCap, LineJoin, DEFAULT_OPTIONS };
+export { LineStyles as default, DEFAULT_OPTIONS };
+export type { LineCap, LineJoin };
