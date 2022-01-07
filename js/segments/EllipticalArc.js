@@ -16,7 +16,7 @@ import Matrix3 from '../../../dot/js/Matrix3.js';
 import Transform3 from '../../../dot/js/Transform3.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import Enumeration from '../../../phet-core/js/Enumeration.js';
+import EnumerationDeprecated from '../../../phet-core/js/EnumerationDeprecated.js';
 import kite from '../kite.js';
 import BoundsIntersection from '../ops/BoundsIntersection.js';
 import RayIntersection from '../util/RayIntersection.js';
@@ -1147,8 +1147,8 @@ class EllipticalArc extends Segment {
   }
 }
 
-// @public {Enumeration}
-EllipticalArc.OverlapType = Enumeration.byKeys( [
+// @public {EnumerationDeprecated}
+EllipticalArc.OverlapType = EnumerationDeprecated.byKeys( [
   'MATCHING_OVERLAP', // radiusX of one equals radiusX of the other, with equivalent centers and rotations to work
   'OPPOSITE_OVERLAP', // radiusX of one equals radiusY of the other, with equivalent centers and rotations to work
   'NONE' // no overlap
