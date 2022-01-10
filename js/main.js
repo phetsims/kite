@@ -19,6 +19,7 @@ import './ops/Face.js';
 import './ops/Graph.js';
 import './ops/HalfEdge.js';
 import './ops/Loop.js';
+import './ops/SegmentTree.js';
 import './ops/Vertex.js';
 import './parser/svgPath.js';
 import './segments/Arc.js';

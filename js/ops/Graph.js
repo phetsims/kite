@@ -36,7 +36,6 @@ import Arc from '../segments/Arc.js';
 import Cubic from '../segments/Cubic.js';
 import EllipticalArc from '../segments/EllipticalArc.js';
 import Line from '../segments/Line.js';
-import Quadratic from '../segments/Quadratic.js';
 import Segment from '../segments/Segment.js';
 import Subpath from '../util/Subpath.js';
 import Boundary from './Boundary.js';
@@ -597,35 +596,17 @@ class Graph {
             const bEdge = this.edges[ j ];
             const bSegment = bEdge.segment;
 
-            let overlapFunction = null;
-            if ( aSegment instanceof Line && bSegment instanceof Line ) {
-              overlapFunction = Line.getOverlaps;
-            }
-            if ( aSegment instanceof Quadratic && bSegment instanceof Quadratic ) {
-              overlapFunction = Quadratic.getOverlaps;
-            }
-            if ( aSegment instanceof Cubic && bSegment instanceof Cubic ) {
-              overlapFunction = Cubic.getOverlaps;
-            }
-            if ( aSegment instanceof Arc && bSegment instanceof Arc ) {
-              overlapFunction = Arc.getOverlaps;
-            }
-            if ( aSegment instanceof EllipticalArc && bSegment instanceof EllipticalArc ) {
-              overlapFunction = EllipticalArc.getOverlaps;
-            }
+            const overlaps = aSegment.getOverlaps( bSegment );
 
-            if ( overlapFunction ) {
-              const overlaps = overlapFunction( aSegment, bSegment );
-              if ( overlaps.length ) {
-                for ( let k = 0; k < overlaps.length; k++ ) {
-                  const overlap = overlaps[ k ];
-                  if ( Math.abs( overlap.t1 - overlap.t0 ) > 1e-5 &&
-                       Math.abs( overlap.qt1 - overlap.qt0 ) > 1e-5 ) {
-                    this.splitOverlap( aEdge, bEdge, overlap );
+            if ( overlaps ) {
+              for ( let k = 0; k < overlaps.length; k++ ) {
+                const overlap = overlaps[ k ];
+                if ( Math.abs( overlap.t1 - overlap.t0 ) > 1e-5 &&
+                     Math.abs( overlap.qt1 - overlap.qt0 ) > 1e-5 ) {
+                  this.splitOverlap( aEdge, bEdge, overlap );
 
-                    needsLoop = true;
-                    break overlap; // eslint-disable-line no-labels
-                  }
+                  needsLoop = true;
+                  break overlap; // eslint-disable-line no-labels
                 }
               }
             }

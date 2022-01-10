@@ -703,6 +703,24 @@ class Quadratic extends Segment {
   }
 
   /**
+   * Determine whether two lines overlap over a continuous section, and if so finds the a,b pair such that
+   * p( t ) === q( a * t + b ).
+   * @public
+   *
+   * @param {Segment} segment
+   * @param {number} [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more
+   *                             in one component.
+   * @returns {Array.<Overlap>|null} - The solution, if there is one (and only one)
+   */
+  getOverlaps( segment, epsilon = 1e-6 ) {
+    if ( segment instanceof Quadratic ) {
+      return Quadratic.getOverlaps( this, segment );
+    }
+
+    return null;
+  }
+
+  /**
    * Returns a Quadratic from the serialized representation.
    * @public
    *
