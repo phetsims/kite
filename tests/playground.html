@@ -15,6 +15,7 @@
   <script src="../../assert/js/assert.js"></script>
   <script src="../../tandem/js/PhetioIDUtils.js"></script>
   <script src="../../sherpa/lib/lodash-4.17.4.min.js"></script>
+  <script src="../../sherpa/lib/flatqueue-1.2.1.js"></script>
 
 
 </head>
@@ -23,10 +24,10 @@
   window.assertions.enableAssert();
   window.assertions.enableAssertSlow();
 
-  import kite from '../js/main.js';
-  import phetCore from '../../phet-core/js/main.js';
-  import axon from '../../axon/js/main.js';
-  import dot from '../../dot/js/main.js';
+  import kite from '../../chipper/dist/js/kite/js/main.js';
+  import phetCore from '../../chipper/dist/js/phet-core/js/main.js';
+  import axon from '../../chipper/dist/js/axon/js/main.js';
+  import dot from '../../chipper/dist/js/dot/js/main.js';
 
   window.kite = kite;
   window.axon = axon;

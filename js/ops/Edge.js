@@ -71,6 +71,9 @@ class Edge {
     // @public {*} - Available for arbitrary client usage. -- Keep JSONable
     this.data = null;
 
+    // @public {*} - kite-internal
+    this.internalData = null;
+
     return this;
   }
 
