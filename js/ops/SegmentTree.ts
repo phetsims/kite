@@ -1,6 +1,13 @@
 // Copyright 2022, University of Colorado Boulder
 
 /**
+ * An accelerated data structure of edges where it supports fast queries of "what edges overlap wth x values",
+ * so we don't have to iterate through all edges.
+ *
+ * This effectively combines an interval/segment tree with red-black tree balancing for insertion.
+ *
+ * For proper red-black constraints, we handle ranges from -infinity to infinity.
+ *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
@@ -17,9 +24,17 @@ const scratchArray: Edge[] = [];
 class SegmentTree {
 
   rootNode: SegmentNode;
+
+  // Our epsilon, used to expand the bounds of segments so we have some non-zero amount of "overlap" for our segments
   private readonly epsilon: number;
+
+  // All edges currently in the tree
   private readonly edges: Set<Edge>;
 
+  /**
+   * @param epsilon - Used to expand the bounds of segments so we have some non-zero amount of "overlap" for our
+   *                  segments
+   */
   constructor( epsilon = 1e-6 ) {
     // @ts-ignore -- TODO: Poolable support
     this.rootNode = SegmentNode.createFromPool( Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY );
@@ -30,13 +45,22 @@ class SegmentTree {
     this.edges = new Set<Edge>();
   }
 
-  query( edge: Edge, interruptableCallback: ( edge: Edge ) => boolean ) {
+  /**
+   * Calls interruptableCallback in turn for every "possibly overlapping" edge stored in this tree.
+   *
+   * @param edge - The edge to use for the bounds range.
+   * @param interruptableCallback - When this returns true, the search will be aborted
+   */
+  query( edge: Edge, interruptableCallback: ( edge: Edge ) => boolean ): boolean {
     const id = globalId++;
 
     if ( this.rootNode ) {
       const range = SegmentTree.getEdgeRange( edge, this.epsilon );
 
-      this.rootNode.query( edge, range.min, range.max, id, interruptableCallback );
+      return this.rootNode.query( edge, range.min, range.max, id, interruptableCallback );
+    }
+    else {
+      return false;
     }
   }
 
@@ -57,11 +81,14 @@ class SegmentTree {
     this.edges.delete( edge );
   }
 
+  /**
+   * For assertion purposes
+   */
   audit() {
     this.rootNode.audit( this.epsilon, this.edges, [] );
   }
 
-  toString() {
+  toString(): string {
     let spacing = 0;
     let string = '';
 
@@ -78,6 +105,12 @@ class SegmentTree {
     return string;
   }
 
+  /**
+   * Given an edge, it will return the Range that we'll use for storage/searches for overlap.
+   *
+   * @param edge
+   * @param epsilon
+   */
   static getEdgeRange( edge: Edge, epsilon: number ): Range {
     assert && assert( edge.segment !== null );
 
@@ -93,15 +126,30 @@ class SegmentTree {
   }
 }
 
+// The nodes in our tree
 class SegmentNode {
 
+  // The minimum x value of this subtree
   min!: number;
+
+  // The maximum x value of this subtree
   max!: number;
+
+  // Child nodes (not specified if we have no children or splitValue). Left value is defined as the smaller range.
   left!: SegmentNode | null;
   right!: SegmentNode | null;
+
+  // Parent node (root will have null)
   parent!: SegmentNode | null;
+
+  // The value where we split our interval into our children (so if we are 0-10, and a split value of 5, our left child
+  // will have 0-5 and our right child will have 5-10.
   splitValue!: number | null;
+
+  // All edges that cover this full range of our min-max. These will be stored as high up in the tree as possible.
   edges: Edge[];
+
+  // Red-black tree color information, for self-balancing
   isBlack!: boolean;
 
   constructor( min: number, max: number ) {
@@ -132,6 +180,16 @@ class SegmentNode {
 
   hasChildren() { return this.splitValue !== null; }
 
+  /**
+   * Iterates through interruptableCallback for every potentially overlapping edge - aborts when it returns true
+   *
+   * @param edge
+   * @param min - computed min for the edge
+   * @param max - computed max for the edge
+   * @param id - our 1-time id that we use to not repeat calls with the same edge
+   * @param interruptableCallback
+   * @returns whether we were aborted
+   */
   query( edge: Edge, min: number, max: number, id: number, interruptableCallback: ( edge: Edge ) => boolean ): boolean {
     let abort = false;
 
@@ -141,8 +199,10 @@ class SegmentNode {
       // Do an interruptable iteration
       for ( let i = 0; i < this.edges.length; i++ ) {
         const edge = this.edges[ i ];
-        if ( !edge.internalData || edge.internalData < id ) {
-          edge.internalData = id;
+        // @ts-ignore
+        if ( !edge.internalData.segmentId || edge.internalData.segmentId < id ) {
+          // @ts-ignore
+          edge.internalData.segmentId = id;
           abort = interruptableCallback( edge );
           if ( abort ) {
             return true;
@@ -164,6 +224,9 @@ class SegmentNode {
     return abort;
   }
 
+  /**
+   * Replaces one child with another
+   */
   swapChild( oldChild: SegmentNode, newChild: SegmentNode ) {
     assert && assert( this.left === oldChild || this.right === oldChild );
 
@@ -185,6 +248,9 @@ class SegmentNode {
     return ( ( this.left === node ) ? this.right : this.left )!;
   }
 
+  /**
+   * Tree operation needed for red-black self-balancing
+   */
   leftRotate( tree: SegmentTree ) {
     assert && assert( this.hasChildren() && this.right!.hasChildren() );
 
@@ -194,6 +260,7 @@ class SegmentNode {
       const beta = y.left!;
       const gamma = y.right!;
 
+      // Recreate parent/child connections
       y.parent = this.parent;
       if ( this.parent ) {
         this.parent.swapChild( this, y );
@@ -208,11 +275,13 @@ class SegmentNode {
       this.left = alpha;
       this.right = beta;
 
+      // Recompute min/max/splitValue
       this.max = beta.max;
       this.splitValue = alpha.max;
       y.min = this.min;
       y.splitValue = this.max;
 
+      // Start recomputation of stored edges
       const xEdges: Edge[] = cleanArray( scratchArray );
       xEdges.push( ...this.edges );
       cleanArray( this.edges );
@@ -238,6 +307,9 @@ class SegmentNode {
     }
   }
 
+  /**
+   * Tree operation needed for red-black self-balancing
+   */
   rightRotate( tree: SegmentTree ) {
     assert && assert( this.hasChildren() && this.left!.hasChildren() );
 
@@ -246,6 +318,7 @@ class SegmentNode {
     const alpha = x.left!;
     const beta = x.right!;
 
+    // Recreate parent/child connections
     x.parent = this.parent;
     if ( this.parent ) {
       this.parent.swapChild( this, x );
@@ -260,11 +333,13 @@ class SegmentNode {
     this.left = beta;
     this.right = gamma;
 
+    // Recompute min/max/splitValue
     this.min = beta.min;
     this.splitValue = gamma.min;
     x.max = this.max;
     x.splitValue = this.min;
 
+    // Start recomputation of stored edges
     const yEdges: Edge[] = cleanArray( scratchArray );
     yEdges.push( ...this.edges );
     cleanArray( this.edges );
@@ -289,6 +364,9 @@ class SegmentNode {
     x.edges.push( ...yEdges );
   }
 
+  /**
+   * Called after an insertion (or potentially deletion in the future) that handles red-black tree rebalancing.
+   */
   fixRedBlack( tree: SegmentTree ) {
     assert && assert( !this.isBlack );
 
@@ -346,6 +424,9 @@ class SegmentNode {
     }
   }
 
+  /**
+   * Triggers a split of whatever interval contains this value (or is a no-op if we already split at it before).
+   */
   split( n: number, tree: SegmentTree ) {
     assert && assert( this.contains( n ) );
 
@@ -389,6 +470,7 @@ class SegmentNode {
           this.fixRedBlack( tree );
         }
         else {
+          // case 1
           this.isBlack = true;
           sibling.isBlack = true;
           parent.isBlack = false;
@@ -399,6 +481,9 @@ class SegmentNode {
     }
   }
 
+  /**
+   * Recursively adds an edge
+   */
   addEdge( edge: Edge, min: number, max: number ) {
     // Ignore no-overlap cases
     if ( this.min > max || this.max < min ) {
@@ -415,6 +500,9 @@ class SegmentNode {
     }
   }
 
+  /**
+   * Recursively removes an edge
+   */
   removeEdge( edge: Edge, min: number, max: number ) {
     // Ignore no-overlap cases
     if ( this.min > max || this.max < min ) {
@@ -432,6 +520,13 @@ class SegmentNode {
     }
   }
 
+  /**
+   * Recursively audits with assertions, checking all of our assumptions.
+   *
+   * @param epsilon
+   * @param allEdges - All edges in the tree
+   * @param presentEdges - Edges that were present in ancestors
+   */
   audit( epsilon: number, allEdges: Set<Edge>, presentEdges: Edge[] = [] ) {
     if ( assert ) {
       for ( const edge of presentEdges ) {
@@ -478,7 +573,7 @@ class SegmentNode {
     }
   }
 
-  toString() {
+  toString(): string {
     // @ts-ignore
     return `[${this.min} ${this.max}] split:${this.splitValue} ${this.isBlack ? 'black' : 'red'} ${this.edges.map( edge => `[${edge.segment.bounds.minX},${edge.segment.bounds.maxX}]` )}`;
   }

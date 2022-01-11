@@ -72,7 +72,9 @@ class Edge {
     this.data = null;
 
     // @public {*} - kite-internal
-    this.internalData = null;
+    this.internalData = {
+
+    };
 
     return this;
   }

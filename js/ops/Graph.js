@@ -42,9 +42,11 @@ import Boundary from './Boundary.js';
 import Edge from './Edge.js';
 import Face from './Face.js';
 import Loop from './Loop.js';
+import SegmentTree from './SegmentTree.js';
 import Vertex from './Vertex.js';
 
 let bridgeId = 0;
+let globalId = 0;
 
 class Graph {
   /**
@@ -584,34 +586,112 @@ class Graph {
    * @private
    */
   eliminateOverlap() {
-    let needsLoop = true;
-    while ( needsLoop ) {
-      needsLoop = false;
 
-      overlap: // eslint-disable-line no-labels
-        for ( let i = 0; i < this.edges.length; i++ ) {
-          const aEdge = this.edges[ i ];
-          const aSegment = aEdge.segment;
-          for ( let j = i + 1; j < this.edges.length; j++ ) {
-            const bEdge = this.edges[ j ];
-            const bSegment = bEdge.segment;
+    // We'll expand bounds by this amount, so that "adjacent" bounds (with a potentially overlapping vertical or
+    // horizontal line) will have a non-zero amount of area overlapping.
+    const epsilon = 1e-6;
 
-            const overlaps = aSegment.getOverlaps( bSegment );
+    // Our queue will store entries of { start: boolean, edge: Edge }, representing a sweep line similar to the
+    // Bentley-Ottmann approach. We'll track which edges are passing through the sweep line.
+    const queue = new window.FlatQueue();
 
-            if ( overlaps ) {
-              for ( let k = 0; k < overlaps.length; k++ ) {
-                const overlap = overlaps[ k ];
-                if ( Math.abs( overlap.t1 - overlap.t0 ) > 1e-5 &&
-                     Math.abs( overlap.qt1 - overlap.qt0 ) > 1e-5 ) {
-                  this.splitOverlap( aEdge, bEdge, overlap );
+    // Tracks which edges are through the sweep line, but in a graph structure like a segment/interval tree, so that we
+    // can have fast lookup (what edges are in a certain range) and also fast inserts/removals.
+    const segmentTree = new SegmentTree( epsilon );
 
-                  needsLoop = true;
-                  break overlap; // eslint-disable-line no-labels
-                }
+    // Assorted operations use a shortcut to "tag" edges with a unique ID, to indicate it has already been processed
+    // for this call of eliminateOverlap(). This is a higher-performance option to storing an array of "already
+    // processed" edges.
+    const nextId = globalId++;
+
+    // Adds an edge to the queue
+    const addToQueue = edge => {
+      const bounds = edge.segment.bounds;
+
+      // TODO: see if object allocations are slow here
+      queue.push( { start: true, edge: edge }, bounds.minY - epsilon );
+      queue.push( { start: false, edge: edge }, bounds.maxY + epsilon );
+    };
+
+    // Removes an edge from the queue (effectively... when we pop from the queue, we'll check its ID data, and if it was
+    // "removed" we will ignore it. Higher-performance than using an array.
+    const removeFromQueue = edge => {
+      // Store the ID so we can have a high-performance removal
+      edge.internalData.removedId = nextId;
+    };
+
+    for ( let i = 0; i < this.edges.length; i++ ) {
+      addToQueue( this.edges[ i ] );
+    }
+
+    // We track edges to dispose separately, instead of synchronously disposing them. This is mainly due to the trick of
+    // removal IDs, since if we re-used pooled Edges when creating, they would still have the ID OR they would lose the
+    // "removed" information.
+    const edgesToDispose = [];
+
+    while ( queue.length ) {
+      const entry = queue.pop();
+      const edge = entry.edge;
+
+      // Skip edges we already removed
+      if ( edge.internalData.removedId === nextId ) {
+        continue;
+      }
+
+      if ( entry.start ) {
+        // We'll bail out of the loop if we find overlaps, and we'll store the relevant information in these
+        let found = false;
+        let overlappedEdge;
+        let addedEdges;
+
+        // TODO: Is this closure killing performance?
+        segmentTree.query( edge, otherEdge => {
+          const overlaps = edge.segment.getOverlaps( otherEdge.segment );
+
+          if ( overlaps !== null && overlaps.length ) {
+            for ( let k = 0; k < overlaps.length; k++ ) {
+              const overlap = overlaps[ k ];
+              if ( Math.abs( overlap.t1 - overlap.t0 ) > 1e-5 &&
+                   Math.abs( overlap.qt1 - overlap.qt0 ) > 1e-5 ) {
+
+                addedEdges = this.splitOverlap( edge, otherEdge, overlap );
+                found = true;
+                overlappedEdge = otherEdge;
+                return true;
               }
             }
           }
+
+          return false;
+        } );
+
+        if ( found ) {
+          // We haven't added our edge yet, so no need to remove it.
+          segmentTree.removeEdge( overlappedEdge );
+
+          // Adjust the queue
+          removeFromQueue( overlappedEdge );
+          removeFromQueue( edge );
+          for ( let i = 0; i < addedEdges.length; i++ ) {
+            addToQueue( addedEdges[ i ] );
+          }
+
+          edgesToDispose.push( edge );
+          edgesToDispose.push( overlappedEdge );
         }
+        else {
+          // No overlaps found, add it and continue
+          segmentTree.addEdge( edge );
+        }
+      }
+      else {
+        // Removal can't trigger an intersection, so we can safely remove it
+        segmentTree.removeEdge( edge );
+      }
+    }
+
+    for ( let i = 0; i < edgesToDispose.length; i++ ) {
+      edgesToDispose[ i ].dispose();
     }
   }
 
@@ -620,14 +700,19 @@ class Graph {
    * intersection points).
    * @private
    *
+   * NOTE: This does NOT dispose aEdge/bEdge, due to eliminateOverlap's needs.
+   *
    * Generally this creates an edge for the "shared" part of both segments, and then creates edges for the parts
    * outside of the shared region, connecting them together.
    *
    * @param {Edge} aEdge
    * @param {Edge} bEdge
    * @param {Overlap} overlap
+   * @returns {Array.<Edge>}
    */
   splitOverlap( aEdge, bEdge, overlap ) {
+    const newEdges = [];
+
     const aSegment = aEdge.segment;
     const bSegment = bEdge.segment;
 
@@ -685,7 +770,7 @@ class Graph {
     }
 
     const middleEdge = Edge.createFromPool( middle, beforeVertex, afterVertex );
-    this.addEdge( middleEdge );
+    newEdges.push( middleEdge );
 
     let aBeforeEdge;
     let aAfterEdge;
@@ -695,19 +780,23 @@ class Graph {
     // Add "leftover" edges
     if ( aBefore ) {
       aBeforeEdge = Edge.createFromPool( aBefore, aEdge.startVertex, beforeVertex );
-      this.addEdge( aBeforeEdge );
+      newEdges.push( aBeforeEdge );
     }
     if ( aAfter ) {
       aAfterEdge = Edge.createFromPool( aAfter, afterVertex, aEdge.endVertex );
-      this.addEdge( aAfterEdge );
+      newEdges.push( aAfterEdge );
     }
     if ( bBefore ) {
       bBeforeEdge = Edge.createFromPool( bBefore, bEdge.startVertex, overlap.a > 0 ? beforeVertex : afterVertex );
-      this.addEdge( bBeforeEdge );
+      newEdges.push( bBeforeEdge );
     }
     if ( bAfter ) {
       bAfterEdge = Edge.createFromPool( bAfter, overlap.a > 0 ? afterVertex : beforeVertex, bEdge.endVertex );
-      this.addEdge( bAfterEdge );
+      newEdges.push( bAfterEdge );
+    }
+
+    for ( let i = 0; i < newEdges.length; i++ ) {
+      this.addEdge( newEdges[ i ] );
     }
 
     // Collect "replacement" edges
@@ -730,8 +819,7 @@ class Graph {
     this.replaceEdgeInLoops( aEdge, aForwardHalfEdges );
     this.replaceEdgeInLoops( bEdge, bForwardHalfEdges );
 
-    aEdge.dispose();
-    bEdge.dispose();
+    return newEdges;
   }
 
   /**
