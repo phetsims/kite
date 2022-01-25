@@ -1,8 +1,8 @@
 // Copyright 2022, University of Colorado Boulder
 
 /**
- * An accelerated data structure of edges where it supports fast queries of "what edges overlap wth x values",
- * so we don't have to iterate through all edges.
+ * An accelerated data structure of items where it supports fast queries of "what items overlap wth x values",
+ * so we don't have to iterate through all items.
  *
  * This effectively combines an interval/segment tree with red-black tree balancing for insertion.
  *
@@ -14,22 +14,26 @@
 import arrayRemove from '../../../phet-core/js/arrayRemove.js';
 import cleanArray from '../../../phet-core/js/cleanArray.js';
 import Poolable from '../../../phet-core/js/Poolable.js';
-import Range from '../../../dot/js/Range.js';
 import kite from '../kite.js';
 import Edge from './Edge.js';
 
 let globalId = 1;
 const scratchArray: Edge[] = [];
 
-class SegmentTree {
+type SegmentInfo<T> = {
+  getMinX: ( item: T, epsilon: number ) => number,
+  getMaxX: ( item: T, epsilon: number ) => number
+}
 
-  rootNode: SegmentNode;
+abstract class SegmentTree<T> implements SegmentInfo<T> {
+
+  rootNode: SegmentNode<T>;
 
   // Our epsilon, used to expand the bounds of segments so we have some non-zero amount of "overlap" for our segments
   private readonly epsilon: number;
 
-  // All edges currently in the tree
-  private readonly edges: Set<Edge>;
+  // All items currently in the tree
+  private readonly items: Set<T>;
 
   /**
    * @param epsilon - Used to expand the bounds of segments so we have some non-zero amount of "overlap" for our
@@ -37,62 +41,63 @@ class SegmentTree {
    */
   constructor( epsilon = 1e-6 ) {
     // @ts-ignore -- TODO: Poolable support
-    this.rootNode = SegmentNode.createFromPool( Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY );
+    this.rootNode = SegmentNode.createFromPool( this, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY );
     this.rootNode.isBlack = true;
 
     this.epsilon = epsilon;
 
-    this.edges = new Set<Edge>();
+    this.items = new Set<T>();
   }
 
+  abstract getMinX( item: T, epsilon: number ): number
+  abstract getMaxX( item: T, epsilon: number ): number
+
   /**
-   * Calls interruptableCallback in turn for every "possibly overlapping" edge stored in this tree.
+   * Calls interruptableCallback in turn for every "possibly overlapping" item stored in this tree.
    *
-   * @param edge - The edge to use for the bounds range.
+   * @param item - The item to use for the bounds range.
    * @param interruptableCallback - When this returns true, the search will be aborted
    */
-  query( edge: Edge, interruptableCallback: ( edge: Edge ) => boolean ): boolean {
+  query( item: T, interruptableCallback: ( item: T ) => boolean ): boolean {
     const id = globalId++;
 
     if ( this.rootNode ) {
-      const range = SegmentTree.getEdgeRange( edge, this.epsilon );
-
-      return this.rootNode.query( edge, range.min, range.max, id, interruptableCallback );
+      return this.rootNode.query( item, this.getMinX( item, this.epsilon ), this.getMaxX( item, this.epsilon ), id, interruptableCallback );
     }
     else {
       return false;
     }
   }
 
-  addEdge( edge: Edge ) {
-    const range = SegmentTree.getEdgeRange( edge, this.epsilon );
+  addItem( item: T ) {
+    const min = this.getMinX( item, this.epsilon );
+    const max = this.getMaxX( item, this.epsilon );
 
     // TOOD: consider adding into one traversal
-    this.rootNode.split( range.min, this );
-    this.rootNode.split( range.max, this );
-    this.rootNode.addEdge( edge, range.min, range.max );
+    this.rootNode.split( min, this );
+    this.rootNode.split( max, this );
+    this.rootNode.addItem( item, min, max );
 
-    this.edges.add( edge );
+    this.items.add( item );
   }
 
-  removeEdge( edge: Edge ) {
-    const range = SegmentTree.getEdgeRange( edge, this.epsilon );
-    this.rootNode.removeEdge( edge, range.min, range.max );
-    this.edges.delete( edge );
+  removeItem( item: T ) {
+    this.rootNode.removeItem( item, this.getMinX( item, this.epsilon ), this.getMaxX( item, this.epsilon ) );
+    this.items.delete( item );
   }
 
   /**
    * For assertion purposes
    */
   audit() {
-    this.rootNode.audit( this.epsilon, this.edges, [] );
+    this.rootNode.audit( this.epsilon, this.items, [] );
   }
 
   toString(): string {
     let spacing = 0;
     let string = '';
 
-    ( function recurse( node: SegmentNode ) {
+    ( function recurse( node: SegmentNode<T> ) {
       string += `${_.repeat( '  ', spacing )}${node.toString()}\n`;
       spacing++;
       if ( node.hasChildren() ) {
@@ -104,30 +109,10 @@ class SegmentTree {
 
     return string;
   }
-
-  /**
-   * Given an edge, it will return the Range that we'll use for storage/searches for overlap.
-   *
-   * @param edge
-   * @param epsilon
-   */
-  static getEdgeRange( edge: Edge, epsilon: number ): Range {
-    assert && assert( edge.segment !== null );
-
-    // @ts-ignore -- TODO: Get Segment typed correctly
-    const bounds = edge.segment!.bounds;
-
-    assert && assert( bounds.isFinite() );
-
-    const left = bounds.left - epsilon;
-    const right = bounds.right + epsilon;
-
-    return new Range( left, right );
-  }
 }
 
 // The nodes in our tree
-class SegmentNode {
+class SegmentNode<T> {
 
   // The minimum x value of this subtree
   min!: number;
@@ -136,29 +121,31 @@ class SegmentNode {
   max!: number;
 
   // Child nodes (not specified if we have no children or splitValue). Left value is defined as the smaller range.
-  left!: SegmentNode | null;
-  right!: SegmentNode | null;
+  left!: SegmentNode<T> | null;
+  right!: SegmentNode<T> | null;
 
   // Parent node (root will have null)
-  parent!: SegmentNode | null;
+  parent!: SegmentNode<T> | null;
 
   // The value where we split our interval into our children (so if we are 0-10, and a split value of 5, our left child
   // will have 0-5 and our right child will have 5-10.
   splitValue!: number | null;
 
-  // All edges that cover this full range of our min-max. These will be stored as high up in the tree as possible.
-  edges: Edge[];
+  // All items that cover this full range of our min-max. These will be stored as high up in the tree as possible.
+  items: T[];
 
   // Red-black tree color information, for self-balancing
   isBlack!: boolean;
 
-  constructor( min: number, max: number ) {
-    this.edges = [];
+  tree!: SegmentTree<T>
 
-    this.initialize( min, max );
+  constructor( tree: SegmentTree<T>, min: number, max: number ) {
+    this.items = [];
+
+    this.initialize( tree, min, max );
   }
 
-  initialize( min: number, max: number ): this {
+  initialize( tree: SegmentTree<T>, min: number, max: number ): this {
     this.min = min;
     this.max = max;
 
@@ -166,10 +153,11 @@ class SegmentNode {
     this.left = null;
     this.right = null;
     this.parent = null;
+    this.tree = tree;
 
     this.isBlack = false;
 
-    cleanArray( this.edges );
+    cleanArray( this.items );
 
     return this;
   }
@@ -183,27 +171,27 @@ class SegmentNode {
   /**
    * Iterates through interruptableCallback for every potentially overlapping edge - aborts when it returns true
    *
-   * @param edge
-   * @param min - computed min for the edge
-   * @param max - computed max for the edge
-   * @param id - our 1-time id that we use to not repeat calls with the same edge
+   * @param item
+   * @param min - computed min for the item
+   * @param max - computed max for the item
+   * @param id - our 1-time id that we use to not repeat calls with the same item
    * @param interruptableCallback
    * @returns whether we were aborted
    */
-  query( edge: Edge, min: number, max: number, id: number, interruptableCallback: ( edge: Edge ) => boolean ): boolean {
+  query( item: T, min: number, max: number, id: number, interruptableCallback: ( item: T ) => boolean ): boolean {
     let abort = false;
 
     // Partial containment works for everything checking for possible overlap
     if ( this.min <= max && this.max >= min ) {
 
       // Do an interruptable iteration
-      for ( let i = 0; i < this.edges.length; i++ ) {
-        const edge = this.edges[ i ];
+      for ( let i = 0; i < this.items.length; i++ ) {
+        const item = this.items[ i ];
         // @ts-ignore
-        if ( !edge.internalData.segmentId || edge.internalData.segmentId < id ) {
+        if ( !item.internalData.segmentId || item.internalData.segmentId < id ) {
           // @ts-ignore
-          edge.internalData.segmentId = id;
-          abort = interruptableCallback( edge );
+          item.internalData.segmentId = id;
+          abort = interruptableCallback( item );
           if ( abort ) {
             return true;
           }
@@ -212,11 +200,11 @@ class SegmentNode {
 
       if ( this.hasChildren() ) {
         if ( !abort ) {
-          abort = this.left!.query( edge, min, max, id, interruptableCallback );
+          abort = this.left!.query( item, min, max, id, interruptableCallback );
         }
 
         if ( !abort ) {
-          abort = this.right!.query( edge, min, max, id, interruptableCallback );
+          abort = this.right!.query( item, min, max, id, interruptableCallback );
         }
       }
     }
@@ -227,7 +215,7 @@ class SegmentNode {
   /**
    * Replaces one child with another
    */
-  swapChild( oldChild: SegmentNode, newChild: SegmentNode ) {
+  swapChild( oldChild: SegmentNode<T>, newChild: SegmentNode<T> ) {
     assert && assert( this.left === oldChild || this.right === oldChild );
 
     if ( this.left === oldChild ) {
@@ -238,11 +226,11 @@ class SegmentNode {
     }
   }
 
-  hasChild( node: SegmentNode ) {
+  hasChild( node: SegmentNode<T> ) {
     return this.left === node || this.right === node;
   }
 
-  otherChild( node: SegmentNode ): SegmentNode {
+  otherChild( node: SegmentNode<T> ): SegmentNode<T> {
     assert && assert( this.hasChild( node ) );
 
     return ( ( this.left === node ) ? this.right : this.left )!;
@@ -251,7 +239,7 @@ class SegmentNode {
   /**
    * Tree operation needed for red-black self-balancing
    */
-  leftRotate( tree: SegmentTree ) {
+  leftRotate( tree: SegmentTree<T> ) {
     assert && assert( this.hasChildren() && this.right!.hasChildren() );
 
     if ( this.right!.hasChildren() ) {
@@ -281,36 +269,36 @@ class SegmentNode {
       y.min = this.min;
       y.splitValue = this.max;
 
-      // Start recomputation of stored edges
-      const xEdges: Edge[] = cleanArray( scratchArray );
-      xEdges.push( ...this.edges );
-      cleanArray( this.edges );
+      // Start recomputation of stored items
+      const xEdges: T[] = cleanArray( scratchArray );
+      xEdges.push( ...this.items );
+      cleanArray( this.items );
 
       // combine alpha-beta into x
-      for ( let i = alpha.edges.length - 1; i >= 0; i-- ) {
-        const edge = alpha.edges[ i ];
-        const index = beta.edges.indexOf( edge );
+      for ( let i = alpha.items.length - 1; i >= 0; i-- ) {
+        const edge = alpha.items[ i ];
+        const index = beta.items.indexOf( edge );
         if ( index >= 0 ) {
-          alpha.edges.splice( i, 1 );
-          beta.edges.splice( index, 1 );
-          this.edges.push( edge );
+          alpha.items.splice( i, 1 );
+          beta.items.splice( index, 1 );
+          this.items.push( edge );
         }
       }
 
       // push y to beta and gamma
-      beta.edges.push( ...y.edges );
-      gamma.edges.push( ...y.edges );
-      cleanArray( y.edges );
+      beta.items.push( ...y.items );
+      gamma.items.push( ...y.items );
+      cleanArray( y.items );
 
-      // x edges to y
-      y.edges.push( ...xEdges );
+      // x items to y
+      y.items.push( ...xEdges );
     }
   }
 
   /**
    * Tree operation needed for red-black self-balancing
    */
-  rightRotate( tree: SegmentTree ) {
+  rightRotate( tree: SegmentTree<T> ) {
     assert && assert( this.hasChildren() && this.left!.hasChildren() );
 
     const x = this.left!;
@@ -339,35 +327,35 @@ class SegmentNode {
     x.max = this.max;
     x.splitValue = this.min;
 
-    // Start recomputation of stored edges
-    const yEdges: Edge[] = cleanArray( scratchArray );
-    yEdges.push( ...this.edges );
-    cleanArray( this.edges );
+    // Start recomputation of stored items
+    const yEdges: T[] = cleanArray( scratchArray );
+    yEdges.push( ...this.items );
+    cleanArray( this.items );
 
     // combine beta-gamma into y
-    for ( let i = gamma.edges.length - 1; i >= 0; i-- ) {
-      const edge = gamma.edges[ i ];
-      const index = beta.edges.indexOf( edge );
+    for ( let i = gamma.items.length - 1; i >= 0; i-- ) {
+      const edge = gamma.items[ i ];
+      const index = beta.items.indexOf( edge );
       if ( index >= 0 ) {
-        gamma.edges.splice( i, 1 );
-        beta.edges.splice( index, 1 );
-        this.edges.push( edge );
+        gamma.items.splice( i, 1 );
+        beta.items.splice( index, 1 );
+        this.items.push( edge );
       }
     }
 
     // push x to alpha and beta
-    alpha.edges.push( ...x.edges );
-    beta.edges.push( ...x.edges );
-    cleanArray( x.edges );
+    alpha.items.push( ...x.items );
+    beta.items.push( ...x.items );
+    cleanArray( x.items );
 
-    // y edges to x
-    x.edges.push( ...yEdges );
+    // y items to x
+    x.items.push( ...yEdges );
   }
 
   /**
    * Called after an insertion (or potentially deletion in the future) that handles red-black tree rebalancing.
    */
-  fixRedBlack( tree: SegmentTree ) {
+  fixRedBlack( tree: SegmentTree<T> ) {
     assert && assert( !this.isBlack );
 
     if ( !this.parent ) {
@@ -427,7 +415,7 @@ class SegmentNode {
   /**
    * Triggers a split of whatever interval contains this value (or is a no-op if we already split at it before).
    */
-  split( n: number, tree: SegmentTree ) {
+  split( n: number, tree: SegmentTree<T> ) {
     assert && assert( this.contains( n ) );
 
     // Ignore splits if we are already split on them
@@ -445,12 +433,12 @@ class SegmentNode {
       this.splitValue = n;
 
       // @ts-ignore -- TODO: Poolable support
-      const newLeft = SegmentNode.createFromPool( this.min, n );
+      const newLeft = SegmentNode.createFromPool( this.tree, this.min, n );
       newLeft.parent = this;
       this.left = newLeft;
 
       // @ts-ignore -- TODO: Poolable support
-      const newRight = SegmentNode.createFromPool( n, this.max );
+      const newRight = SegmentNode.createFromPool( this.tree, n, this.max );
       newRight.parent = this;
       this.right = newRight;
 
@@ -482,9 +470,9 @@ class SegmentNode {
   }
 
   /**
-   * Recursively adds an edge
+   * Recursively adds an item
    */
-  addEdge( edge: Edge, min: number, max: number ) {
+  addItem( item: T, min: number, max: number ) {
     // Ignore no-overlap cases
     if ( this.min > max || this.max < min ) {
       return;
@@ -492,18 +480,18 @@ class SegmentNode {
 
     if ( this.min >= min && this.max <= max ) {
       // We are fully contained
-      this.edges.push( edge );
+      this.items.push( item );
     }
     else if ( this.hasChildren() ) {
-      this.left!.addEdge( edge, min, max );
-      this.right!.addEdge( edge, min, max );
+      this.left!.addItem( item, min, max );
+      this.right!.addItem( item, min, max );
     }
   }
 
   /**
-   * Recursively removes an edge
+   * Recursively removes an item
    */
-  removeEdge( edge: Edge, min: number, max: number ) {
+  removeItem( item: T, min: number, max: number ) {
     // Ignore no-overlap cases
     if ( this.min > max || this.max < min ) {
       return;
@@ -511,12 +499,12 @@ class SegmentNode {
 
     if ( this.min >= min && this.max <= max ) {
       // We are fully contained
-      assert && assert( this.edges.includes( edge ) );
-      arrayRemove( this.edges, edge );
+      assert && assert( this.items.includes( item ) );
+      arrayRemove( this.items, item );
     }
     else if ( this.hasChildren() ) {
-      this.left!.removeEdge( edge, min, max );
-      this.right!.removeEdge( edge, min, max );
+      this.left!.removeItem( item, min, max );
+      this.right!.removeItem( item, min, max );
     }
   }
 
@@ -524,24 +512,22 @@ class SegmentNode {
    * Recursively audits with assertions, checking all of our assumptions.
    *
    * @param epsilon
-   * @param allEdges - All edges in the tree
-   * @param presentEdges - Edges that were present in ancestors
+   * @param allItems - All items in the tree
+   * @param presentItems - Edges that were present in ancestors
    */
-  audit( epsilon: number, allEdges: Set<Edge>, presentEdges: Edge[] = [] ) {
+  audit( epsilon: number, allItems: Set<T>, presentItems: T[] = [] ) {
     if ( assert ) {
-      for ( const edge of presentEdges ) {
-        assert( !this.edges.includes( edge ) );
+      for ( const item of presentItems ) {
+        assert( !this.items.includes( item ) );
       }
-      for ( const edge of this.edges ) {
+      for ( const item of this.items ) {
         // Containment check, this node should be fully contained
-        const range = SegmentTree.getEdgeRange( edge, epsilon );
-        assert( range.min <= this.min );
-        assert( range.max >= this.max );
+        assert( this.tree.getMinX( item, epsilon ) <= this.min );
+        assert( this.tree.getMaxX( item, epsilon ) >= this.max );
       }
-      for ( const edge of presentEdges ) {
-        const range = SegmentTree.getEdgeRange( edge, epsilon );
-        if ( range.min <= this.min && range.max >= this.max ) {
-          assert( allEdges.has( edge ) || this.edges.includes( edge ) );
+      for ( const item of presentItems ) {
+        if ( this.tree.getMinX( item, epsilon ) <= this.min && this.tree.getMaxX( item, epsilon ) >= this.max ) {
+          assert( allItems.has( item ) || this.items.includes( item ) );
         }
       }
 
@@ -562,20 +548,20 @@ class SegmentNode {
         assert( this.splitValue === this.left!.max );
         assert( this.splitValue === this.right!.min );
 
-        for ( const edge of this.left!.edges ) {
-          assert( !this.right!.edges.includes( edge ), 'We shouldn\'t have two children with the same edge' );
+        for ( const item of this.left!.items ) {
+          assert( !this.right!.items.includes( item ), 'We shouldn\'t have two children with the same item' );
         }
 
-        const childPresentEdges = [ ...presentEdges, ...this.edges ];
-        this.left!.audit( epsilon, allEdges, childPresentEdges );
-        this.right!.audit( epsilon, allEdges, childPresentEdges );
+        const childPresentItems = [ ...presentItems, ...this.items ];
+        this.left!.audit( epsilon, allItems, childPresentItems );
+        this.right!.audit( epsilon, allItems, childPresentItems );
       }
     }
   }
 
   toString(): string {
     // @ts-ignore
-    return `[${this.min} ${this.max}] split:${this.splitValue} ${this.isBlack ? 'black' : 'red'} ${this.edges.map( edge => `[${edge.segment.bounds.minX},${edge.segment.bounds.maxX}]` )}`;
+    return `[${this.min} ${this.max}] split:${this.splitValue} ${this.isBlack ? 'black' : 'red'} ${this.items}`;
   }
 }
 Poolable.mixInto( SegmentNode );

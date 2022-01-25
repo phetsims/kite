@@ -40,10 +40,11 @@ import Segment from '../segments/Segment.js';
 import Subpath from '../util/Subpath.js';
 import Boundary from './Boundary.js';
 import Edge from './Edge.js';
+import EdgeSegmentTree from './EdgeSegmentTree.js';
 import Face from './Face.js';
 import Loop from './Loop.js';
-import SegmentTree from './SegmentTree.js';
 import Vertex from './Vertex.js';
+import VertexSegmentTree from './VertexSegmentTree.js';
 
 let bridgeId = 0;
 let globalId = 0;
@@ -589,7 +590,7 @@ class Graph {
 
     // We'll expand bounds by this amount, so that "adjacent" bounds (with a potentially overlapping vertical or
     // horizontal line) will have a non-zero amount of area overlapping.
-    const epsilon = 1e-6;
+    const epsilon = 1e-4;
 
     // Our queue will store entries of { start: boolean, edge: Edge }, representing a sweep line similar to the
     // Bentley-Ottmann approach. We'll track which edges are passing through the sweep line.
@@ -597,7 +598,7 @@ class Graph {
 
     // Tracks which edges are through the sweep line, but in a graph structure like a segment/interval tree, so that we
     // can have fast lookup (what edges are in a certain range) and also fast inserts/removals.
-    const segmentTree = new SegmentTree( epsilon );
+    const segmentTree = new EdgeSegmentTree( epsilon );
 
     // Assorted operations use a shortcut to "tag" edges with a unique ID, to indicate it has already been processed
     // for this call of eliminateOverlap(). This is a higher-performance option to storing an array of "already
@@ -667,7 +668,7 @@ class Graph {
 
         if ( found ) {
           // We haven't added our edge yet, so no need to remove it.
-          segmentTree.removeEdge( overlappedEdge );
+          segmentTree.removeItem( overlappedEdge );
 
           // Adjust the queue
           removeFromQueue( overlappedEdge );
@@ -681,12 +682,12 @@ class Graph {
         }
         else {
           // No overlaps found, add it and continue
-          segmentTree.addEdge( edge );
+          segmentTree.addItem( edge );
         }
       }
       else {
         // Removal can't trigger an intersection, so we can safely remove it
-        segmentTree.removeEdge( edge );
+        segmentTree.removeItem( edge );
       }
     }
 
@@ -982,26 +983,75 @@ class Graph {
     assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.startVertex ) ) );
     assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.endVertex ) ) );
 
-    let needsLoop = true;
-    while ( needsLoop ) {
-      needsLoop = false;
-      nextLoop: // eslint-disable-line no-labels
-        for ( let i = 0; i < this.vertices.length; i++ ) {
-          const aVertex = this.vertices[ i ];
-          for ( let j = i + 1; j < this.vertices.length; j++ ) {
-            const bVertex = this.vertices[ j ];
+    // We'll expand bounds by this amount, so that "adjacent" bounds (with a potentially overlapping vertical or
+    // horizontal line) will have a non-zero amount of area overlapping.
+    const epsilon = 1e-4;
 
-            const distance = aVertex.point.distance( bVertex.point );
-            if ( distance < 1e-5 ) {
-              const newVertex = Vertex.createFromPool( distance === 0 ? aVertex.point : aVertex.point.average( bVertex.point ) );
+    // Our queue will store entries of { start: boolean, vertex: Vertex }, representing a sweep line similar to the
+    // Bentley-Ottmann approach. We'll track which edges are passing through the sweep line.
+    const queue = new window.FlatQueue();
+
+    // Tracks which vertices are through the sweep line, but in a graph structure like a segment/interval tree, so that
+    // we can have fast lookup (what vertices are in a certain range) and also fast inserts/removals.
+    const segmentTree = new VertexSegmentTree( epsilon );
+
+    // Assorted operations use a shortcut to "tag" vertices with a unique ID, to indicate it has already been processed
+    // for this call of eliminateOverlap(). This is a higher-performance option to storing an array of "already
+    // processed" edges.
+    const nextId = globalId++;
+
+    // Adds an vertex to the queue
+    const addToQueue = vertex => {
+      // TODO: see if object allocations are slow here
+      queue.push( { start: true, vertex: vertex }, vertex.point.y - epsilon );
+      queue.push( { start: false, vertex: vertex }, vertex.point.y + epsilon );
+    };
+
+    // Removes a vertex from the queue (effectively... when we pop from the queue, we'll check its ID data, and if it
+    // was "removed" we will ignore it. Higher-performance than using an array.
+    const removeFromQueue = vertex => {
+      // Store the ID so we can have a high-performance removal
+      vertex.internalData.removedId = nextId;
+    };
+
+    for ( let i = 0; i < this.vertices.length; i++ ) {
+      addToQueue( this.vertices[ i ] );
+    }
+
+    // We track vertices to dispose separately, instead of synchronously disposing them. This is mainly due to the trick
+    // of removal IDs, since if we re-used pooled Vertices when creating, they would still have the ID OR they would
+    // lose the "removed" information.
+    const verticesToDispose = [];
+
+    while ( queue.length ) {
+      const entry = queue.pop();
+      const vertex = entry.vertex;
+
+      // Skip vertices we already removed
+      if ( vertex.internalData.removedId === nextId ) {
+        continue;
+      }
+
+      if ( entry.start ) {
+        // We'll bail out of the loop if we find overlaps, and we'll store the relevant information in these
+        let found = false;
+        let overlappedVertex;
+        let addedVertices;
+
+        // TODO: Is this closure killing performance?
+        segmentTree.query( vertex, otherVertex => {
+          const distance = vertex.point.distance( otherVertex.point );
+          if ( distance < 1e-5 ) {
+
+              const newVertex = Vertex.createFromPool( distance === 0 ? vertex.point : vertex.point.average( otherVertex.point ) );
               this.vertices.push( newVertex );
 
-              arrayRemove( this.vertices, aVertex );
-              arrayRemove( this.vertices, bVertex );
+              arrayRemove( this.vertices, vertex );
+              arrayRemove( this.vertices, otherVertex );
               for ( let k = this.edges.length - 1; k >= 0; k-- ) {
                 const edge = this.edges[ k ];
-                const startMatches = edge.startVertex === aVertex || edge.startVertex === bVertex;
-                const endMatches = edge.endVertex === aVertex || edge.endVertex === bVertex;
+                const startMatches = edge.startVertex === vertex || edge.startVertex === otherVertex;
+                const endMatches = edge.endVertex === vertex || edge.endVertex === otherVertex;
 
                 // Outright remove edges that were between A and B that aren't loops
                 if ( startMatches && endMatches ) {
@@ -1030,14 +1080,42 @@ class Graph {
                 }
               }
 
-              aVertex.dispose();
-              bVertex.dispose();
-
-              needsLoop = true;
-              break nextLoop; // eslint-disable-line no-labels
-            }
+            addedVertices = [ newVertex ];
+            found = true;
+            overlappedVertex = otherVertex;
+            return true;
           }
+
+          return false;
+        } );
+
+        if ( found ) {
+          // We haven't added our edge yet, so no need to remove it.
+          segmentTree.removeItem( overlappedVertex );
+
+          // Adjust the queue
+          removeFromQueue( overlappedVertex );
+          removeFromQueue( vertex );
+          for ( let i = 0; i < addedVertices.length; i++ ) {
+            addToQueue( addedVertices[ i ] );
+          }
+
+          verticesToDispose.push( vertex );
+          verticesToDispose.push( overlappedVertex );
         }
+        else {
+          // No overlaps found, add it and continue
+          segmentTree.addItem( vertex );
+        }
+      }
+      else {
+        // Removal can't trigger an intersection, so we can safely remove it
+        segmentTree.removeItem( vertex );
+      }
+    }
+
+    for ( let i = 0; i < verticesToDispose.length; i++ ) {
+      verticesToDispose[ i ].dispose();
     }
 
     assert && assert( _.every( this.edges, edge => _.includes( this.vertices, edge.startVertex ) ) );

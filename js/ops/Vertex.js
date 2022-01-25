@@ -59,6 +59,14 @@ class Vertex {
     // @public {number} - Low index for bridge detection (more efficient to have inline here)
     this.lowIndex = 0;
 
+    // @public {*} - Available for arbitrary client usage. -- Keep JSONable
+    this.data = null;
+
+    // @public {*} - kite-internal
+    this.internalData = {
+
+    };
+
     return this;
   }
 

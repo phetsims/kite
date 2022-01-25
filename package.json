@@ -21,6 +21,9 @@
       "axon": "AXON/main",
       "phetCore": "PHET_CORE/main"
     },
+    "preload": [
+      "../sherpa/lib/flatqueue-1.2.1.js"
+    ],
     "supportsOutputJS": true
   },
   "eslintConfig": {
