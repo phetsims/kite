@@ -869,36 +869,130 @@ class Graph {
    * @private
    */
   eliminateIntersection() {
-    let needsLoop = true;
-    while ( needsLoop ) {
-      needsLoop = false;
 
-      intersect: // eslint-disable-line no-labels
-        for ( let i = 0; i < this.edges.length; i++ ) {
-          const aEdge = this.edges[ i ];
-          const aSegment = aEdge.segment;
-          for ( let j = i + 1; j < this.edges.length; j++ ) {
-            const bEdge = this.edges[ j ];
-            const bSegment = bEdge.segment;
+    // We'll expand bounds by this amount, so that "adjacent" bounds (with a potentially overlapping vertical or
+    // horizontal line) will have a non-zero amount of area overlapping.
+    const epsilon = 1e-4;
 
-            let intersections = Segment.intersect( aSegment, bSegment );
-            intersections = intersections.filter( intersection => {
-              const aT = intersection.aT;
-              const bT = intersection.bT;
-              const aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
-              const bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
-              return aInternal || bInternal;
-            } );
-            if ( intersections.length ) {
+    // Our queue will store entries of { start: boolean, edge: Edge }, representing a sweep line similar to the
+    // Bentley-Ottmann approach. We'll track which edges are passing through the sweep line.
+    const queue = new window.FlatQueue();
 
-              // TODO: In the future, handle multiple intersections (instead of re-running)
-              const intersection = intersections[ 0 ];
+    // Tracks which edges are through the sweep line, but in a graph structure like a segment/interval tree, so that we
+    // can have fast lookup (what edges are in a certain range) and also fast inserts/removals.
+    const segmentTree = new EdgeSegmentTree( epsilon );
 
-              needsLoop = this.simpleSplit( aEdge, bEdge, intersection.aT, intersection.bT, intersection.point );
-              break intersect; // eslint-disable-line no-labels
+    // Assorted operations use a shortcut to "tag" edges with a unique ID, to indicate it has already been processed
+    // for this call of eliminateOverlap(). This is a higher-performance option to storing an array of "already
+    // processed" edges.
+    const nextId = globalId++;
+
+    // Adds an edge to the queue
+    const addToQueue = edge => {
+      const bounds = edge.segment.bounds;
+
+      // TODO: see if object allocations are slow here
+      queue.push( { start: true, edge: edge }, bounds.minY - epsilon );
+      queue.push( { start: false, edge: edge }, bounds.maxY + epsilon );
+    };
+
+    // Removes an edge from the queue (effectively... when we pop from the queue, we'll check its ID data, and if it was
+    // "removed" we will ignore it. Higher-performance than using an array.
+    const removeFromQueue = edge => {
+      // Store the ID so we can have a high-performance removal
+      edge.internalData.removedId = nextId;
+    };
+
+    for ( let i = 0; i < this.edges.length; i++ ) {
+      addToQueue( this.edges[ i ] );
+    }
+
+    // We track edges to dispose separately, instead of synchronously disposing them. This is mainly due to the trick of
+    // removal IDs, since if we re-used pooled Edges when creating, they would still have the ID OR they would lose the
+    // "removed" information.
+    const edgesToDispose = [];
+
+    while ( queue.length ) {
+      const entry = queue.pop();
+      const edge = entry.edge;
+
+      // Skip edges we already removed
+      if ( edge.internalData.removedId === nextId ) {
+        continue;
+      }
+
+      if ( entry.start ) {
+        // We'll bail out of the loop if we find overlaps, and we'll store the relevant information in these
+        let found = false;
+        let overlappedEdge;
+        let addedEdges;
+        let removedEdges;
+
+        // TODO: Is this closure killing performance?
+        segmentTree.query( edge, otherEdge => {
+
+          const aSegment = edge.segment;
+          const bSegment = otherEdge.segment;
+          let intersections = Segment.intersect( aSegment, bSegment );
+          intersections = intersections.filter( intersection => {
+            const aT = intersection.aT;
+            const bT = intersection.bT;
+            const aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
+            const bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
+            return aInternal || bInternal;
+          } );
+          if ( intersections.length ) {
+
+            // TODO: In the future, handle multiple intersections (instead of re-running)
+            const intersection = intersections[ 0 ];
+
+            const result = this.simpleSplit( edge, otherEdge, intersection.aT, intersection.bT, intersection.point );
+
+            if ( result ) {
+              found = true;
+              overlappedEdge = otherEdge;
+              addedEdges = result.addedEdges;
+              removedEdges = result.removedEdges;
+              return true;
             }
           }
+
+          return false;
+        } );
+
+        if ( found ) {
+          // If we didn't "remove" that edge, we'll still need to add it in.
+          if ( removedEdges.includes( edge ) ) {
+            removeFromQueue( edge );
+            edgesToDispose.push( edge );
+          }
+          else {
+            segmentTree.addItem( edge );
+          }
+          if ( removedEdges.includes( overlappedEdge ) ) {
+            segmentTree.removeItem( overlappedEdge );
+            removeFromQueue( overlappedEdge );
+            edgesToDispose.push( overlappedEdge );
+          }
+
+          // Adjust the queue
+          for ( let i = 0; i < addedEdges.length; i++ ) {
+            addToQueue( addedEdges[ i ] );
+          }
         }
+        else {
+          // No overlaps found, add it and continue
+          segmentTree.addItem( edge );
+        }
+      }
+      else {
+        // Removal can't trigger an intersection, so we can safely remove it
+        segmentTree.removeItem( edge );
+      }
+    }
+
+    for ( let i = 0; i < edgesToDispose.length; i++ ) {
+      edgesToDispose[ i ].dispose();
     }
   }
 
@@ -912,11 +1006,9 @@ class Graph {
    * @param {number} bT - Parametric t value of the intersection for bEdge
    * @param {Vector2} point - Location of the intersection
    *
-   * @returns {boolean} - true if something was split.
+   * @returns {{addedEdges: Edge[], removedEdges: Edge[]}|null}
    */
   simpleSplit( aEdge, bEdge, aT, bT, point ) {
-    let changed = false;
-
     const aInternal = aT > 1e-6 && aT < ( 1 - 1e-6 );
     const bInternal = bT > 1e-6 && bT < ( 1 - 1e-6 );
 
@@ -932,16 +1024,25 @@ class Graph {
       this.vertices.push( vertex );
     }
 
+    let changed = false;
+    const addedEdges = [];
+    const removedEdges = [];
+
     if ( aInternal && vertex !== aEdge.startVertex && vertex !== aEdge.endVertex ) {
-      this.splitEdge( aEdge, aT, vertex );
+      addedEdges.push( ...this.splitEdge( aEdge, aT, vertex ) );
+      removedEdges.push( aEdge );
       changed = true;
     }
     if ( bInternal && vertex !== bEdge.startVertex && vertex !== bEdge.endVertex ) {
-      this.splitEdge( bEdge, bT, vertex );
+      addedEdges.push( ...this.splitEdge( bEdge, bT, vertex ) );
+      removedEdges.push( bEdge );
       changed = true;
     }
 
-    return changed;
+    return changed ? {
+      addedEdges: addedEdges,
+      removedEdges: removedEdges
+    } : null;
   }
 
   /**
@@ -972,7 +1073,7 @@ class Graph {
 
     this.replaceEdgeInLoops( edge, [ firstEdge.forwardHalf, secondEdge.forwardHalf ] );
 
-    edge.dispose();
+    return [ firstEdge, secondEdge ];
   }
 
   /**
