@@ -23,16 +23,7 @@ import Bounds2 from '../../dot/js/Bounds2.js';
 import Ray2 from '../../dot/js/Ray2.js';
 import Vector2 from '../../dot/js/Vector2.js';
 import merge from '../../phet-core/js/merge.js';
-import kite from './kite.js';
-import Graph from './ops/Graph.js';
-import svgPath from './parser/svgPath.js';
-import Arc from './segments/Arc.js';
-import Cubic from './segments/Cubic.js';
-import EllipticalArc from './segments/EllipticalArc.js';
-import Line from './segments/Line.js';
-import Quadratic from './segments/Quadratic.js';
-import LineStyles from './util/LineStyles.js';
-import Subpath from './util/Subpath.js';
+import { kite, Graph, svgPath, Arc, Cubic, EllipticalArc, Line, Quadratic, LineStyles, Subpath, svgNumber } from './imports.js';
 
 //  (We can't get joist's random reference here)
 const randomSource = Math.random; // eslint-disable-line bad-sim-text
@@ -1171,7 +1162,7 @@ class Shape {
         // since the commands after this are relative to the previous 'point', we need to specify a move to the initial point
         const startPoint = subpath.segments[ 0 ].start;
 
-        string += `M ${kite.svgNumber( startPoint.x )} ${kite.svgNumber( startPoint.y )} `;
+        string += `M ${svgNumber( startPoint.x )} ${svgNumber( startPoint.y )} `;
 
         for ( let k = 0; k < subpath.segments.length; k++ ) {
           string += `${subpath.segments[ k ].getSVGPathFragment()} `;

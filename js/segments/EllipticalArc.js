@@ -17,12 +17,7 @@ import Transform3 from '../../../dot/js/Transform3.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import EnumerationDeprecated from '../../../phet-core/js/EnumerationDeprecated.js';
-import kite from '../kite.js';
-import BoundsIntersection from '../ops/BoundsIntersection.js';
-import RayIntersection from '../util/RayIntersection.js';
-import SegmentIntersection from '../util/SegmentIntersection.js';
-import Arc from './Arc.js';
-import Segment from './Segment.js';
+import { kite, BoundsIntersection, RayIntersection, SegmentIntersection, svgNumber, Arc, Segment } from '../imports.js';
 
 // constants
 const toDegrees = Utils.toDegrees;
@@ -797,8 +792,8 @@ class EllipticalArc extends Segment {
       const degreesRotation = toDegrees( this._rotation ); // bleh, degrees?
       if ( this.getAngleDifference() < Math.PI * 2 - epsilon ) {
         largeArcFlag = this.getAngleDifference() < Math.PI ? '0' : '1';
-        this._svgPathFragment = `A ${kite.svgNumber( this._radiusX )} ${kite.svgNumber( this._radiusY )} ${degreesRotation
-        } ${largeArcFlag} ${sweepFlag} ${kite.svgNumber( this.getEnd().x )} ${kite.svgNumber( this.getEnd().y )}`;
+        this._svgPathFragment = `A ${svgNumber( this._radiusX )} ${svgNumber( this._radiusY )} ${degreesRotation
+        } ${largeArcFlag} ${sweepFlag} ${svgNumber( this.getEnd().x )} ${svgNumber( this.getEnd().y )}`;
       }
       else {
         // ellipse (or almost-ellipse) case needs to be handled differently
@@ -810,12 +805,12 @@ class EllipticalArc extends Segment {
 
         largeArcFlag = '0'; // since we split it in 2, it's always the small arc
 
-        const firstArc = `A ${kite.svgNumber( this._radiusX )} ${kite.svgNumber( this._radiusY )} ${
+        const firstArc = `A ${svgNumber( this._radiusX )} ${svgNumber( this._radiusY )} ${
           degreesRotation} ${largeArcFlag} ${sweepFlag} ${
-          kite.svgNumber( splitPoint.x )} ${kite.svgNumber( splitPoint.y )}`;
-        const secondArc = `A ${kite.svgNumber( this._radiusX )} ${kite.svgNumber( this._radiusY )} ${
+          svgNumber( splitPoint.x )} ${svgNumber( splitPoint.y )}`;
+        const secondArc = `A ${svgNumber( this._radiusX )} ${svgNumber( this._radiusY )} ${
           degreesRotation} ${largeArcFlag} ${sweepFlag} ${
-          kite.svgNumber( this.getEnd().x )} ${kite.svgNumber( this.getEnd().y )}`;
+          svgNumber( this.getEnd().x )} ${svgNumber( this.getEnd().y )}`;
 
         this._svgPathFragment = `${firstArc} ${secondArc}`;
       }

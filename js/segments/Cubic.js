@@ -14,13 +14,7 @@ import Bounds2 from '../../../dot/js/Bounds2.js';
 import Matrix3 from '../../../dot/js/Matrix3.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import kite from '../kite.js';
-import BoundsIntersection from '../ops/BoundsIntersection.js';
-import Overlap from '../util/Overlap.js';
-import RayIntersection from '../util/RayIntersection.js';
-import SegmentIntersection from '../util/SegmentIntersection.js';
-import Quadratic from './Quadratic.js';
-import Segment from './Segment.js';
+import { kite, BoundsIntersection, Overlap, RayIntersection, SegmentIntersection, svgNumber, Quadratic, Segment } from '../imports.js';
 
 const solveQuadraticRootsReal = Utils.solveQuadraticRootsReal; // function that returns an array of number
 const solveCubicRootsReal = Utils.solveCubicRootsReal; // function that returns an array of number
@@ -722,9 +716,9 @@ class Cubic extends Segment {
       this._svgPathFragment = null;
     }
     if ( !this._svgPathFragment ) {
-      this._svgPathFragment = `C ${kite.svgNumber( this._control1.x )} ${kite.svgNumber( this._control1.y )} ${
-        kite.svgNumber( this._control2.x )} ${kite.svgNumber( this._control2.y )} ${
-        kite.svgNumber( this._end.x )} ${kite.svgNumber( this._end.y )}`;
+      this._svgPathFragment = `C ${svgNumber( this._control1.x )} ${svgNumber( this._control1.y )} ${
+        svgNumber( this._control2.x )} ${svgNumber( this._control2.y )} ${
+        svgNumber( this._end.x )} ${svgNumber( this._end.y )}`;
     }
     if ( assert ) {
       if ( oldPathFragment ) {

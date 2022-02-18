@@ -9,12 +9,7 @@
 import Bounds2 from '../../../dot/js/Bounds2.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import kite from '../kite.js';
-import Overlap from '../util/Overlap.js';
-import RayIntersection from '../util/RayIntersection.js';
-import SegmentIntersection from '../util/SegmentIntersection.js';
-import Line from './Line.js';
-import Segment from './Segment.js';
+import { kite, Overlap, RayIntersection, SegmentIntersection, svgNumber, Line, Segment } from '../imports.js';
 
 // TODO: See if we should use this more
 const TWO_PI = Math.PI * 2;
@@ -625,8 +620,8 @@ class Arc extends Segment {
       let largeArcFlag;
       if ( this.angleDifference < Math.PI * 2 - epsilon ) {
         largeArcFlag = this.angleDifference < Math.PI ? '0' : '1';
-        this._svgPathFragment = `A ${kite.svgNumber( this._radius )} ${kite.svgNumber( this._radius )} 0 ${largeArcFlag
-        } ${sweepFlag} ${kite.svgNumber( this.end.x )} ${kite.svgNumber( this.end.y )}`;
+        this._svgPathFragment = `A ${svgNumber( this._radius )} ${svgNumber( this._radius )} 0 ${largeArcFlag
+        } ${sweepFlag} ${svgNumber( this.end.x )} ${svgNumber( this.end.y )}`;
       }
       else {
         // circle (or almost-circle) case needs to be handled differently
@@ -638,10 +633,10 @@ class Arc extends Segment {
 
         largeArcFlag = '0'; // since we split it in 2, it's always the small arc
 
-        const firstArc = `A ${kite.svgNumber( this._radius )} ${kite.svgNumber( this._radius )} 0 ${
-          largeArcFlag} ${sweepFlag} ${kite.svgNumber( splitPoint.x )} ${kite.svgNumber( splitPoint.y )}`;
-        const secondArc = `A ${kite.svgNumber( this._radius )} ${kite.svgNumber( this._radius )} 0 ${
-          largeArcFlag} ${sweepFlag} ${kite.svgNumber( this.end.x )} ${kite.svgNumber( this.end.y )}`;
+        const firstArc = `A ${svgNumber( this._radius )} ${svgNumber( this._radius )} 0 ${
+          largeArcFlag} ${sweepFlag} ${svgNumber( splitPoint.x )} ${svgNumber( splitPoint.y )}`;
+        const secondArc = `A ${svgNumber( this._radius )} ${svgNumber( this._radius )} 0 ${
+          largeArcFlag} ${sweepFlag} ${svgNumber( this.end.x )} ${svgNumber( this.end.y )}`;
 
         this._svgPathFragment = `${firstArc} ${secondArc}`;
       }

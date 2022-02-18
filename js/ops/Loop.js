@@ -16,8 +16,7 @@
 
 import Poolable from '../../../phet-core/js/Poolable.js';
 import cleanArray from '../../../phet-core/js/cleanArray.js';
-import kite from '../kite.js';
-import Subpath from '../util/Subpath.js';
+import { kite, Subpath } from '../imports.js';
 
 let globaId = 0;
 

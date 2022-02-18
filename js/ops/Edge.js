@@ -7,11 +7,7 @@
  */
 
 import Poolable from '../../../phet-core/js/Poolable.js';
-import kite from '../kite.js';
-import Line from '../segments/Line.js';
-import Segment from '../segments/Segment.js';
-import HalfEdge from './HalfEdge.js';
-import Vertex from './Vertex.js';
+import { kite, Line, Segment, HalfEdge, Vertex } from '../imports.js';
 
 let globaId = 0;
 

@@ -12,11 +12,7 @@
 import TinyEmitter from '../../../axon/js/TinyEmitter.js';
 import Bounds2 from '../../../dot/js/Bounds2.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import kite from '../kite.js';
-import Arc from '../segments/Arc.js';
-import Line from '../segments/Line.js';
-import Segment from '../segments/Segment.js';
-import LineStyles from './LineStyles.js';
+import { kite, Arc, Line, Segment, LineStyles } from '../imports.js';
 
 class Subpath {
   /**

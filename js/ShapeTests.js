@@ -11,12 +11,7 @@ import Bounds2 from '../../dot/js/Bounds2.js';
 import Matrix3 from '../../dot/js/Matrix3.js';
 import Ray2 from '../../dot/js/Ray2.js';
 import Vector2 from '../../dot/js/Vector2.js';
-import Shape from './Shape.js';
-import Arc from './segments/Arc.js';
-import Cubic from './segments/Cubic.js';
-import EllipticalArc from './segments/EllipticalArc.js';
-import Line from './segments/Line.js';
-import Quadratic from './segments/Quadratic.js';
+import { Shape, Arc, Cubic, EllipticalArc, Line, Quadratic } from './imports.js';
 
 QUnit.module( 'Shape' );
 

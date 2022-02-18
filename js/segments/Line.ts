@@ -7,41 +7,48 @@
  */
 
 import Bounds2 from '../../../dot/js/Bounds2.js';
+import Matrix3 from '../../../dot/js/Matrix3.js';
 import Ray2 from '../../../dot/js/Ray2.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import kite from '../kite.js';
-import Overlap from '../util/Overlap.js';
-import RayIntersection from '../util/RayIntersection.js';
-import SegmentIntersection from '../util/SegmentIntersection.js';
-import Segment from './Segment.js';
+import { kite, Arc, svgNumber, RayIntersection, SegmentIntersection, ClosestToPointResult, PiecewiseLinearOptions, Segment, Overlap } from '../imports.js';
 
 const scratchVector2 = new Vector2( 0, 0 );
 
+type SerializedLine = {
+  type: 'Line';
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+};
+
 class Line extends Segment {
+
+  private _start: Vector2;
+  private _end: Vector2;
+
+  private _tangent!: Vector2 | null;
+  private _bounds!: Bounds2 | null;
+  private _svgPathFragment!: string | null;
+
   /**
-   * @param {Vector2} start - Start point
-   * @param {Vector2} end - End point
+   * @param start - Start point
+   * @param end - End point
    */
-  constructor( start, end ) {
+  constructor( start: Vector2, end: Vector2 ) {
     super();
 
-    // @private {Vector2}
     this._start = start;
     this._end = end;
 
     this.invalidate();
   }
 
-
   /**
    * Sets the start point of the Line.
-   * @public
-   *
-   * @param {Vector2} start
-   * @returns {Line}
    */
-  setStart( start ) {
+  setStart( start: Vector2 ): this {
     assert && assert( start instanceof Vector2, `Line start should be a Vector2: ${start}` );
     assert && assert( start.isFinite(), `Line start should be finite: ${start.toString()}` );
 
@@ -52,28 +59,21 @@ class Line extends Segment {
     return this; // allow chaining
   }
 
-  set start( value ) { this.setStart( value ); }
+  set start( value: Vector2 ) { this.setStart( value ); }
 
   /**
    * Returns the start of this Line.
-   * @public
-   *
-   * @returns {Vector2}
    */
-  getStart() {
+  getStart(): Vector2 {
     return this._start;
   }
 
-  get start() { return this.getStart(); }
+  get start(): Vector2 { return this.getStart(); }
 
   /**
    * Sets the end point of the Line.
-   * @public
-   *
-   * @param {Vector2} end
-   * @returns {Line}
    */
-  setEnd( end ) {
+  setEnd( end: Vector2 ): this {
     assert && assert( end instanceof Vector2, `Line end should be a Vector2: ${end}` );
     assert && assert( end.isFinite(), `Line end should be finite: ${end.toString()}` );
 
@@ -84,33 +84,26 @@ class Line extends Segment {
     return this; // allow chaining
   }
 
-  set end( value ) { this.setEnd( value ); }
+  set end( value: Vector2 ) { this.setEnd( value ); }
 
   /**
    * Returns the end of this Line.
-   * @public
-   *
-   * @returns {Vector2}
    */
-  getEnd() {
+  getEnd(): Vector2 {
     return this._end;
   }
 
-  get end() { return this.getEnd(); }
+  get end(): Vector2 { return this.getEnd(); }
 
   /**
    * Returns the position parametrically, with 0 <= t <= 1.
-   * @public
    *
    * NOTE: positionAt( 0 ) will return the start of the segment, and positionAt( 1 ) will return the end of the
    * segment.
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
-   *
-   * @param {number} t
-   * @returns {Vector2}
    */
-  positionAt( t ) {
+  positionAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'positionAt t should be non-negative' );
     assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
 
@@ -119,17 +112,13 @@ class Line extends Segment {
 
   /**
    * Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with 0 <= t <= 1.
-   * @public
    *
    * NOTE: tangentAt( 0 ) will return the tangent at the start of the segment, and tangentAt( 1 ) will return the
    * tangent at the end of the segment.
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
-   *
-   * @param {number} t
-   * @returns {Vector2}
    */
-  tangentAt( t ) {
+  tangentAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'tangentAt t should be non-negative' );
     assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
@@ -139,7 +128,6 @@ class Line extends Segment {
 
   /**
    * Returns the signed curvature of the segment at the parametric value t, where 0 <= t <= 1.
-   * @public
    *
    * The curvature will be positive for visual clockwise / mathematical counterclockwise curves, negative for opposite
    * curvature, and 0 for no curvature.
@@ -148,11 +136,8 @@ class Line extends Segment {
    * the curvature at the end of the segment.
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
-   *
-   * @param {number} t
-   * @returns {number}
    */
-  curvatureAt( t ) {
+  curvatureAt( t: number ): number {
     assert && assert( t >= 0, 'curvatureAt t should be non-negative' );
     assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
 
@@ -162,14 +147,10 @@ class Line extends Segment {
   /**
    * Returns an array with up to 2 sub-segments, split at the parametric t value. Together (in order) they should make
    * up the same shape as the current segment.
-   * @public
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
-   *
-   * @param {number} t
-   * @returns {Array.<Segment>}
    */
-  subdivided( t ) {
+  subdivided( t: number ): Segment[] {
     assert && assert( t >= 0, 'subdivided t should be non-negative' );
     assert && assert( t <= 1, 'subdivided t should be no greater than 1' );
 
@@ -180,14 +161,13 @@ class Line extends Segment {
 
     const pt = this.positionAt( t );
     return [
-      new kite.Line( this._start, pt ),
-      new kite.Line( pt, this._end )
+      new Line( this._start, pt ),
+      new Line( pt, this._end )
     ];
   }
 
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
-   * @public
    */
   invalidate() {
     assert && assert( this._start instanceof Vector2, `Line start should be a Vector2: ${this._start}` );
@@ -196,9 +176,9 @@ class Line extends Segment {
     assert && assert( this._end.isFinite(), `Line end should be finite: ${this._end.toString()}` );
 
     // Lazily-computed derived information
-    this._tangent = null; // {Vector2|null}
-    this._bounds = null; // {Bounds2|null}
-    this._svgPathFragment = null; // {string|null}
+    this._tangent = null;
+    this._bounds = null;
+    this._svgPathFragment = null;
 
     this.invalidationEmitter.emit();
   }
@@ -206,11 +186,8 @@ class Line extends Segment {
   /**
    * Returns a normalized unit vector that is tangent to this line (at the starting point)
    * the unit vectors points toward the end points.
-   * @public
-   *
-   * @returns {Vector2}
    */
-  getStartTangent() {
+  getStartTangent(): Vector2 {
     if ( this._tangent === null ) {
       // TODO: allocation reduction
       this._tangent = this._end.minus( this._start ).normalized();
@@ -218,28 +195,22 @@ class Line extends Segment {
     return this._tangent;
   }
 
-  get startTangent() { return this.getStartTangent(); }
+  get startTangent(): Vector2 { return this.getStartTangent(); }
 
   /**
    * Returns the normalized unit vector that is tangent to this line
    * same as getStartTangent, since this is a straight line
-   * @public
-   *
-   * @returns {Vector2}
    */
-  getEndTangent() {
+  getEndTangent(): Vector2 {
     return this.getStartTangent();
   }
 
-  get endTangent() { return this.getEndTangent(); }
+  get endTangent(): Vector2 { return this.getEndTangent(); }
 
   /**
    * Returns the bounds of this segment.
-   * @public
-   *
-   * @returns {Bounds2}
    */
-  getBounds() {
+  getBounds(): Bounds2 {
     // TODO: allocation reduction
     if ( this._bounds === null ) {
       this._bounds = Bounds2.NOTHING.copy().addPoint( this._start ).addPoint( this._end );
@@ -247,16 +218,12 @@ class Line extends Segment {
     return this._bounds;
   }
 
-  get bounds() { return this.getBounds(); }
+  get bounds(): Bounds2 { return this.getBounds(); }
 
   /**
    * Returns the bounding box for this transformed Line
-   * @public
-   *
-   * @param {Matrix3} matrix
-   * @returns {Bounds2}
    */
-  getBoundsWithTransform( matrix ) {
+  getBoundsWithTransform( matrix: Matrix3 ): Bounds2 {
     // uses mutable calls
     const bounds = Bounds2.NOTHING.copy();
     bounds.addPoint( matrix.multiplyVector2( scratchVector2.set( this._start ) ) );
@@ -267,11 +234,8 @@ class Line extends Segment {
   /**
    * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
    * invalid or repeated segments.
-   * @public
-   *
-   * @returns {Array.<Segment>}
    */
-  getNondegenerateSegments() {
+  getNondegenerateSegments(): Segment[] {
     // if it is degenerate (0-length), just ignore it
     if ( this._start.equals( this._end ) ) {
       return [];
@@ -284,18 +248,15 @@ class Line extends Segment {
   /**
    * Returns a string containing the SVG path. assumes that the start point is already provided,
    * so anything that calls this needs to put the M calls first
-   * @public
-   *
-   * @returns {string}
    */
-  getSVGPathFragment() {
+  getSVGPathFragment(): string {
     let oldPathFragment;
     if ( assert ) {
       oldPathFragment = this._svgPathFragment;
       this._svgPathFragment = null;
     }
     if ( !this._svgPathFragment ) {
-      this._svgPathFragment = `L ${kite.svgNumber( this._end.x )} ${kite.svgNumber( this._end.y )}`;
+      this._svgPathFragment = `L ${svgNumber( this._end.x )} ${svgNumber( this._end.y )}`;
     }
     if ( assert ) {
       if ( oldPathFragment ) {
@@ -307,50 +268,35 @@ class Line extends Segment {
 
   /**
    * Returns an array of Line that will draw an offset curve on the logical left side
-   * @public
-   *
-   * @param {number} lineWidth
-   * @returns {Array.<Line>}
    */
-  strokeLeft( lineWidth ) {
+  strokeLeft( lineWidth: number ): Line[] {
     const offset = this.getEndTangent().perpendicular.negated().times( lineWidth / 2 );
-    return [ new kite.Line( this._start.plus( offset ), this._end.plus( offset ) ) ];
+    return [ new Line( this._start.plus( offset ), this._end.plus( offset ) ) ];
   }
 
   /**
    * Returns an array of Line that will draw an offset curve on the logical right side
-   * @public
-   *
-   * @param {number} lineWidth
-   * @returns {Array.<Line>}
    */
-  strokeRight( lineWidth ) {
+  strokeRight( lineWidth: number ): Line[] {
     const offset = this.getStartTangent().perpendicular.times( lineWidth / 2 );
-    return [ new kite.Line( this._end.plus( offset ), this._start.plus( offset ) ) ];
+    return [ new Line( this._end.plus( offset ), this._start.plus( offset ) ) ];
   }
 
   /**
    * In general, this method returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
    * Since lines are already monotone, it returns an empty array.
-   * @public
-   *
-   * @returns {Array.<number>}
    */
-  getInteriorExtremaTs() { return []; }
+  getInteriorExtremaTs(): number[] { return []; }
 
   /**
    * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
    * For details, see the documentation in Segment.js
-   * @public
-   *
-   * @param {Ray2} ray
-   * @returns {Array.<RayIntersection>}
    */
-  intersection( ray ) {
+  intersection( ray: Ray2 ): RayIntersection[] {
     // We solve for the parametric line-line intersection, and then ensure the parameters are within both
     // the line segment and forwards from the ray.
 
-    const result = [];
+    const result: RayIntersection[] = [];
 
     const start = this._start;
     const end = this._end;
@@ -396,12 +342,8 @@ class Line extends Segment {
 
   /**
    * Returns the resultant winding number of a ray intersecting this line.
-   * @public
-   *
-   * @param {Ray2} ray
-   * @returns {number}
    */
-  windingIntersection( ray ) {
+  windingIntersection( ray: Ray2 ): number {
     const hits = this.intersection( ray );
     if ( hits.length ) {
       return hits[ 0 ].wind;
@@ -413,33 +355,22 @@ class Line extends Segment {
 
   /**
    * Draws this line to the 2D Canvas context, assuming the context's current location is already at the start point
-   * @public
-   *
-   * @param {CanvasRenderingContext2D} context
    */
-  writeToContext( context ) {
+  writeToContext( context: CanvasRenderingContext2D ) {
     context.lineTo( this._end.x, this._end.y );
   }
 
   /**
    * Returns a new Line that represents this line after transformation by the matrix
-   * @public
-   *
-   * @param {Matrix3} matrix
-   * @returns {Line}
    */
-  transformed( matrix ) {
-    return new kite.Line( matrix.timesVector2( this._start ), matrix.timesVector2( this._end ) );
+  transformed( matrix: Matrix3 ): Line {
+    return new Line( matrix.timesVector2( this._start ), matrix.timesVector2( this._end ) );
   }
 
   /**
    * Returns an object that gives information about the closest point (on a line segment) to the point argument
-   * @public
-   *
-   * @param {Vector2} point
-   * @returns {Array.<Object>}
    */
-  explicitClosestToPoint( point ) {
+  explicitClosestToPoint( point: Vector2 ): ClosestToPointResult[] {
     const diff = this._end.minus( this._start );
     let t = point.minus( this._start ).dot( diff ) / diff.magnitudeSquared;
     t = Utils.clamp( t, 0, 1 );
@@ -456,57 +387,42 @@ class Line extends Segment {
 
   /**
    * Returns the contribution to the signed area computed using Green's Theorem, with P=-y/2 and Q=x/2.
-   * @public
    *
    * NOTE: This is this segment's contribution to the line integral (-y/2 dx + x/2 dy).
-   *
-   * @returns {number}
    */
-  getSignedAreaFragment() {
+  getSignedAreaFragment(): number {
     return 1 / 2 * ( this._start.x * this._end.y - this._start.y * this._end.x );
   }
 
   /**
    * Given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
-   * @public
-   *
-   * @param {number} a
-   * @param {number} b
-   * @returns {Line}
    */
-  reparameterized( a, b ) {
-    return new kite.Line( this.positionAt( b ), this.positionAt( a + b ) );
+  reparameterized( a: number, b: number ): Line {
+    return new Line( this.positionAt( b ), this.positionAt( a + b ) );
   }
 
   /**
    * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
-   * @public
-   *
-   * @returns {Line}
    */
-  reversed() {
-    return new kite.Line( this._end, this._start );
+  reversed(): Line {
+    return new Line( this._end, this._start );
   }
 
   /**
    * Convert a line in the $(theta,r)$ plane of the form $(\theta_1,r_1)$ to $(\theta_2,r_2)$ and
    * converts to the cartesian coordinate system
-   * @public
    *
    * E.g. a polar line (0,1) to (2 Pi,1) would be mapped to a circle of radius 1
-   *
-   * @param {Object} [options]
-   * @returns {Array.<Segment>}
    */
-  polarToCartesian( options ) {
+  polarToCartesian( options: PiecewiseLinearOptions ): Segment[] {
     // x represent an angle whereas y represent a radius
     if ( this._start.x === this._end.x ) {
       // angle is the same, we are still a line segment!
-      return [ new kite.Line( Vector2.createPolar( this._start.y, this._start.x ), Vector2.createPolar( this._end.y, this._end.x ) ) ];
+      return [ new Line( Vector2.createPolar( this._start.y, this._start.x ), Vector2.createPolar( this._end.y, this._end.x ) ) ];
     }
     else if ( this._start.y === this._end.y ) {
       // we have a constant radius, so we are a circular arc
-      return [ new kite.Arc( Vector2.ZERO, this._start.y, this._start.x, this._end.x, this._start.x > this._end.x ) ];
+      return [ new Arc( Vector2.ZERO, this._start.y, this._start.x, this._end.x, this._start.x > this._end.x ) ];
     }
     else {
       return this.toPiecewiseLinearSegments( options );
@@ -515,33 +431,22 @@ class Line extends Segment {
 
   /**
    * Returns the arc length of the segment.
-   * @public
-   * @override (ignores parameters)
-   *
-   * @returns {number}
    */
-  getArcLength() {
+  getArcLength(): number {
     return this.start.distance( this.end );
   }
 
   /**
    * We can handle this simply by returning ourselves.
-   * @public
-   * @override
-   *
-   * @returns {Array.<Segment>}
    */
-  toPiecewiseLinearOrArcSegments() {
+  toPiecewiseLinearOrArcSegments(): Segment[] {
     return [ this ];
   }
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
-   * @public
-   *
-   * @returns {Object}
    */
-  serialize() {
+  serialize(): SerializedLine {
     return {
       type: 'Line',
       startX: this._start.x,
@@ -554,14 +459,13 @@ class Line extends Segment {
   /**
    * Determine whether two lines overlap over a continuous section, and if so finds the a,b pair such that
    * p( t ) === q( a * t + b ).
-   * @public
    *
-   * @param {Segment} segment
-   * @param {number} [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more
+   * @param segment
+   * @param [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more
    *                             in one component.
-   * @returns {Array.<Overlap>|null} - The solution, if there is one (and only one)
+   * @returns - The solution, if there is one (and only one)
    */
-  getOverlaps( segment, epsilon = 1e-6 ) {
+  getOverlaps( segment: Segment, epsilon: number = 1e-6 ): Overlap[] | null {
     if ( segment instanceof Line ) {
       return Line.getOverlaps( this, segment );
     }
@@ -571,12 +475,8 @@ class Line extends Segment {
 
   /**
    * Returns a Line from the serialized representation.
-   * @public
-   *
-   * @param {Object} obj
-   * @returns {Line}
    */
-  static deserialize( obj ) {
+  static deserialize( obj: SerializedLine ): Line {
     assert && assert( obj.type === 'Line' );
 
     return new Line( new Vector2( obj.startX, obj.startY ), new Vector2( obj.endX, obj.endY ) );
@@ -585,15 +485,14 @@ class Line extends Segment {
   /**
    * Determine whether two lines overlap over a continuous section, and if so finds the a,b pair such that
    * p( t ) === q( a * t + b ).
-   * @public
    *
-   * @param {Line} line1
-   * @param {Line} line2
-   * @param {number} [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more
+   * @param line1
+   * @param line2
+   * @param [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more
    *                             in one component.
-   * @returns {Array.<Overlap>} - The solution, if there is one (and only one)
+   * @returns - The solution, if there is one (and only one)
    */
-  static getOverlaps( line1, line2, epsilon = 1e-6 ) {
+  static getOverlaps( line1: Line, line2: Line, epsilon: number = 1e-6 ): Overlap[] {
     assert && assert( line1 instanceof Line, 'first Line is not an instance of Line' );
     assert && assert( line2 instanceof Line, 'second Line is not an instance of Line' );
 
@@ -607,7 +506,7 @@ class Line extends Segment {
      * And we use the upper-left section of (at+b) adjustment matrix relevant for the line.
      */
 
-    const noOverlap = [];
+    const noOverlap: Overlap[] = [];
 
     // Efficiently compute the multiplication of the bezier matrix:
     const p0x = line1._start.x;
@@ -670,13 +569,8 @@ class Line extends Segment {
 
   /**
    * Returns any (finite) intersection between the two line segments.
-   * @public
-   *
-   * @param {Segment} a
-   * @param {Segment} b
-   * @returns {Array.<SegmentIntersection>}
    */
-  static intersect( a, b ) {
+  static intersect( a: Line, b: Line ): SegmentIntersection[] {
     assert && assert( a instanceof Line );
     assert && assert( b instanceof Line );
 
@@ -697,15 +591,10 @@ class Line extends Segment {
 
   /**
    * Returns any intersections between a line segment and another type of segment.
-   * @public
    *
    * This should be more optimized than the general intersection routine of arbitrary segments.
-   *
-   * @param {Segment} line
-   * @param {Segment} other
-   * @returns {Array.<SegmentIntersection>}
    */
-  static intersectOther( line, other ) {
+  static intersectOther( line: Line, other: Segment ): SegmentIntersection[] {
     assert && assert( line instanceof Line );
     assert && assert( other instanceof Segment );
 
@@ -722,7 +611,7 @@ class Line extends Segment {
       const rayIntersection = rayIntersections[ i ];
       const lineT = rayIntersection.distance / length;
 
-      // Exclude intersections that are outside of our line segment (or right on the boundary)
+      // Exclude intersections that are outside our line segment (or right on the boundary)
       if ( lineT > 1e-8 && lineT < 1 - 1e-8 ) {
         results.push( new SegmentIntersection( rayIntersection.point, lineT, rayIntersection.t ) );
       }

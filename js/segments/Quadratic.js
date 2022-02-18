@@ -12,10 +12,7 @@ import Bounds2 from '../../../dot/js/Bounds2.js';
 import Matrix3 from '../../../dot/js/Matrix3.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import kite from '../kite.js';
-import Overlap from '../util/Overlap.js';
-import RayIntersection from '../util/RayIntersection.js';
-import Segment from './Segment.js';
+import { kite, Overlap, RayIntersection, svgNumber, Segment } from '../imports.js';
 
 // constants
 const solveQuadraticRootsReal = Utils.solveQuadraticRootsReal;
@@ -500,8 +497,8 @@ class Quadratic extends Segment {
       this._svgPathFragment = null;
     }
     if ( !this._svgPathFragment ) {
-      this._svgPathFragment = `Q ${kite.svgNumber( this._control.x )} ${kite.svgNumber( this._control.y )} ${
-        kite.svgNumber( this._end.x )} ${kite.svgNumber( this._end.y )}`;
+      this._svgPathFragment = `Q ${svgNumber( this._control.x )} ${svgNumber( this._control.y )} ${
+        svgNumber( this._end.x )} ${svgNumber( this._end.y )}`;
     }
     if ( assert ) {
       if ( oldPathFragment ) {

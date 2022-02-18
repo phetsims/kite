@@ -9,12 +9,9 @@
  */
 
 import Utils from '../../../dot/js/Utils.js';
-import merge from '../../../phet-core/js/merge.js';
-import kite from '../kite.js';
-import Arc from '../segments/Arc.js';
-import Line from '../segments/Line.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import Segment from '../segments/Segment.js';
+import merge from '../../../phet-core/js/merge.js';
+import { Arc, kite, Line, Segment } from '../imports.js';
 
 // constants
 const lineLineIntersection = Utils.lineLineIntersection;

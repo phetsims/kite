@@ -6,9 +6,19 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import kite from '../kite.js';
+import { kite } from '../imports.js';
 
 class Overlap {
+
+  a: number;
+  b: number;
+
+  // Initial and ending t-values for the first curve (t0,t1) and second curve (qt0,qt1).
+  t0: number;
+  t1: number;
+  qt0: number;
+  qt1: number;
+
   /**
    * Creates an overlap based on two segments with their t-values (parametric value) within the range of [0,1]
    * (inclusive). The t value from the first curve can be mapped to an equivalent t value from the second curve such
@@ -18,17 +28,13 @@ class Overlap {
    * - first( t0 ) === second( qt0 )
    * - first( t1 ) === second( qt1 )
    * - All of those t values are in the range [0,1]
-   *
-   * @param {number} a
-   * @param {number} b
    */
-  constructor( a, b ) {
+  constructor( a: number, b: number ) {
     assert && assert( typeof a === 'number' && isFinite( a ) && a !== 0,
       'a should be a finite non-zero number' );
     assert && assert( typeof b === 'number' && isFinite( b ),
       'b should be a finite number' );
 
-    // @public {number}
     this.a = a;
     this.b = b;
 
@@ -86,37 +92,22 @@ class Overlap {
 
   /**
    * Maps a t value from the first curve to the second curve (assuming it is within the overlap range).
-   * @public
-   *
-   * @param {number} t
-   * @returns {number}
    */
-  apply( t ) {
+  apply( t: number ): number {
     return this.a * t + this.b;
   }
 
   /**
    * Maps a t value from the second curve to the first curve (assuming it is within the overlap range).
-   * @public
-   *
-   * @param {number} t
-   * @returns {number}
    */
-  applyInverse( t ) {
+  applyInverse( t: number ): number {
     return ( t - this.b ) / this.a;
   }
 
   /**
    * Returns a new overlap that should map t values of a0 => b0 and a1 => b1
-   * @public
-   *
-   * @param {number} a0
-   * @param {number} b0
-   * @param {number} a1
-   * @param {number} b1
-   * @returns {Overlap}
    */
-  static createLinear( a0, b0, a1, b1 ) {
+  static createLinear( a0: number, b0: number, a1: number, b1: number ): Overlap {
     const factor = ( b1 - b0 ) / ( a1 - a0 );
     return new Overlap( factor, b0 - a0 * factor );
   }

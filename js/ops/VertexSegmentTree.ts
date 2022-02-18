@@ -6,9 +6,7 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import kite from '../kite.js';
-import Vertex from './Vertex.js';
-import SegmentTree from './SegmentTree.js';
+import { kite, Vertex, SegmentTree } from '../imports.js';
 
 class VertexSegmentTree extends SegmentTree<Vertex> {
   getMinX( vertex: Vertex, epsilon: number ): number {

@@ -6,9 +6,7 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import kite from '../kite.js';
-import Edge from './Edge.js';
-import SegmentTree from './SegmentTree.js';
+import { kite, Edge, SegmentTree } from '../imports.js';
 
 class EdgeSegmentTree extends SegmentTree<Edge> {
   getMinX( edge: Edge, epsilon: number ): number {

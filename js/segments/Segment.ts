@@ -11,83 +11,154 @@
 
 import TinyEmitter from '../../../axon/js/TinyEmitter.js';
 import Bounds2 from '../../../dot/js/Bounds2.js';
+import Matrix3 from '../../../dot/js/Matrix3.js';
+import Ray2 from '../../../dot/js/Ray2.js';
 import Utils from '../../../dot/js/Utils.js';
-import merge from '../../../phet-core/js/merge.js';
-import kite from '../kite.js';
-import BoundsIntersection from '../ops/BoundsIntersection.js';
+import Vector2 from '../../../dot/js/Vector2.js';
+import optionize from '../../../phet-core/js/optionize.js';
+import { kite, BoundsIntersection, Shape, RayIntersection, Subpath, Line, SegmentIntersection, Arc, EllipticalArc } from '../imports.js';
 
-class Segment {
-  /**
-   *
-   * Each segment should implement the following API.
-   *
-   * properties (backed by ES5 getters, created usually lazily):
-   *
-   *   start {Vector2}
-   *     The start point of the segment, parametrically at t=0.
-   *
-   *   end {Vector2}
-   *     The end point of the segment, parametrically at t=1.
-   *
-   *   startTangent {Vector2}
-   *     The normalized tangent vector to the segment at its start point, pointing in the direction of motion
-   *     (form start to end).
-   *
-   *   endTangent {Vector2}
-   *     The normalized tangent vector to the segment at its end point, pointing in the direction of motion
-   *     (form start to end).
-   *
-   *   bounds {Bounds2}
-   *     The bounding box for the segment.
-   *
-   * methods:
-   *
-   *   positionAt( t: {number} ) : {Vector2}
-   *     Returns the position parametrically, with 0 <= t <= 1. NOTE that this function doesn't keep a constant
-   *     magnitude tangent.
-   *
-   *   tangentAt( t: {number} ) : {Vector2}
-   *     Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with
-   *     0 <= t <= 1.
-   *
-   *   curvatureAt( t: {number} ) : {number}
-   *     Returns the signed curvature (positive for visual clockwise - mathematical counterclockwise)
-   *
-   *   subdivided( t: {number} ) : {Array.<Segment>}
-   *     Returns an array with up to 2 sub-segments, split at the parametric t value. The segments together should make
-   *     the same shape as the original segment.
-   *
-   *   getSVGPathFragment()     - returns a string containing the SVG path. assumes that the start point is already
-   *                              provided, so anything that calls this needs to put the M calls first
-   *   strokeLeft( lineWidth )  - returns an array of segments that will draw an offset curve on the logical left side
-   *   strokeRight( lineWidth ) - returns an array of segments that will draw an offset curve on the logical right side
-   *   windingIntersection      - returns the winding number for intersection with a ray
-   *   getInteriorExtremaTs     - returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on
-   *                              these will result in monotonic segments
-   *   intersection( ray )      - returns a list of intersections between the segment and the ray. Intersections will be
-   *                              of the {RayIntersection} type (see documentation there for details)
-   *   getBounds() : {Bounds2} - Returns a {Bounds2} representing the bounding box for the segment.
-   *   getSignedAreaFragment(): {number} - Returns signed area contribution for this segment using Green's Theorem
-   *   getNondegenerateSegments() : {Array.<Segment>} - Returns a list of non-degenerate segments that are equivalent to
-   *                                                    this segment. Generally gets rid (or simplifies) invalid or
-   *                                                    repeated segments.
-   *   writeToContext( context ) - draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
-   *   transformed( matrix )     - returns a new segment that represents this segment after transformation by the matrix
-   */
-  constructor() {
+type DashValues = {
+
+  // Parametric (t) values for where dash boundaries exist
+  values: number[];
+
+  // Total arc length for this segment
+  arcLength: number;
+
+  // Whether the start of the segment is inside a dash (instead of a gap)
+  initiallyInside: boolean;
+};
+
+type SimpleOverlap = {
+  a: number;
+  b: number;
+};
+
+// null if no solution, true if every a,b pair is a solution, otherwise the single solution
+type PossibleSimpleOverlap = SimpleOverlap | null | true;
+
+type ClosestToPointResult = {
+  segment: Segment;
+  t: number;
+  closestPoint: Vector2;
+  distanceSquared: number;
+};
+
+type PiecewiseLinearOptions = {
+  // how many levels to force subdivisions
+  minLevels?: number;
+
+  // prevent subdivision past this level
+  maxLevels?: number;
+
+  // controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve
+  distanceEpsilon?: number | null;
+
+  // controls level of subdivision by attempting to ensure a maximum curvature change between segments
+  curveEpsilon?: number | null;
+
+  // represents a (usually non-linear) transformation applied
+  pointMap?: ( v: Vector2 ) => Vector2;
+
+  // if the method name is found on the segment, it is called with the expected signature
+  // function( options ) : Array[Segment] instead of using our brute-force logic
+  methodName?: string;
+};
+
+type PiecewiseLinearOrArcRecursionOptions = {
+  curvatureThreshold: number;
+  errorThreshold: number;
+  errorPoints: [number, number];
+};
+
+type PiecewiseLinearOrArcOptions = {
+  minLevels?: number;
+  maxLevels?: number;
+} & Partial<PiecewiseLinearOrArcRecursionOptions>;
+
+abstract class Segment {
+
+  invalidationEmitter: TinyEmitter;
+
+  protected constructor() {
     this.invalidationEmitter = new TinyEmitter();
   }
+
+  // The start point of the segment, parametrically at t=0.
+  abstract get start(): Vector2;
+
+  // The end point of the segment, parametrically at t=1.
+  abstract get end(): Vector2;
+
+  // The normalized tangent vector to the segment at its start point, pointing in the direction of motion (from start to
+  // end).
+  abstract get startTangent(): Vector2;
+
+  // The normalized tangent vector to the segment at its end point, pointing in the direction of motion (from start to
+  // end).
+  abstract get endTangent(): Vector2;
+
+  // The bounding box for the segment.
+  abstract get bounds(): Bounds2;
+
+  // Returns the position parametrically, with 0 <= t <= 1. NOTE that this function doesn't keep a constant magnitude
+  // tangent.
+  abstract positionAt( t: number ): Vector2;
+
+  // Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with 0 <= t <= 1.
+  abstract tangentAt( t: number ): Vector2;
+
+  // Returns the signed curvature (positive for visual clockwise - mathematical counterclockwise)
+  abstract curvatureAt( t: number ): number;
+
+  // Returns an array with up to 2 sub-segments, split at the parametric t value. The segments together should make the
+  // same shape as the original segment.
+  abstract subdivided( t: number ): Segment[];
+
+  // Returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls
+  // this needs to put the M calls first
+  abstract getSVGPathFragment(): string;
+
+  // Returns an array of segments that will draw an offset curve on the logical left side
+  abstract strokeLeft( lineWidth: number ): Segment[];
+
+  // Returns an array of segments that will draw an offset curve on the logical right side
+  abstract strokeRight( lineWidth: number ): Segment[];
+
+  // Returns the winding number for intersection with a ray
+  abstract windingIntersection( ray: Ray2 ): number;
+
+  // Returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic
+  // segments
+  abstract getInteriorExtremaTs(): number[];
+
+  // Returns a list of intersections between the segment and the ray.
+  abstract intersection( ray: Ray2 ): RayIntersection[];
+
+  // Returns a {Bounds2} representing the bounding box for the segment.
+  abstract getBounds(): Bounds2;
+
+  // Returns signed area contribution for this segment using Green's Theorem
+  abstract getSignedAreaFragment(): number;
+
+  // Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
+  // invalid or repeated segments.
+  abstract getNondegenerateSegments(): Segment[];
+
+  // Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
+  abstract writeToContext( context: CanvasRenderingContext2D ): void;
+
+  // Returns a new segment that represents this segment after transformation by the matrix
+  abstract transformed( matrix: Matrix3 ): Segment;
 
   /**
    * Will return true if the start/end tangents are purely vertical or horizontal. If all of the segments of a shape
    * have this property, then the only line joins will be a multiple of pi/2 (90 degrees), and so all of the types of
    * line joins will have the same bounds. This means that the stroked bounds will just be a pure dilation of the
    * regular bounds, by lineWidth / 2.
-   * @public
-   *
-   * @returns {boolean}
    */
-  areStrokedBoundsDilated() {
+  areStrokedBoundsDilated(): boolean {
     const epsilon = 0.0000001;
 
     // If the derivative at the start/end are pointing in a cardinal direction (north/south/east/west), then the
@@ -97,31 +168,22 @@ class Segment {
 
   /**
    * TODO: override everywhere so this isn't necessary (it's not particularly efficient!)
-   * @public
-   *
-   * @param {Matrix3} matrix
-   * @returns {Bounds2}
    */
-  getBoundsWithTransform( matrix ) {
+  getBoundsWithTransform( matrix: Matrix3 ): Bounds2 {
     const transformedSegment = this.transformed( matrix );
     return transformedSegment.getBounds();
   }
 
   /**
    * Extracts a slice of a segment, based on the parametric value.
-   * @public
    *
    * Given that this segment is represented by the interval [0,1]
-   *
-   * @param {number} t0
-   * @param {number} t1
-   * @returns {Segment}
    */
-  slice( t0, t1 ) {
+  slice( t0: number, t1: number ): Segment {
     assert && assert( t0 >= 0 && t0 <= 1 && t1 >= 0 && t1 <= 1, 'Parametric value out of range' );
     assert && assert( t0 < t1 );
 
-    let segment = this; // eslint-disable-line consistent-this
+    let segment: Segment = this; // eslint-disable-line consistent-this
     if ( t1 < 1 ) {
       segment = segment.subdivided( t1 )[ 0 ];
     }
@@ -132,14 +194,11 @@ class Segment {
   }
 
   /**
-   * @public
-   *
-   * @param {Array.<number>} tList - list of sorted t values from 0 <= t <= 1
-   * @returns {Array.<Segment>}
+   * @param tList - list of sorted t values from 0 <= t <= 1
    */
-  subdivisions( tList ) {
+  subdivisions( tList: number[] ): Segment[] {
     // this could be solved by recursion, but we don't plan on the JS engine doing tail-call optimization
-    let right = this; // eslint-disable-line consistent-this
+    let right: Segment = this; // eslint-disable-line consistent-this
     const result = [];
     for ( let i = 0; i < tList.length; i++ ) {
       // assume binary subdivision
@@ -160,25 +219,20 @@ class Segment {
 
   /**
    * Return an array of segments from breaking this segment into monotone pieces
-   * @public
-   *
-   * @returns {Array.<Segment>}
    */
-  subdividedIntoMonotone() {
+  subdividedIntoMonotone(): Segment[] {
     return this.subdivisions( this.getInteriorExtremaTs() );
   }
 
   /**
    * Determines if the segment is sufficiently flat (given certain epsilon values)
-   * @public
    *
-   * @param {number} distanceEpsilon - controls level of subdivision by attempting to ensure a maximum (squared)
-   *                                   deviation from the curve
-   * @param {number} curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
-   *                                between segments
-   * @returns {boolean}
+   * @param distanceEpsilon - controls level of subdivision by attempting to ensure a maximum (squared)
+   *                          deviation from the curve
+   * @param curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
+   *                       between segments
    */
-  isSufficientlyFlat( distanceEpsilon, curveEpsilon ) {
+  isSufficientlyFlat( distanceEpsilon: number, curveEpsilon: number ): boolean {
     const start = this.start;
     const middle = this.positionAt( 0.5 );
     const end = this.end;
@@ -188,14 +242,8 @@ class Segment {
 
   /**
    * Returns the (sometimes approximate) arc length of the segment.
-   * @public
-   *
-   * @param {number} [distanceEpsilon]
-   * @param {number} [curveEpsilon]
-   * @param {number} [maxLevels]
-   * @returns {number}
    */
-  getArcLength( distanceEpsilon, curveEpsilon, maxLevels ) {
+  getArcLength( distanceEpsilon: number, curveEpsilon: number, maxLevels: number ): number {
     distanceEpsilon = distanceEpsilon === undefined ? 1e-10 : distanceEpsilon;
     curveEpsilon = curveEpsilon === undefined ? 1e-8 : curveEpsilon;
     maxLevels = maxLevels === undefined ? 15 : maxLevels;
@@ -212,23 +260,17 @@ class Segment {
 
   /**
    * Returns information about the line dash parametric offsets for a given segment.
-   * @public
    *
    * As always, this is fairly approximate depending on the type of segment.
    *
-   * @param {Array.<number>} lineDash
-   * @param {number} lineDashOffset
-   * @param {number} distanceEpsilon - controls level of subdivision by attempting to ensure a maximum (squared)
-   *                                   deviation from the curve
-   * @param {number} curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
-   *                                between segments
-   * @returns {Object} - Of the form: {
-   *   values: {Array.<number>} - Parametric (t) values for where dash boundaries exist
-   *   arcLength: {number} - Total arc length for this segment
-   *   initiallyInside: {boolean} - Whether the start of the segment is inside a dash (instead of a gap)
-   * }
+   * @param lineDash
+   * @param lineDashOffset
+   * @param distanceEpsilon - controls level of subdivision by attempting to ensure a maximum (squared)
+   *                          deviation from the curve
+   * @param curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
+   *                       between segments
    */
-  getDashValues( lineDash, lineDashOffset, distanceEpsilon, curveEpsilon ) {
+  getDashValues( lineDash: number[], lineDashOffset: number, distanceEpsilon: number, curveEpsilon: number ): DashValues {
     assert && assert( lineDash.length > 0, 'Do not call with an empty dash array' );
 
     const self = this;
@@ -270,7 +312,7 @@ class Segment {
     const initiallyInside = isInside;
 
     // Recursively progress through until we have mostly-linear segments.
-    ( function recur( t0, t1, p0, p1, depth ) {
+    ( function recur( t0: number, t1: number, p0: Vector2, p1: Vector2, depth: number ) {
       // Compute the t/position at the midpoint t value
       const tMid = ( t0 + t1 ) / 2;
       const pMid = self.positionAt( tMid );
@@ -315,14 +357,7 @@ class Segment {
   /**
    * @public
    *
-   * @param {Object} [options] -           with the following options provided:
-   *  - minLevels:                       how many levels to force subdivisions
-   *  - maxLevels:                       prevent subdivision past this level
-   *  - distanceEpsilon (optional null): controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve
-   *  - curveEpsilon (optional null):    controls level of subdivision by attempting to ensure a maximum curvature change between segments
-   *  - pointMap (optional):             function( Vector2 ) : Vector2, represents a (usually non-linear) transformation applied
-   *  - methodName (optional):           if the method name is found on the segment, it is called with the expected signature function( options ) : Array[Segment]
-   *                                     instead of using our brute-force logic
+   * @param {Object} [options]
    * @param {number} [minLevels] -   how many levels to force subdivisions
    * @param {number} [maxLevels] -   prevent subdivision past this level
    * @param {Array.<Segment>} [segments]
@@ -330,12 +365,16 @@ class Segment {
    * @param {Vector2} [end]
    * @returns {Array.<Line>}
    */
-  toPiecewiseLinearSegments( options, minLevels, maxLevels, segments, start, end ) {
+  toPiecewiseLinearSegments( options: PiecewiseLinearOptions, minLevels?: number, maxLevels?: number, segments?: Line[], start?: Vector2, end?: Vector2 ): Line[] {
     // for the first call, initialize min/max levels from our options
-    minLevels = minLevels === undefined ? options.minLevels : minLevels;
-    maxLevels = maxLevels === undefined ? options.maxLevels : maxLevels;
+    minLevels = minLevels === undefined ? options.minLevels! : minLevels;
+    maxLevels = maxLevels === undefined ? options.maxLevels! : maxLevels;
+
+    assert && assert( typeof minLevels === 'number' );
+    assert && assert( typeof maxLevels === 'number' );
+
     segments = segments || [];
-    const pointMap = options.pointMap || identityFunction;
+    const pointMap = options.pointMap || _.identity;
 
     // points mapped by the (possibly-nonlinear) pointMap.
     start = start || pointMap( this.start );
@@ -351,13 +390,13 @@ class Segment {
     let finished = maxLevels === 0; // bail out once we reach our maximum number of subdivision levels
     if ( !finished && minLevels <= 0 ) { // force subdivision if minLevels hasn't been reached
       finished = this.isSufficientlyFlat(
-        options.distanceEpsilon === null ? Number.POSITIVE_INFINITY : options.distanceEpsilon,
-        options.curveEpsilon === null ? Number.POSITIVE_INFINITY : options.curveEpsilon
+        options.distanceEpsilon === null || options.distanceEpsilon === undefined ? Number.POSITIVE_INFINITY : options.distanceEpsilon,
+        options.curveEpsilon === null || options.curveEpsilon === undefined ? Number.POSITIVE_INFINITY : options.curveEpsilon
       );
     }
 
     if ( finished ) {
-      segments.push( new kite.Line( start, end ) );
+      segments.push( new Line( start!, end! ) );
     }
     else {
       const subdividedSegments = this.subdivided( 0.5 );
@@ -369,21 +408,17 @@ class Segment {
 
   /**
    * Returns a list of Line and/or Arc segments that approximates this segment.
-   * @public
-   *
-   * @param {Object} [options]
-   * @returns {Array.<Segment>}
    */
-  toPiecewiseLinearOrArcSegments( options ) {
-    options = merge( {
+  toPiecewiseLinearOrArcSegments( providedOptions: PiecewiseLinearOrArcOptions ): Segment[] {
+    const options = optionize<PiecewiseLinearOrArcOptions, PiecewiseLinearOrArcOptions, PiecewiseLinearOrArcRecursionOptions>( {
       minLevels: 2,
       maxLevels: 7,
       curvatureThreshold: 0.02,
       errorThreshold: 10,
       errorPoints: [ 0.25, 0.75 ]
-    }, options );
+    }, providedOptions );
 
-    const segments = [];
+    const segments: Segment[] = [];
     this.toPiecewiseLinearOrArcRecursion( options, options.minLevels, options.maxLevels, segments,
       0, 1,
       this.positionAt( 0 ), this.positionAt( 1 ),
@@ -392,29 +427,17 @@ class Segment {
   }
 
   /**
-   * Helper function for toPiecewiseLinearOrArcSegments.
-   * @private
-   *
-   * @param {Object} [options]
-   * @param {number} minLevels
-   * @param {number} maxLevels
-   * @param {Array.<Segment>} segments - We will push resulting segments to here
-   * @param {number} startT
-   * @param {number} endT
-   * @param {Vector2} startPoint
-   * @param {Vector2} endPoint
-   * @param {number} startCurvature
-   * @param {number} endCurvature
+   * Helper function for toPiecewiseLinearOrArcSegments. - will push into segments
    */
-  toPiecewiseLinearOrArcRecursion( options, minLevels, maxLevels, segments, startT, endT, startPoint, endPoint, startCurvature, endCurvature ) {
+  private toPiecewiseLinearOrArcRecursion( options: PiecewiseLinearOrArcRecursionOptions, minLevels: number, maxLevels: number, segments: Segment[], startT: number, endT: number, startPoint: Vector2, endPoint: Vector2, startCurvature: number, endCurvature: number ) {
     const middleT = ( startT + endT ) / 2;
     const middlePoint = this.positionAt( middleT );
     const middleCurvature = this.curvatureAt( middleT );
 
     if ( maxLevels <= 0 || ( minLevels <= 0 && Math.abs( startCurvature - middleCurvature ) + Math.abs( middleCurvature - endCurvature ) < options.curvatureThreshold * 2 ) ) {
-      const segment = kite.Arc.createFromPoints( startPoint, middlePoint, endPoint );
+      const segment = Arc.createFromPoints( startPoint, middlePoint, endPoint );
       let needsSplit = false;
-      if ( segment instanceof kite.Arc ) {
+      if ( segment instanceof Arc ) {
         const radiusSquared = segment.radius * segment.radius;
         for ( let i = 0; i < options.errorPoints.length; i++ ) {
           const t = options.errorPoints[ i ];
@@ -442,36 +465,38 @@ class Segment {
 
   /**
    * Returns a Shape containing just this one segment.
-   * @public
-   *
-   * @returns {Shape}
    */
-  toShape() {
-    return new kite.Shape( [ new kite.Subpath( [ this ] ) ] );
+  toShape(): Shape {
+    return new Shape( [ new Subpath( [ this ] ) ] );
   }
 
   /**
-   * List of { segment: ..., t: ..., closestPoint: ..., distanceSquared: ... } (since there can be duplicates), threshold is used for subdivision,
+   * List of results (since there can be duplicates), threshold is used for subdivision,
    * where it will exit if all of the segments are shorter than the threshold
-   * @public
    *
    * TODO: solve segments to determine this analytically!
-   *
-   * @param {Array.<Segment>} segments
-   * @param {Vector2} point
-   * @param {number} threshold
-   * @returns {Array.<Object>}
    */
-  static closestToPoint( segments, point, threshold ) {
+  static closestToPoint( segments: Segment[], point: Vector2, threshold: number ): ClosestToPointResult[] {
+    type Item = {
+      ta: number;
+      tb: number;
+      pa: Vector2;
+      pb: Vector2;
+      segment: Segment;
+      bounds: Bounds2;
+      min: number;
+      max: number;
+    };
+
     const thresholdSquared = threshold * threshold;
-    let items = [];
-    let bestList = [];
+    let items: Item[] = [];
+    let bestList: ClosestToPointResult[] = [];
     let bestDistanceSquared = Number.POSITIVE_INFINITY;
     let thresholdOk = false;
 
-    _.each( segments, segment => {
+    _.each( segments, ( segment: Segment ) => {
       // if we have an explicit computation for this segment, use it
-      if ( segment.explicitClosestToPoint ) {
+      if ( segment instanceof Line ) {
         const infos = segment.explicitClosestToPoint( point );
         _.each( infos, info => {
           if ( info.distanceSquared < bestDistanceSquared ) {
@@ -523,7 +548,7 @@ class Segment {
       thresholdOk = true;
 
       _.each( curItems, item => {
-        if ( item.minDistanceSquared > bestDistanceSquared ) {
+        if ( item.min > bestDistanceSquared ) {
           return; // drop this item
         }
         if ( thresholdOk && item.pa.distanceSquared( item.pb ) > thresholdSquared ) {
@@ -590,7 +615,6 @@ class Segment {
   /**
    * Given the cubic-premultiplied values for two cubic bezier curves, determines (if available) a specified (a,b) pair
    * such that p( t ) === q( a * t + b ).
-   * @public
    *
    * Given a 1-dimensional cubic bezier determined by the control points p0, p1, p2 and p3, compute:
    *
@@ -600,19 +624,8 @@ class Segment {
    * [ p3s ]    [ -1   3  -3   1 ]   [ p3 ]
    *
    * see Cubic.getOverlaps for more information.
-   *
-   * @param {number} p0s
-   * @param {number} p1s
-   * @param {number} p2s
-   * @param {number} p3s
-   * @param {number} q0s
-   * @param {number} q1s
-   * @param {number} q2s
-   * @param {number} q3s
-   * @returns {null|true|{a:number,b:number}} - null if no solution, true if every a,b pair is a solution, otherwise
-   *                                            the single solution
    */
-  static polynomialGetOverlapCubic( p0s, p1s, p2s, p3s, q0s, q1s, q2s, q3s ) {
+  static polynomialGetOverlapCubic( p0s: number, p1s: number, p2s: number, p3s: number, q0s: number, q1s: number, q2s: number, q3s: number ): PossibleSimpleOverlap {
     if ( q3s === 0 ) {
       return Segment.polynomialGetOverlapQuadratic( p0s, p1s, p2s, q0s, q1s, q2s );
     }
@@ -631,7 +644,6 @@ class Segment {
   /**
    * Given the quadratic-premultiplied values for two quadratic bezier curves, determines (if available) a specified (a,b) pair
    * such that p( t ) === q( a * t + b ).
-   * @public
    *
    * Given a 1-dimensional quadratic bezier determined by the control points p0, p1, p2, compute:
    *
@@ -640,17 +652,8 @@ class Segment {
    * [ p2s ]    [  2  -2   3 ] * [ p2 ]
    *
    * see Quadratic.getOverlaps for more information.
-   *
-   * @param {number} p0s
-   * @param {number} p1s
-   * @param {number} p2s
-   * @param {number} q0s
-   * @param {number} q1s
-   * @param {number} q2s
-   * @returns {null|true|{a:number,b:number}} - null if no solution, true if every a,b pair is a solution, otherwise
-   *                                            the single solution
    */
-  static polynomialGetOverlapQuadratic( p0s, p1s, p2s, q0s, q1s, q2s ) {
+  static polynomialGetOverlapQuadratic( p0s: number, p1s: number, p2s: number, q0s: number, q1s: number, q2s: number ): PossibleSimpleOverlap {
     if ( q2s === 0 ) {
       return Segment.polynomialGetOverlapLinear( p0s, p1s, q0s, q1s );
     }
@@ -675,7 +678,6 @@ class Segment {
   /**
    * Given the linear-premultiplied values for two lines, determines (if available) a specified (a,b) pair
    * such that p( t ) === q( a * t + b ).
-   * @public
    *
    * Given a line determined by the control points p0, p1, compute:
    *
@@ -683,15 +685,8 @@ class Segment {
    * [ p1s ] == [ -1   1 ] * [ p1 ]
    *
    * see Quadratic/Cubic.getOverlaps for more information.
-   *
-   * @param {number} p0s
-   * @param {number} p1s
-   * @param {number} q0s
-   * @param {number} q1s
-   * @returns {null|true|{a:number,b:number}} - null if no solution, true if every a,b pair is a solution, otherwise
-   *                                            the single solution
    */
-  static polynomialGetOverlapLinear( p0s, p1s, q0s, q1s ) {
+  static polynomialGetOverlapLinear( p0s: number, p1s: number, q0s: number, q1s: number ): PossibleSimpleOverlap {
     if ( q1s === 0 ) {
       if ( p0s === q0s ) {
         return true;
@@ -714,29 +709,24 @@ class Segment {
   }
 
   /**
-   * Returns all of the distinct (non-endpoint, non-finite) intersections between the two segments.
-   * @public
-   *
-   * @param {Segment} a
-   * @param {Segment} b
-   * @returns {Array.<SegmentIntersection>}
+   * Returns all the distinct (non-endpoint, non-finite) intersections between the two segments.
    */
-  static intersect( a, b ) {
-    if ( kite.Line && a instanceof kite.Line && b instanceof kite.Line ) {
-      return kite.Line.intersect( a, b );
+  static intersect( a: Segment, b: Segment ): SegmentIntersection[] {
+    if ( Line && a instanceof Line && b instanceof Line ) {
+      return Line.intersect( a, b );
     }
-    else if ( kite.Line && a instanceof kite.Line ) {
-      return kite.Line.intersectOther( a, b );
+    else if ( Line && a instanceof Line ) {
+      return Line.intersectOther( a, b );
     }
-    else if ( kite.Line && b instanceof kite.Line ) {
+    else if ( Line && b instanceof Line ) {
       // need to swap our intersections, since 'b' is the line
-      return kite.Line.intersectOther( b, a ).map( swapSegmentIntersection );
+      return Line.intersectOther( b, a ).map( swapSegmentIntersection );
     }
-    else if ( kite.Arc && a instanceof kite.Arc && b instanceof kite.Arc ) {
-      return kite.Arc.intersect( a, b );
+    else if ( Arc && a instanceof Arc && b instanceof Arc ) {
+      return Arc.intersect( a, b );
     }
-    else if ( kite.EllipticalArc && a instanceof kite.EllipticalArc && b instanceof kite.EllipticalArc ) {
-      return kite.EllipticalArc.intersect( a, b );
+    else if ( EllipticalArc && a instanceof EllipticalArc && b instanceof EllipticalArc ) {
+      return EllipticalArc.intersect( a, b );
     }
     else {
       return BoundsIntersection.intersect( a, b );
@@ -745,32 +735,28 @@ class Segment {
 
   /**
    * Returns a Segment from the serialized representation.
-   * @public
-   *
-   * @param {Object} obj
-   * @returns {Segment}
    */
-  static deserialize( obj ) {
+  static deserialize( obj: any ): Segment {
+    // @ts-ignore TODO: namespacing
     assert && assert( obj.type && kite[ obj.type ] && kite[ obj.type ].deserialize );
 
+    // @ts-ignore TODO: namespacing
     return kite[ obj.type ].deserialize( obj );
   }
 
   /**
    * Determines if the start/middle/end points are representative of a sufficiently flat segment
    * (given certain epsilon values)
-   * @public
    *
-   * @param {Vector2} start
-   * @param {Vector2} middle
-   * @param {Vector2} end
-   * @param {number} distanceEpsilon - controls level of subdivision by attempting to ensure a maximum (squared)
-   *                                   deviation from the curve
-   * @param {number} curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
-   *                                between segments
-   * @returns {boolean}
+   * @param start
+   * @param middle
+   * @param end
+   * @param distanceEpsilon - controls level of subdivision by attempting to ensure a maximum (squared)
+   *                          deviation from the curve
+   * @param curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
+   *                       between segments
    */
-  static isSufficientlyFlat( distanceEpsilon, curveEpsilon, start, middle, end ) {
+  static isSufficientlyFlat( distanceEpsilon: number, curveEpsilon: number, start: Vector2, middle: Vector2, end: Vector2 ): boolean {
     // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
     if ( Utils.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) > curveEpsilon ) {
       return false;
@@ -785,15 +771,9 @@ class Segment {
 
 kite.register( 'Segment', Segment );
 
-/**
- * Returns itself
- * @param {Vector2} x
- * @returns {Vector2}
- */
-const identityFunction = function identityFunction( x ) { return x; };
-
-function swapSegmentIntersection( segmentIntersection ) {
+function swapSegmentIntersection( segmentIntersection: SegmentIntersection ) {
   return segmentIntersection.getSwapped();
 }
 
 export default Segment;
+export type { ClosestToPointResult, PiecewiseLinearOptions };
