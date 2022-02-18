@@ -10,29 +10,52 @@
 
 import Bounds2 from '../../../dot/js/Bounds2.js';
 import Matrix3 from '../../../dot/js/Matrix3.js';
+import Ray2 from '../../../dot/js/Ray2.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import { kite, Overlap, RayIntersection, svgNumber, Segment } from '../imports.js';
+import { kite, Overlap, RayIntersection, svgNumber, Segment, Line, Cubic } from '../imports.js';
 
 // constants
 const solveQuadraticRootsReal = Utils.solveQuadraticRootsReal;
 const arePointsCollinear = Utils.arePointsCollinear;
 
 // Used in multiple filters
-function isBetween0And1( t ) {
+function isBetween0And1( t: number ) {
   return t >= 0 && t <= 1;
 }
 
+type SerializedQuadratic = {
+  type: 'Quadratic';
+  startX: number;
+  startY: number;
+  controlX: number;
+  controlY: number;
+  endX: number;
+  endY: number;
+};
+
 class Quadratic extends Segment {
+
+  private _start: Vector2;
+  private _control: Vector2;
+  private _end: Vector2;
+
+  // Lazily-computed derived information
+  private _startTangent!: Vector2 | null;
+  private _endTangent!: Vector2 | null;
+  private _tCriticalX!: number | null; // T where x-derivative is 0 (replaced with NaN if not in range)
+  private _tCriticalY!: number | null; // T where y-derivative is 0 (replaced with NaN if not in range)
+  private _bounds!: Bounds2 | null;
+  private _svgPathFragment!: string | null;
+
   /**
-   * @param {Vector2} start - Start point of the quadratic bezier
-   * @param {Vector2} control - Control point (curve usually doesn't go through here)
-   * @param {Vector2} end - End point of the quadratic bezier
+   * @param start - Start point of the quadratic bezier
+   * @param control - Control point (curve usually doesn't go through here)
+   * @param end - End point of the quadratic bezier
    */
-  constructor( start, control, end ) {
+  constructor( start: Vector2, control: Vector2, end: Vector2 ) {
     super();
 
-    // @private {Vector2}
     this._start = start;
     this._control = control;
     this._end = end;
@@ -42,12 +65,8 @@ class Quadratic extends Segment {
 
   /**
    * Sets the start point of the Quadratic.
-   * @public
-   *
-   * @param {Vector2} start
-   * @returns {Quadratic}
    */
-  setStart( start ) {
+  setStart( start: Vector2 ): this {
     assert && assert( start instanceof Vector2, `Quadratic start should be a Vector2: ${start}` );
     assert && assert( start.isFinite(), `Quadratic start should be finite: ${start.toString()}` );
 
@@ -58,28 +77,21 @@ class Quadratic extends Segment {
     return this; // allow chaining
   }
 
-  set start( value ) { this.setStart( value ); }
+  set start( value: Vector2 ) { this.setStart( value ); }
 
   /**
    * Returns the start of this Quadratic.
-   * @public
-   *
-   * @returns {Vector2}
    */
-  getStart() {
+  getStart(): Vector2 {
     return this._start;
   }
 
-  get start() { return this.getStart(); }
+  get start(): Vector2 { return this.getStart(); }
 
   /**
    * Sets the control point of the Quadratic.
-   * @public
-   *
-   * @param {Vector2} control
-   * @returns {Quadratic}
    */
-  setControl( control ) {
+  setControl( control: Vector2 ): this {
     assert && assert( control instanceof Vector2, `Quadratic control should be a Vector2: ${control}` );
     assert && assert( control.isFinite(), `Quadratic control should be finite: ${control.toString()}` );
 
@@ -90,28 +102,21 @@ class Quadratic extends Segment {
     return this; // allow chaining
   }
 
-  set control( value ) { this.setControl( value ); }
+  set control( value: Vector2 ) { this.setControl( value ); }
 
   /**
    * Returns the control point of this Quadratic.
-   * @public
-   *
-   * @returns {Vector2}
    */
-  getControl() {
+  getControl(): Vector2 {
     return this._control;
   }
 
-  get control() { return this.getControl(); }
+  get control(): Vector2 { return this.getControl(); }
 
   /**
    * Sets the end point of the Quadratic.
-   * @public
-   *
-   * @param {Vector2} end
-   * @returns {Quadratic}
    */
-  setEnd( end ) {
+  setEnd( end: Vector2 ): this {
     assert && assert( end instanceof Vector2, `Quadratic end should be a Vector2: ${end}` );
     assert && assert( end.isFinite(), `Quadratic end should be finite: ${end.toString()}` );
 
@@ -122,33 +127,26 @@ class Quadratic extends Segment {
     return this; // allow chaining
   }
 
-  set end( value ) { this.setEnd( value ); }
+  set end( value: Vector2 ) { this.setEnd( value ); }
 
   /**
    * Returns the end of this Quadratic.
-   * @public
-   *
-   * @returns {Vector2}
    */
-  getEnd() {
+  getEnd(): Vector2 {
     return this._end;
   }
 
-  get end() { return this.getEnd(); }
+  get end(): Vector2 { return this.getEnd(); }
 
   /**
    * Returns the position parametrically, with 0 <= t <= 1.
-   * @public
    *
    * NOTE: positionAt( 0 ) will return the start of the segment, and positionAt( 1 ) will return the end of the
    * segment.
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
-   *
-   * @param {number} t
-   * @returns {Vector2}
    */
-  positionAt( t ) {
+  positionAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'positionAt t should be non-negative' );
     assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
 
@@ -160,17 +158,13 @@ class Quadratic extends Segment {
 
   /**
    * Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with 0 <= t <= 1.
-   * @public
    *
    * NOTE: tangentAt( 0 ) will return the tangent at the start of the segment, and tangentAt( 1 ) will return the
    * tangent at the end of the segment.
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
-   *
-   * @param {number} t
-   * @returns {Vector2}
    */
-  tangentAt( t ) {
+  tangentAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'tangentAt t should be non-negative' );
     assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
@@ -181,7 +175,6 @@ class Quadratic extends Segment {
 
   /**
    * Returns the signed curvature of the segment at the parametric value t, where 0 <= t <= 1.
-   * @public
    *
    * The curvature will be positive for visual clockwise / mathematical counterclockwise curves, negative for opposite
    * curvature, and 0 for no curvature.
@@ -190,11 +183,8 @@ class Quadratic extends Segment {
    * the curvature at the end of the segment.
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
-   *
-   * @param {number} t
-   * @returns {number}
    */
-  curvatureAt( t ) {
+  curvatureAt( t: number ): number {
     assert && assert( t >= 0, 'curvatureAt t should be non-negative' );
     assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
 
@@ -212,21 +202,17 @@ class Quadratic extends Segment {
       return ( h * ( this.degree - 1 ) ) / ( this.degree * a * a );
     }
     else {
-      return this.subdivided( t, true )[ 0 ].curvatureAt( 1 );
+      return this.subdivided( t )[ 0 ].curvatureAt( 1 );
     }
   }
 
   /**
    * Returns an array with up to 2 sub-segments, split at the parametric t value. Together (in order) they should make
    * up the same shape as the current segment.
-   * @public
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
-   *
-   * @param {number} t
-   * @returns {Array.<Segment>}
    */
-  subdivided( t ) {
+  subdivided( t: number ): Quadratic[] {
     assert && assert( t >= 0, 'subdivided t should be non-negative' );
     assert && assert( t <= 1, 'subdivided t should be no greater than 1' );
 
@@ -240,13 +226,13 @@ class Quadratic extends Segment {
     const rightMid = this._control.blend( this._end, t );
     const mid = leftMid.blend( rightMid, t );
     return [
-      new kite.Quadratic( this._start, leftMid, mid ),
-      new kite.Quadratic( mid, rightMid, this._end )
+      new Quadratic( this._start, leftMid, mid ),
+      new Quadratic( mid, rightMid, this._end )
     ];
   }
 
   /**
-   * @public - Clears cached information, should be called when any of the 'constructor arguments' are mutated.
+   * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    */
   invalidate() {
     assert && assert( this._start instanceof Vector2, `Quadratic start should be a Vector2: ${this._start}` );
@@ -257,24 +243,21 @@ class Quadratic extends Segment {
     assert && assert( this._end.isFinite(), `Quadratic end should be finite: ${this._end.toString()}` );
 
     // Lazily-computed derived information
-    this._startTangent = null; // {Vector2|null}
-    this._endTangent = null; // {Vector2|null}
-    this._tCriticalX = null; // {number|null} T where x-derivative is 0 (replaced with NaN if not in range)
-    this._tCriticalY = null; // {number|null} T where y-derivative is 0 (replaced with NaN if not in range)
+    this._startTangent = null;
+    this._endTangent = null;
+    this._tCriticalX = null;
+    this._tCriticalY = null;
 
-    this._bounds = null; // {Bounds2|null}
-    this._svgPathFragment = null; // {string|null}
+    this._bounds = null;
+    this._svgPathFragment = null;
 
     this.invalidationEmitter.emit();
   }
 
   /**
    * Returns the tangent vector (normalized) to the segment at the start, pointing in the direction of motion (from start to end)
-   * @public
-   *
-   * @returns {Vector2}
    */
-  getStartTangent() {
+  getStartTangent(): Vector2 {
     if ( this._startTangent === null ) {
       const controlIsStart = this._start.equals( this._control );
       // TODO: allocation reduction
@@ -285,15 +268,12 @@ class Quadratic extends Segment {
     return this._startTangent;
   }
 
-  get startTangent() { return this.getStartTangent(); }
+  get startTangent(): Vector2 { return this.getStartTangent(); }
 
   /**
    * Returns the tangent vector (normalized) to the segment at the end, pointing in the direction of motion (from start to end)
-   * @public
-   *
-   * @returns {Vector2}
    */
-  getEndTangent() {
+  getEndTangent(): Vector2 {
     if ( this._endTangent === null ) {
       const controlIsEnd = this._end.equals( this._control );
       // TODO: allocation reduction
@@ -304,14 +284,9 @@ class Quadratic extends Segment {
     return this._endTangent;
   }
 
-  get endTangent() { return this.getEndTangent(); }
+  get endTangent(): Vector2 { return this.getEndTangent(); }
 
-  /**
-   * @public
-   *
-   * @returns {number}
-   */
-  getTCriticalX() {
+  getTCriticalX(): number {
     // compute x where the derivative is 0 (used for bounds and other things)
     if ( this._tCriticalX === null ) {
       this._tCriticalX = Quadratic.extremaT( this._start.x, this._control.x, this._end.x );
@@ -319,15 +294,9 @@ class Quadratic extends Segment {
     return this._tCriticalX;
   }
 
-  get tCriticalX() { return this.getTCriticalX(); }
+  get tCriticalX(): number { return this.getTCriticalX(); }
 
-
-  /**
-   * @public
-   *
-   * @returns {number}
-   */
-  getTCriticalY() {
+  getTCriticalY(): number {
     // compute y where the derivative is 0 (used for bounds and other things)
     if ( this._tCriticalY === null ) {
       this._tCriticalY = Quadratic.extremaT( this._start.y, this._control.y, this._end.y );
@@ -335,16 +304,13 @@ class Quadratic extends Segment {
     return this._tCriticalY;
   }
 
-  get tCriticalY() { return this.getTCriticalY(); }
+  get tCriticalY(): number { return this.getTCriticalY(); }
 
   /**
    * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
    * invalid or repeated segments.
-   * @public
-   *
-   * @returns {Array.<Segment>}
    */
-  getNondegenerateSegments() {
+  getNondegenerateSegments(): Segment[] {
     const start = this._start;
     const control = this._control;
     const end = this._end;
@@ -361,8 +327,8 @@ class Quadratic extends Segment {
       // this is a special collinear case, we basically line out to the farthest point and back
       const halfPoint = this.positionAt( 0.5 );
       return [
-        new kite.Line( start, halfPoint ),
-        new kite.Line( halfPoint, end )
+        new Line( start, halfPoint ),
+        new Line( halfPoint, end )
       ];
     }
     else if ( arePointsCollinear( start, control, end ) ) {
@@ -370,24 +336,24 @@ class Quadratic extends Segment {
       // also, start !== end (handled earlier)
       if ( startIsControl || endIsControl ) {
         // just a line segment!
-        return [ new kite.Line( start, end ) ]; // no extra nondegenerate check since start !== end
+        return [ new Line( start, end ) ]; // no extra nondegenerate check since start !== end
       }
       // now control point must be unique. we check to see if our rendered path will be outside of the start->end line segment
       const delta = end.minus( start );
-      const p1d = control.minus( start ).dot( delta.normalized ) / delta.magnitude;
+      const p1d = control.minus( start ).dot( delta.normalized() ) / delta.magnitude;
       const t = Quadratic.extremaT( 0, p1d, 1 );
       if ( !isNaN( t ) && t > 0 && t < 1 ) {
         // we have a local max inside the range, indicating that our extrema point is outside of start->end
         // we'll line to and from it
         const pt = this.positionAt( t );
         return _.flatten( [
-          new kite.Line( start, pt ).getNondegenerateSegments(),
-          new kite.Line( pt, end ).getNondegenerateSegments()
+          new Line( start, pt ).getNondegenerateSegments(),
+          new Line( pt, end ).getNondegenerateSegments()
         ] );
       }
       else {
         // just provide a line segment, our rendered path doesn't go outside of this
-        return [ new kite.Line( start, end ) ]; // no extra nondegenerate check since start !== end
+        return [ new Line( start, end ) ]; // no extra nondegenerate check since start !== end
       }
     }
     else {
@@ -397,11 +363,8 @@ class Quadratic extends Segment {
 
   /**
    * Returns the bounds of this segment.
-   * @public
-   *
-   * @returns {Bounds2}
    */
-  getBounds() {
+  getBounds(): Bounds2 {
     // calculate our temporary guaranteed lower bounds based on the end points
     if ( this._bounds === null ) {
       this._bounds = new Bounds2( Math.min( this._start.x, this._end.x ), Math.min( this._start.y, this._end.y ), Math.max( this._start.x, this._end.x ), Math.max( this._start.y, this._end.y ) );
@@ -420,35 +383,33 @@ class Quadratic extends Segment {
     return this._bounds;
   }
 
-  get bounds() { return this.getBounds(); }
+  get bounds(): Bounds2 { return this.getBounds(); }
 
   // see http://www.visgraf.impa.br/sibgrapi96/trabs/pdf/a14.pdf
   // and http://math.stackexchange.com/questions/12186/arc-length-of-bezier-curves for curvature / arc length
 
   /**
    * Returns an array of quadratic that are offset to this quadratic by a distance r
-   * @public
    *
-   * @param {number} r - distance
-   * @param {boolean} reverse
-   * @returns {Array.<Quadratic>}
+   * @param r - distance
+   * @param reverse
    */
-  offsetTo( r, reverse ) {
+  offsetTo( r: number, reverse: boolean ): Quadratic[] {
     // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html
     // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
-    let curves = [ this ];
+    let curves: Quadratic[] = [ this ];
 
     // subdivide this curve
     const depth = 5; // generates 2^depth curves
     for ( let i = 0; i < depth; i++ ) {
-      curves = _.flatten( _.map( curves, curve => curve.subdivided( 0.5, true ) ) );
+      curves = _.flatten( _.map( curves, ( curve: Quadratic ) => curve.subdivided( 0.5 ) ) );
     }
 
-    let offsetCurves = _.map( curves, curve => curve.approximateOffset( r ) );
+    let offsetCurves = _.map( curves, ( curve: Quadratic ) => curve.approximateOffset( r ) );
 
     if ( reverse ) {
       offsetCurves.reverse();
-      offsetCurves = _.map( offsetCurves, curve => curve.reversed( true ) );
+      offsetCurves = _.map( offsetCurves, ( curve: Quadratic ) => curve.reversed() );
     }
 
     return offsetCurves;
@@ -456,13 +417,10 @@ class Quadratic extends Segment {
 
   /**
    * Elevation of this quadratic Bezier curve to a cubic Bezier curve
-   * @public
-   *
-   * @returns {Cubic}
    */
-  degreeElevated() {
+  degreeElevated(): Cubic {
     // TODO: allocation reduction
-    return new kite.Cubic(
+    return new Cubic(
       this._start,
       this._start.plus( this._control.timesScalar( 2 ) ).dividedScalar( 3 ),
       this._end.plus( this._control.timesScalar( 2 ) ).dividedScalar( 3 ),
@@ -471,13 +429,10 @@ class Quadratic extends Segment {
   }
 
   /**
-   * @public
-   *
-   * @param {number} r - distance
-   * @returns {Quadratic}
+   * @param r - distance
    */
-  approximateOffset( r ) {
-    return new kite.Quadratic(
+  approximateOffset( r: number ): Quadratic {
+    return new Quadratic(
       this._start.plus( ( this._start.equals( this._control ) ? this._end.minus( this._start ) : this._control.minus( this._start ) ).perpendicular.normalized().times( r ) ),
       this._control.plus( this._end.minus( this._start ).perpendicular.normalized().times( r ) ),
       this._end.plus( ( this._end.equals( this._control ) ? this._end.minus( this._start ) : this._end.minus( this._control ) ).perpendicular.normalized().times( r ) )
@@ -486,11 +441,8 @@ class Quadratic extends Segment {
 
   /**
    * Returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls this needs to put the M calls first
-   * @public
-   *
-   * @returns {string}
    */
-  getSVGPathFragment() {
+  getSVGPathFragment(): string {
     let oldPathFragment;
     if ( assert ) {
       oldPathFragment = this._svgPathFragment;
@@ -510,32 +462,19 @@ class Quadratic extends Segment {
 
   /**
    * Returns an array of lines that will draw an offset curve on the logical left side
-   * @public
-   *
-   * @param {number} lineWidth
-   * @returns {Array.<Quadratic>}
    */
-  strokeLeft( lineWidth ) {
+  strokeLeft( lineWidth: number ): Quadratic[] {
     return this.offsetTo( -lineWidth / 2, false );
   }
 
   /**
    * Returns an array of lines that will draw an offset curve on the logical right side
-   * @public
-   *
-   * @param {number} lineWidth
-   * @returns {Array.<Quadratic>}
    */
-  strokeRight( lineWidth ) {
+  strokeRight( lineWidth: number ): Quadratic[] {
     return this.offsetTo( lineWidth / 2, true );
   }
 
-  /**
-   * @public
-   *
-   * @returns {Array.<number>}
-   */
-  getInteriorExtremaTs() {
+  getInteriorExtremaTs(): number[] {
     // TODO: we assume here we are reduce, so that a criticalX doesn't equal a criticalY?
     const result = [];
     const epsilon = 0.0000000001; // TODO: general kite epsilon?
@@ -555,13 +494,9 @@ class Quadratic extends Segment {
   /**
    * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
    * For details, see the documentation in Segment.js
-   * @public
-   *
-   * @param {Ray2} ray
-   * @returns {Array.<RayIntersection>}
    */
-  intersection( ray ) {
-    const result = [];
+  intersection( ray: Ray2 ): RayIntersection[] {
+    const result: RayIntersection[] = [];
 
     // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
     const inverseMatrix = Matrix3.rotation2( -ray.direction.angle ).timesMatrix( Matrix3.translation( -ray.position.x, -ray.position.y ) );
@@ -597,12 +532,8 @@ class Quadratic extends Segment {
 
   /**
    * Returns the winding number for intersection with a ray
-   * @public
-   *
-   * @param {Ray2} ray
-   * @returns {number}
    */
-  windingIntersection( ray ) {
+  windingIntersection( ray: Ray2 ): number {
     let wind = 0;
     const hits = this.intersection( ray );
     _.each( hits, hit => {
@@ -613,34 +544,24 @@ class Quadratic extends Segment {
 
   /**
    * Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
-   * @public
-   *
-   * @param {CanvasRenderingContext2D} context
    */
-  writeToContext( context ) {
+  writeToContext( context: CanvasRenderingContext2D ) {
     context.quadraticCurveTo( this._control.x, this._control.y, this._end.x, this._end.y );
   }
 
   /**
    * Returns a new quadratic that represents this quadratic after transformation by the matrix
-   * @public
-   *
-   * @param {Matrix3} matrix
-   * @returns {Quadratic}
    */
-  transformed( matrix ) {
-    return new kite.Quadratic( matrix.timesVector2( this._start ), matrix.timesVector2( this._control ), matrix.timesVector2( this._end ) );
+  transformed( matrix: Matrix3 ): Quadratic {
+    return new Quadratic( matrix.timesVector2( this._start ), matrix.timesVector2( this._control ), matrix.timesVector2( this._end ) );
   }
 
   /**
    * Returns the contribution to the signed area computed using Green's Theorem, with P=-y/2 and Q=x/2.
-   * @public
    *
    * NOTE: This is this segment's contribution to the line integral (-y/2 dx + x/2 dy).
-   *
-   * @returns {number}
    */
-  getSignedAreaFragment() {
+  getSignedAreaFragment(): number {
     return 1 / 6 * (
       this._start.x * ( 2 * this._control.y + this._end.y ) +
       this._control.x * ( -2 * this._start.y + 2 * this._end.y ) +
@@ -650,13 +571,8 @@ class Quadratic extends Segment {
 
   /**
    * Given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
-   * @public
-   *
-   * @param {number} a
-   * @param {number} b
-   * @returns {Quadratic}
    */
-  reparameterized( a, b ) {
+  reparameterized( a: number, b: number ): Quadratic {
     // to the polynomial pt^2 + qt + r:
     const p = this._start.plus( this._end.plus( this._control.timesScalar( -2 ) ) );
     const q = this._control.minus( this._start ).timesScalar( 2 );
@@ -668,26 +584,20 @@ class Quadratic extends Segment {
     const gamma = p.timesScalar( b * b ).plus( q.timesScalar( b ) ).plus( r );
 
     // back to the form start,control,end
-    return new kite.Quadratic( gamma, beta.timesScalar( 0.5 ).plus( gamma ), alpha.plus( beta ).plus( gamma ) );
+    return new Quadratic( gamma, beta.timesScalar( 0.5 ).plus( gamma ), alpha.plus( beta ).plus( gamma ) );
   }
 
   /**
    * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
-   * @public
-   *
-   * @returns {Quadratic}
    */
-  reversed() {
-    return new kite.Quadratic( this._end, this._control, this._start );
+  reversed(): Quadratic {
+    return new Quadratic( this._end, this._control, this._start );
   }
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
-   * @public
-   *
-   * @returns {Object}
    */
-  serialize() {
+  serialize(): SerializedQuadratic {
     return {
       type: 'Quadratic',
       startX: this._start.x,
@@ -702,14 +612,12 @@ class Quadratic extends Segment {
   /**
    * Determine whether two lines overlap over a continuous section, and if so finds the a,b pair such that
    * p( t ) === q( a * t + b ).
-   * @public
    *
-   * @param {Segment} segment
-   * @param {number} [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more
-   *                             in one component.
-   * @returns {Array.<Overlap>|null} - The solution, if there is one (and only one)
+   * @param segment
+   * @param [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more in one component.
+   * @returns - The solution, if there is one (and only one)
    */
-  getOverlaps( segment, epsilon = 1e-6 ) {
+  getOverlaps( segment: Segment, epsilon: number = 1e-6 ): Overlap[] | null {
     if ( segment instanceof Quadratic ) {
       return Quadratic.getOverlaps( this, segment );
     }
@@ -719,12 +627,8 @@ class Quadratic extends Segment {
 
   /**
    * Returns a Quadratic from the serialized representation.
-   * @public
-   *
-   * @param {Object} obj
-   * @returns {Quadratic}
    */
-  static deserialize( obj ) {
+  static deserialize( obj: SerializedQuadratic ): Quadratic {
     assert && assert( obj.type === 'Quadratic' );
 
     return new Quadratic( new Vector2( obj.startX, obj.startY ), new Vector2( obj.controlX, obj.controlY ), new Vector2( obj.endX, obj.endY ) );
@@ -732,14 +636,8 @@ class Quadratic extends Segment {
 
   /**
    * One-dimensional solution to extrema
-   * @public
-   *
-   * @param {number} start
-   * @param {number} control
-   * @param {number} end
-   * @returns {number}
    */
-  static extremaT( start, control, end ) {
+  static extremaT( start: number, control: number, end: number ): number {
     // compute t where the derivative is 0 (used for bounds and other things)
     const divisorX = 2 * ( end - 2 * control + start );
     if ( divisorX !== 0 ) {
@@ -753,18 +651,17 @@ class Quadratic extends Segment {
   /**
    * Determine whether two Quadratics overlap over a continuous section, and if so finds the a,b pair such that
    * p( t ) === q( a * t + b ).
-   * @public
    *
    * NOTE: for this particular function, we assume we're not degenerate. Things may work if we can be degree-reduced
    * to a quadratic, but generally that shouldn't be done.
    *
-   * @param {Quadratic} quadratic1
-   * @param {Quadratic} quadratic2
-   * @param {number} [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more
+   * @param quadratic1
+   * @param quadratic2
+   * @param [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more
    *                             in one component.
-   * @returns {Array.<Overlap>} - The solution, if there is one (and only one)
+   * @returns - The solution, if there is one (and only one)
    */
-  static getOverlaps( quadratic1, quadratic2, epsilon = 1e-6 ) {
+  static getOverlaps( quadratic1: Quadratic, quadratic2: Quadratic, epsilon: number = 1e-6 ): Overlap[] {
     assert && assert( quadratic1 instanceof Quadratic, 'first Quadratic is not an instance of Quadratic' );
     assert && assert( quadratic2 instanceof Quadratic, 'second Quadratic is not an instance of Quadratic' );
 
@@ -779,7 +676,7 @@ class Quadratic extends Segment {
      * And we use the upper-left section of (at+b) adjustment matrix relevant for the quadratic.
      */
 
-    const noOverlap = [];
+    const noOverlap: Overlap[] = [];
 
     // Efficiently compute the multiplication of the bezier matrix:
     const p0x = quadratic1._start.x;
@@ -864,9 +761,11 @@ class Quadratic extends Segment {
 
     return [ new Overlap( a, b ) ];
   }
+
+  // Degree of the polynomial (quadratic)
+  degree!: number;
 }
 
-// @public {number} - degree of the polynomial (quadratic)
 Quadratic.prototype.degree = 2;
 
 kite.register( 'Quadratic', Quadratic );
