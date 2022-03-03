@@ -216,7 +216,7 @@
       var matrix = dot.Matrix3.translation( translation, 0 )
         .timesMatrix( dot.Matrix3.rotation2( rotation ) )
         .timesMatrix( dot.Matrix3.scale( scaling ) )
-        .timesMatrix( dot.Matrix3.createFromPool( 1, shear, 0, 0, 1, 0, 0, 0, 1 ) )
+        .timesMatrix( dot.Matrix3.pool.create( 1, shear, 0, 0, 1, 0, 0, 0, 1 ) )
         .timesMatrix( reflection ? dot.Matrix3.X_REFLECTION : dot.Matrix3.IDENTITY );
       transformedShape = shape.transformed( matrix );
       // console.log( matrix.toString() + '\n' );
