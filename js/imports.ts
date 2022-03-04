@@ -13,7 +13,7 @@
 
 export { default as kite } from './kite.js';
 
-export { default as LineStyles, DEFAULT_LINE_STYLE_OPTIONS } from './util/LineStyles.js';
+export { default as LineStyles, LINE_STYLE_DEFAULT_OPTIONS } from './util/LineStyles.js';
 export type { LineCap, LineJoin } from './util/LineStyles.js';
 export { default as Overlap } from './util/Overlap.js';
 export { default as RayIntersection } from './util/RayIntersection.js';
