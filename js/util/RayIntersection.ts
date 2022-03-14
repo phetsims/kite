@@ -10,7 +10,7 @@ import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import { kite } from '../imports.js';
 
-class RayIntersection {
+export default class RayIntersection {
 
   point: Vector2;
   normal: Vector2;
@@ -44,5 +44,3 @@ class RayIntersection {
 }
 
 kite.register( 'RayIntersection', RayIntersection );
-
-export default RayIntersection;

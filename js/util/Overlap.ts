@@ -8,7 +8,7 @@
 
 import { kite } from '../imports.js';
 
-class Overlap {
+export default class Overlap {
 
   a: number;
   b: number;
@@ -114,5 +114,3 @@ class Overlap {
 }
 
 kite.register( 'Overlap', Overlap );
-
-export default Overlap;

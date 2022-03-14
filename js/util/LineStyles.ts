@@ -25,9 +25,9 @@ const DEFAULT_OPTIONS = {
   miterLimit: 10
 };
 
-type LineCap = 'butt' | 'round' | 'square';
-type LineJoin = 'miter' | 'round' | 'bevel';
-type LineStylesOptions = {
+export type LineCap = 'butt' | 'round' | 'square';
+export type LineJoin = 'miter' | 'round' | 'bevel';
+export type LineStylesOptions = {
   lineWidth?: number;
   lineCap?: LineCap;
   lineJoin?: LineJoin;
@@ -36,7 +36,7 @@ type LineStylesOptions = {
   miterLimit?: number;
 };
 
-class LineStyles {
+export default class LineStyles {
 
   // The width of the line (will be offset to each side by lineWidth/2)
   lineWidth: number;
@@ -249,5 +249,4 @@ class LineStyles {
 
 kite.register( 'LineStyles', LineStyles );
 
-export { LineStyles as default, DEFAULT_OPTIONS as LINE_STYLE_DEFAULT_OPTIONS };
-export type { LineCap, LineJoin };
+export { DEFAULT_OPTIONS as LINE_STYLE_DEFAULT_OPTIONS };

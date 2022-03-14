@@ -23,7 +23,7 @@ type SerializedLine = {
   endY: number;
 };
 
-class Line extends Segment {
+export default class Line extends Segment {
 
   private _start: Vector2;
   private _end: Vector2;
@@ -621,5 +621,3 @@ class Line extends Segment {
 }
 
 kite.register( 'Line', Line );
-
-export default Line;

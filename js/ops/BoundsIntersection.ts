@@ -10,14 +10,14 @@
  */
 
 import Vector2 from '../../../dot/js/Vector2.js';
-import Poolable, { PoolableVersion } from '../../../phet-core/js/Poolable.js';
+import Pool from '../../../phet-core/js/Pool.js';
 import { kite, Segment, SegmentIntersection } from '../imports.js';
 
 type ActiveBoundsIntersection = {
   [ PropertyName in keyof BoundsIntersection ]: BoundsIntersection[PropertyName] extends ( infer T | null ) ? T : BoundsIntersection[PropertyName];
 };
 
-class BoundsIntersection {
+export default class BoundsIntersection {
 
   // Null if cleaned of references
   a!: Segment | null;
@@ -63,7 +63,7 @@ class BoundsIntersection {
    * @param bMax - Location of the higher t value for the 'b' segment's region
    * @returns {BoundsIntersection} - This reference for chaining
    */
-  initialize( a: Segment, b: Segment, atMin: number, atMax: number, btMin: number, btMax: number, aMin: Vector2, aMax: Vector2, bMin: Vector2, bMax: Vector2 ): PoolableBoundsIntersection {
+  initialize( a: Segment, b: Segment, atMin: number, atMax: number, btMin: number, btMax: number, aMin: Vector2, aMax: Vector2, bMin: Vector2, bMax: Vector2 ): BoundsIntersection {
     assert && assert( typeof atMin === 'number' );
     assert && assert( typeof atMax === 'number' );
     assert && assert( typeof btMin === 'number' );
@@ -84,14 +84,14 @@ class BoundsIntersection {
     this.bMin = bMin;
     this.bMax = bMax;
 
-    return this as unknown as PoolableBoundsIntersection;
+    return this as unknown as BoundsIntersection;
   }
 
   /**
    * Handles subdivision of the regions into 2 for the 'a' segment and 2 for the 'b' segment, then pushes any
    * intersecting bounding box regions (between 'a' and 'b') to the array.
    */
-  private pushSubdivisions( intersections: PoolableBoundsIntersection[] ) {
+  private pushSubdivisions( intersections: BoundsIntersection[] ) {
 
     // We are not in the pool, so our things aren't null
     const thisActive = this as unknown as ActiveBoundsIntersection;
@@ -101,40 +101,40 @@ class BoundsIntersection {
 
     // If we reached the point where no higher precision can be obtained, return the given intersection
     if ( atMid === this.atMin || atMid === this.atMax || btMid === this.btMin || btMid === this.btMax ) {
-      intersections.push( this as unknown as PoolableBoundsIntersection );
+      intersections.push( this as unknown as BoundsIntersection );
       return;
     }
     const aMid = thisActive.a.positionAt( atMid );
     const bMid = thisActive.b.positionAt( btMid );
 
     if ( BoundsIntersection.boxIntersects( thisActive.aMin, aMid, thisActive.bMin, bMid ) ) {
-      intersections.push( PoolableBoundsIntersection.createFromPool(
+      intersections.push( BoundsIntersection.pool.create(
         thisActive.a, thisActive.b, thisActive.atMin, atMid, thisActive.btMin, btMid, thisActive.aMin, aMid, thisActive.bMin, bMid
       ) );
     }
     if ( BoundsIntersection.boxIntersects( aMid, thisActive.aMax, thisActive.bMin, bMid ) ) {
-      intersections.push( PoolableBoundsIntersection.createFromPool(
+      intersections.push( BoundsIntersection.pool.create(
         thisActive.a, thisActive.b, atMid, thisActive.atMax, thisActive.btMin, btMid, aMid, thisActive.aMax, thisActive.bMin, bMid
       ) );
     }
     if ( BoundsIntersection.boxIntersects( thisActive.aMin, aMid, bMid, thisActive.bMax ) ) {
-      intersections.push( PoolableBoundsIntersection.createFromPool(
+      intersections.push( BoundsIntersection.pool.create(
         thisActive.a, thisActive.b, thisActive.atMin, atMid, btMid, thisActive.btMax, thisActive.aMin, aMid, bMid, thisActive.bMax
       ) );
     }
     if ( BoundsIntersection.boxIntersects( aMid, thisActive.aMax, bMid, thisActive.bMax ) ) {
-      intersections.push( PoolableBoundsIntersection.createFromPool(
+      intersections.push( BoundsIntersection.pool.create(
         thisActive.a, thisActive.b, atMid, thisActive.atMax, btMid, thisActive.btMax, aMid, thisActive.aMax, bMid, thisActive.bMax
       ) );
     }
 
-    ( this as unknown as PoolableBoundsIntersection ).freeToPool();
+    ( this as unknown as BoundsIntersection ).freeToPool();
   }
 
   /**
    * A measure of distance between this and another intersection.
    */
-  distance( otherIntersection: PoolableBoundsIntersection ): number {
+  distance( otherIntersection: BoundsIntersection ): number {
     const daMin = this.atMin - otherIntersection.atMin;
     const daMax = this.atMax - otherIntersection.atMax;
     const dbMin = this.btMin - otherIntersection.btMin;
@@ -227,7 +227,7 @@ class BoundsIntersection {
   /**
    * Given two segments, returns an array of candidate intersection ranges.
    */
-  private static getIntersectionRanges( a: Segment, b: Segment ): PoolableBoundsIntersection[] {
+  private static getIntersectionRanges( a: Segment, b: Segment ): BoundsIntersection[] {
     // Internal t-values that have a local min/max in at least one coordinate. We'll split based on these, so we only
     // check intersections between monotone segments (won't have to check self-intersection).
     const aExtrema = a.getInteriorExtremaTs();
@@ -250,7 +250,7 @@ class BoundsIntersection {
         const bMin = b.positionAt( btMin );
         const bMax = b.positionAt( btMax );
         if ( BoundsIntersection.boxIntersects( aMin, aMax, bMin, bMax ) ) {
-          intersections.push( PoolableBoundsIntersection.createFromPool(
+          intersections.push( BoundsIntersection.pool.create(
             a, b, atMin, atMax, btMin, btMax, aMin, aMax, bMin, bMax
           ) );
         }
@@ -260,7 +260,7 @@ class BoundsIntersection {
     // Subdivide continuously
     // TODO: is 50 the proper number of iterations?
     for ( let i = 0; i < 50; i++ ) {
-      const newIntersections: PoolableBoundsIntersection[] = [];
+      const newIntersections: BoundsIntersection[] = [];
       for ( let j = intersections.length - 1; j >= 0; j-- ) {
         intersections[ j ].pushSubdivisions( newIntersections );
       }
@@ -292,19 +292,16 @@ class BoundsIntersection {
    * process is done.
    */
   private static cleanPool() {
-    for ( let i = 0; i < PoolableBoundsIntersection.pool.length; i++ ) {
-      PoolableBoundsIntersection.pool[ i ].clean();
+    for ( let i = 0; i < BoundsIntersection.pool.objects.length; i++ ) {
+      BoundsIntersection.pool.objects[ i ].clean();
     }
   }
+
+  freeToPool() {
+    BoundsIntersection.pool.freeToPool( this );
+  }
+
+  static pool = new Pool( BoundsIntersection );
 }
 
 kite.register( 'BoundsIntersection', BoundsIntersection );
-
-
-type PoolableBoundsIntersection = PoolableVersion<typeof BoundsIntersection>;
-const PoolableBoundsIntersection = Poolable.mixInto( BoundsIntersection, { // eslint-disable-line
-
-} );
-
-export default PoolableBoundsIntersection;
-export { BoundsIntersection as RawBoundsIntersection };

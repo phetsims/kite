@@ -8,7 +8,7 @@
 
 import { kite, Edge, SegmentTree } from '../imports.js';
 
-class EdgeSegmentTree extends SegmentTree<Edge> {
+export default class EdgeSegmentTree extends SegmentTree<Edge> {
   getMinX( edge: Edge, epsilon: number ): number {
     // @ts-ignore -- TODO: Get Segment typed correctly
     return edge.segment!.bounds.left - epsilon;
@@ -21,5 +21,3 @@ class EdgeSegmentTree extends SegmentTree<Edge> {
 }
 
 kite.register( 'EdgeSegmentTree', EdgeSegmentTree );
-
-export default EdgeSegmentTree;

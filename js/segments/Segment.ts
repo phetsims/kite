@@ -38,14 +38,14 @@ type SimpleOverlap = {
 // null if no solution, true if every a,b pair is a solution, otherwise the single solution
 type PossibleSimpleOverlap = SimpleOverlap | null | true;
 
-type ClosestToPointResult = {
+export type ClosestToPointResult = {
   segment: Segment;
   t: number;
   closestPoint: Vector2;
   distanceSquared: number;
 };
 
-type PiecewiseLinearOptions = {
+export type PiecewiseLinearOptions = {
   // how many levels to force subdivisions
   minLevels?: number;
 
@@ -77,7 +77,7 @@ type PiecewiseLinearOrArcOptions = {
   maxLevels?: number;
 } & Partial<PiecewiseLinearOrArcRecursionOptions>;
 
-abstract class Segment {
+export default abstract class Segment {
 
   invalidationEmitter: TinyEmitter;
 
@@ -774,6 +774,3 @@ kite.register( 'Segment', Segment );
 function swapSegmentIntersection( segmentIntersection: SegmentIntersection ) {
   return segmentIntersection.getSwapped();
 }
-
-export default Segment;
-export type { ClosestToPointResult, PiecewiseLinearOptions };

@@ -26,7 +26,7 @@ type SerializedArc = {
   anticlockwise: boolean;
 };
 
-class Arc extends Segment {
+export default class Arc extends Segment {
 
   private _center: Vector2;
   private _radius: number;
@@ -1047,5 +1047,3 @@ class Arc extends Segment {
 }
 
 kite.register( 'Arc', Arc );
-
-export default Arc;

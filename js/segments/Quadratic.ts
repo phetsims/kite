@@ -34,7 +34,7 @@ type SerializedQuadratic = {
   endY: number;
 };
 
-class Quadratic extends Segment {
+export default class Quadratic extends Segment {
 
   private _start: Vector2;
   private _control: Vector2;
@@ -769,5 +769,3 @@ class Quadratic extends Segment {
 Quadratic.prototype.degree = 2;
 
 kite.register( 'Quadratic', Quadratic );
-
-export default Quadratic;

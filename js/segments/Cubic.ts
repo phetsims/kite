@@ -43,7 +43,7 @@ type SerializedCubic = {
   endY: number;
 };
 
-class Cubic extends Segment {
+export default class Cubic extends Segment {
 
   private _start: Vector2;
   private _control1: Vector2;
@@ -1062,5 +1062,3 @@ class Cubic extends Segment {
 Cubic.prototype.degree = 3;
 
 kite.register( 'Cubic', Cubic );
-
-export default Cubic;

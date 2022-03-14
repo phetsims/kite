@@ -36,7 +36,7 @@ type SerializedEllipticalArc = {
   anticlockwise: boolean;
 };
 
-class EllipticalArc extends Segment {
+export default class EllipticalArc extends Segment {
 
   private _center: Vector2;
   private _radiusX: number;
@@ -1003,7 +1003,7 @@ class EllipticalArc extends Segment {
   }
 }
 
-class EllipticalArcOverlapType extends EnumerationValue {
+export class EllipticalArcOverlapType extends EnumerationValue {
   // radiusX of one equals radiusX of the other, with equivalent centers and rotations to work
   static MATCHING_OVERLAP = new EllipticalArcOverlapType();
 
@@ -1017,6 +1017,3 @@ class EllipticalArcOverlapType extends EnumerationValue {
 }
 
 kite.register( 'EllipticalArc', EllipticalArc );
-
-export default EllipticalArc;
-export { EllipticalArcOverlapType };

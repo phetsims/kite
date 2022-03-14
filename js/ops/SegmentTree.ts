@@ -24,7 +24,7 @@ type SegmentInfo<T> = {
   getMaxX: ( item: T, epsilon: number ) => number
 }
 
-abstract class SegmentTree<T> implements SegmentInfo<T> {
+export default abstract class SegmentTree<T> implements SegmentInfo<T> {
 
   rootNode: SegmentNode<T>;
 
@@ -566,5 +566,3 @@ class SegmentNode<T> {
 Poolable.mixInto( SegmentNode );
 
 kite.register( 'SegmentTree', SegmentTree );
-
-export default SegmentTree;

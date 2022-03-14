@@ -10,7 +10,7 @@ import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import { kite } from '../imports.js';
 
-class SegmentIntersection {
+export default class SegmentIntersection {
 
   point: Vector2;
   aT: number;
@@ -42,5 +42,3 @@ class SegmentIntersection {
 }
 
 kite.register( 'SegmentIntersection', SegmentIntersection );
-
-export default SegmentIntersection;

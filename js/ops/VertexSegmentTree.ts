@@ -8,7 +8,7 @@
 
 import { kite, Vertex, SegmentTree } from '../imports.js';
 
-class VertexSegmentTree extends SegmentTree<Vertex> {
+export default class VertexSegmentTree extends SegmentTree<Vertex> {
   getMinX( vertex: Vertex, epsilon: number ): number {
     return vertex.point!.x - epsilon;
   }
@@ -19,5 +19,3 @@ class VertexSegmentTree extends SegmentTree<Vertex> {
 }
 
 kite.register( 'VertexSegmentTree', VertexSegmentTree );
-
-export default VertexSegmentTree;
