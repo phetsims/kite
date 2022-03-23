@@ -20,8 +20,8 @@ let globalId = 1;
 const scratchArray: Edge[] = [];
 
 type SegmentInfo<T> = {
-  getMinX: ( item: T, epsilon: number ) => number,
-  getMaxX: ( item: T, epsilon: number ) => number
+  getMinX: ( item: T, epsilon: number ) => number;
+  getMaxX: ( item: T, epsilon: number ) => number;
 }
 
 export default abstract class SegmentTree<T> implements SegmentInfo<T> {
