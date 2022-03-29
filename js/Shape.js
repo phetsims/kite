@@ -1790,9 +1790,9 @@ class Shape {
 
   /**
    * Gets the last point in the last subpath, or null if it doesn't exist
-   * @private
+   * @public
    *
-   * @returns {Subpath|null}
+   * @returns {Vector2|null}
    */
   getLastPoint() {
     return this.hasSubpaths() ? this.getLastSubpath().getLastPoint() : null;
