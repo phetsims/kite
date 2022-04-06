@@ -729,14 +729,14 @@ export default class Arc extends Segment {
   /**
    * Returns the arc length of the segment.
    */
-  getArcLength(): number {
+  override getArcLength(): number {
     return this.getAngleDifference() * this._radius;
   }
 
   /**
    * We can handle this simply by returning ourselves.
    */
-  toPiecewiseLinearOrArcSegments(): Segment[] {
+  override toPiecewiseLinearOrArcSegments(): Segment[] {
     return [ this ];
   }
 
@@ -775,7 +775,7 @@ export default class Arc extends Segment {
   /**
    * Returns an Arc from the serialized representation.
    */
-  static deserialize( obj: SerializedArc ): Arc {
+  static override deserialize( obj: SerializedArc ): Arc {
     assert && assert( obj.type === 'Arc' );
 
     return new Arc( new Vector2( obj.centerX, obj.centerY ), obj.radius, obj.startAngle, obj.endAngle, obj.anticlockwise );
@@ -967,7 +967,7 @@ export default class Arc extends Segment {
   /**
    * Returns any (finite) intersection between the two arc segments.
    */
-  static intersect( a: Arc, b: Arc ): SegmentIntersection[] {
+  static override intersect( a: Arc, b: Arc ): SegmentIntersection[] {
     const epsilon = 1e-8;
 
     const results = [];

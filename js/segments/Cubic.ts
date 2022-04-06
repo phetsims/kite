@@ -882,7 +882,7 @@ export default class Cubic extends Segment {
   /**
    * Returns a Cubic from the serialized representation.
    */
-  static deserialize( obj: SerializedCubic ): Cubic {
+  static override deserialize( obj: SerializedCubic ): Cubic {
     assert && assert( obj.type === 'Cubic' );
 
     return new Cubic( new Vector2( obj.startX, obj.startY ), new Vector2( obj.control1X, obj.control1Y ), new Vector2( obj.control2X, obj.control2Y ), new Vector2( obj.endX, obj.endY ) );

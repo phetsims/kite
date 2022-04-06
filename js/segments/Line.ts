@@ -223,7 +223,7 @@ export default class Line extends Segment {
   /**
    * Returns the bounding box for this transformed Line
    */
-  getBoundsWithTransform( matrix: Matrix3 ): Bounds2 {
+  override getBoundsWithTransform( matrix: Matrix3 ): Bounds2 {
     // uses mutable calls
     const bounds = Bounds2.NOTHING.copy();
     bounds.addPoint( matrix.multiplyVector2( scratchVector2.set( this._start ) ) );
@@ -432,14 +432,14 @@ export default class Line extends Segment {
   /**
    * Returns the arc length of the segment.
    */
-  getArcLength(): number {
+  override getArcLength(): number {
     return this.start.distance( this.end );
   }
 
   /**
    * We can handle this simply by returning ourselves.
    */
-  toPiecewiseLinearOrArcSegments(): Segment[] {
+  override toPiecewiseLinearOrArcSegments(): Segment[] {
     return [ this ];
   }
 
@@ -476,7 +476,7 @@ export default class Line extends Segment {
   /**
    * Returns a Line from the serialized representation.
    */
-  static deserialize( obj: SerializedLine ): Line {
+  static override deserialize( obj: SerializedLine ): Line {
     assert && assert( obj.type === 'Line' );
 
     return new Line( new Vector2( obj.startX, obj.startY ), new Vector2( obj.endX, obj.endY ) );
@@ -570,7 +570,7 @@ export default class Line extends Segment {
   /**
    * Returns any (finite) intersection between the two line segments.
    */
-  static intersect( a: Line, b: Line ): SegmentIntersection[] {
+  static override intersect( a: Line, b: Line ): SegmentIntersection[] {
     assert && assert( a instanceof Line );
     assert && assert( b instanceof Line );
 

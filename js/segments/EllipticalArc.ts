@@ -893,7 +893,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Returns an EllipticalArc from the serialized representation.
    */
-  static deserialize( obj: SerializedEllipticalArc ): EllipticalArc {
+  static override deserialize( obj: SerializedEllipticalArc ): EllipticalArc {
     assert && assert( obj.type === 'EllipticalArc' );
 
     return new EllipticalArc( new Vector2( obj.centerX, obj.centerY ), obj.radiusX, obj.radiusY, obj.rotation, obj.startAngle, obj.endAngle, obj.anticlockwise );
@@ -955,7 +955,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Returns any (finite) intersection between the two elliptical arc segments.
    */
-  static intersect( a: EllipticalArc, b: EllipticalArc, epsilon: number = 1e-10 ): SegmentIntersection[] {
+  static override intersect( a: EllipticalArc, b: EllipticalArc, epsilon: number = 1e-10 ): SegmentIntersection[] {
     assert && assert( a instanceof EllipticalArc );
     assert && assert( b instanceof EllipticalArc );
 

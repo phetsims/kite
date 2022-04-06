@@ -628,7 +628,7 @@ export default class Quadratic extends Segment {
   /**
    * Returns a Quadratic from the serialized representation.
    */
-  static deserialize( obj: SerializedQuadratic ): Quadratic {
+  static override deserialize( obj: SerializedQuadratic ): Quadratic {
     assert && assert( obj.type === 'Quadratic' );
 
     return new Quadratic( new Vector2( obj.startX, obj.startY ), new Vector2( obj.controlX, obj.controlY ), new Vector2( obj.endX, obj.endY ) );
