@@ -617,7 +617,7 @@ export default class Quadratic extends Segment {
    * @param [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  getOverlaps( segment: Segment, epsilon: number = 1e-6 ): Overlap[] | null {
+  getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
     if ( segment instanceof Quadratic ) {
       return Quadratic.getOverlaps( this, segment );
     }
@@ -661,7 +661,7 @@ export default class Quadratic extends Segment {
    *                             in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  static getOverlaps( quadratic1: Quadratic, quadratic2: Quadratic, epsilon: number = 1e-6 ): Overlap[] {
+  static getOverlaps( quadratic1: Quadratic, quadratic2: Quadratic, epsilon = 1e-6 ): Overlap[] {
     assert && assert( quadratic1 instanceof Quadratic, 'first Quadratic is not an instance of Quadratic' );
     assert && assert( quadratic2 instanceof Quadratic, 'second Quadratic is not an instance of Quadratic' );
 

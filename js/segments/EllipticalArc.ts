@@ -882,7 +882,7 @@ export default class EllipticalArc extends Segment {
    *                             in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  getOverlaps( segment: Segment, epsilon: number = 1e-6 ): Overlap[] | null {
+  getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
     if ( segment instanceof EllipticalArc ) {
       return EllipticalArc.getOverlaps( this, segment );
     }
@@ -903,7 +903,7 @@ export default class EllipticalArc extends Segment {
    * Returns what type of overlap is possible based on the center/radii/rotation. We ignore the start/end angles and
    * anticlockwise information, and determine if the FULL ellipses overlap.
    */
-  static getOverlapType( a: EllipticalArc, b: EllipticalArc, epsilon: number = 1e-10 ): EllipticalArcOverlapType {
+  static getOverlapType( a: EllipticalArc, b: EllipticalArc, epsilon = 1e-10 ): EllipticalArcOverlapType {
     assert && assert( a instanceof EllipticalArc );
     assert && assert( b instanceof EllipticalArc );
 
@@ -955,7 +955,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Returns any (finite) intersection between the two elliptical arc segments.
    */
-  static override intersect( a: EllipticalArc, b: EllipticalArc, epsilon: number = 1e-10 ): SegmentIntersection[] {
+  static override intersect( a: EllipticalArc, b: EllipticalArc, epsilon = 1e-10 ): SegmentIntersection[] {
     assert && assert( a instanceof EllipticalArc );
     assert && assert( b instanceof EllipticalArc );
 

@@ -764,7 +764,7 @@ export default class Arc extends Segment {
    *                             in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  getOverlaps( segment: Segment, epsilon: number = 1e-6 ): Overlap[] | null {
+  getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
     if ( segment instanceof Arc ) {
       return Arc.getOverlaps( this, segment );
     }

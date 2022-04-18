@@ -465,7 +465,7 @@ export default class Line extends Segment {
    *                             in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  getOverlaps( segment: Segment, epsilon: number = 1e-6 ): Overlap[] | null {
+  getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
     if ( segment instanceof Line ) {
       return Line.getOverlaps( this, segment );
     }
@@ -492,7 +492,7 @@ export default class Line extends Segment {
    *                             in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  static getOverlaps( line1: Line, line2: Line, epsilon: number = 1e-6 ): Overlap[] {
+  static getOverlaps( line1: Line, line2: Line, epsilon = 1e-6 ): Overlap[] {
     assert && assert( line1 instanceof Line, 'first Line is not an instance of Line' );
     assert && assert( line2 instanceof Line, 'second Line is not an instance of Line' );
 

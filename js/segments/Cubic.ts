@@ -871,7 +871,7 @@ export default class Cubic extends Segment {
    *                             in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  getOverlaps( segment: Segment, epsilon: number = 1e-6 ): Overlap[] | null {
+  getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
     if ( segment instanceof Cubic ) {
       return Cubic.getOverlaps( this, segment );
     }
@@ -917,7 +917,7 @@ export default class Cubic extends Segment {
    *                    in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  static getOverlaps( cubic1: Cubic, cubic2: Cubic, epsilon: number = 1e-6 ): Overlap[] {
+  static getOverlaps( cubic1: Cubic, cubic2: Cubic, epsilon = 1e-6 ): Overlap[] {
     assert && assert( cubic1 instanceof Cubic, 'first Cubic is not an instance of Cubic' );
     assert && assert( cubic2 instanceof Cubic, 'second Cubic is not an instance of Cubic' );
 
