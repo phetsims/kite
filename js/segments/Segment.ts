@@ -410,7 +410,7 @@ export default abstract class Segment {
    * Returns a list of Line and/or Arc segments that approximates this segment.
    */
   toPiecewiseLinearOrArcSegments( providedOptions: PiecewiseLinearOrArcOptions ): Segment[] {
-    const options = optionize<PiecewiseLinearOrArcOptions, PiecewiseLinearOrArcOptions, PiecewiseLinearOrArcRecursionOptions>( {
+    const options = optionize<PiecewiseLinearOrArcOptions, PiecewiseLinearOrArcOptions, PiecewiseLinearOrArcRecursionOptions>()( {
       minLevels: 2,
       maxLevels: 7,
       curvatureThreshold: 0.02,
