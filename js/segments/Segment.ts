@@ -355,7 +355,6 @@ export default abstract class Segment {
   }
 
   /**
-   * @public
    *
    * @param {Object} [options]
    * @param {number} [minLevels] -   how many levels to force subdivisions

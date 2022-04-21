@@ -60,7 +60,7 @@ export default class Overlap {
       t1 = this.applyInverse( qt1 );
     }
 
-    // @public {number} - Initial and ending t-values for the first curve (t0,t1) and second curve (qt0,qt1).
+    // {number} - Initial and ending t-values for the first curve (t0,t1) and second curve (qt0,qt1).
     this.t0 = t0;
     this.t1 = t1;
     if ( a > 0 ) {
