@@ -68,7 +68,7 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
     }
   }
 
-  addItem( item: T ) {
+  addItem( item: T ): void {
     const min = this.getMinX( item, this.epsilon );
     const max = this.getMaxX( item, this.epsilon );
 
@@ -80,7 +80,7 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
     this.items.add( item );
   }
 
-  removeItem( item: T ) {
+  removeItem( item: T ): void {
     this.rootNode.removeItem( item, this.getMinX( item, this.epsilon ), this.getMaxX( item, this.epsilon ) );
     this.items.delete( item );
   }
@@ -88,7 +88,7 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
   /**
    * For assertion purposes
    */
-  audit() {
+  audit(): void {
     this.rootNode.audit( this.epsilon, this.items, [] );
   }
 
@@ -161,11 +161,11 @@ class SegmentNode<T> {
     return this;
   }
 
-  contains( n: number ) {
+  contains( n: number ): boolean {
     return n >= this.min && n <= this.max;
   }
 
-  hasChildren() { return this.splitValue !== null; }
+  hasChildren(): boolean { return this.splitValue !== null; }
 
   /**
    * Iterates through interruptableCallback for every potentially overlapping edge - aborts when it returns true
@@ -214,7 +214,7 @@ class SegmentNode<T> {
   /**
    * Replaces one child with another
    */
-  swapChild( oldChild: SegmentNode<T>, newChild: SegmentNode<T> ) {
+  swapChild( oldChild: SegmentNode<T>, newChild: SegmentNode<T> ): void {
     assert && assert( this.left === oldChild || this.right === oldChild );
 
     if ( this.left === oldChild ) {
@@ -225,7 +225,7 @@ class SegmentNode<T> {
     }
   }
 
-  hasChild( node: SegmentNode<T> ) {
+  hasChild( node: SegmentNode<T> ): boolean {
     return this.left === node || this.right === node;
   }
 
@@ -238,7 +238,7 @@ class SegmentNode<T> {
   /**
    * Tree operation needed for red-black self-balancing
    */
-  leftRotate( tree: SegmentTree<T> ) {
+  leftRotate( tree: SegmentTree<T> ): void {
     assert && assert( this.hasChildren() && this.right!.hasChildren() );
 
     if ( this.right!.hasChildren() ) {
@@ -297,7 +297,7 @@ class SegmentNode<T> {
   /**
    * Tree operation needed for red-black self-balancing
    */
-  rightRotate( tree: SegmentTree<T> ) {
+  rightRotate( tree: SegmentTree<T> ): void {
     assert && assert( this.hasChildren() && this.left!.hasChildren() );
 
     const x = this.left!;
@@ -354,7 +354,7 @@ class SegmentNode<T> {
   /**
    * Called after an insertion (or potentially deletion in the future) that handles red-black tree rebalancing.
    */
-  fixRedBlack( tree: SegmentTree<T> ) {
+  fixRedBlack( tree: SegmentTree<T> ): void {
     assert && assert( !this.isBlack );
 
     if ( !this.parent ) {
@@ -414,7 +414,7 @@ class SegmentNode<T> {
   /**
    * Triggers a split of whatever interval contains this value (or is a no-op if we already split at it before).
    */
-  split( n: number, tree: SegmentTree<T> ) {
+  split( n: number, tree: SegmentTree<T> ): void {
     assert && assert( this.contains( n ) );
 
     // Ignore splits if we are already split on them
@@ -471,7 +471,7 @@ class SegmentNode<T> {
   /**
    * Recursively adds an item
    */
-  addItem( item: T, min: number, max: number ) {
+  addItem( item: T, min: number, max: number ): void {
     // Ignore no-overlap cases
     if ( this.min > max || this.max < min ) {
       return;
@@ -490,7 +490,7 @@ class SegmentNode<T> {
   /**
    * Recursively removes an item
    */
-  removeItem( item: T, min: number, max: number ) {
+  removeItem( item: T, min: number, max: number ): void {
     // Ignore no-overlap cases
     if ( this.min > max || this.max < min ) {
       return;
@@ -514,7 +514,7 @@ class SegmentNode<T> {
    * @param allItems - All items in the tree
    * @param presentItems - Edges that were present in ancestors
    */
-  audit( epsilon: number, allItems: Set<T>, presentItems: T[] = [] ) {
+  audit( epsilon: number, allItems: Set<T>, presentItems: T[] = [] ): void {
     if ( assert ) {
       for ( const item of presentItems ) {
         assert( !this.items.includes( item ) );

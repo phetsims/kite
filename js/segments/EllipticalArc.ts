@@ -341,7 +341,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    */
-  invalidate() {
+  invalidate(): void {
 
     assert && assert( this._center instanceof Vector2, 'Arc center should be a Vector2' );
     assert && assert( this._center.isFinite(), 'Arc center should be finite (not NaN or infinite)' );
@@ -591,7 +591,7 @@ export default class EllipticalArc extends Segment {
    * angle is actually included in the arc. This will presumably be called at angles that are at critical points,
    * where the arc should have maximum/minimum x/y values.
    */
-  private includeBoundsAtAngle( angle: number ) {
+  private includeBoundsAtAngle( angle: number ): void {
     if ( this.unitArcSegment.containsAngle( angle ) ) {
       // the boundary point is in the arc
       this._bounds = this._bounds!.withPoint( this.positionAtAngle( angle ) );
@@ -790,7 +790,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Draws this arc to the 2D Canvas context, assuming the context's current location is already at the start point
    */
-  writeToContext( context: CanvasRenderingContext2D ) {
+  writeToContext( context: CanvasRenderingContext2D ): void {
     if ( context.ellipse ) {
       context.ellipse( this._center.x, this._center.y, this._radiusX, this._radiusY, this._rotation, this._startAngle, this._endAngle, this._anticlockwise );
     }

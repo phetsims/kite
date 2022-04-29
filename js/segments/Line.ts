@@ -169,7 +169,7 @@ export default class Line extends Segment {
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    */
-  invalidate() {
+  invalidate(): void {
     assert && assert( this._start instanceof Vector2, `Line start should be a Vector2: ${this._start}` );
     assert && assert( this._start.isFinite(), `Line start should be finite: ${this._start.toString()}` );
     assert && assert( this._end instanceof Vector2, `Line end should be a Vector2: ${this._end}` );
@@ -356,7 +356,7 @@ export default class Line extends Segment {
   /**
    * Draws this line to the 2D Canvas context, assuming the context's current location is already at the start point
    */
-  writeToContext( context: CanvasRenderingContext2D ) {
+  writeToContext( context: CanvasRenderingContext2D ): void {
     context.lineTo( this._end.x, this._end.y );
   }
 

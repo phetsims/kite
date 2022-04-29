@@ -298,7 +298,7 @@ export default class Cubic extends Segment {
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    */
-  invalidate() {
+  invalidate(): void {
     assert && assert( this._start instanceof Vector2, `Cubic start should be a Vector2: ${this._start}` );
     assert && assert( this._start.isFinite(), `Cubic start should be finite: ${this._start.toString()}` );
     assert && assert( this._control1 instanceof Vector2, `Cubic control1 should be a Vector2: ${this._control1}` );
@@ -503,7 +503,7 @@ export default class Cubic extends Segment {
   /**
    * Computes all cusp-related information, including whether there is a cusp, any inflection points, etc.
    */
-  private computeCuspInfo() {
+  private computeCuspInfo(): void {
     // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
     // TODO: allocation reduction
     const a = this._start.times( -1 ).plus( this._control1.times( 3 ) ).plus( this._control2.times( -3 ) ).plus( this._end );
@@ -531,7 +531,7 @@ export default class Cubic extends Segment {
   /**
    * If there is a cusp, this computes the 2 quadratic Bezier curves that this Cubic can be converted into.
    */
-  private computeCuspSegments() {
+  private computeCuspSegments(): void {
     if ( this.hasCusp() ) {
       // if there is a cusp, we'll split at the cusp into two quadratic bezier curves.
       // see http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.94.8088&rep=rep1&type=pdf (Singularities of rational Bezier curves - J Monterde, 2001)
@@ -751,7 +751,7 @@ export default class Cubic extends Segment {
   /**
    * Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
    */
-  writeToContext( context: CanvasRenderingContext2D ) {
+  writeToContext( context: CanvasRenderingContext2D ): void {
     context.bezierCurveTo( this._control1.x, this._control1.y, this._control2.x, this._control2.y, this._end.x, this._end.y );
   }
 

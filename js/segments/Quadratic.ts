@@ -234,7 +234,7 @@ export default class Quadratic extends Segment {
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    */
-  invalidate() {
+  invalidate(): void {
     assert && assert( this._start instanceof Vector2, `Quadratic start should be a Vector2: ${this._start}` );
     assert && assert( this._start.isFinite(), `Quadratic start should be finite: ${this._start.toString()}` );
     assert && assert( this._control instanceof Vector2, `Quadratic control should be a Vector2: ${this._control}` );
@@ -545,7 +545,7 @@ export default class Quadratic extends Segment {
   /**
    * Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
    */
-  writeToContext( context: CanvasRenderingContext2D ) {
+  writeToContext( context: CanvasRenderingContext2D ): void {
     context.quadraticCurveTo( this._control.x, this._control.y, this._end.x, this._end.y );
   }
 

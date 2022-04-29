@@ -428,7 +428,7 @@ export default abstract class Segment {
   /**
    * Helper function for toPiecewiseLinearOrArcSegments. - will push into segments
    */
-  private toPiecewiseLinearOrArcRecursion( options: PiecewiseLinearOrArcRecursionOptions, minLevels: number, maxLevels: number, segments: Segment[], startT: number, endT: number, startPoint: Vector2, endPoint: Vector2, startCurvature: number, endCurvature: number ) {
+  private toPiecewiseLinearOrArcRecursion( options: PiecewiseLinearOrArcRecursionOptions, minLevels: number, maxLevels: number, segments: Segment[], startT: number, endT: number, startPoint: Vector2, endPoint: Vector2, startCurvature: number, endCurvature: number ): void {
     const middleT = ( startT + endT ) / 2;
     const middlePoint = this.positionAt( middleT );
     const middleCurvature = this.curvatureAt( middleT );

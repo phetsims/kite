@@ -91,7 +91,7 @@ export default class BoundsIntersection {
    * Handles subdivision of the regions into 2 for the 'a' segment and 2 for the 'b' segment, then pushes any
    * intersecting bounding box regions (between 'a' and 'b') to the array.
    */
-  private pushSubdivisions( intersections: BoundsIntersection[] ) {
+  private pushSubdivisions( intersections: BoundsIntersection[] ): void {
 
     // We are not in the pool, so our things aren't null
     const thisActive = this as unknown as ActiveBoundsIntersection;
@@ -145,7 +145,7 @@ export default class BoundsIntersection {
   /**
    * Removes references (so it can allow other objects to be GC'ed or pooled)
    */
-  clean() {
+  clean(): void {
     this.a = null;
     this.b = null;
     this.aMin = null;
@@ -291,13 +291,13 @@ export default class BoundsIntersection {
    * Since we'll burn through a lot of pooled instances, we only remove external references fully once the full
    * process is done.
    */
-  private static cleanPool() {
+  private static cleanPool(): void {
     for ( let i = 0; i < BoundsIntersection.pool.objects.length; i++ ) {
       BoundsIntersection.pool.objects[ i ].clean();
     }
   }
 
-  freeToPool() {
+  freeToPool(): void {
     BoundsIntersection.pool.freeToPool( this );
   }
 

@@ -269,7 +269,7 @@ export default class Arc extends Segment {
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    */
-  invalidate() {
+  invalidate(): void {
     this._start = null;
     this._end = null;
     this._startTangent = null;
@@ -442,7 +442,7 @@ export default class Arc extends Segment {
    * angle is actually included in the arc. This will presumably be called at angles that are at critical points,
    * where the arc should have maximum/minimum x/y values.
    */
-  private includeBoundsAtAngle( angle: number ) {
+  private includeBoundsAtAngle( angle: number ): void {
     if ( this.containsAngle( angle ) ) {
       // the boundary point is in the arc
       this._bounds = this._bounds!.withPoint( this._center.plus( Vector2.createPolar( this._radius, angle ) ) );
@@ -671,7 +671,7 @@ export default class Arc extends Segment {
   /**
    * Draws this arc to the 2D Canvas context, assuming the context's current location is already at the start point
    */
-  writeToContext( context: CanvasRenderingContext2D ) {
+  writeToContext( context: CanvasRenderingContext2D ): void {
     context.arc( this._center.x, this._center.y, this._radius, this._startAngle, this._endAngle, this._anticlockwise );
   }
 
