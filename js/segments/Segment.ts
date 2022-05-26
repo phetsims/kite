@@ -183,6 +183,7 @@ export default abstract class Segment {
     assert && assert( t0 >= 0 && t0 <= 1 && t1 >= 0 && t1 <= 1, 'Parametric value out of range' );
     assert && assert( t0 < t1 );
 
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let segment: Segment = this; // eslint-disable-line consistent-this
     if ( t1 < 1 ) {
       segment = segment.subdivided( t1 )[ 0 ];
@@ -198,6 +199,8 @@ export default abstract class Segment {
    */
   subdivisions( tList: number[] ): Segment[] {
     // this could be solved by recursion, but we don't plan on the JS engine doing tail-call optimization
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let right: Segment = this; // eslint-disable-line consistent-this
     const result = [];
     for ( let i = 0; i < tList.length; i++ ) {
@@ -273,6 +276,7 @@ export default abstract class Segment {
   getDashValues( lineDash: number[], lineDashOffset: number, distanceEpsilon: number, curveEpsilon: number ): DashValues {
     assert && assert( lineDash.length > 0, 'Do not call with an empty dash array' );
 
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
 
     const values = [];
