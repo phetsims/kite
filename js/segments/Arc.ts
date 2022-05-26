@@ -84,6 +84,9 @@ export default class Arc extends Segment {
 
   set center( value: Vector2 ) { this.setCenter( value ); }
 
+  get center(): Vector2 { return this.getCenter(); }
+
+
   /**
    * Returns the center of this Arc.
    */
@@ -91,7 +94,6 @@ export default class Arc extends Segment {
     return this._center;
   }
 
-  get center(): Vector2 { return this.getCenter(); }
 
   /**
    * Sets the radius of the Arc.
@@ -109,6 +111,9 @@ export default class Arc extends Segment {
 
   set radius( value: number ) { this.setRadius( value ); }
 
+  get radius(): number { return this.getRadius(); }
+
+
   /**
    * Returns the radius of this Arc.
    */
@@ -116,7 +121,6 @@ export default class Arc extends Segment {
     return this._radius;
   }
 
-  get radius(): number { return this.getRadius(); }
 
   /**
    * Sets the startAngle of the Arc.
@@ -134,6 +138,9 @@ export default class Arc extends Segment {
 
   set startAngle( value: number ) { this.setStartAngle( value ); }
 
+  get startAngle(): number { return this.getStartAngle(); }
+
+
   /**
    * Returns the startAngle of this Arc.
    */
@@ -141,7 +148,6 @@ export default class Arc extends Segment {
     return this._startAngle;
   }
 
-  get startAngle(): number { return this.getStartAngle(); }
 
   /**
    * Sets the endAngle of the Arc.
@@ -159,6 +165,9 @@ export default class Arc extends Segment {
 
   set endAngle( value: number ) { this.setEndAngle( value ); }
 
+  get endAngle(): number { return this.getEndAngle(); }
+
+
   /**
    * Returns the endAngle of this Arc.
    */
@@ -166,7 +175,6 @@ export default class Arc extends Segment {
     return this._endAngle;
   }
 
-  get endAngle(): number { return this.getEndAngle(); }
 
   /**
    * Sets the anticlockwise of the Arc.
@@ -183,6 +191,8 @@ export default class Arc extends Segment {
 
   set anticlockwise( value: boolean ) { this.setAnticlockwise( value ); }
 
+  get anticlockwise(): boolean { return this.getAnticlockwise(); }
+
   /**
    * Returns the anticlockwise of this Arc.
    */
@@ -190,7 +200,6 @@ export default class Arc extends Segment {
     return this._anticlockwise;
   }
 
-  get anticlockwise(): boolean { return this.getAnticlockwise(); }
 
   /**
    * Returns the position parametrically, with 0 <= t <= 1.

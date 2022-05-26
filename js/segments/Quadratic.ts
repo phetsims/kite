@@ -79,6 +79,8 @@ export default class Quadratic extends Segment {
 
   set start( value: Vector2 ) { this.setStart( value ); }
 
+  get start(): Vector2 { return this.getStart(); }
+
   /**
    * Returns the start of this Quadratic.
    */
@@ -86,7 +88,6 @@ export default class Quadratic extends Segment {
     return this._start;
   }
 
-  get start(): Vector2 { return this.getStart(); }
 
   /**
    * Sets the control point of the Quadratic.
@@ -104,6 +105,8 @@ export default class Quadratic extends Segment {
 
   set control( value: Vector2 ) { this.setControl( value ); }
 
+  get control(): Vector2 { return this.getControl(); }
+
   /**
    * Returns the control point of this Quadratic.
    */
@@ -111,7 +114,6 @@ export default class Quadratic extends Segment {
     return this._control;
   }
 
-  get control(): Vector2 { return this.getControl(); }
 
   /**
    * Sets the end point of the Quadratic.
@@ -129,6 +131,8 @@ export default class Quadratic extends Segment {
 
   set end( value: Vector2 ) { this.setEnd( value ); }
 
+  get end(): Vector2 { return this.getEnd(); }
+
   /**
    * Returns the end of this Quadratic.
    */
@@ -136,7 +140,6 @@ export default class Quadratic extends Segment {
     return this._end;
   }
 
-  get end(): Vector2 { return this.getEnd(); }
 
   /**
    * Returns the position parametrically, with 0 <= t <= 1.
@@ -694,11 +697,11 @@ export default class Quadratic extends Segment {
 
     // Determine the candidate overlap (preferring the dimension with the largest variation)
     const xSpread = Math.abs( Math.max( quadratic1._start.x, quadratic1._control.x, quadratic1._end.x,
-      quadratic2._start.x, quadratic2._control.x, quadratic2._end.x ) -
+                                quadratic2._start.x, quadratic2._control.x, quadratic2._end.x ) -
                               Math.min( quadratic1._start.x, quadratic1._control.x, quadratic1._end.x,
                                 quadratic2._start.x, quadratic2._control.x, quadratic2._end.x ) );
     const ySpread = Math.abs( Math.max( quadratic1._start.y, quadratic1._control.y, quadratic1._end.y,
-      quadratic2._start.y, quadratic2._control.y, quadratic2._end.y ) -
+                                quadratic2._start.y, quadratic2._control.y, quadratic2._end.y ) -
                               Math.min( quadratic1._start.y, quadratic1._control.y, quadratic1._end.y,
                                 quadratic2._start.y, quadratic2._control.y, quadratic2._end.y ) );
     const xOverlap = Segment.polynomialGetOverlapQuadratic( p0x, p1x, p2x, q0x, q1x, q2x );

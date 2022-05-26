@@ -102,6 +102,9 @@ export default class EllipticalArc extends Segment {
 
   set center( value: Vector2 ) { this.setCenter( value ); }
 
+  get center(): Vector2 { return this.getCenter(); }
+
+
   /**
    * Returns the center of this EllipticalArc.
    */
@@ -109,7 +112,6 @@ export default class EllipticalArc extends Segment {
     return this._center;
   }
 
-  get center(): Vector2 { return this.getCenter(); }
 
   /**
    * Sets the semi-major radius of the EllipticalArc.
@@ -127,6 +129,9 @@ export default class EllipticalArc extends Segment {
 
   set radiusX( value: number ) { this.setRadiusX( value ); }
 
+  get radiusX(): number { return this.getRadiusX(); }
+
+
   /**
    * Returns the semi-major radius of this EllipticalArc.
    */
@@ -134,7 +139,6 @@ export default class EllipticalArc extends Segment {
     return this._radiusX;
   }
 
-  get radiusX(): number { return this.getRadiusX(); }
 
   /**
    * Sets the semi-minor radius of the EllipticalArc.
@@ -152,6 +156,8 @@ export default class EllipticalArc extends Segment {
 
   set radiusY( value: number ) { this.setRadiusY( value ); }
 
+  get radiusY(): number { return this.getRadiusY(); }
+
   /**
    * Returns the semi-minor radius of this EllipticalArc.
    */
@@ -159,7 +165,6 @@ export default class EllipticalArc extends Segment {
     return this._radiusY;
   }
 
-  get radiusY(): number { return this.getRadiusY(); }
 
   /**
    * Sets the rotation of the EllipticalArc.
@@ -177,6 +182,8 @@ export default class EllipticalArc extends Segment {
 
   set rotation( value: number ) { this.setRotation( value ); }
 
+  get rotation(): number { return this.getRotation(); }
+
   /**
    * Returns the rotation of this EllipticalArc.
    */
@@ -184,7 +191,6 @@ export default class EllipticalArc extends Segment {
     return this._rotation;
   }
 
-  get rotation(): number { return this.getRotation(); }
 
   /**
    * Sets the startAngle of the EllipticalArc.
@@ -202,6 +208,8 @@ export default class EllipticalArc extends Segment {
 
   set startAngle( value: number ) { this.setStartAngle( value ); }
 
+  get startAngle(): number { return this.getStartAngle(); }
+
   /**
    * Returns the startAngle of this EllipticalArc.
    */
@@ -209,7 +217,6 @@ export default class EllipticalArc extends Segment {
     return this._startAngle;
   }
 
-  get startAngle(): number { return this.getStartAngle(); }
 
   /**
    * Sets the endAngle of the EllipticalArc.
@@ -227,6 +234,8 @@ export default class EllipticalArc extends Segment {
 
   set endAngle( value: number ) { this.setEndAngle( value ); }
 
+  get endAngle(): number { return this.getEndAngle(); }
+
   /**
    * Returns the endAngle of this EllipticalArc.
    */
@@ -234,7 +243,6 @@ export default class EllipticalArc extends Segment {
     return this._endAngle;
   }
 
-  get endAngle(): number { return this.getEndAngle(); }
 
   /**
    * Sets the anticlockwise of the EllipticalArc.
@@ -251,6 +259,8 @@ export default class EllipticalArc extends Segment {
 
   set anticlockwise( value: boolean ) { this.setAnticlockwise( value ); }
 
+  get anticlockwise(): boolean { return this.getAnticlockwise(); }
+
   /**
    * Returns the anticlockwise of this EllipticalArc.
    */
@@ -258,7 +268,6 @@ export default class EllipticalArc extends Segment {
     return this._anticlockwise;
   }
 
-  get anticlockwise(): boolean { return this.getAnticlockwise(); }
 
   /**
    * Returns the position parametrically, with 0 <= t <= 1.

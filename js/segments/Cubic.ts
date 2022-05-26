@@ -103,6 +103,9 @@ export default class Cubic extends Segment {
 
   set start( value: Vector2 ) { this.setStart( value ); }
 
+  get start(): Vector2 { return this.getStart(); }
+
+
   /**
    * Returns the start of this Cubic.
    */
@@ -110,7 +113,6 @@ export default class Cubic extends Segment {
     return this._start;
   }
 
-  get start(): Vector2 { return this.getStart(); }
 
   /**
    * Sets the first control point of the Cubic.
@@ -128,6 +130,9 @@ export default class Cubic extends Segment {
 
   set control1( value: Vector2 ) { this.setControl1( value ); }
 
+  get control1(): Vector2 { return this.getControl1(); }
+
+
   /**
    * Returns the first control point of this Cubic.
    */
@@ -135,7 +140,6 @@ export default class Cubic extends Segment {
     return this._control1;
   }
 
-  get control1(): Vector2 { return this.getControl1(); }
 
   /**
    * Sets the second control point of the Cubic.
@@ -153,6 +157,9 @@ export default class Cubic extends Segment {
 
   set control2( value: Vector2 ) { this.setControl2( value ); }
 
+  get control2(): Vector2 { return this.getControl2(); }
+
+
   /**
    * Returns the second control point of this Cubic.
    */
@@ -160,7 +167,6 @@ export default class Cubic extends Segment {
     return this._control2;
   }
 
-  get control2(): Vector2 { return this.getControl2(); }
 
   /**
    * Sets the end point of the Cubic.
@@ -178,6 +184,9 @@ export default class Cubic extends Segment {
 
   set end( value: Vector2 ) { this.setEnd( value ); }
 
+  get end(): Vector2 { return this.getEnd(); }
+
+
   /**
    * Returns the end of this Cubic.
    */
@@ -185,7 +194,6 @@ export default class Cubic extends Segment {
     return this._end;
   }
 
-  get end(): Vector2 { return this.getEnd(); }
 
   /**
    * Returns the position parametrically, with 0 <= t <= 1.
@@ -980,11 +988,11 @@ export default class Cubic extends Segment {
 
     // Determine the candidate overlap (preferring the dimension with the largest variation)
     const xSpread = Math.abs( Math.max( cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x,
-      cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x ) -
+                                cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x ) -
                               Math.min( cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x,
                                 cubic1._start.x, cubic1._control1.x, cubic1._control2.x, cubic1._end.x ) );
     const ySpread = Math.abs( Math.max( cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y,
-      cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y ) -
+                                cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y ) -
                               Math.min( cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y,
                                 cubic1._start.y, cubic1._control1.y, cubic1._control2.y, cubic1._end.y ) );
     const xOverlap = Segment.polynomialGetOverlapCubic( p0x, p1x, p2x, p3x, q0x, q1x, q2x, q3x );

@@ -61,6 +61,8 @@ export default class Line extends Segment {
 
   set start( value: Vector2 ) { this.setStart( value ); }
 
+  get start(): Vector2 { return this.getStart(); }
+
   /**
    * Returns the start of this Line.
    */
@@ -68,7 +70,6 @@ export default class Line extends Segment {
     return this._start;
   }
 
-  get start(): Vector2 { return this.getStart(); }
 
   /**
    * Sets the end point of the Line.
@@ -86,6 +87,8 @@ export default class Line extends Segment {
 
   set end( value: Vector2 ) { this.setEnd( value ); }
 
+  get end(): Vector2 { return this.getEnd(); }
+
   /**
    * Returns the end of this Line.
    */
@@ -93,7 +96,6 @@ export default class Line extends Segment {
     return this._end;
   }
 
-  get end(): Vector2 { return this.getEnd(); }
 
   /**
    * Returns the position parametrically, with 0 <= t <= 1.
