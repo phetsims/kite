@@ -360,12 +360,12 @@ export default abstract class Segment {
 
   /**
    *
-   * @param {Object} [options]
-   * @param {number} [minLevels] -   how many levels to force subdivisions
-   * @param {number} [maxLevels] -   prevent subdivision past this level
-   * @param {Array.<Segment>} [segments]
-   * @param {Vector2} [start]
-   * @param {Vector2} [end]
+   * @param [options]
+   * @param [minLevels] -   how many levels to force subdivisions
+   * @param [maxLevels] -   prevent subdivision past this level
+   * @param [segments]
+   * @param [start]
+   * @param [end]
    */
   toPiecewiseLinearSegments( options: PiecewiseLinearOptions, minLevels?: number, maxLevels?: number, segments?: Line[], start?: Vector2, end?: Vector2 ): Line[] {
     // for the first call, initialize min/max levels from our options
