@@ -366,7 +366,6 @@ export default abstract class Segment {
    * @param {Array.<Segment>} [segments]
    * @param {Vector2} [start]
    * @param {Vector2} [end]
-   * @returns {Array.<Line>}
    */
   toPiecewiseLinearSegments( options: PiecewiseLinearOptions, minLevels?: number, maxLevels?: number, segments?: Line[], start?: Vector2, end?: Vector2 ): Line[] {
     // for the first call, initialize min/max levels from our options

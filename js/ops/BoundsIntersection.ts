@@ -61,7 +61,7 @@ export default class BoundsIntersection {
    * @param aMax - Location of the higher t value for the 'a' segment's region
    * @param bMin - Location of the lower t value for the 'b' segment's region
    * @param bMax - Location of the higher t value for the 'b' segment's region
-   * @returns {BoundsIntersection} - This reference for chaining
+   * @returns -  This reference for chaining
    */
   initialize( a: Segment, b: Segment, atMin: number, atMax: number, btMin: number, btMax: number, aMin: Vector2, aMax: Vector2, bMin: Vector2, bMax: Vector2 ): BoundsIntersection {
     assert && assert( typeof atMin === 'number' );
