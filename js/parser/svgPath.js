@@ -2096,7 +2096,7 @@ var result = {
         pos0 = pos;
         result0 = parse_digitSequence();
         if ( result0 !== null ) {
-          result0 = ( function( offset, number ) { return parseInt( number, 10 ); } )( pos0, result0 );
+          result0 = ( function( offset, number ) { return Number( number ); } )( pos0, result0 );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -2153,7 +2153,7 @@ var result = {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = ( function( offset, sign, number ) { return parseInt( sign + number, 10 ); } )( pos0, result0[ 0 ], result0[ 1 ] );
+          result0 = ( function( offset, sign, number ) { return Number( sign + number ); } )( pos0, result0[ 0 ], result0[ 1 ] );
         }
         if ( result0 === null ) {
           pos = pos0;

@@ -151,11 +151,11 @@ coordinate
 
 nonnegativeNumber
 = number:floatingPointConstant { return parseFloat( number ); }
-  / number:integerConstant { return parseInt( number, 10 ); }
+  / number:integerConstant { return Number( number ); }
 
 number
 = ( sign:sign? number:floatingPointConstant ) { return parseFloat( sign + number ); }
-  / ( sign:sign? number:integerConstant ) { return parseInt( sign + number, 10 ); }
+  / ( sign:sign? number:integerConstant ) { return Number( sign + number ); }
 
 flag
 = '0' { return false; } / '1' { return true; }
