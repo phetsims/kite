@@ -136,7 +136,7 @@ class SegmentNode<T> {
   // Red-black tree color information, for self-balancing
   isBlack!: boolean;
 
-  tree!: SegmentTree<T>
+  tree!: SegmentTree<T>;
 
   constructor( tree: SegmentTree<T>, min: number, max: number ) {
     this.items = [];
