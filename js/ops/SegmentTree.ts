@@ -22,7 +22,7 @@ const scratchArray: Edge[] = [];
 type SegmentInfo<T> = {
   getMinX: ( item: T, epsilon: number ) => number;
   getMaxX: ( item: T, epsilon: number ) => number;
-}
+};
 
 export default abstract class SegmentTree<T> implements SegmentInfo<T> {
 
@@ -48,8 +48,8 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
     this.items = new Set<T>();
   }
 
-  abstract getMinX( item: T, epsilon: number ): number
-  abstract getMaxX( item: T, epsilon: number ): number
+  abstract getMinX( item: T, epsilon: number ): number;
+  abstract getMaxX( item: T, epsilon: number ): number;
 
   /**
    * Calls interruptableCallback in turn for every "possibly overlapping" item stored in this tree.
