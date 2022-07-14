@@ -373,7 +373,7 @@ export default class Arc extends Segment {
     if ( this._actualEndAngle === null ) {
       this._actualEndAngle = Arc.computeActualEndAngle( this._startAngle, this._endAngle, this._anticlockwise );
     }
-    return this._actualEndAngle!;
+    return this._actualEndAngle;
   }
 
   get actualEndAngle(): number { return this.getActualEndAngle(); }

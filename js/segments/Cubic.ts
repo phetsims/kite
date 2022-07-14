@@ -461,7 +461,7 @@ export default class Cubic extends Segment {
     if ( this._xExtremaT === null ) {
       this._xExtremaT = Cubic.extremaT( this._start.x, this._control1.x, this._control2.x, this._end.x );
     }
-    return this._xExtremaT!;
+    return this._xExtremaT;
   }
 
   get xExtremaT(): number[] { return this.getXExtremaT(); }
@@ -474,7 +474,7 @@ export default class Cubic extends Segment {
     if ( this._yExtremaT === null ) {
       this._yExtremaT = Cubic.extremaT( this._start.y, this._control1.y, this._control2.y, this._end.y );
     }
-    return this._yExtremaT!;
+    return this._yExtremaT;
   }
 
   get yExtremaT(): number[] { return this.getYExtremaT(); }
