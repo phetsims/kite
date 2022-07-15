@@ -76,7 +76,7 @@ export default class Cubic extends Segment {
    * @param control2 - Second control point (curve usually doesn't go through here)
    * @param end - End point of the cubic bezier
    */
-  constructor( start: Vector2, control1: Vector2, control2: Vector2, end: Vector2 ) {
+  public constructor( start: Vector2, control1: Vector2, control2: Vector2, end: Vector2 ) {
     super();
 
     this._start = start;
@@ -90,7 +90,7 @@ export default class Cubic extends Segment {
   /**
    * Sets the start point of the Cubic.
    */
-  setStart( start: Vector2 ): this {
+  public setStart( start: Vector2 ): this {
     assert && assert( start instanceof Vector2, `Cubic start should be a Vector2: ${start}` );
     assert && assert( start.isFinite(), `Cubic start should be finite: ${start.toString()}` );
 
@@ -101,15 +101,15 @@ export default class Cubic extends Segment {
     return this; // allow chaining
   }
 
-  set start( value: Vector2 ) { this.setStart( value ); }
+  public set start( value: Vector2 ) { this.setStart( value ); }
 
-  get start(): Vector2 { return this.getStart(); }
+  public get start(): Vector2 { return this.getStart(); }
 
 
   /**
    * Returns the start of this Cubic.
    */
-  getStart(): Vector2 {
+  public getStart(): Vector2 {
     return this._start;
   }
 
@@ -117,7 +117,7 @@ export default class Cubic extends Segment {
   /**
    * Sets the first control point of the Cubic.
    */
-  setControl1( control1: Vector2 ): this {
+  public setControl1( control1: Vector2 ): this {
     assert && assert( control1 instanceof Vector2, `Cubic control1 should be a Vector2: ${control1}` );
     assert && assert( control1.isFinite(), `Cubic control1 should be finite: ${control1.toString()}` );
 
@@ -128,15 +128,15 @@ export default class Cubic extends Segment {
     return this; // allow chaining
   }
 
-  set control1( value: Vector2 ) { this.setControl1( value ); }
+  public set control1( value: Vector2 ) { this.setControl1( value ); }
 
-  get control1(): Vector2 { return this.getControl1(); }
+  public get control1(): Vector2 { return this.getControl1(); }
 
 
   /**
    * Returns the first control point of this Cubic.
    */
-  getControl1(): Vector2 {
+  public getControl1(): Vector2 {
     return this._control1;
   }
 
@@ -144,7 +144,7 @@ export default class Cubic extends Segment {
   /**
    * Sets the second control point of the Cubic.
    */
-  setControl2( control2: Vector2 ): this {
+  public setControl2( control2: Vector2 ): this {
     assert && assert( control2 instanceof Vector2, `Cubic control2 should be a Vector2: ${control2}` );
     assert && assert( control2.isFinite(), `Cubic control2 should be finite: ${control2.toString()}` );
 
@@ -155,15 +155,15 @@ export default class Cubic extends Segment {
     return this; // allow chaining
   }
 
-  set control2( value: Vector2 ) { this.setControl2( value ); }
+  public set control2( value: Vector2 ) { this.setControl2( value ); }
 
-  get control2(): Vector2 { return this.getControl2(); }
+  public get control2(): Vector2 { return this.getControl2(); }
 
 
   /**
    * Returns the second control point of this Cubic.
    */
-  getControl2(): Vector2 {
+  public getControl2(): Vector2 {
     return this._control2;
   }
 
@@ -171,7 +171,7 @@ export default class Cubic extends Segment {
   /**
    * Sets the end point of the Cubic.
    */
-  setEnd( end: Vector2 ): this {
+  public setEnd( end: Vector2 ): this {
     assert && assert( end instanceof Vector2, `Cubic end should be a Vector2: ${end}` );
     assert && assert( end.isFinite(), `Cubic end should be finite: ${end.toString()}` );
 
@@ -182,15 +182,15 @@ export default class Cubic extends Segment {
     return this; // allow chaining
   }
 
-  set end( value: Vector2 ) { this.setEnd( value ); }
+  public set end( value: Vector2 ) { this.setEnd( value ); }
 
-  get end(): Vector2 { return this.getEnd(); }
+  public get end(): Vector2 { return this.getEnd(); }
 
 
   /**
    * Returns the end of this Cubic.
    */
-  getEnd(): Vector2 {
+  public getEnd(): Vector2 {
     return this._end;
   }
 
@@ -203,7 +203,7 @@ export default class Cubic extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  positionAt( t: number ): Vector2 {
+  public positionAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'positionAt t should be non-negative' );
     assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
 
@@ -228,7 +228,7 @@ export default class Cubic extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  tangentAt( t: number ): Vector2 {
+  public tangentAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'tangentAt t should be non-negative' );
     assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
@@ -252,7 +252,7 @@ export default class Cubic extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  curvatureAt( t: number ): number {
+  public curvatureAt( t: number ): number {
     assert && assert( t >= 0, 'curvatureAt t should be non-negative' );
     assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
 
@@ -280,7 +280,7 @@ export default class Cubic extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  subdivided( t: number ): Cubic[] {
+  public subdivided( t: number ): Cubic[] {
     assert && assert( t >= 0, 'subdivided t should be non-negative' );
     assert && assert( t <= 1, 'subdivided t should be no greater than 1' );
 
@@ -306,7 +306,7 @@ export default class Cubic extends Segment {
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    */
-  invalidate(): void {
+  public invalidate(): void {
     assert && assert( this._start instanceof Vector2, `Cubic start should be a Vector2: ${this._start}` );
     assert && assert( this._start.isFinite(), `Cubic start should be finite: ${this._start.toString()}` );
     assert && assert( this._control1 instanceof Vector2, `Cubic control1 should be a Vector2: ${this._control1}` );
@@ -342,31 +342,31 @@ export default class Cubic extends Segment {
   /**
    * Gets the start position of this cubic polynomial.
    */
-  getStartTangent(): Vector2 {
+  public getStartTangent(): Vector2 {
     if ( this._startTangent === null ) {
       this._startTangent = this.tangentAt( 0 ).normalized();
     }
     return this._startTangent;
   }
 
-  get startTangent(): Vector2 { return this.getStartTangent(); }
+  public get startTangent(): Vector2 { return this.getStartTangent(); }
 
   /**
    * Gets the end position of this cubic polynomial.
    */
-  getEndTangent(): Vector2 {
+  public getEndTangent(): Vector2 {
     if ( this._endTangent === null ) {
       this._endTangent = this.tangentAt( 1 ).normalized();
     }
     return this._endTangent;
   }
 
-  get endTangent(): Vector2 { return this.getEndTangent(); }
+  public get endTangent(): Vector2 { return this.getEndTangent(); }
 
   /**
    * TODO: documentation
    */
-  getR(): Vector2 {
+  public getR(): Vector2 {
     // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
     if ( this._r === null ) {
       this._r = this._control1.minus( this._start ).normalized();
@@ -374,12 +374,12 @@ export default class Cubic extends Segment {
     return this._r;
   }
 
-  get r(): Vector2 { return this.getR(); }
+  public get r(): Vector2 { return this.getR(); }
 
   /**
    * TODO: documentation
    */
-  getS(): Vector2 {
+  public getS(): Vector2 {
     // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
     if ( this._s === null ) {
       this._s = this.getR().perpendicular;
@@ -387,12 +387,12 @@ export default class Cubic extends Segment {
     return this._s;
   }
 
-  get s(): Vector2 { return this.getS(); }
+  public get s(): Vector2 { return this.getS(); }
 
   /**
    * Returns the parametric t value for the possible cusp location. A cusp may or may not exist at that point.
    */
-  getTCusp(): number {
+  public getTCusp(): number {
     if ( this._tCusp === null ) {
       this.computeCuspInfo();
     }
@@ -400,12 +400,12 @@ export default class Cubic extends Segment {
     return this._tCusp!;
   }
 
-  get tCusp(): number { return this.getTCusp(); }
+  public get tCusp(): number { return this.getTCusp(); }
 
   /**
    * Returns the determinant value for the cusp, which indicates the presence (or lack of presence) of a cusp.
    */
-  getTDeterminant(): number {
+  public getTDeterminant(): number {
     if ( this._tDeterminant === null ) {
       this.computeCuspInfo();
     }
@@ -413,12 +413,12 @@ export default class Cubic extends Segment {
     return this._tDeterminant!;
   }
 
-  get tDeterminant(): number { return this.getTDeterminant(); }
+  public get tDeterminant(): number { return this.getTDeterminant(); }
 
   /**
    * Returns the parametric t value for the potential location of the first possible inflection point.
    */
-  getTInflection1(): number {
+  public getTInflection1(): number {
     if ( this._tInflection1 === null ) {
       this.computeCuspInfo();
     }
@@ -426,12 +426,12 @@ export default class Cubic extends Segment {
     return this._tInflection1!;
   }
 
-  get tInflection1(): number { return this.getTInflection1(); }
+  public get tInflection1(): number { return this.getTInflection1(); }
 
   /**
    * Returns the parametric t value for the potential location of the second possible inflection point.
    */
-  getTInflection2(): number {
+  public getTInflection2(): number {
     if ( this._tInflection2 === null ) {
       this.computeCuspInfo();
     }
@@ -439,13 +439,13 @@ export default class Cubic extends Segment {
     return this._tInflection2!;
   }
 
-  get tInflection2(): number { return this.getTInflection2(); }
+  public get tInflection2(): number { return this.getTInflection2(); }
 
   /**
    * If there is a cusp, this cubic will consist of one or two quadratic segments, typically "start => cusp" and
    * "cusp => end".
    */
-  getQuadratics(): Quadratic[] | null {
+  public getQuadratics(): Quadratic[] | null {
     if ( this._quadratics === null ) {
       this.computeCuspSegments();
     }
@@ -457,32 +457,32 @@ export default class Cubic extends Segment {
    * Returns a list of parametric t values where x-extrema exist, i.e. where dx/dt==0. These are candidate locations
    * on the cubic for "maximum X" and "minimum X", and are needed for bounds computations.
    */
-  getXExtremaT(): number[] {
+  public getXExtremaT(): number[] {
     if ( this._xExtremaT === null ) {
       this._xExtremaT = Cubic.extremaT( this._start.x, this._control1.x, this._control2.x, this._end.x );
     }
     return this._xExtremaT;
   }
 
-  get xExtremaT(): number[] { return this.getXExtremaT(); }
+  public get xExtremaT(): number[] { return this.getXExtremaT(); }
 
   /**
    * Returns a list of parametric t values where y-extrema exist, i.e. where dy/dt==0. These are candidate locations
    * on the cubic for "maximum Y" and "minimum Y", and are needed for bounds computations.
    */
-  getYExtremaT(): number[] {
+  public getYExtremaT(): number[] {
     if ( this._yExtremaT === null ) {
       this._yExtremaT = Cubic.extremaT( this._start.y, this._control1.y, this._control2.y, this._end.y );
     }
     return this._yExtremaT;
   }
 
-  get yExtremaT(): number[] { return this.getYExtremaT(); }
+  public get yExtremaT(): number[] { return this.getYExtremaT(); }
 
   /**
    * Returns the bounds of this segment.
    */
-  getBounds(): Bounds2 {
+  public getBounds(): Bounds2 {
     if ( this._bounds === null ) {
       this._bounds = Bounds2.NOTHING;
       this._bounds = this._bounds.withPoint( this._start );
@@ -506,7 +506,7 @@ export default class Cubic extends Segment {
     return this._bounds;
   }
 
-  get bounds(): Bounds2 { return this.getBounds(); }
+  public get bounds(): Bounds2 { return this.getBounds(); }
 
   /**
    * Computes all cusp-related information, including whether there is a cusp, any inflection points, etc.
@@ -566,7 +566,7 @@ export default class Cubic extends Segment {
    * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
    * invalid or repeated segments.
    */
-  getNondegenerateSegments(): Segment[] {
+  public getNondegenerateSegments(): Segment[] {
     const start = this._start;
     const control1 = this._control1;
     const control2 = this._control2;
@@ -610,19 +610,19 @@ export default class Cubic extends Segment {
   /**
    * Returns whether this cubic has a cusp.
    */
-  hasCusp(): boolean {
+  public hasCusp(): boolean {
     const tCusp = this.getTCusp();
 
     const epsilon = 1e-7; // TODO: make this available to change?
     return tCusp >= 0 && tCusp <= 1 && this.tangentAt( tCusp ).magnitude < epsilon;
   }
 
-  toRS( point: Vector2 ): Vector2 {
+  public toRS( point: Vector2 ): Vector2 {
     const firstVector = point.minus( this._start );
     return new Vector2( firstVector.dot( this.getR() ), firstVector.dot( this.getS() ) );
   }
 
-  offsetTo( r: number, reverse: boolean ): Line[] {
+  public offsetTo( r: number, reverse: boolean ): Line[] {
     // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html
     // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
 
@@ -650,7 +650,7 @@ export default class Cubic extends Segment {
    * Returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls this needs to put
    * the M calls first
    */
-  getSVGPathFragment(): string {
+  public getSVGPathFragment(): string {
     let oldPathFragment;
     if ( assert ) {
       oldPathFragment = this._svgPathFragment;
@@ -672,14 +672,14 @@ export default class Cubic extends Segment {
   /**
    * Returns an array of lines that will draw an offset curve on the logical left side
    */
-  strokeLeft( lineWidth: number ): Line[] {
+  public strokeLeft( lineWidth: number ): Line[] {
     return this.offsetTo( -lineWidth / 2, false );
   }
 
   /**
    * Returns an array of lines that will draw an offset curve on the logical right side
    */
-  strokeRight( lineWidth: number ): Line[] {
+  public strokeRight( lineWidth: number ): Line[] {
     return this.offsetTo( lineWidth / 2, true );
   }
 
@@ -687,7 +687,7 @@ export default class Cubic extends Segment {
    * Returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
    * The list does not include t=0 and t=1
    */
-  getInteriorExtremaTs(): number[] {
+  public getInteriorExtremaTs(): number[] {
     const ts = this.getXExtremaT().concat( this.getYExtremaT() );
     const result: number[] = [];
     _.each( ts, t => {
@@ -707,7 +707,7 @@ export default class Cubic extends Segment {
    * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
    * For details, see the documentation in Segment.js
    */
-  intersection( ray: Ray2 ): RayIntersection[] {
+  public intersection( ray: Ray2 ): RayIntersection[] {
     const result: RayIntersection[] = [];
 
     // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
@@ -747,7 +747,7 @@ export default class Cubic extends Segment {
   /**
    * Returns the winding number for intersection with a ray
    */
-  windingIntersection( ray: Ray2 ): number {
+  public windingIntersection( ray: Ray2 ): number {
     let wind = 0;
     const hits = this.intersection( ray );
     _.each( hits, ( hit: RayIntersection ) => {
@@ -759,14 +759,14 @@ export default class Cubic extends Segment {
   /**
    * Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
    */
-  writeToContext( context: CanvasRenderingContext2D ): void {
+  public writeToContext( context: CanvasRenderingContext2D ): void {
     context.bezierCurveTo( this._control1.x, this._control1.y, this._control2.x, this._control2.y, this._end.x, this._end.y );
   }
 
   /**
    * Returns a new cubic that represents this cubic after transformation by the matrix
    */
-  transformed( matrix: Matrix3 ): Cubic {
+  public transformed( matrix: Matrix3 ): Cubic {
     return new Cubic( matrix.timesVector2( this._start ), matrix.timesVector2( this._control1 ), matrix.timesVector2( this._control2 ), matrix.timesVector2( this._end ) );
   }
 
@@ -774,7 +774,7 @@ export default class Cubic extends Segment {
   /**
    * Returns a degree-reduced quadratic Bezier if possible, otherwise it returns null
    */
-  degreeReduced( epsilon: number ): Quadratic | null {
+  public degreeReduced( epsilon: number ): Quadratic | null {
     epsilon = epsilon || 0; // if not provided, use an exact version
     const controlA = scratchVector1.set( this._control1 ).multiplyScalar( 3 ).subtract( this._start ).divideScalar( 2 );
     const controlB = scratchVector2.set( this._control2 ).multiplyScalar( 3 ).subtract( this._end ).divideScalar( 2 );
@@ -797,7 +797,7 @@ export default class Cubic extends Segment {
    *
    * NOTE: This is this segment's contribution to the line integral (-y/2 dx + x/2 dy).
    */
-  getSignedAreaFragment(): number {
+  public getSignedAreaFragment(): number {
     return 1 / 20 * (
       this._start.x * ( 6 * this._control1.y + 3 * this._control2.y + this._end.y ) +
       this._control1.x * ( -6 * this._start.y + 3 * this._control2.y + 3 * this._end.y ) +
@@ -809,7 +809,7 @@ export default class Cubic extends Segment {
   /**
    * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
    */
-  reversed(): Cubic {
+  public reversed(): Cubic {
     return new Cubic( this._end, this._control2, this._control1, this._start );
   }
 
@@ -818,7 +818,7 @@ export default class Cubic extends Segment {
    *
    * @returns - Null if there is no intersection
    */
-  getSelfIntersection(): SegmentIntersection | null {
+  public getSelfIntersection(): SegmentIntersection | null {
     // We split the cubic into monotone sections (which can't self-intersect), then check these for intersections
     const tExtremes = this.getInteriorExtremaTs();
     const fullExtremes = [ 0 ].concat( tExtremes ).concat( [ 1 ] );
@@ -856,7 +856,7 @@ export default class Cubic extends Segment {
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
    */
-  serialize(): SerializedCubic {
+  public serialize(): SerializedCubic {
     return {
       type: 'Cubic',
       startX: this._start.x,
@@ -879,7 +879,7 @@ export default class Cubic extends Segment {
    *                             in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
+  public getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
     if ( segment instanceof Cubic ) {
       return Cubic.getOverlaps( this, segment );
     }
@@ -890,7 +890,7 @@ export default class Cubic extends Segment {
   /**
    * Returns a Cubic from the serialized representation.
    */
-  static override deserialize( obj: SerializedCubic ): Cubic {
+  public static override deserialize( obj: SerializedCubic ): Cubic {
     assert && assert( obj.type === 'Cubic' );
 
     return new Cubic( new Vector2( obj.startX, obj.startY ), new Vector2( obj.control1X, obj.control1Y ), new Vector2( obj.control2X, obj.control2Y ), new Vector2( obj.endX, obj.endY ) );
@@ -899,7 +899,7 @@ export default class Cubic extends Segment {
   /**
    * Finds what t values the cubic extrema are at (if any). This is just the 1-dimensional case, used for multiple purposes
    */
-  static extremaT( v0: number, v1: number, v2: number, v3: number ): number[] {
+  public static extremaT( v0: number, v1: number, v2: number, v3: number ): number[] {
     if ( v0 === v1 && v0 === v2 && v0 === v3 ) {
       return [];
     }
@@ -925,7 +925,7 @@ export default class Cubic extends Segment {
    *                    in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  static getOverlaps( cubic1: Cubic, cubic2: Cubic, epsilon = 1e-6 ): Overlap[] {
+  public static getOverlaps( cubic1: Cubic, cubic2: Cubic, epsilon = 1e-6 ): Overlap[] {
     assert && assert( cubic1 instanceof Cubic, 'first Cubic is not an instance of Cubic' );
     assert && assert( cubic2 instanceof Cubic, 'second Cubic is not an instance of Cubic' );
 
@@ -1064,7 +1064,7 @@ export default class Cubic extends Segment {
   }
 
   // Degree of this polynomial (cubic)
-  degree!: number;
+  public degree!: number;
 }
 
 Cubic.prototype.degree = 3;

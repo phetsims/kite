@@ -9,12 +9,12 @@
 import { kite, Edge, SegmentTree } from '../imports.js';
 
 export default class EdgeSegmentTree extends SegmentTree<Edge> {
-  getMinX( edge: Edge, epsilon: number ): number {
+  public getMinX( edge: Edge, epsilon: number ): number {
     // @ts-ignore -- TODO: Get Segment typed correctly
     return edge.segment!.bounds.left - epsilon;
   }
 
-  getMaxX( edge: Edge, epsilon: number ): number {
+  public getMaxX( edge: Edge, epsilon: number ): number {
     // @ts-ignore -- TODO: Get Segment typed correctly
     return edge.segment!.bounds.right + epsilon;
   }

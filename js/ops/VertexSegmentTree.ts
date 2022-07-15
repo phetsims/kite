@@ -9,11 +9,11 @@
 import { kite, Vertex, SegmentTree } from '../imports.js';
 
 export default class VertexSegmentTree extends SegmentTree<Vertex> {
-  getMinX( vertex: Vertex, epsilon: number ): number {
+  public getMinX( vertex: Vertex, epsilon: number ): number {
     return vertex.point!.x - epsilon;
   }
 
-  getMaxX( vertex: Vertex, epsilon: number ): number {
+  public getMaxX( vertex: Vertex, epsilon: number ): number {
     return vertex.point!.x + epsilon;
   }
 }

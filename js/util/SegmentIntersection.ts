@@ -12,16 +12,16 @@ import { kite } from '../imports.js';
 
 export default class SegmentIntersection {
 
-  point: Vector2;
-  aT: number;
-  bT: number;
+  public point: Vector2;
+  public aT: number;
+  public bT: number;
 
   /**
    * @param point - The location of the intersection
    * @param aT - The parametric value for the first segment at the location of the intersection
    * @param bT - The parametric value for the second segment at the location of the intersection
    */
-  constructor( point: Vector2, aT: number, bT: number ) {
+  public constructor( point: Vector2, aT: number, bT: number ) {
     assert && assert( point instanceof Vector2, 'invalid point' );
     assert && assert( typeof aT === 'number' && aT >= -1e-10 && aT <= 1 + 1e-10, 'aT out of range' );
     assert && assert( typeof bT === 'number' && bT >= -1e-10 && bT <= 1 + 1e-10, 'bT out of range' );
@@ -36,7 +36,7 @@ export default class SegmentIntersection {
   /**
    * Returns the intersection with a and b swapped.
    */
-  getSwapped(): SegmentIntersection {
+  public getSwapped(): SegmentIntersection {
     return new SegmentIntersection( this.point, this.bT, this.aT );
   }
 }

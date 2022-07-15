@@ -26,7 +26,7 @@ type SegmentInfo<T> = {
 
 export default abstract class SegmentTree<T> implements SegmentInfo<T> {
 
-  rootNode: SegmentNode<T>;
+  public rootNode: SegmentNode<T>;
 
   // Our epsilon, used to expand the bounds of segments so we have some non-zero amount of "overlap" for our segments
   private readonly epsilon: number;
@@ -38,7 +38,7 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
    * @param epsilon - Used to expand the bounds of segments so we have some non-zero amount of "overlap" for our
    *                  segments
    */
-  constructor( epsilon = 1e-6 ) {
+  public constructor( epsilon = 1e-6 ) {
     // @ts-ignore -- TODO: Poolable support
     this.rootNode = SegmentNode.createFromPool( this, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY );
     this.rootNode.isBlack = true;
@@ -48,8 +48,8 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
     this.items = new Set<T>();
   }
 
-  abstract getMinX( item: T, epsilon: number ): number;
-  abstract getMaxX( item: T, epsilon: number ): number;
+  public abstract getMinX( item: T, epsilon: number ): number;
+  public abstract getMaxX( item: T, epsilon: number ): number;
 
   /**
    * Calls interruptableCallback in turn for every "possibly overlapping" item stored in this tree.
@@ -57,7 +57,7 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
    * @param item - The item to use for the bounds range.
    * @param interruptableCallback - When this returns true, the search will be aborted
    */
-  query( item: T, interruptableCallback: ( item: T ) => boolean ): boolean {
+  public query( item: T, interruptableCallback: ( item: T ) => boolean ): boolean {
     const id = globalId++;
 
     if ( this.rootNode ) {
@@ -68,7 +68,7 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
     }
   }
 
-  addItem( item: T ): void {
+  public addItem( item: T ): void {
     const min = this.getMinX( item, this.epsilon );
     const max = this.getMaxX( item, this.epsilon );
 
@@ -80,7 +80,7 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
     this.items.add( item );
   }
 
-  removeItem( item: T ): void {
+  public removeItem( item: T ): void {
     this.rootNode.removeItem( item, this.getMinX( item, this.epsilon ), this.getMaxX( item, this.epsilon ) );
     this.items.delete( item );
   }
@@ -88,11 +88,11 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
   /**
    * For assertion purposes
    */
-  audit(): void {
+  public audit(): void {
     this.rootNode.audit( this.epsilon, this.items, [] );
   }
 
-  toString(): string {
+  public toString(): string {
     let spacing = 0;
     let string = '';
 
@@ -114,37 +114,37 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
 class SegmentNode<T> {
 
   // The minimum x value of this subtree
-  min!: number;
+  public min!: number;
 
   // The maximum x value of this subtree
-  max!: number;
+  public max!: number;
 
   // Child nodes (not specified if we have no children or splitValue). Left value is defined as the smaller range.
-  left!: SegmentNode<T> | null;
-  right!: SegmentNode<T> | null;
+  public left!: SegmentNode<T> | null;
+  public right!: SegmentNode<T> | null;
 
   // Parent node (root will have null)
-  parent!: SegmentNode<T> | null;
+  public parent!: SegmentNode<T> | null;
 
   // The value where we split our interval into our children (so if we are 0-10, and a split value of 5, our left child
   // will have 0-5 and our right child will have 5-10.
-  splitValue!: number | null;
+  public splitValue!: number | null;
 
   // All items that cover this full range of our min-max. These will be stored as high up in the tree as possible.
-  items: T[];
+  public items: T[];
 
   // Red-black tree color information, for self-balancing
-  isBlack!: boolean;
+  public isBlack!: boolean;
 
-  tree!: SegmentTree<T>;
+  public tree!: SegmentTree<T>;
 
-  constructor( tree: SegmentTree<T>, min: number, max: number ) {
+  public constructor( tree: SegmentTree<T>, min: number, max: number ) {
     this.items = [];
 
     this.initialize( tree, min, max );
   }
 
-  initialize( tree: SegmentTree<T>, min: number, max: number ): this {
+  public initialize( tree: SegmentTree<T>, min: number, max: number ): this {
     this.min = min;
     this.max = max;
 
@@ -161,11 +161,11 @@ class SegmentNode<T> {
     return this;
   }
 
-  contains( n: number ): boolean {
+  public contains( n: number ): boolean {
     return n >= this.min && n <= this.max;
   }
 
-  hasChildren(): boolean { return this.splitValue !== null; }
+  public hasChildren(): boolean { return this.splitValue !== null; }
 
   /**
    * Iterates through interruptableCallback for every potentially overlapping edge - aborts when it returns true
@@ -177,7 +177,7 @@ class SegmentNode<T> {
    * @param interruptableCallback
    * @returns whether we were aborted
    */
-  query( item: T, min: number, max: number, id: number, interruptableCallback: ( item: T ) => boolean ): boolean {
+  public query( item: T, min: number, max: number, id: number, interruptableCallback: ( item: T ) => boolean ): boolean {
     let abort = false;
 
     // Partial containment works for everything checking for possible overlap
@@ -214,7 +214,7 @@ class SegmentNode<T> {
   /**
    * Replaces one child with another
    */
-  swapChild( oldChild: SegmentNode<T>, newChild: SegmentNode<T> ): void {
+  public swapChild( oldChild: SegmentNode<T>, newChild: SegmentNode<T> ): void {
     assert && assert( this.left === oldChild || this.right === oldChild );
 
     if ( this.left === oldChild ) {
@@ -225,11 +225,11 @@ class SegmentNode<T> {
     }
   }
 
-  hasChild( node: SegmentNode<T> ): boolean {
+  public hasChild( node: SegmentNode<T> ): boolean {
     return this.left === node || this.right === node;
   }
 
-  otherChild( node: SegmentNode<T> ): SegmentNode<T> {
+  public otherChild( node: SegmentNode<T> ): SegmentNode<T> {
     assert && assert( this.hasChild( node ) );
 
     return ( ( this.left === node ) ? this.right : this.left )!;
@@ -238,7 +238,7 @@ class SegmentNode<T> {
   /**
    * Tree operation needed for red-black self-balancing
    */
-  leftRotate( tree: SegmentTree<T> ): void {
+  public leftRotate( tree: SegmentTree<T> ): void {
     assert && assert( this.hasChildren() && this.right!.hasChildren() );
 
     if ( this.right!.hasChildren() ) {
@@ -297,7 +297,7 @@ class SegmentNode<T> {
   /**
    * Tree operation needed for red-black self-balancing
    */
-  rightRotate( tree: SegmentTree<T> ): void {
+  public rightRotate( tree: SegmentTree<T> ): void {
     assert && assert( this.hasChildren() && this.left!.hasChildren() );
 
     const x = this.left!;
@@ -354,7 +354,7 @@ class SegmentNode<T> {
   /**
    * Called after an insertion (or potentially deletion in the future) that handles red-black tree rebalancing.
    */
-  fixRedBlack( tree: SegmentTree<T> ): void {
+  public fixRedBlack( tree: SegmentTree<T> ): void {
     assert && assert( !this.isBlack );
 
     if ( !this.parent ) {
@@ -414,7 +414,7 @@ class SegmentNode<T> {
   /**
    * Triggers a split of whatever interval contains this value (or is a no-op if we already split at it before).
    */
-  split( n: number, tree: SegmentTree<T> ): void {
+  public split( n: number, tree: SegmentTree<T> ): void {
     assert && assert( this.contains( n ) );
 
     // Ignore splits if we are already split on them
@@ -471,7 +471,7 @@ class SegmentNode<T> {
   /**
    * Recursively adds an item
    */
-  addItem( item: T, min: number, max: number ): void {
+  public addItem( item: T, min: number, max: number ): void {
     // Ignore no-overlap cases
     if ( this.min > max || this.max < min ) {
       return;
@@ -490,7 +490,7 @@ class SegmentNode<T> {
   /**
    * Recursively removes an item
    */
-  removeItem( item: T, min: number, max: number ): void {
+  public removeItem( item: T, min: number, max: number ): void {
     // Ignore no-overlap cases
     if ( this.min > max || this.max < min ) {
       return;
@@ -514,7 +514,7 @@ class SegmentNode<T> {
    * @param allItems - All items in the tree
    * @param presentItems - Edges that were present in ancestors
    */
-  audit( epsilon: number, allItems: Set<T>, presentItems: T[] = [] ): void {
+  public audit( epsilon: number, allItems: Set<T>, presentItems: T[] = [] ): void {
     if ( assert ) {
       for ( const item of presentItems ) {
         assert( !this.items.includes( item ) );
@@ -558,7 +558,7 @@ class SegmentNode<T> {
     }
   }
 
-  toString(): string {
+  public toString(): string {
     // @ts-ignore
     return `[${this.min} ${this.max}] split:${this.splitValue} ${this.isBlack ? 'black' : 'red'} ${this.items}`;
   }

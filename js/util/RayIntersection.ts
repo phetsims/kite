@@ -12,11 +12,11 @@ import { kite } from '../imports.js';
 
 export default class RayIntersection {
 
-  point: Vector2;
-  normal: Vector2;
-  distance: number;
-  wind: number;
-  t: number;
+  public point: Vector2;
+  public normal: Vector2;
+  public distance: number;
+  public wind: number;
+  public t: number;
 
   /**
    * @param distance - The distance between the ray's position and the point of intersection
@@ -28,7 +28,7 @@ export default class RayIntersection {
    *                        intersection via the non-zero fill rule.
    * @param t - Parametric value (for the segment) of the intersection
    */
-  constructor( distance: number, point: Vector2, normal: Vector2, wind: number, t: number ) {
+  public constructor( distance: number, point: Vector2, normal: Vector2, wind: number, t: number ) {
     assert && assert( typeof distance === 'number' && isFinite( distance ) && distance >= 0, 'invalid distance' );
     assert && assert( point instanceof Vector2, 'invalid point' );
     assert && assert( normal instanceof Vector2 && Math.abs( normal.magnitude - 1 ) < 1e-7, 'invalid normal' );

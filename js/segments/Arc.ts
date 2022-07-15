@@ -56,7 +56,7 @@ export default class Arc extends Segment {
    * @param endAngle - Angle (radians) of the end of the arc
    * @param anticlockwise - Decides which direction the arc takes around the center
    */
-  constructor( center: Vector2, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean ) {
+  public constructor( center: Vector2, radius: number, startAngle: number, endAngle: number, anticlockwise: boolean ) {
     super();
 
     this._center = center;
@@ -71,7 +71,7 @@ export default class Arc extends Segment {
   /**
    * Sets the center of the Arc.
    */
-  setCenter( center: Vector2 ): this {
+  public setCenter( center: Vector2 ): this {
     assert && assert( center instanceof Vector2, `Arc center should be a Vector2: ${center}` );
     assert && assert( center.isFinite(), `Arc center should be finite: ${center.toString()}` );
 
@@ -82,15 +82,15 @@ export default class Arc extends Segment {
     return this; // allow chaining
   }
 
-  set center( value: Vector2 ) { this.setCenter( value ); }
+  public set center( value: Vector2 ) { this.setCenter( value ); }
 
-  get center(): Vector2 { return this.getCenter(); }
+  public get center(): Vector2 { return this.getCenter(); }
 
 
   /**
    * Returns the center of this Arc.
    */
-  getCenter(): Vector2 {
+  public getCenter(): Vector2 {
     return this._center;
   }
 
@@ -98,7 +98,7 @@ export default class Arc extends Segment {
   /**
    * Sets the radius of the Arc.
    */
-  setRadius( radius: number ): this {
+  public setRadius( radius: number ): this {
     assert && assert( typeof radius === 'number', `Arc radius should be a number: ${radius}` );
     assert && assert( isFinite( radius ), `Arc radius should be a finite number: ${radius}` );
 
@@ -109,15 +109,15 @@ export default class Arc extends Segment {
     return this; // allow chaining
   }
 
-  set radius( value: number ) { this.setRadius( value ); }
+  public set radius( value: number ) { this.setRadius( value ); }
 
-  get radius(): number { return this.getRadius(); }
+  public get radius(): number { return this.getRadius(); }
 
 
   /**
    * Returns the radius of this Arc.
    */
-  getRadius(): number {
+  public getRadius(): number {
     return this._radius;
   }
 
@@ -125,7 +125,7 @@ export default class Arc extends Segment {
   /**
    * Sets the startAngle of the Arc.
    */
-  setStartAngle( startAngle: number ): this {
+  public setStartAngle( startAngle: number ): this {
     assert && assert( typeof startAngle === 'number', `Arc startAngle should be a number: ${startAngle}` );
     assert && assert( isFinite( startAngle ), `Arc startAngle should be a finite number: ${startAngle}` );
 
@@ -136,15 +136,15 @@ export default class Arc extends Segment {
     return this; // allow chaining
   }
 
-  set startAngle( value: number ) { this.setStartAngle( value ); }
+  public set startAngle( value: number ) { this.setStartAngle( value ); }
 
-  get startAngle(): number { return this.getStartAngle(); }
+  public get startAngle(): number { return this.getStartAngle(); }
 
 
   /**
    * Returns the startAngle of this Arc.
    */
-  getStartAngle(): number {
+  public getStartAngle(): number {
     return this._startAngle;
   }
 
@@ -152,7 +152,7 @@ export default class Arc extends Segment {
   /**
    * Sets the endAngle of the Arc.
    */
-  setEndAngle( endAngle: number ): this {
+  public setEndAngle( endAngle: number ): this {
     assert && assert( typeof endAngle === 'number', `Arc endAngle should be a number: ${endAngle}` );
     assert && assert( isFinite( endAngle ), `Arc endAngle should be a finite number: ${endAngle}` );
 
@@ -163,15 +163,15 @@ export default class Arc extends Segment {
     return this; // allow chaining
   }
 
-  set endAngle( value: number ) { this.setEndAngle( value ); }
+  public set endAngle( value: number ) { this.setEndAngle( value ); }
 
-  get endAngle(): number { return this.getEndAngle(); }
+  public get endAngle(): number { return this.getEndAngle(); }
 
 
   /**
    * Returns the endAngle of this Arc.
    */
-  getEndAngle(): number {
+  public getEndAngle(): number {
     return this._endAngle;
   }
 
@@ -179,7 +179,7 @@ export default class Arc extends Segment {
   /**
    * Sets the anticlockwise of the Arc.
    */
-  setAnticlockwise( anticlockwise: boolean ): this {
+  public setAnticlockwise( anticlockwise: boolean ): this {
     assert && assert( typeof anticlockwise === 'boolean', `Arc anticlockwise should be a boolean: ${anticlockwise}` );
 
     if ( this._anticlockwise !== anticlockwise ) {
@@ -189,14 +189,14 @@ export default class Arc extends Segment {
     return this; // allow chaining
   }
 
-  set anticlockwise( value: boolean ) { this.setAnticlockwise( value ); }
+  public set anticlockwise( value: boolean ) { this.setAnticlockwise( value ); }
 
-  get anticlockwise(): boolean { return this.getAnticlockwise(); }
+  public get anticlockwise(): boolean { return this.getAnticlockwise(); }
 
   /**
    * Returns the anticlockwise of this Arc.
    */
-  getAnticlockwise(): boolean {
+  public getAnticlockwise(): boolean {
     return this._anticlockwise;
   }
 
@@ -209,7 +209,7 @@ export default class Arc extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  positionAt( t: number ): Vector2 {
+  public positionAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'positionAt t should be non-negative' );
     assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
 
@@ -224,7 +224,7 @@ export default class Arc extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  tangentAt( t: number ): Vector2 {
+  public tangentAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'tangentAt t should be non-negative' );
     assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
@@ -242,7 +242,7 @@ export default class Arc extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  curvatureAt( t: number ): number {
+  public curvatureAt( t: number ): number {
     assert && assert( t >= 0, 'curvatureAt t should be non-negative' );
     assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
 
@@ -256,7 +256,7 @@ export default class Arc extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  subdivided( t: number ): Arc[] {
+  public subdivided( t: number ): Arc[] {
     assert && assert( t >= 0, 'subdivided t should be non-negative' );
     assert && assert( t <= 1, 'subdivided t should be no greater than 1' );
 
@@ -278,7 +278,7 @@ export default class Arc extends Segment {
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    */
-  invalidate(): void {
+  public invalidate(): void {
     this._start = null;
     this._end = null;
     this._startTangent = null;
@@ -321,74 +321,74 @@ export default class Arc extends Segment {
   /**
    * Gets the start position of this arc.
    */
-  getStart(): Vector2 {
+  public getStart(): Vector2 {
     if ( this._start === null ) {
       this._start = this.positionAtAngle( this._startAngle );
     }
     return this._start;
   }
 
-  get start(): Vector2 { return this.getStart(); }
+  public get start(): Vector2 { return this.getStart(); }
 
   /**
    * Gets the end position of this arc.
    */
-  getEnd(): Vector2 {
+  public getEnd(): Vector2 {
     if ( this._end === null ) {
       this._end = this.positionAtAngle( this._endAngle );
     }
     return this._end;
   }
 
-  get end(): Vector2 { return this.getEnd(); }
+  public get end(): Vector2 { return this.getEnd(); }
 
   /**
    * Gets the unit vector tangent to this arc at the start point.
    */
-  getStartTangent(): Vector2 {
+  public getStartTangent(): Vector2 {
     if ( this._startTangent === null ) {
       this._startTangent = this.tangentAtAngle( this._startAngle );
     }
     return this._startTangent;
   }
 
-  get startTangent(): Vector2 { return this.getStartTangent(); }
+  public get startTangent(): Vector2 { return this.getStartTangent(); }
 
   /**
    * Gets the unit vector tangent to the arc at the end point.
    */
-  getEndTangent(): Vector2 {
+  public getEndTangent(): Vector2 {
     if ( this._endTangent === null ) {
       this._endTangent = this.tangentAtAngle( this._endAngle );
     }
     return this._endTangent;
   }
 
-  get endTangent(): Vector2 { return this.getEndTangent(); }
+  public get endTangent(): Vector2 { return this.getEndTangent(); }
 
   /**
    * Gets the end angle in radians.
    */
-  getActualEndAngle(): number {
+  public getActualEndAngle(): number {
     if ( this._actualEndAngle === null ) {
       this._actualEndAngle = Arc.computeActualEndAngle( this._startAngle, this._endAngle, this._anticlockwise );
     }
     return this._actualEndAngle;
   }
 
-  get actualEndAngle(): number { return this.getActualEndAngle(); }
+  public get actualEndAngle(): number { return this.getActualEndAngle(); }
 
   /**
    * Returns a boolean value that indicates if the arc wraps up by more than two Pi.
    */
-  getIsFullPerimeter(): boolean {
+  public getIsFullPerimeter(): boolean {
     if ( this._isFullPerimeter === null ) {
       this._isFullPerimeter = ( !this._anticlockwise && this._endAngle - this._startAngle >= Math.PI * 2 ) || ( this._anticlockwise && this._startAngle - this._endAngle >= Math.PI * 2 );
     }
     return this._isFullPerimeter;
   }
 
-  get isFullPerimeter(): boolean { return this.getIsFullPerimeter(); }
+  public get isFullPerimeter(): boolean { return this.getIsFullPerimeter(); }
 
   /**
    * Returns an angle difference that represents how "much" of the circle our arc covers.
@@ -396,7 +396,7 @@ export default class Arc extends Segment {
    * The answer is always greater or equal to zero
    * The answer can exceed two Pi
    */
-  getAngleDifference(): number {
+  public getAngleDifference(): number {
     if ( this._angleDifference === null ) {
       // compute an angle difference that represents how "much" of the circle our arc covers
       this._angleDifference = this._anticlockwise ? this._startAngle - this._endAngle : this._endAngle - this._startAngle;
@@ -408,12 +408,12 @@ export default class Arc extends Segment {
     return this._angleDifference;
   }
 
-  get angleDifference(): number { return this.getAngleDifference(); }
+  public get angleDifference(): number { return this.getAngleDifference(); }
 
   /**
    * Returns the bounds of this segment.
    */
-  getBounds(): Bounds2 {
+  public getBounds(): Bounds2 {
     if ( this._bounds === null ) {
       // acceleration for intersection
       this._bounds = Bounds2.NOTHING.copy().withPoint( this.getStart() )
@@ -431,13 +431,13 @@ export default class Arc extends Segment {
     return this._bounds;
   }
 
-  get bounds(): Bounds2 { return this.getBounds(); }
+  public get bounds(): Bounds2 { return this.getBounds(); }
 
   /**
    * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
    * invalid or repeated segments.
    */
-  getNondegenerateSegments(): Arc[] {
+  public getNondegenerateSegments(): Arc[] {
     if ( this._radius <= 0 || this._startAngle === this._endAngle ) {
       return [];
     }
@@ -461,7 +461,7 @@ export default class Arc extends Segment {
   /**
    * Maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
    */
-  mapAngle( angle: number ): number {
+  public mapAngle( angle: number ): number {
     if ( Math.abs( Utils.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
       return this._startAngle;
     }
@@ -477,7 +477,7 @@ export default class Arc extends Segment {
   /**
    * Returns the parametrized value t for a given angle. The value t should range from 0 to 1 (inclusive).
    */
-  tAtAngle( angle: number ): number {
+  public tAtAngle( angle: number ): number {
     const t = ( this.mapAngle( angle ) - this._startAngle ) / ( this.getActualEndAngle() - this._startAngle );
 
     assert && assert( t >= 0 && t <= 1, `tAtAngle out of range: ${t}` );
@@ -488,7 +488,7 @@ export default class Arc extends Segment {
   /**
    * Returns the angle for the parametrized t value. The t value should range from 0 to 1 (inclusive).
    */
-  angleAt( t: number ): number {
+  public angleAt( t: number ): number {
     //TODO: add asserts
     return this._startAngle + ( this.getActualEndAngle() - this._startAngle ) * t;
   }
@@ -496,7 +496,7 @@ export default class Arc extends Segment {
   /**
    * Returns the position of this arc at angle.
    */
-  positionAtAngle( angle: number ): Vector2 {
+  public positionAtAngle( angle: number ): Vector2 {
     return this._center.plus( Vector2.createPolar( this._radius, angle ) );
   }
 
@@ -504,7 +504,7 @@ export default class Arc extends Segment {
    * Returns the normalized tangent of this arc.
    * The tangent points outward (inward) of this arc for clockwise (anticlockwise) direction.
    */
-  tangentAtAngle( angle: number ): Vector2 {
+  public tangentAtAngle( angle: number ): Vector2 {
     const normal = Vector2.createPolar( 1, angle );
 
     return this._anticlockwise ? normal.perpendicular : normal.perpendicular.negated();
@@ -514,7 +514,7 @@ export default class Arc extends Segment {
    * Returns whether the given angle is contained by the arc (whether a ray from the arc's origin going in that angle
    * will intersect the arc).
    */
-  containsAngle( angle: number ): boolean {
+  public containsAngle( angle: number ): boolean {
     // transform the angle into the appropriate coordinate form
     // TODO: check anticlockwise version!
     const normalizedAngle = this._anticlockwise ? angle - this._endAngle : angle - this._startAngle;
@@ -529,7 +529,7 @@ export default class Arc extends Segment {
    * Returns a string containing the SVG path. assumes that the start point is already provided,
    * so anything that calls this needs to put the M calls first
    */
-  getSVGPathFragment(): string {
+  public getSVGPathFragment(): string {
     let oldPathFragment;
     if ( assert ) {
       oldPathFragment = this._svgPathFragment;
@@ -576,14 +576,14 @@ export default class Arc extends Segment {
   /**
    * Returns an array of arcs that will draw an offset on the logical left side
    */
-  strokeLeft( lineWidth: number ): Arc[] {
+  public strokeLeft( lineWidth: number ): Arc[] {
     return [ new Arc( this._center, this._radius + ( this._anticlockwise ? 1 : -1 ) * lineWidth / 2, this._startAngle, this._endAngle, this._anticlockwise ) ];
   }
 
   /**
    * Returns an array of arcs that will draw an offset curve on the logical right side
    */
-  strokeRight( lineWidth: number ): Arc[] {
+  public strokeRight( lineWidth: number ): Arc[] {
     return [ new Arc( this._center, this._radius + ( this._anticlockwise ? -1 : 1 ) * lineWidth / 2, this._endAngle, this._startAngle, !this._anticlockwise ) ];
   }
 
@@ -591,7 +591,7 @@ export default class Arc extends Segment {
    * Returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
    * Does not include t=0 and t=1
    */
-  getInteriorExtremaTs(): number[] {
+  public getInteriorExtremaTs(): number[] {
     const result: number[] = [];
     _.each( [ 0, Math.PI / 2, Math.PI, 3 * Math.PI / 2 ], angle => {
       if ( this.containsAngle( angle ) ) {
@@ -609,7 +609,7 @@ export default class Arc extends Segment {
    * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
    * For details, see the documentation in Segment.js
    */
-  intersection( ray: Ray2 ): RayIntersection[] {
+  public intersection( ray: Ray2 ): RayIntersection[] {
     const result: RayIntersection[] = []; // hits in order
 
     // left here, if in the future we want to better-handle boundary points
@@ -668,7 +668,7 @@ export default class Arc extends Segment {
   /**
    * Returns the resultant winding number of this ray intersecting this arc.
    */
-  windingIntersection( ray: Ray2 ): number {
+  public windingIntersection( ray: Ray2 ): number {
     let wind = 0;
     const hits = this.intersection( ray );
     _.each( hits, hit => {
@@ -680,7 +680,7 @@ export default class Arc extends Segment {
   /**
    * Draws this arc to the 2D Canvas context, assuming the context's current location is already at the start point
    */
-  writeToContext( context: CanvasRenderingContext2D ): void {
+  public writeToContext( context: CanvasRenderingContext2D ): void {
     context.arc( this._center.x, this._center.y, this._radius, this._startAngle, this._endAngle, this._anticlockwise );
   }
 
@@ -689,7 +689,7 @@ export default class Arc extends Segment {
    *
    * TODO: test various transform types, especially rotations, scaling, shears, etc.
    */
-  transformed( matrix: Matrix3 ): Arc | EllipticalArc {
+  public transformed( matrix: Matrix3 ): Arc | EllipticalArc {
     // so we can handle reflections in the transform, we do the general case handling for start/end angles
     const startAngle = matrix.timesVector2( Vector2.createPolar( 1, this._startAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle;
     let endAngle = matrix.timesVector2( Vector2.createPolar( 1, this._endAngle ) ).minus( matrix.timesVector2( Vector2.ZERO ) ).angle;
@@ -718,7 +718,7 @@ export default class Arc extends Segment {
    *
    * NOTE: This is this segment's contribution to the line integral (-y/2 dx + x/2 dy).
    */
-  getSignedAreaFragment(): number {
+  public getSignedAreaFragment(): number {
     const t0 = this._startAngle;
     const t1 = this.getActualEndAngle();
 
@@ -731,28 +731,28 @@ export default class Arc extends Segment {
   /**
    * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
    */
-  reversed(): Arc {
+  public reversed(): Arc {
     return new Arc( this._center, this._radius, this._endAngle, this._startAngle, !this._anticlockwise );
   }
 
   /**
    * Returns the arc length of the segment.
    */
-  override getArcLength(): number {
+  public override getArcLength(): number {
     return this.getAngleDifference() * this._radius;
   }
 
   /**
    * We can handle this simply by returning ourselves.
    */
-  override toPiecewiseLinearOrArcSegments(): Segment[] {
+  public override toPiecewiseLinearOrArcSegments(): Segment[] {
     return [ this ];
   }
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
    */
-  serialize(): SerializedArc {
+  public serialize(): SerializedArc {
     return {
       type: 'Arc',
       centerX: this._center.x,
@@ -773,7 +773,7 @@ export default class Arc extends Segment {
    *                             in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
+  public getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
     if ( segment instanceof Arc ) {
       return Arc.getOverlaps( this, segment );
     }
@@ -784,7 +784,7 @@ export default class Arc extends Segment {
   /**
    * Returns an Arc from the serialized representation.
    */
-  static override deserialize( obj: SerializedArc ): Arc {
+  public static override deserialize( obj: SerializedArc ): Arc {
     assert && assert( obj.type === 'Arc' );
 
     return new Arc( new Vector2( obj.centerX, obj.centerY ), obj.radius, obj.startAngle, obj.endAngle, obj.anticlockwise );
@@ -796,7 +796,7 @@ export default class Arc extends Segment {
    * Normalizes the sign of the angles, so that the sign of ( endAngle - startAngle ) matches whether it is
    * anticlockwise.
    */
-  static computeActualEndAngle( startAngle: number, endAngle: number, anticlockwise: boolean ): number {
+  public static computeActualEndAngle( startAngle: number, endAngle: number, anticlockwise: boolean ): number {
     if ( anticlockwise ) {
       // angle is 'decreasing'
       // -2pi <= end - start < 2pi
@@ -876,7 +876,7 @@ export default class Arc extends Segment {
    * @param endAngle2 - "Actual" end angle of arc 2
    * @returns - Any overlaps (from 0 to 2)
    */
-  static getAngularOverlaps( startAngle1: number, endAngle1: number, startAngle2: number, endAngle2: number ): Overlap[] {
+  public static getAngularOverlaps( startAngle1: number, endAngle1: number, startAngle2: number, endAngle2: number ): Overlap[] {
     assert && assert( typeof startAngle1 === 'number' && isFinite( startAngle1 ) );
     assert && assert( typeof endAngle1 === 'number' && isFinite( endAngle1 ) );
     assert && assert( typeof startAngle2 === 'number' && isFinite( startAngle2 ) );
@@ -911,7 +911,7 @@ export default class Arc extends Segment {
    *
    * @returns - Any overlaps (from 0 to 2)
    */
-  static getOverlaps( arc1: Arc, arc2: Arc ): Overlap[] {
+  public static getOverlaps( arc1: Arc, arc2: Arc ): Overlap[] {
     assert && assert( arc1 instanceof Arc );
     assert && assert( arc2 instanceof Arc );
 
@@ -930,7 +930,7 @@ export default class Arc extends Segment {
    * @param center2 - Center of the second circle
    * @param radius2 - Radius of the second circle
    */
-  static getCircleIntersectionPoint( center1: Vector2, radius1: number, center2: Vector2, radius2: number ): Vector2[] {
+  public static getCircleIntersectionPoint( center1: Vector2, radius1: number, center2: Vector2, radius2: number ): Vector2[] {
     assert && assert( center1 instanceof Vector2 );
     assert && assert( typeof radius1 === 'number' && isFinite( radius1 ) && radius1 >= 0 );
     assert && assert( center2 instanceof Vector2 );
@@ -976,7 +976,7 @@ export default class Arc extends Segment {
   /**
    * Returns any (finite) intersection between the two arc segments.
    */
-  static override intersect( a: Arc, b: Arc ): SegmentIntersection[] {
+  public static override intersect( a: Arc, b: Arc ): SegmentIntersection[] {
     const epsilon = 1e-8;
 
     const results = [];
@@ -1026,7 +1026,7 @@ export default class Arc extends Segment {
    * Creates an Arc (or if straight enough a Line) segment that goes from the startPoint to the endPoint, touching
    * the middlePoint somewhere between the two.
    */
-  static createFromPoints( startPoint: Vector2, middlePoint: Vector2, endPoint: Vector2 ): Segment {
+  public static createFromPoints( startPoint: Vector2, middlePoint: Vector2, endPoint: Vector2 ): Segment {
     const center = Utils.circleCenterFromPoints( startPoint, middlePoint, endPoint );
 
     // Close enough

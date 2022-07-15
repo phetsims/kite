@@ -79,78 +79,78 @@ type PiecewiseLinearOrArcOptions = {
 
 export default abstract class Segment {
 
-  invalidationEmitter: TinyEmitter;
+  public invalidationEmitter: TinyEmitter;
 
   protected constructor() {
     this.invalidationEmitter = new TinyEmitter();
   }
 
   // The start point of the segment, parametrically at t=0.
-  abstract get start(): Vector2;
+  public abstract get start(): Vector2;
 
   // The end point of the segment, parametrically at t=1.
-  abstract get end(): Vector2;
+  public abstract get end(): Vector2;
 
   // The normalized tangent vector to the segment at its start point, pointing in the direction of motion (from start to
   // end).
-  abstract get startTangent(): Vector2;
+  public abstract get startTangent(): Vector2;
 
   // The normalized tangent vector to the segment at its end point, pointing in the direction of motion (from start to
   // end).
-  abstract get endTangent(): Vector2;
+  public abstract get endTangent(): Vector2;
 
   // The bounding box for the segment.
-  abstract get bounds(): Bounds2;
+  public abstract get bounds(): Bounds2;
 
   // Returns the position parametrically, with 0 <= t <= 1. NOTE that this function doesn't keep a constant magnitude
   // tangent.
-  abstract positionAt( t: number ): Vector2;
+  public abstract positionAt( t: number ): Vector2;
 
   // Returns the non-normalized tangent (dx/dt, dy/dt) of this segment at the parametric value of t, with 0 <= t <= 1.
-  abstract tangentAt( t: number ): Vector2;
+  public abstract tangentAt( t: number ): Vector2;
 
   // Returns the signed curvature (positive for visual clockwise - mathematical counterclockwise)
-  abstract curvatureAt( t: number ): number;
+  public abstract curvatureAt( t: number ): number;
 
   // Returns an array with up to 2 sub-segments, split at the parametric t value. The segments together should make the
   // same shape as the original segment.
-  abstract subdivided( t: number ): Segment[];
+  public abstract subdivided( t: number ): Segment[];
 
   // Returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls
   // this needs to put the M calls first
-  abstract getSVGPathFragment(): string;
+  public abstract getSVGPathFragment(): string;
 
   // Returns an array of segments that will draw an offset curve on the logical left side
-  abstract strokeLeft( lineWidth: number ): Segment[];
+  public abstract strokeLeft( lineWidth: number ): Segment[];
 
   // Returns an array of segments that will draw an offset curve on the logical right side
-  abstract strokeRight( lineWidth: number ): Segment[];
+  public abstract strokeRight( lineWidth: number ): Segment[];
 
   // Returns the winding number for intersection with a ray
-  abstract windingIntersection( ray: Ray2 ): number;
+  public abstract windingIntersection( ray: Ray2 ): number;
 
   // Returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic
   // segments
-  abstract getInteriorExtremaTs(): number[];
+  public abstract getInteriorExtremaTs(): number[];
 
   // Returns a list of intersections between the segment and the ray.
-  abstract intersection( ray: Ray2 ): RayIntersection[];
+  public abstract intersection( ray: Ray2 ): RayIntersection[];
 
   // Returns a {Bounds2} representing the bounding box for the segment.
-  abstract getBounds(): Bounds2;
+  public abstract getBounds(): Bounds2;
 
   // Returns signed area contribution for this segment using Green's Theorem
-  abstract getSignedAreaFragment(): number;
+  public abstract getSignedAreaFragment(): number;
 
   // Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
   // invalid or repeated segments.
-  abstract getNondegenerateSegments(): Segment[];
+  public abstract getNondegenerateSegments(): Segment[];
 
   // Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
-  abstract writeToContext( context: CanvasRenderingContext2D ): void;
+  public abstract writeToContext( context: CanvasRenderingContext2D ): void;
 
   // Returns a new segment that represents this segment after transformation by the matrix
-  abstract transformed( matrix: Matrix3 ): Segment;
+  public abstract transformed( matrix: Matrix3 ): Segment;
 
   /**
    * Will return true if the start/end tangents are purely vertical or horizontal. If all of the segments of a shape
@@ -158,7 +158,7 @@ export default abstract class Segment {
    * line joins will have the same bounds. This means that the stroked bounds will just be a pure dilation of the
    * regular bounds, by lineWidth / 2.
    */
-  areStrokedBoundsDilated(): boolean {
+  public areStrokedBoundsDilated(): boolean {
     const epsilon = 0.0000001;
 
     // If the derivative at the start/end are pointing in a cardinal direction (north/south/east/west), then the
@@ -169,7 +169,7 @@ export default abstract class Segment {
   /**
    * TODO: override everywhere so this isn't necessary (it's not particularly efficient!)
    */
-  getBoundsWithTransform( matrix: Matrix3 ): Bounds2 {
+  public getBoundsWithTransform( matrix: Matrix3 ): Bounds2 {
     const transformedSegment = this.transformed( matrix );
     return transformedSegment.getBounds();
   }
@@ -179,7 +179,7 @@ export default abstract class Segment {
    *
    * Given that this segment is represented by the interval [0,1]
    */
-  slice( t0: number, t1: number ): Segment {
+  public slice( t0: number, t1: number ): Segment {
     assert && assert( t0 >= 0 && t0 <= 1 && t1 >= 0 && t1 <= 1, 'Parametric value out of range' );
     assert && assert( t0 < t1 );
 
@@ -197,7 +197,7 @@ export default abstract class Segment {
   /**
    * @param tList - list of sorted t values from 0 <= t <= 1
    */
-  subdivisions( tList: number[] ): Segment[] {
+  public subdivisions( tList: number[] ): Segment[] {
     // this could be solved by recursion, but we don't plan on the JS engine doing tail-call optimization
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -223,7 +223,7 @@ export default abstract class Segment {
   /**
    * Return an array of segments from breaking this segment into monotone pieces
    */
-  subdividedIntoMonotone(): Segment[] {
+  public subdividedIntoMonotone(): Segment[] {
     return this.subdivisions( this.getInteriorExtremaTs() );
   }
 
@@ -235,7 +235,7 @@ export default abstract class Segment {
    * @param curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
    *                       between segments
    */
-  isSufficientlyFlat( distanceEpsilon: number, curveEpsilon: number ): boolean {
+  public isSufficientlyFlat( distanceEpsilon: number, curveEpsilon: number ): boolean {
     const start = this.start;
     const middle = this.positionAt( 0.5 );
     const end = this.end;
@@ -246,7 +246,7 @@ export default abstract class Segment {
   /**
    * Returns the (sometimes approximate) arc length of the segment.
    */
-  getArcLength( distanceEpsilon: number, curveEpsilon: number, maxLevels: number ): number {
+  public getArcLength( distanceEpsilon: number, curveEpsilon: number, maxLevels: number ): number {
     distanceEpsilon = distanceEpsilon === undefined ? 1e-10 : distanceEpsilon;
     curveEpsilon = curveEpsilon === undefined ? 1e-8 : curveEpsilon;
     maxLevels = maxLevels === undefined ? 15 : maxLevels;
@@ -273,7 +273,7 @@ export default abstract class Segment {
    * @param curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
    *                       between segments
    */
-  getDashValues( lineDash: number[], lineDashOffset: number, distanceEpsilon: number, curveEpsilon: number ): DashValues {
+  public getDashValues( lineDash: number[], lineDashOffset: number, distanceEpsilon: number, curveEpsilon: number ): DashValues {
     assert && assert( lineDash.length > 0, 'Do not call with an empty dash array' );
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -367,7 +367,7 @@ export default abstract class Segment {
    * @param [start]
    * @param [end]
    */
-  toPiecewiseLinearSegments( options: PiecewiseLinearOptions, minLevels?: number, maxLevels?: number, segments?: Line[], start?: Vector2, end?: Vector2 ): Line[] {
+  public toPiecewiseLinearSegments( options: PiecewiseLinearOptions, minLevels?: number, maxLevels?: number, segments?: Line[], start?: Vector2, end?: Vector2 ): Line[] {
     // for the first call, initialize min/max levels from our options
     minLevels = minLevels === undefined ? options.minLevels! : minLevels;
     maxLevels = maxLevels === undefined ? options.maxLevels! : maxLevels;
@@ -411,7 +411,7 @@ export default abstract class Segment {
   /**
    * Returns a list of Line and/or Arc segments that approximates this segment.
    */
-  toPiecewiseLinearOrArcSegments( providedOptions: PiecewiseLinearOrArcOptions ): Segment[] {
+  public toPiecewiseLinearOrArcSegments( providedOptions: PiecewiseLinearOrArcOptions ): Segment[] {
     const options = optionize<PiecewiseLinearOrArcOptions, PiecewiseLinearOrArcOptions, PiecewiseLinearOrArcRecursionOptions>()( {
       minLevels: 2,
       maxLevels: 7,
@@ -468,7 +468,7 @@ export default abstract class Segment {
   /**
    * Returns a Shape containing just this one segment.
    */
-  toShape(): Shape {
+  public toShape(): Shape {
     return new Shape( [ new Subpath( [ this ] ) ] );
   }
 
@@ -478,7 +478,7 @@ export default abstract class Segment {
    *
    * TODO: solve segments to determine this analytically!
    */
-  static closestToPoint( segments: Segment[], point: Vector2, threshold: number ): ClosestToPointResult[] {
+  public static closestToPoint( segments: Segment[], point: Vector2, threshold: number ): ClosestToPointResult[] {
     type Item = {
       ta: number;
       tb: number;
@@ -627,7 +627,7 @@ export default abstract class Segment {
    *
    * see Cubic.getOverlaps for more information.
    */
-  static polynomialGetOverlapCubic( p0s: number, p1s: number, p2s: number, p3s: number, q0s: number, q1s: number, q2s: number, q3s: number ): PossibleSimpleOverlap {
+  public static polynomialGetOverlapCubic( p0s: number, p1s: number, p2s: number, p3s: number, q0s: number, q1s: number, q2s: number, q3s: number ): PossibleSimpleOverlap {
     if ( q3s === 0 ) {
       return Segment.polynomialGetOverlapQuadratic( p0s, p1s, p2s, q0s, q1s, q2s );
     }
@@ -655,7 +655,7 @@ export default abstract class Segment {
    *
    * see Quadratic.getOverlaps for more information.
    */
-  static polynomialGetOverlapQuadratic( p0s: number, p1s: number, p2s: number, q0s: number, q1s: number, q2s: number ): PossibleSimpleOverlap {
+  public static polynomialGetOverlapQuadratic( p0s: number, p1s: number, p2s: number, q0s: number, q1s: number, q2s: number ): PossibleSimpleOverlap {
     if ( q2s === 0 ) {
       return Segment.polynomialGetOverlapLinear( p0s, p1s, q0s, q1s );
     }
@@ -688,7 +688,7 @@ export default abstract class Segment {
    *
    * see Quadratic/Cubic.getOverlaps for more information.
    */
-  static polynomialGetOverlapLinear( p0s: number, p1s: number, q0s: number, q1s: number ): PossibleSimpleOverlap {
+  public static polynomialGetOverlapLinear( p0s: number, p1s: number, q0s: number, q1s: number ): PossibleSimpleOverlap {
     if ( q1s === 0 ) {
       if ( p0s === q0s ) {
         return true;
@@ -713,7 +713,7 @@ export default abstract class Segment {
   /**
    * Returns all the distinct (non-endpoint, non-finite) intersections between the two segments.
    */
-  static intersect( a: Segment, b: Segment ): SegmentIntersection[] {
+  public static intersect( a: Segment, b: Segment ): SegmentIntersection[] {
     if ( Line && a instanceof Line && b instanceof Line ) {
       return Line.intersect( a, b );
     }
@@ -738,7 +738,7 @@ export default abstract class Segment {
   /**
    * Returns a Segment from the serialized representation.
    */
-  static deserialize( obj: any ): Segment {
+  public static deserialize( obj: any ): Segment {
     // @ts-ignore TODO: namespacing
     assert && assert( obj.type && kite[ obj.type ] && kite[ obj.type ].deserialize );
 
@@ -758,7 +758,7 @@ export default abstract class Segment {
    * @param curveEpsilon - controls level of subdivision by attempting to ensure a maximum curvature change
    *                       between segments
    */
-  static isSufficientlyFlat( distanceEpsilon: number, curveEpsilon: number, start: Vector2, middle: Vector2, end: Vector2 ): boolean {
+  public static isSufficientlyFlat( distanceEpsilon: number, curveEpsilon: number, start: Vector2, middle: Vector2, end: Vector2 ): boolean {
     // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
     if ( Utils.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) > curveEpsilon ) {
       return false;

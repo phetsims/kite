@@ -72,7 +72,7 @@ export default class EllipticalArc extends Segment {
    * @param endAngle - Angle (radians) of the end of the arc
    * @param anticlockwise - Decides which direction the arc takes around the center
    */
-  constructor( center: Vector2, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean ) {
+  public constructor( center: Vector2, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise: boolean ) {
     super();
 
     this._center = center;
@@ -89,7 +89,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Sets the center of the EllipticalArc.
    */
-  setCenter( center: Vector2 ): this {
+  public setCenter( center: Vector2 ): this {
     assert && assert( center instanceof Vector2, `EllipticalArc center should be a Vector2: ${center}` );
     assert && assert( center.isFinite(), `EllipticalArc center should be finite: ${center.toString()}` );
 
@@ -100,15 +100,15 @@ export default class EllipticalArc extends Segment {
     return this; // allow chaining
   }
 
-  set center( value: Vector2 ) { this.setCenter( value ); }
+  public set center( value: Vector2 ) { this.setCenter( value ); }
 
-  get center(): Vector2 { return this.getCenter(); }
+  public get center(): Vector2 { return this.getCenter(); }
 
 
   /**
    * Returns the center of this EllipticalArc.
    */
-  getCenter(): Vector2 {
+  public getCenter(): Vector2 {
     return this._center;
   }
 
@@ -116,7 +116,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Sets the semi-major radius of the EllipticalArc.
    */
-  setRadiusX( radiusX: number ): this {
+  public setRadiusX( radiusX: number ): this {
     assert && assert( typeof radiusX === 'number', `EllipticalArc radiusX should be a number: ${radiusX}` );
     assert && assert( isFinite( radiusX ), `EllipticalArc radiusX should be a finite number: ${radiusX}` );
 
@@ -127,15 +127,15 @@ export default class EllipticalArc extends Segment {
     return this; // allow chaining
   }
 
-  set radiusX( value: number ) { this.setRadiusX( value ); }
+  public set radiusX( value: number ) { this.setRadiusX( value ); }
 
-  get radiusX(): number { return this.getRadiusX(); }
+  public get radiusX(): number { return this.getRadiusX(); }
 
 
   /**
    * Returns the semi-major radius of this EllipticalArc.
    */
-  getRadiusX(): number {
+  public getRadiusX(): number {
     return this._radiusX;
   }
 
@@ -143,7 +143,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Sets the semi-minor radius of the EllipticalArc.
    */
-  setRadiusY( radiusY: number ): this {
+  public setRadiusY( radiusY: number ): this {
     assert && assert( typeof radiusY === 'number', `EllipticalArc radiusY should be a number: ${radiusY}` );
     assert && assert( isFinite( radiusY ), `EllipticalArc radiusY should be a finite number: ${radiusY}` );
 
@@ -154,14 +154,14 @@ export default class EllipticalArc extends Segment {
     return this; // allow chaining
   }
 
-  set radiusY( value: number ) { this.setRadiusY( value ); }
+  public set radiusY( value: number ) { this.setRadiusY( value ); }
 
-  get radiusY(): number { return this.getRadiusY(); }
+  public get radiusY(): number { return this.getRadiusY(); }
 
   /**
    * Returns the semi-minor radius of this EllipticalArc.
    */
-  getRadiusY(): number {
+  public getRadiusY(): number {
     return this._radiusY;
   }
 
@@ -169,7 +169,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Sets the rotation of the EllipticalArc.
    */
-  setRotation( rotation: number ): this {
+  public setRotation( rotation: number ): this {
     assert && assert( typeof rotation === 'number', `EllipticalArc rotation should be a number: ${rotation}` );
     assert && assert( isFinite( rotation ), `EllipticalArc rotation should be a finite number: ${rotation}` );
 
@@ -180,14 +180,14 @@ export default class EllipticalArc extends Segment {
     return this; // allow chaining
   }
 
-  set rotation( value: number ) { this.setRotation( value ); }
+  public set rotation( value: number ) { this.setRotation( value ); }
 
-  get rotation(): number { return this.getRotation(); }
+  public get rotation(): number { return this.getRotation(); }
 
   /**
    * Returns the rotation of this EllipticalArc.
    */
-  getRotation(): number {
+  public getRotation(): number {
     return this._rotation;
   }
 
@@ -195,7 +195,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Sets the startAngle of the EllipticalArc.
    */
-  setStartAngle( startAngle: number ): this {
+  public setStartAngle( startAngle: number ): this {
     assert && assert( typeof startAngle === 'number', `EllipticalArc startAngle should be a number: ${startAngle}` );
     assert && assert( isFinite( startAngle ), `EllipticalArc startAngle should be a finite number: ${startAngle}` );
 
@@ -206,14 +206,14 @@ export default class EllipticalArc extends Segment {
     return this; // allow chaining
   }
 
-  set startAngle( value: number ) { this.setStartAngle( value ); }
+  public set startAngle( value: number ) { this.setStartAngle( value ); }
 
-  get startAngle(): number { return this.getStartAngle(); }
+  public get startAngle(): number { return this.getStartAngle(); }
 
   /**
    * Returns the startAngle of this EllipticalArc.
    */
-  getStartAngle(): number {
+  public getStartAngle(): number {
     return this._startAngle;
   }
 
@@ -221,7 +221,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Sets the endAngle of the EllipticalArc.
    */
-  setEndAngle( endAngle: number ): this {
+  public setEndAngle( endAngle: number ): this {
     assert && assert( typeof endAngle === 'number', `EllipticalArc endAngle should be a number: ${endAngle}` );
     assert && assert( isFinite( endAngle ), `EllipticalArc endAngle should be a finite number: ${endAngle}` );
 
@@ -232,14 +232,14 @@ export default class EllipticalArc extends Segment {
     return this; // allow chaining
   }
 
-  set endAngle( value: number ) { this.setEndAngle( value ); }
+  public set endAngle( value: number ) { this.setEndAngle( value ); }
 
-  get endAngle(): number { return this.getEndAngle(); }
+  public get endAngle(): number { return this.getEndAngle(); }
 
   /**
    * Returns the endAngle of this EllipticalArc.
    */
-  getEndAngle(): number {
+  public getEndAngle(): number {
     return this._endAngle;
   }
 
@@ -247,7 +247,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Sets the anticlockwise of the EllipticalArc.
    */
-  setAnticlockwise( anticlockwise: boolean ): this {
+  public setAnticlockwise( anticlockwise: boolean ): this {
     assert && assert( typeof anticlockwise === 'boolean', `EllipticalArc anticlockwise should be a boolean: ${anticlockwise}` );
 
     if ( this._anticlockwise !== anticlockwise ) {
@@ -257,14 +257,14 @@ export default class EllipticalArc extends Segment {
     return this; // allow chaining
   }
 
-  set anticlockwise( value: boolean ) { this.setAnticlockwise( value ); }
+  public set anticlockwise( value: boolean ) { this.setAnticlockwise( value ); }
 
-  get anticlockwise(): boolean { return this.getAnticlockwise(); }
+  public get anticlockwise(): boolean { return this.getAnticlockwise(); }
 
   /**
    * Returns the anticlockwise of this EllipticalArc.
    */
-  getAnticlockwise(): boolean {
+  public getAnticlockwise(): boolean {
     return this._anticlockwise;
   }
 
@@ -277,7 +277,7 @@ export default class EllipticalArc extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  positionAt( t: number ): Vector2 {
+  public positionAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'positionAt t should be non-negative' );
     assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
 
@@ -292,7 +292,7 @@ export default class EllipticalArc extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  tangentAt( t: number ): Vector2 {
+  public tangentAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'tangentAt t should be non-negative' );
     assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
@@ -310,7 +310,7 @@ export default class EllipticalArc extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  curvatureAt( t: number ): number {
+  public curvatureAt( t: number ): number {
     assert && assert( t >= 0, 'curvatureAt t should be non-negative' );
     assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
 
@@ -328,7 +328,7 @@ export default class EllipticalArc extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  subdivided( t: number ): EllipticalArc[] {
+  public subdivided( t: number ): EllipticalArc[] {
     assert && assert( t >= 0, 'subdivided t should be non-negative' );
     assert && assert( t <= 1, 'subdivided t should be no greater than 1' );
 
@@ -350,7 +350,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    */
-  invalidate(): void {
+  public invalidate(): void {
 
     assert && assert( this._center instanceof Vector2, 'Arc center should be a Vector2' );
     assert && assert( this._center.isFinite(), 'Arc center should be finite (not NaN or infinite)' );
@@ -427,86 +427,86 @@ export default class EllipticalArc extends Segment {
    * Helpful, since we can get the parametric position of our unit circle (at t), and then transform it with this
    * transform to get the ellipse's parametric position (at t).
    */
-  getUnitTransform(): Transform3 {
+  public getUnitTransform(): Transform3 {
     if ( this._unitTransform === null ) {
       this._unitTransform = EllipticalArc.computeUnitTransform( this._center, this._radiusX, this._radiusY, this._rotation );
     }
     return this._unitTransform;
   }
 
-  get unitTransform(): Transform3 { return this.getUnitTransform(); }
+  public get unitTransform(): Transform3 { return this.getUnitTransform(); }
 
   /**
    * Gets the start point of this ellipticalArc
    */
-  getStart(): Vector2 {
+  public getStart(): Vector2 {
     if ( this._start === null ) {
       this._start = this.positionAtAngle( this._startAngle );
     }
     return this._start;
   }
 
-  get start(): Vector2 { return this.getStart(); }
+  public get start(): Vector2 { return this.getStart(); }
 
   /**
    * Gets the end point of this ellipticalArc
    */
-  getEnd(): Vector2 {
+  public getEnd(): Vector2 {
     if ( this._end === null ) {
       this._end = this.positionAtAngle( this._endAngle );
     }
     return this._end;
   }
 
-  get end(): Vector2 { return this.getEnd(); }
+  public get end(): Vector2 { return this.getEnd(); }
 
   /**
    * Gets the tangent vector (normalized) to this ellipticalArc at the start, pointing in the direction of motion (from start to end)
    */
-  getStartTangent(): Vector2 {
+  public getStartTangent(): Vector2 {
     if ( this._startTangent === null ) {
       this._startTangent = this.tangentAtAngle( this._startAngle );
     }
     return this._startTangent;
   }
 
-  get startTangent(): Vector2 { return this.getStartTangent(); }
+  public get startTangent(): Vector2 { return this.getStartTangent(); }
 
   /**
    * Gets the tangent vector (normalized) to this ellipticalArc at the end point, pointing in the direction of motion (from start to end)
    */
-  getEndTangent(): Vector2 {
+  public getEndTangent(): Vector2 {
     if ( this._endTangent === null ) {
       this._endTangent = this.tangentAtAngle( this._endAngle );
     }
     return this._endTangent;
   }
 
-  get endTangent(): Vector2 { return this.getEndTangent(); }
+  public get endTangent(): Vector2 { return this.getEndTangent(); }
 
   /**
    * Gets the end angle in radians
    */
-  getActualEndAngle(): number {
+  public getActualEndAngle(): number {
     if ( this._actualEndAngle === null ) {
       this._actualEndAngle = Arc.computeActualEndAngle( this._startAngle, this._endAngle, this._anticlockwise );
     }
     return this._actualEndAngle;
   }
 
-  get actualEndAngle(): number { return this.getActualEndAngle(); }
+  public get actualEndAngle(): number { return this.getActualEndAngle(); }
 
   /**
    * Returns a boolean value that indicates if the arc wraps up by more than two Pi
    */
-  getIsFullPerimeter(): boolean {
+  public getIsFullPerimeter(): boolean {
     if ( this._isFullPerimeter === null ) {
       this._isFullPerimeter = ( !this._anticlockwise && this._endAngle - this._startAngle >= Math.PI * 2 ) || ( this._anticlockwise && this._startAngle - this._endAngle >= Math.PI * 2 );
     }
     return this._isFullPerimeter;
   }
 
-  get isFullPerimeter(): boolean { return this.getIsFullPerimeter(); }
+  public get isFullPerimeter(): boolean { return this.getIsFullPerimeter(); }
 
   /**
    * Returns an angle difference that represents how "much" of the circle our arc covers
@@ -514,7 +514,7 @@ export default class EllipticalArc extends Segment {
    * The answer is always greater or equal to zero
    * The answer can exceed two Pi
    */
-  getAngleDifference(): number {
+  public getAngleDifference(): number {
     if ( this._angleDifference === null ) {
       // compute an angle difference that represents how "much" of the circle our arc covers
       this._angleDifference = this._anticlockwise ? this._startAngle - this._endAngle : this._endAngle - this._startAngle;
@@ -526,24 +526,24 @@ export default class EllipticalArc extends Segment {
     return this._angleDifference;
   }
 
-  get angleDifference(): number { return this.getAngleDifference(); }
+  public get angleDifference(): number { return this.getAngleDifference(); }
 
   /**
    * A unit arg segment that we can map to our ellipse. useful for hit testing and such.
    */
-  getUnitArcSegment(): Arc {
+  public getUnitArcSegment(): Arc {
     if ( this._unitArcSegment === null ) {
       this._unitArcSegment = new Arc( Vector2.ZERO, 1, this._startAngle, this._endAngle, this._anticlockwise );
     }
     return this._unitArcSegment;
   }
 
-  get unitArcSegment(): Arc { return this.getUnitArcSegment(); }
+  public get unitArcSegment(): Arc { return this.getUnitArcSegment(); }
 
   /**
    * Returns the bounds of this segment.
    */
-  getBounds(): Bounds2 {
+  public getBounds(): Bounds2 {
     if ( this._bounds === null ) {
       this._bounds = Bounds2.NOTHING.withPoint( this.getStart() )
         .withPoint( this.getEnd() );
@@ -569,13 +569,13 @@ export default class EllipticalArc extends Segment {
     return this._bounds;
   }
 
-  get bounds(): Bounds2 { return this.getBounds(); }
+  public get bounds(): Bounds2 { return this.getBounds(); }
 
   /**
    * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
    * invalid or repeated segments.
    */
-  getNondegenerateSegments(): Segment[] {
+  public getNondegenerateSegments(): Segment[] {
     if ( this._radiusX <= 0 || this._radiusY <= 0 || this._startAngle === this._endAngle ) {
       return [];
     }
@@ -612,7 +612,7 @@ export default class EllipticalArc extends Segment {
    *
    * TODO: remove duplication with Arc
    */
-  mapAngle( angle: number ): number {
+  public mapAngle( angle: number ): number {
     if ( Math.abs( Utils.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
       return this._startAngle;
     }
@@ -630,21 +630,21 @@ export default class EllipticalArc extends Segment {
    *
    * TODO: remove duplication with Arc
    */
-  tAtAngle( angle: number ): number {
+  public tAtAngle( angle: number ): number {
     return ( this.mapAngle( angle ) - this._startAngle ) / ( this.getActualEndAngle() - this._startAngle );
   }
 
   /**
    * Returns the angle for the parametrized t value. The t value should range from 0 to 1 (inclusive).
    */
-  angleAt( t: number ): number {
+  public angleAt( t: number ): number {
     return this._startAngle + ( this.getActualEndAngle() - this._startAngle ) * t;
   }
 
   /**
    * Returns the position of this arc at angle.
    */
-  positionAtAngle( angle: number ): Vector2 {
+  public positionAtAngle( angle: number ): Vector2 {
     return this.getUnitTransform().transformPosition2( Vector2.createPolar( 1, angle ) );
   }
 
@@ -652,7 +652,7 @@ export default class EllipticalArc extends Segment {
    * Returns the normalized tangent of this arc.
    * The tangent points outward (inward) of this arc for clockwise (anticlockwise) direction.
    */
-  tangentAtAngle( angle: number ): Vector2 {
+  public tangentAtAngle( angle: number ): Vector2 {
     const normal = this.getUnitTransform().transformNormal2( Vector2.createPolar( 1, angle ) );
 
     return this._anticlockwise ? normal.perpendicular : normal.perpendicular.negated();
@@ -665,7 +665,7 @@ export default class EllipticalArc extends Segment {
    * @param r - distance
    * @param reverse
    */
-  offsetTo( r: number, reverse: boolean ): Line[] {
+  public offsetTo( r: number, reverse: boolean ): Line[] {
     // how many segments to create (possibly make this more adaptive?)
     const quantity = 32;
 
@@ -691,7 +691,7 @@ export default class EllipticalArc extends Segment {
    * Returns a string containing the SVG path. assumes that the start point is already provided,
    * so anything that calls this needs to put the M calls first.
    */
-  getSVGPathFragment(): string {
+  public getSVGPathFragment(): string {
     let oldPathFragment;
     if ( assert ) {
       oldPathFragment = this._svgPathFragment;
@@ -740,14 +740,14 @@ export default class EllipticalArc extends Segment {
   /**
    * Returns an array of straight lines  that will draw an offset on the logical left side.
    */
-  strokeLeft( lineWidth: number ): Line[] {
+  public strokeLeft( lineWidth: number ): Line[] {
     return this.offsetTo( -lineWidth / 2, false );
   }
 
   /**
    * Returns an array of straight lines that will draw an offset curve on the logical right side.
    */
-  strokeRight( lineWidth: number ): Line[] {
+  public strokeRight( lineWidth: number ): Line[] {
     return this.offsetTo( lineWidth / 2, true );
   }
 
@@ -755,7 +755,7 @@ export default class EllipticalArc extends Segment {
    * Returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
    * Does not include t=0 and t=1.
    */
-  getInteriorExtremaTs(): number[] {
+  public getInteriorExtremaTs(): number[] {
     const result: number[] = [];
     _.each( this.possibleExtremaAngles, ( angle: number ) => {
       if ( this.unitArcSegment.containsAngle( angle ) ) {
@@ -773,7 +773,7 @@ export default class EllipticalArc extends Segment {
    * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
    * For details, see the documentation in Segment.js
    */
-  intersection( ray: Ray2 ): RayIntersection[] {
+  public intersection( ray: Ray2 ): RayIntersection[] {
     // be lazy. transform it into the space of a non-elliptical arc.
     const unitTransform = this.getUnitTransform();
     const rayInUnitCircleSpace = unitTransform.inverseRay2( ray );
@@ -790,7 +790,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Returns the resultant winding number of this ray intersecting this arc.
    */
-  windingIntersection( ray: Ray2 ): number {
+  public windingIntersection( ray: Ray2 ): number {
     // be lazy. transform it into the space of a non-elliptical arc.
     const rayInUnitCircleSpace = this.getUnitTransform().inverseRay2( ray );
     return this.getUnitArcSegment().windingIntersection( rayInUnitCircleSpace );
@@ -799,7 +799,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Draws this arc to the 2D Canvas context, assuming the context's current location is already at the start point
    */
-  writeToContext( context: CanvasRenderingContext2D ): void {
+  public writeToContext( context: CanvasRenderingContext2D ): void {
     if ( context.ellipse ) {
       context.ellipse( this._center.x, this._center.y, this._radiusX, this._radiusY, this._rotation, this._startAngle, this._endAngle, this._anticlockwise );
     }
@@ -814,7 +814,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Returns this elliptical arc transformed by a matrix
    */
-  transformed( matrix: Matrix3 ): EllipticalArc {
+  public transformed( matrix: Matrix3 ): EllipticalArc {
     const transformedSemiMajorAxis = matrix.timesVector2( Vector2.createPolar( this._radiusX, this._rotation ) ).minus( matrix.timesVector2( Vector2.ZERO ) );
     const transformedSemiMinorAxis = matrix.timesVector2( Vector2.createPolar( this._radiusY, this._rotation + Math.PI / 2 ) ).minus( matrix.timesVector2( Vector2.ZERO ) );
     const rotation = transformedSemiMajorAxis.angle;
@@ -841,7 +841,7 @@ export default class EllipticalArc extends Segment {
    *
    * NOTE: This is this segment's contribution to the line integral (-y/2 dx + x/2 dy).
    */
-  getSignedAreaFragment(): number {
+  public getSignedAreaFragment(): number {
     const t0 = this._startAngle;
     const t1 = this.getActualEndAngle();
 
@@ -861,14 +861,14 @@ export default class EllipticalArc extends Segment {
   /**
    * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
    */
-  reversed(): EllipticalArc {
+  public reversed(): EllipticalArc {
     return new EllipticalArc( this._center, this._radiusX, this._radiusY, this._rotation, this._endAngle, this._startAngle, !this._anticlockwise );
   }
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
    */
-  serialize(): SerializedEllipticalArc {
+  public serialize(): SerializedEllipticalArc {
     return {
       type: 'EllipticalArc',
       centerX: this._center.x,
@@ -891,7 +891,7 @@ export default class EllipticalArc extends Segment {
    *                             in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
+  public getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
     if ( segment instanceof EllipticalArc ) {
       return EllipticalArc.getOverlaps( this, segment );
     }
@@ -902,7 +902,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Returns an EllipticalArc from the serialized representation.
    */
-  static override deserialize( obj: SerializedEllipticalArc ): EllipticalArc {
+  public static override deserialize( obj: SerializedEllipticalArc ): EllipticalArc {
     assert && assert( obj.type === 'EllipticalArc' );
 
     return new EllipticalArc( new Vector2( obj.centerX, obj.centerY ), obj.radiusX, obj.radiusY, obj.rotation, obj.startAngle, obj.endAngle, obj.anticlockwise );
@@ -912,7 +912,7 @@ export default class EllipticalArc extends Segment {
    * Returns what type of overlap is possible based on the center/radii/rotation. We ignore the start/end angles and
    * anticlockwise information, and determine if the FULL ellipses overlap.
    */
-  static getOverlapType( a: EllipticalArc, b: EllipticalArc, epsilon = 1e-10 ): EllipticalArcOverlapType {
+  public static getOverlapType( a: EllipticalArc, b: EllipticalArc, epsilon = 1e-10 ): EllipticalArcOverlapType {
     assert && assert( a instanceof EllipticalArc );
     assert && assert( b instanceof EllipticalArc );
 
@@ -946,7 +946,7 @@ export default class EllipticalArc extends Segment {
    *
    * @returns - Any overlaps (from 0 to 2)
    */
-  static getOverlaps( a: EllipticalArc, b: EllipticalArc ): Overlap[] {
+  public static getOverlaps( a: EllipticalArc, b: EllipticalArc ): Overlap[] {
     assert && assert( a instanceof EllipticalArc );
     assert && assert( b instanceof EllipticalArc );
 
@@ -964,7 +964,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Returns any (finite) intersection between the two elliptical arc segments.
    */
-  static override intersect( a: EllipticalArc, b: EllipticalArc, epsilon = 1e-10 ): SegmentIntersection[] {
+  public static override intersect( a: EllipticalArc, b: EllipticalArc, epsilon = 1e-10 ): SegmentIntersection[] {
     assert && assert( a instanceof EllipticalArc );
     assert && assert( b instanceof EllipticalArc );
 
@@ -1005,7 +1005,7 @@ export default class EllipticalArc extends Segment {
    *
    * adapted from http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
    */
-  static computeUnitTransform( center: Vector2, radiusX: number, radiusY: number, rotation: number ): Transform3 {
+  public static computeUnitTransform( center: Vector2, radiusX: number, radiusY: number, rotation: number ): Transform3 {
     return new Transform3( Matrix3.translation( center.x, center.y ) // TODO: convert to Matrix3.translation( this._center) when available
       .timesMatrix( Matrix3.rotation2( rotation ) )
       .timesMatrix( Matrix3.scaling( radiusX, radiusY ) ) );
@@ -1014,15 +1014,15 @@ export default class EllipticalArc extends Segment {
 
 export class EllipticalArcOverlapType extends EnumerationValue {
   // radiusX of one equals radiusX of the other, with equivalent centers and rotations to work
-  static MATCHING_OVERLAP = new EllipticalArcOverlapType();
+  public static MATCHING_OVERLAP = new EllipticalArcOverlapType();
 
   // radiusX of one equals radiusY of the other, with equivalent centers and rotations to work
-  static OPPOSITE_OVERLAP = new EllipticalArcOverlapType();
+  public static OPPOSITE_OVERLAP = new EllipticalArcOverlapType();
 
   // no overlap
-  static NONE = new EllipticalArcOverlapType();
+  public static NONE = new EllipticalArcOverlapType();
 
-  static enumeration = new Enumeration( EllipticalArcOverlapType );
+  public static enumeration = new Enumeration( EllipticalArcOverlapType );
 }
 
 kite.register( 'EllipticalArc', EllipticalArc );

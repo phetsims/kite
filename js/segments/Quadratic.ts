@@ -53,7 +53,7 @@ export default class Quadratic extends Segment {
    * @param control - Control point (curve usually doesn't go through here)
    * @param end - End point of the quadratic bezier
    */
-  constructor( start: Vector2, control: Vector2, end: Vector2 ) {
+  public constructor( start: Vector2, control: Vector2, end: Vector2 ) {
     super();
 
     this._start = start;
@@ -66,7 +66,7 @@ export default class Quadratic extends Segment {
   /**
    * Sets the start point of the Quadratic.
    */
-  setStart( start: Vector2 ): this {
+  public setStart( start: Vector2 ): this {
     assert && assert( start instanceof Vector2, `Quadratic start should be a Vector2: ${start}` );
     assert && assert( start.isFinite(), `Quadratic start should be finite: ${start.toString()}` );
 
@@ -77,14 +77,14 @@ export default class Quadratic extends Segment {
     return this; // allow chaining
   }
 
-  set start( value: Vector2 ) { this.setStart( value ); }
+  public set start( value: Vector2 ) { this.setStart( value ); }
 
-  get start(): Vector2 { return this.getStart(); }
+  public get start(): Vector2 { return this.getStart(); }
 
   /**
    * Returns the start of this Quadratic.
    */
-  getStart(): Vector2 {
+  public getStart(): Vector2 {
     return this._start;
   }
 
@@ -92,7 +92,7 @@ export default class Quadratic extends Segment {
   /**
    * Sets the control point of the Quadratic.
    */
-  setControl( control: Vector2 ): this {
+  public setControl( control: Vector2 ): this {
     assert && assert( control instanceof Vector2, `Quadratic control should be a Vector2: ${control}` );
     assert && assert( control.isFinite(), `Quadratic control should be finite: ${control.toString()}` );
 
@@ -103,14 +103,14 @@ export default class Quadratic extends Segment {
     return this; // allow chaining
   }
 
-  set control( value: Vector2 ) { this.setControl( value ); }
+  public set control( value: Vector2 ) { this.setControl( value ); }
 
-  get control(): Vector2 { return this.getControl(); }
+  public get control(): Vector2 { return this.getControl(); }
 
   /**
    * Returns the control point of this Quadratic.
    */
-  getControl(): Vector2 {
+  public getControl(): Vector2 {
     return this._control;
   }
 
@@ -118,7 +118,7 @@ export default class Quadratic extends Segment {
   /**
    * Sets the end point of the Quadratic.
    */
-  setEnd( end: Vector2 ): this {
+  public setEnd( end: Vector2 ): this {
     assert && assert( end instanceof Vector2, `Quadratic end should be a Vector2: ${end}` );
     assert && assert( end.isFinite(), `Quadratic end should be finite: ${end.toString()}` );
 
@@ -129,14 +129,14 @@ export default class Quadratic extends Segment {
     return this; // allow chaining
   }
 
-  set end( value: Vector2 ) { this.setEnd( value ); }
+  public set end( value: Vector2 ) { this.setEnd( value ); }
 
-  get end(): Vector2 { return this.getEnd(); }
+  public get end(): Vector2 { return this.getEnd(); }
 
   /**
    * Returns the end of this Quadratic.
    */
-  getEnd(): Vector2 {
+  public getEnd(): Vector2 {
     return this._end;
   }
 
@@ -149,7 +149,7 @@ export default class Quadratic extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  positionAt( t: number ): Vector2 {
+  public positionAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'positionAt t should be non-negative' );
     assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
 
@@ -167,7 +167,7 @@ export default class Quadratic extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  tangentAt( t: number ): Vector2 {
+  public tangentAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'tangentAt t should be non-negative' );
     assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
@@ -187,7 +187,7 @@ export default class Quadratic extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  curvatureAt( t: number ): number {
+  public curvatureAt( t: number ): number {
     assert && assert( t >= 0, 'curvatureAt t should be non-negative' );
     assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
 
@@ -215,7 +215,7 @@ export default class Quadratic extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  subdivided( t: number ): Quadratic[] {
+  public subdivided( t: number ): Quadratic[] {
     assert && assert( t >= 0, 'subdivided t should be non-negative' );
     assert && assert( t <= 1, 'subdivided t should be no greater than 1' );
 
@@ -237,7 +237,7 @@ export default class Quadratic extends Segment {
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    */
-  invalidate(): void {
+  public invalidate(): void {
     assert && assert( this._start instanceof Vector2, `Quadratic start should be a Vector2: ${this._start}` );
     assert && assert( this._start.isFinite(), `Quadratic start should be finite: ${this._start.toString()}` );
     assert && assert( this._control instanceof Vector2, `Quadratic control should be a Vector2: ${this._control}` );
@@ -260,7 +260,7 @@ export default class Quadratic extends Segment {
   /**
    * Returns the tangent vector (normalized) to the segment at the start, pointing in the direction of motion (from start to end)
    */
-  getStartTangent(): Vector2 {
+  public getStartTangent(): Vector2 {
     if ( this._startTangent === null ) {
       const controlIsStart = this._start.equals( this._control );
       // TODO: allocation reduction
@@ -271,12 +271,12 @@ export default class Quadratic extends Segment {
     return this._startTangent;
   }
 
-  get startTangent(): Vector2 { return this.getStartTangent(); }
+  public get startTangent(): Vector2 { return this.getStartTangent(); }
 
   /**
    * Returns the tangent vector (normalized) to the segment at the end, pointing in the direction of motion (from start to end)
    */
-  getEndTangent(): Vector2 {
+  public getEndTangent(): Vector2 {
     if ( this._endTangent === null ) {
       const controlIsEnd = this._end.equals( this._control );
       // TODO: allocation reduction
@@ -287,9 +287,9 @@ export default class Quadratic extends Segment {
     return this._endTangent;
   }
 
-  get endTangent(): Vector2 { return this.getEndTangent(); }
+  public get endTangent(): Vector2 { return this.getEndTangent(); }
 
-  getTCriticalX(): number {
+  public getTCriticalX(): number {
     // compute x where the derivative is 0 (used for bounds and other things)
     if ( this._tCriticalX === null ) {
       this._tCriticalX = Quadratic.extremaT( this._start.x, this._control.x, this._end.x );
@@ -297,9 +297,9 @@ export default class Quadratic extends Segment {
     return this._tCriticalX;
   }
 
-  get tCriticalX(): number { return this.getTCriticalX(); }
+  public get tCriticalX(): number { return this.getTCriticalX(); }
 
-  getTCriticalY(): number {
+  public getTCriticalY(): number {
     // compute y where the derivative is 0 (used for bounds and other things)
     if ( this._tCriticalY === null ) {
       this._tCriticalY = Quadratic.extremaT( this._start.y, this._control.y, this._end.y );
@@ -307,13 +307,13 @@ export default class Quadratic extends Segment {
     return this._tCriticalY;
   }
 
-  get tCriticalY(): number { return this.getTCriticalY(); }
+  public get tCriticalY(): number { return this.getTCriticalY(); }
 
   /**
    * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
    * invalid or repeated segments.
    */
-  getNondegenerateSegments(): Segment[] {
+  public getNondegenerateSegments(): Segment[] {
     const start = this._start;
     const control = this._control;
     const end = this._end;
@@ -367,7 +367,7 @@ export default class Quadratic extends Segment {
   /**
    * Returns the bounds of this segment.
    */
-  getBounds(): Bounds2 {
+  public getBounds(): Bounds2 {
     // calculate our temporary guaranteed lower bounds based on the end points
     if ( this._bounds === null ) {
       this._bounds = new Bounds2( Math.min( this._start.x, this._end.x ), Math.min( this._start.y, this._end.y ), Math.max( this._start.x, this._end.x ), Math.max( this._start.y, this._end.y ) );
@@ -386,7 +386,7 @@ export default class Quadratic extends Segment {
     return this._bounds;
   }
 
-  get bounds(): Bounds2 { return this.getBounds(); }
+  public get bounds(): Bounds2 { return this.getBounds(); }
 
   // see http://www.visgraf.impa.br/sibgrapi96/trabs/pdf/a14.pdf
   // and http://math.stackexchange.com/questions/12186/arc-length-of-bezier-curves for curvature / arc length
@@ -397,7 +397,7 @@ export default class Quadratic extends Segment {
    * @param r - distance
    * @param reverse
    */
-  offsetTo( r: number, reverse: boolean ): Quadratic[] {
+  public offsetTo( r: number, reverse: boolean ): Quadratic[] {
     // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html
     // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
     let curves: Quadratic[] = [ this ];
@@ -421,7 +421,7 @@ export default class Quadratic extends Segment {
   /**
    * Elevation of this quadratic Bezier curve to a cubic Bezier curve
    */
-  degreeElevated(): Cubic {
+  public degreeElevated(): Cubic {
     // TODO: allocation reduction
     return new Cubic(
       this._start,
@@ -434,7 +434,7 @@ export default class Quadratic extends Segment {
   /**
    * @param r - distance
    */
-  approximateOffset( r: number ): Quadratic {
+  public approximateOffset( r: number ): Quadratic {
     return new Quadratic(
       this._start.plus( ( this._start.equals( this._control ) ? this._end.minus( this._start ) : this._control.minus( this._start ) ).perpendicular.normalized().times( r ) ),
       this._control.plus( this._end.minus( this._start ).perpendicular.normalized().times( r ) ),
@@ -445,7 +445,7 @@ export default class Quadratic extends Segment {
   /**
    * Returns a string containing the SVG path. assumes that the start point is already provided, so anything that calls this needs to put the M calls first
    */
-  getSVGPathFragment(): string {
+  public getSVGPathFragment(): string {
     let oldPathFragment;
     if ( assert ) {
       oldPathFragment = this._svgPathFragment;
@@ -466,18 +466,18 @@ export default class Quadratic extends Segment {
   /**
    * Returns an array of lines that will draw an offset curve on the logical left side
    */
-  strokeLeft( lineWidth: number ): Quadratic[] {
+  public strokeLeft( lineWidth: number ): Quadratic[] {
     return this.offsetTo( -lineWidth / 2, false );
   }
 
   /**
    * Returns an array of lines that will draw an offset curve on the logical right side
    */
-  strokeRight( lineWidth: number ): Quadratic[] {
+  public strokeRight( lineWidth: number ): Quadratic[] {
     return this.offsetTo( lineWidth / 2, true );
   }
 
-  getInteriorExtremaTs(): number[] {
+  public getInteriorExtremaTs(): number[] {
     // TODO: we assume here we are reduce, so that a criticalX doesn't equal a criticalY?
     const result = [];
     const epsilon = 0.0000000001; // TODO: general kite epsilon?
@@ -498,7 +498,7 @@ export default class Quadratic extends Segment {
    * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
    * For details, see the documentation in Segment.js
    */
-  intersection( ray: Ray2 ): RayIntersection[] {
+  public intersection( ray: Ray2 ): RayIntersection[] {
     const result: RayIntersection[] = [];
 
     // find the rotation that will put our ray in the direction of the x-axis so we can only solve for y=0 for intersections
@@ -536,7 +536,7 @@ export default class Quadratic extends Segment {
   /**
    * Returns the winding number for intersection with a ray
    */
-  windingIntersection( ray: Ray2 ): number {
+  public windingIntersection( ray: Ray2 ): number {
     let wind = 0;
     const hits = this.intersection( ray );
     _.each( hits, hit => {
@@ -548,14 +548,14 @@ export default class Quadratic extends Segment {
   /**
    * Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
    */
-  writeToContext( context: CanvasRenderingContext2D ): void {
+  public writeToContext( context: CanvasRenderingContext2D ): void {
     context.quadraticCurveTo( this._control.x, this._control.y, this._end.x, this._end.y );
   }
 
   /**
    * Returns a new quadratic that represents this quadratic after transformation by the matrix
    */
-  transformed( matrix: Matrix3 ): Quadratic {
+  public transformed( matrix: Matrix3 ): Quadratic {
     return new Quadratic( matrix.timesVector2( this._start ), matrix.timesVector2( this._control ), matrix.timesVector2( this._end ) );
   }
 
@@ -564,7 +564,7 @@ export default class Quadratic extends Segment {
    *
    * NOTE: This is this segment's contribution to the line integral (-y/2 dx + x/2 dy).
    */
-  getSignedAreaFragment(): number {
+  public getSignedAreaFragment(): number {
     return 1 / 6 * (
       this._start.x * ( 2 * this._control.y + this._end.y ) +
       this._control.x * ( -2 * this._start.y + 2 * this._end.y ) +
@@ -575,7 +575,7 @@ export default class Quadratic extends Segment {
   /**
    * Given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
    */
-  reparameterized( a: number, b: number ): Quadratic {
+  public reparameterized( a: number, b: number ): Quadratic {
     // to the polynomial pt^2 + qt + r:
     const p = this._start.plus( this._end.plus( this._control.timesScalar( -2 ) ) );
     const q = this._control.minus( this._start ).timesScalar( 2 );
@@ -593,14 +593,14 @@ export default class Quadratic extends Segment {
   /**
    * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
    */
-  reversed(): Quadratic {
+  public reversed(): Quadratic {
     return new Quadratic( this._end, this._control, this._start );
   }
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
    */
-  serialize(): SerializedQuadratic {
+  public serialize(): SerializedQuadratic {
     return {
       type: 'Quadratic',
       startX: this._start.x,
@@ -620,7 +620,7 @@ export default class Quadratic extends Segment {
    * @param [epsilon] - Will return overlaps only if no two corresponding points differ by this amount or more in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
+  public getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
     if ( segment instanceof Quadratic ) {
       return Quadratic.getOverlaps( this, segment );
     }
@@ -631,7 +631,7 @@ export default class Quadratic extends Segment {
   /**
    * Returns a Quadratic from the serialized representation.
    */
-  static override deserialize( obj: SerializedQuadratic ): Quadratic {
+  public static override deserialize( obj: SerializedQuadratic ): Quadratic {
     assert && assert( obj.type === 'Quadratic' );
 
     return new Quadratic( new Vector2( obj.startX, obj.startY ), new Vector2( obj.controlX, obj.controlY ), new Vector2( obj.endX, obj.endY ) );
@@ -640,7 +640,7 @@ export default class Quadratic extends Segment {
   /**
    * One-dimensional solution to extrema
    */
-  static extremaT( start: number, control: number, end: number ): number {
+  public static extremaT( start: number, control: number, end: number ): number {
     // compute t where the derivative is 0 (used for bounds and other things)
     const divisorX = 2 * ( end - 2 * control + start );
     if ( divisorX !== 0 ) {
@@ -664,7 +664,7 @@ export default class Quadratic extends Segment {
    *                             in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  static getOverlaps( quadratic1: Quadratic, quadratic2: Quadratic, epsilon = 1e-6 ): Overlap[] {
+  public static getOverlaps( quadratic1: Quadratic, quadratic2: Quadratic, epsilon = 1e-6 ): Overlap[] {
     assert && assert( quadratic1 instanceof Quadratic, 'first Quadratic is not an instance of Quadratic' );
     assert && assert( quadratic2 instanceof Quadratic, 'second Quadratic is not an instance of Quadratic' );
 
@@ -766,7 +766,7 @@ export default class Quadratic extends Segment {
   }
 
   // Degree of the polynomial (quadratic)
-  degree!: number;
+  public degree!: number;
 }
 
 Quadratic.prototype.degree = 2;

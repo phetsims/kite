@@ -20,19 +20,19 @@ type ActiveBoundsIntersection = {
 export default class BoundsIntersection {
 
   // Null if cleaned of references
-  a!: Segment | null;
-  b!: Segment | null;
+  public a!: Segment | null;
+  public b!: Segment | null;
 
-  atMin!: number;
-  atMax!: number;
-  btMin!: number;
-  btMax!: number;
+  public atMin!: number;
+  public atMax!: number;
+  public btMin!: number;
+  public btMax!: number;
 
   // Null if cleaned of references
-  aMin!: Vector2 | null;
-  aMax!: Vector2 | null;
-  bMin!: Vector2 | null;
-  bMax!: Vector2 | null;
+  public aMin!: Vector2 | null;
+  public aMax!: Vector2 | null;
+  public bMin!: Vector2 | null;
+  public bMax!: Vector2 | null;
 
   /**
    * @param a
@@ -46,7 +46,7 @@ export default class BoundsIntersection {
    * @param bMin - Location of the lower t value for the 'b' segment's region
    * @param bMax - Location of the higher t value for the 'b' segment's region
    */
-  constructor( a: Segment, b: Segment, atMin: number, atMax: number, btMin: number, btMax: number, aMin: Vector2, aMax: Vector2, bMin: Vector2, bMax: Vector2 ) {
+  public constructor( a: Segment, b: Segment, atMin: number, atMax: number, btMin: number, btMax: number, aMin: Vector2, aMax: Vector2, bMin: Vector2, bMax: Vector2 ) {
     this.initialize( a, b, atMin, atMax, btMin, btMax, aMin, aMax, bMin, bMax );
   }
 
@@ -63,7 +63,7 @@ export default class BoundsIntersection {
    * @param bMax - Location of the higher t value for the 'b' segment's region
    * @returns -  This reference for chaining
    */
-  initialize( a: Segment, b: Segment, atMin: number, atMax: number, btMin: number, btMax: number, aMin: Vector2, aMax: Vector2, bMin: Vector2, bMax: Vector2 ): BoundsIntersection {
+  public initialize( a: Segment, b: Segment, atMin: number, atMax: number, btMin: number, btMax: number, aMin: Vector2, aMax: Vector2, bMin: Vector2, bMax: Vector2 ): BoundsIntersection {
     assert && assert( typeof atMin === 'number' );
     assert && assert( typeof atMax === 'number' );
     assert && assert( typeof btMin === 'number' );
@@ -134,7 +134,7 @@ export default class BoundsIntersection {
   /**
    * A measure of distance between this and another intersection.
    */
-  distance( otherIntersection: BoundsIntersection ): number {
+  public distance( otherIntersection: BoundsIntersection ): number {
     const daMin = this.atMin - otherIntersection.atMin;
     const daMax = this.atMax - otherIntersection.atMax;
     const dbMin = this.btMin - otherIntersection.btMin;
@@ -145,7 +145,7 @@ export default class BoundsIntersection {
   /**
    * Removes references (so it can allow other objects to be GC'ed or pooled)
    */
-  clean(): void {
+  public clean(): void {
     this.a = null;
     this.b = null;
     this.aMin = null;
@@ -160,7 +160,7 @@ export default class BoundsIntersection {
    * Does repeated subdivision and excludes a-b region pairs that don't intersect. Doing this repeatedly narrows down
    * intersections, to the point that they can be combined for a fairly accurate answer.
    */
-  static intersect( a: Segment, b: Segment ): SegmentIntersection[] {
+  public static intersect( a: Segment, b: Segment ): SegmentIntersection[] {
     if ( !a.bounds.intersectsBounds( b.bounds ) ) {
       return [];
     }
@@ -297,11 +297,11 @@ export default class BoundsIntersection {
     }
   }
 
-  freeToPool(): void {
+  public freeToPool(): void {
     BoundsIntersection.pool.freeToPool( this );
   }
 
-  static pool = new Pool( BoundsIntersection );
+  public static pool = new Pool( BoundsIntersection );
 }
 
 kite.register( 'BoundsIntersection', BoundsIntersection );

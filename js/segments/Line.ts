@@ -36,7 +36,7 @@ export default class Line extends Segment {
    * @param start - Start point
    * @param end - End point
    */
-  constructor( start: Vector2, end: Vector2 ) {
+  public constructor( start: Vector2, end: Vector2 ) {
     super();
 
     this._start = start;
@@ -48,7 +48,7 @@ export default class Line extends Segment {
   /**
    * Sets the start point of the Line.
    */
-  setStart( start: Vector2 ): this {
+  public setStart( start: Vector2 ): this {
     assert && assert( start instanceof Vector2, `Line start should be a Vector2: ${start}` );
     assert && assert( start.isFinite(), `Line start should be finite: ${start.toString()}` );
 
@@ -59,14 +59,14 @@ export default class Line extends Segment {
     return this; // allow chaining
   }
 
-  set start( value: Vector2 ) { this.setStart( value ); }
+  public set start( value: Vector2 ) { this.setStart( value ); }
 
-  get start(): Vector2 { return this.getStart(); }
+  public get start(): Vector2 { return this.getStart(); }
 
   /**
    * Returns the start of this Line.
    */
-  getStart(): Vector2 {
+  public getStart(): Vector2 {
     return this._start;
   }
 
@@ -74,7 +74,7 @@ export default class Line extends Segment {
   /**
    * Sets the end point of the Line.
    */
-  setEnd( end: Vector2 ): this {
+  public setEnd( end: Vector2 ): this {
     assert && assert( end instanceof Vector2, `Line end should be a Vector2: ${end}` );
     assert && assert( end.isFinite(), `Line end should be finite: ${end.toString()}` );
 
@@ -85,14 +85,14 @@ export default class Line extends Segment {
     return this; // allow chaining
   }
 
-  set end( value: Vector2 ) { this.setEnd( value ); }
+  public set end( value: Vector2 ) { this.setEnd( value ); }
 
-  get end(): Vector2 { return this.getEnd(); }
+  public get end(): Vector2 { return this.getEnd(); }
 
   /**
    * Returns the end of this Line.
    */
-  getEnd(): Vector2 {
+  public getEnd(): Vector2 {
     return this._end;
   }
 
@@ -105,7 +105,7 @@ export default class Line extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  positionAt( t: number ): Vector2 {
+  public positionAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'positionAt t should be non-negative' );
     assert && assert( t <= 1, 'positionAt t should be no greater than 1' );
 
@@ -120,7 +120,7 @@ export default class Line extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  tangentAt( t: number ): Vector2 {
+  public tangentAt( t: number ): Vector2 {
     assert && assert( t >= 0, 'tangentAt t should be non-negative' );
     assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
@@ -139,7 +139,7 @@ export default class Line extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  curvatureAt( t: number ): number {
+  public curvatureAt( t: number ): number {
     assert && assert( t >= 0, 'curvatureAt t should be non-negative' );
     assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
 
@@ -152,7 +152,7 @@ export default class Line extends Segment {
    *
    * This method is part of the Segment API. See Segment.js's constructor for more API documentation.
    */
-  subdivided( t: number ): Segment[] {
+  public subdivided( t: number ): Segment[] {
     assert && assert( t >= 0, 'subdivided t should be non-negative' );
     assert && assert( t <= 1, 'subdivided t should be no greater than 1' );
 
@@ -171,7 +171,7 @@ export default class Line extends Segment {
   /**
    * Clears cached information, should be called when any of the 'constructor arguments' are mutated.
    */
-  invalidate(): void {
+  public invalidate(): void {
     assert && assert( this._start instanceof Vector2, `Line start should be a Vector2: ${this._start}` );
     assert && assert( this._start.isFinite(), `Line start should be finite: ${this._start.toString()}` );
     assert && assert( this._end instanceof Vector2, `Line end should be a Vector2: ${this._end}` );
@@ -189,7 +189,7 @@ export default class Line extends Segment {
    * Returns a normalized unit vector that is tangent to this line (at the starting point)
    * the unit vectors points toward the end points.
    */
-  getStartTangent(): Vector2 {
+  public getStartTangent(): Vector2 {
     if ( this._tangent === null ) {
       // TODO: allocation reduction
       this._tangent = this._end.minus( this._start ).normalized();
@@ -197,22 +197,22 @@ export default class Line extends Segment {
     return this._tangent;
   }
 
-  get startTangent(): Vector2 { return this.getStartTangent(); }
+  public get startTangent(): Vector2 { return this.getStartTangent(); }
 
   /**
    * Returns the normalized unit vector that is tangent to this line
    * same as getStartTangent, since this is a straight line
    */
-  getEndTangent(): Vector2 {
+  public getEndTangent(): Vector2 {
     return this.getStartTangent();
   }
 
-  get endTangent(): Vector2 { return this.getEndTangent(); }
+  public get endTangent(): Vector2 { return this.getEndTangent(); }
 
   /**
    * Returns the bounds of this segment.
    */
-  getBounds(): Bounds2 {
+  public getBounds(): Bounds2 {
     // TODO: allocation reduction
     if ( this._bounds === null ) {
       this._bounds = Bounds2.NOTHING.copy().addPoint( this._start ).addPoint( this._end );
@@ -220,12 +220,12 @@ export default class Line extends Segment {
     return this._bounds;
   }
 
-  get bounds(): Bounds2 { return this.getBounds(); }
+  public get bounds(): Bounds2 { return this.getBounds(); }
 
   /**
    * Returns the bounding box for this transformed Line
    */
-  override getBoundsWithTransform( matrix: Matrix3 ): Bounds2 {
+  public override getBoundsWithTransform( matrix: Matrix3 ): Bounds2 {
     // uses mutable calls
     const bounds = Bounds2.NOTHING.copy();
     bounds.addPoint( matrix.multiplyVector2( scratchVector2.set( this._start ) ) );
@@ -237,7 +237,7 @@ export default class Line extends Segment {
    * Returns a list of non-degenerate segments that are equivalent to this segment. Generally gets rid (or simplifies)
    * invalid or repeated segments.
    */
-  getNondegenerateSegments(): Segment[] {
+  public getNondegenerateSegments(): Segment[] {
     // if it is degenerate (0-length), just ignore it
     if ( this._start.equals( this._end ) ) {
       return [];
@@ -251,7 +251,7 @@ export default class Line extends Segment {
    * Returns a string containing the SVG path. assumes that the start point is already provided,
    * so anything that calls this needs to put the M calls first
    */
-  getSVGPathFragment(): string {
+  public getSVGPathFragment(): string {
     let oldPathFragment;
     if ( assert ) {
       oldPathFragment = this._svgPathFragment;
@@ -271,7 +271,7 @@ export default class Line extends Segment {
   /**
    * Returns an array of Line that will draw an offset curve on the logical left side
    */
-  strokeLeft( lineWidth: number ): Line[] {
+  public strokeLeft( lineWidth: number ): Line[] {
     const offset = this.getEndTangent().perpendicular.negated().times( lineWidth / 2 );
     return [ new Line( this._start.plus( offset ), this._end.plus( offset ) ) ];
   }
@@ -279,7 +279,7 @@ export default class Line extends Segment {
   /**
    * Returns an array of Line that will draw an offset curve on the logical right side
    */
-  strokeRight( lineWidth: number ): Line[] {
+  public strokeRight( lineWidth: number ): Line[] {
     const offset = this.getStartTangent().perpendicular.times( lineWidth / 2 );
     return [ new Line( this._end.plus( offset ), this._start.plus( offset ) ) ];
   }
@@ -288,13 +288,13 @@ export default class Line extends Segment {
    * In general, this method returns a list of t values where dx/dt or dy/dt is 0 where 0 < t < 1. subdividing on these will result in monotonic segments
    * Since lines are already monotone, it returns an empty array.
    */
-  getInteriorExtremaTs(): number[] { return []; }
+  public getInteriorExtremaTs(): number[] { return []; }
 
   /**
    * Hit-tests this segment with the ray. An array of all intersections of the ray with this segment will be returned.
    * For details, see the documentation in Segment.js
    */
-  intersection( ray: Ray2 ): RayIntersection[] {
+  public intersection( ray: Ray2 ): RayIntersection[] {
     // We solve for the parametric line-line intersection, and then ensure the parameters are within both
     // the line segment and forwards from the ray.
 
@@ -345,7 +345,7 @@ export default class Line extends Segment {
   /**
    * Returns the resultant winding number of a ray intersecting this line.
    */
-  windingIntersection( ray: Ray2 ): number {
+  public windingIntersection( ray: Ray2 ): number {
     const hits = this.intersection( ray );
     if ( hits.length ) {
       return hits[ 0 ].wind;
@@ -358,21 +358,21 @@ export default class Line extends Segment {
   /**
    * Draws this line to the 2D Canvas context, assuming the context's current location is already at the start point
    */
-  writeToContext( context: CanvasRenderingContext2D ): void {
+  public writeToContext( context: CanvasRenderingContext2D ): void {
     context.lineTo( this._end.x, this._end.y );
   }
 
   /**
    * Returns a new Line that represents this line after transformation by the matrix
    */
-  transformed( matrix: Matrix3 ): Line {
+  public transformed( matrix: Matrix3 ): Line {
     return new Line( matrix.timesVector2( this._start ), matrix.timesVector2( this._end ) );
   }
 
   /**
    * Returns an object that gives information about the closest point (on a line segment) to the point argument
    */
-  explicitClosestToPoint( point: Vector2 ): ClosestToPointResult[] {
+  public explicitClosestToPoint( point: Vector2 ): ClosestToPointResult[] {
     const diff = this._end.minus( this._start );
     let t = point.minus( this._start ).dot( diff ) / diff.magnitudeSquared;
     t = Utils.clamp( t, 0, 1 );
@@ -392,21 +392,21 @@ export default class Line extends Segment {
    *
    * NOTE: This is this segment's contribution to the line integral (-y/2 dx + x/2 dy).
    */
-  getSignedAreaFragment(): number {
+  public getSignedAreaFragment(): number {
     return 1 / 2 * ( this._start.x * this._end.y - this._start.y * this._end.x );
   }
 
   /**
    * Given the current curve parameterized by t, will return a curve parameterized by x where t = a * x + b
    */
-  reparameterized( a: number, b: number ): Line {
+  public reparameterized( a: number, b: number ): Line {
     return new Line( this.positionAt( b ), this.positionAt( a + b ) );
   }
 
   /**
    * Returns a reversed copy of this segment (mapping the parametrization from [0,1] => [1,0]).
    */
-  reversed(): Line {
+  public reversed(): Line {
     return new Line( this._end, this._start );
   }
 
@@ -416,7 +416,7 @@ export default class Line extends Segment {
    *
    * E.g. a polar line (0,1) to (2 Pi,1) would be mapped to a circle of radius 1
    */
-  polarToCartesian( options: PiecewiseLinearOptions ): Segment[] {
+  public polarToCartesian( options: PiecewiseLinearOptions ): Segment[] {
     // x represent an angle whereas y represent a radius
     if ( this._start.x === this._end.x ) {
       // angle is the same, we are still a line segment!
@@ -434,21 +434,21 @@ export default class Line extends Segment {
   /**
    * Returns the arc length of the segment.
    */
-  override getArcLength(): number {
+  public override getArcLength(): number {
     return this.start.distance( this.end );
   }
 
   /**
    * We can handle this simply by returning ourselves.
    */
-  override toPiecewiseLinearOrArcSegments(): Segment[] {
+  public override toPiecewiseLinearOrArcSegments(): Segment[] {
     return [ this ];
   }
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
    */
-  serialize(): SerializedLine {
+  public serialize(): SerializedLine {
     return {
       type: 'Line',
       startX: this._start.x,
@@ -467,7 +467,7 @@ export default class Line extends Segment {
    *                             in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
+  public getOverlaps( segment: Segment, epsilon = 1e-6 ): Overlap[] | null {
     if ( segment instanceof Line ) {
       return Line.getOverlaps( this, segment );
     }
@@ -478,7 +478,7 @@ export default class Line extends Segment {
   /**
    * Returns a Line from the serialized representation.
    */
-  static override deserialize( obj: SerializedLine ): Line {
+  public static override deserialize( obj: SerializedLine ): Line {
     assert && assert( obj.type === 'Line' );
 
     return new Line( new Vector2( obj.startX, obj.startY ), new Vector2( obj.endX, obj.endY ) );
@@ -494,7 +494,7 @@ export default class Line extends Segment {
    *                             in one component.
    * @returns - The solution, if there is one (and only one)
    */
-  static getOverlaps( line1: Line, line2: Line, epsilon = 1e-6 ): Overlap[] {
+  public static getOverlaps( line1: Line, line2: Line, epsilon = 1e-6 ): Overlap[] {
     assert && assert( line1 instanceof Line, 'first Line is not an instance of Line' );
     assert && assert( line2 instanceof Line, 'second Line is not an instance of Line' );
 
@@ -572,7 +572,7 @@ export default class Line extends Segment {
   /**
    * Returns any (finite) intersection between the two line segments.
    */
-  static override intersect( a: Line, b: Line ): SegmentIntersection[] {
+  public static override intersect( a: Line, b: Line ): SegmentIntersection[] {
     assert && assert( a instanceof Line );
     assert && assert( b instanceof Line );
 
@@ -596,7 +596,7 @@ export default class Line extends Segment {
    *
    * This should be more optimized than the general intersection routine of arbitrary segments.
    */
-  static intersectOther( line: Line, other: Segment ): SegmentIntersection[] {
+  public static intersectOther( line: Line, other: Segment ): SegmentIntersection[] {
     assert && assert( line instanceof Line );
     assert && assert( other instanceof Segment );
 

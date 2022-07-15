@@ -10,14 +10,14 @@ import { kite } from '../imports.js';
 
 export default class Overlap {
 
-  a: number;
-  b: number;
+  public a: number;
+  public b: number;
 
   // Initial and ending t-values for the first curve (t0,t1) and second curve (qt0,qt1).
-  t0: number;
-  t1: number;
-  qt0: number;
-  qt1: number;
+  public t0: number;
+  public t1: number;
+  public qt0: number;
+  public qt1: number;
 
   /**
    * Creates an overlap based on two segments with their t-values (parametric value) within the range of [0,1]
@@ -29,7 +29,7 @@ export default class Overlap {
    * - first( t1 ) === second( qt1 )
    * - All of those t values are in the range [0,1]
    */
-  constructor( a: number, b: number ) {
+  public constructor( a: number, b: number ) {
     assert && assert( typeof a === 'number' && isFinite( a ) && a !== 0,
       'a should be a finite non-zero number' );
     assert && assert( typeof b === 'number' && isFinite( b ),
@@ -93,21 +93,21 @@ export default class Overlap {
   /**
    * Maps a t value from the first curve to the second curve (assuming it is within the overlap range).
    */
-  apply( t: number ): number {
+  public apply( t: number ): number {
     return this.a * t + this.b;
   }
 
   /**
    * Maps a t value from the second curve to the first curve (assuming it is within the overlap range).
    */
-  applyInverse( t: number ): number {
+  public applyInverse( t: number ): number {
     return ( t - this.b ) / this.a;
   }
 
   /**
    * Returns a new overlap that should map t values of a0 => b0 and a1 => b1
    */
-  static createLinear( a0: number, b0: number, a1: number, b1: number ): Overlap {
+  public static createLinear( a0: number, b0: number, a1: number, b1: number ): Overlap {
     const factor = ( b1 - b0 ) / ( a1 - a0 );
     return new Overlap( factor, b0 - a0 * factor );
   }

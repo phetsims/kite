@@ -39,34 +39,34 @@ export type LineStylesOptions = {
 export default class LineStyles {
 
   // The width of the line (will be offset to each side by lineWidth/2)
-  lineWidth: number;
+  public lineWidth: number;
 
   // 'butt', 'round' or 'square' - Controls appearance at endpoints for non-closed subpaths.
   // - butt: straight-line at end point, going through the endpoint (perpendicular to the tangent)
   // - round: circular border with radius lineWidth/2 around endpoints
   // - square: straight-line past the end point (by lineWidth/2)
   // See: https://svgwg.org/svg2-draft/painting.html#LineCaps
-  lineCap: LineCap;
+  public lineCap: LineCap;
 
   // 'miter', 'round' or 'bevel' - Controls appearance at joints between segments (at the point)
   // - miter: Use sharp corners (which aren't too sharp, see miterLimit). Extends edges until they meed.
   // - round: circular border with radius lineWidth/2 around joints
   // - bevel: directly joins the gap with a line segment.
   // See: https://svgwg.org/svg2-draft/painting.html#LineJoin
-  lineJoin: LineJoin;
+  public lineJoin: LineJoin;
 
   // Even values in the array are the "dash" length, odd values are the "gap" length.
   // NOTE: If there is an odd number of entries, it behaves like lineDash.concat( lineDash ).
   // See: https://svgwg.org/svg2-draft/painting.html#StrokeDashing
-  lineDash: number[];
+  public lineDash: number[];
 
   // Offset from the start of the subpath where the start of the line-dash array starts.
-  lineDashOffset: number;
+  public lineDashOffset: number;
 
   // When to cut off lineJoin:miter to look like lineJoin:bevel. See https://svgwg.org/svg2-draft/painting.html
-  miterLimit: number;
+  public miterLimit: number;
 
-  constructor( options?: LineStylesOptions ) {
+  public constructor( options?: LineStylesOptions ) {
     const filledOptions = merge( {}, DEFAULT_OPTIONS, options ) as Required<LineStylesOptions>;
 
     this.lineWidth = filledOptions.lineWidth;
@@ -95,7 +95,7 @@ export default class LineStyles {
   /**
    * Determines of this lineStyles is equal to the other LineStyles
    */
-  equals( other: LineStyles ): boolean {
+  public equals( other: LineStyles ): boolean {
     const typical = this.lineWidth === other.lineWidth &&
                     this.lineCap === other.lineCap &&
                     this.lineJoin === other.lineJoin &&
@@ -123,7 +123,7 @@ export default class LineStyles {
   /**
    * Returns a copy of this LineStyles.
    */
-  copy(): LineStyles {
+  public copy(): LineStyles {
     return new LineStyles( {
       lineWidth: this.lineWidth,
       lineCap: this.lineCap,
@@ -140,7 +140,7 @@ export default class LineStyles {
    * Joins two segments together on the logical "left" side, at 'center' (where they meet), and un-normalized tangent
    * vectors in the direction of the stroking. To join on the "right" side, switch the tangent order and negate them.
    */
-  leftJoin( center: Vector2, fromTangent: Vector2, toTangent: Vector2 ): Segment[] {
+  public leftJoin( center: Vector2, fromTangent: Vector2, toTangent: Vector2 ): Segment[] {
     fromTangent = fromTangent.normalized();
     toTangent = toTangent.normalized();
 
@@ -203,14 +203,14 @@ export default class LineStyles {
    * Joins two segments together on the logical "right" side, at 'center' (where they meet), and normalized tangent
    * vectors in the direction of the stroking. To join on the "left" side, switch the tangent order and negate them.
    */
-  rightJoin( center: Vector2, fromTangent: Vector2, toTangent: Vector2 ): Segment[] {
+  public rightJoin( center: Vector2, fromTangent: Vector2, toTangent: Vector2 ): Segment[] {
     return this.leftJoin( center, toTangent.negated(), fromTangent.negated() );
   }
 
   /**
    * Creates an array of Segments that make up a line cap from the endpoint 'center' in the direction of the tangent
    */
-  cap( center: Vector2, tangent: Vector2 ): Segment[] {
+  public cap( center: Vector2, tangent: Vector2 ): Segment[] {
     tangent = tangent.normalized();
 
     const fromPoint = center.plus( tangent.perpendicular.times( -this.lineWidth / 2 ) );
