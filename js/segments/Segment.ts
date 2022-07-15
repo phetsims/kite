@@ -549,9 +549,9 @@ export default abstract class Segment {
       // whether all of the segments processed are shorter than the threshold
       thresholdOk = true;
 
-      _.each( curItems, item => {
+      for ( const item of curItems ) {
         if ( item.min > bestDistanceSquared ) {
-          return; // drop this item
+          continue; // drop this item
         }
         if ( thresholdOk && item.pa.distanceSquared( item.pb ) > thresholdSquared ) {
           thresholdOk = false;
@@ -596,7 +596,7 @@ export default abstract class Segment {
             max: maxB
           } );
         }
-      } );
+      }
     }
 
     // if there are any closest regions, they are within the threshold, so we will add them all
