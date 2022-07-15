@@ -16,7 +16,8 @@ import Ray2 from '../../../dot/js/Ray2.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import optionize from '../../../phet-core/js/optionize.js';
-import { kite, BoundsIntersection, Shape, RayIntersection, Subpath, Line, SegmentIntersection, Arc, EllipticalArc } from '../imports.js';
+import IntentionalAny from '../../../phet-core/js/types/IntentionalAny.js';
+import { Arc, BoundsIntersection, EllipticalArc, kite, Line, RayIntersection, SegmentIntersection, Shape, Subpath } from '../imports.js';
 
 type DashValues = {
 
@@ -738,7 +739,7 @@ export default abstract class Segment {
   /**
    * Returns a Segment from the serialized representation.
    */
-  public static deserialize( obj: any ): Segment {
+  public static deserialize( obj: IntentionalAny ): Segment {
     // @ts-ignore TODO: namespacing
     assert && assert( obj.type && kite[ obj.type ] && kite[ obj.type ].deserialize );
 
