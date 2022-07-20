@@ -15,7 +15,7 @@ import Matrix3 from '../../../dot/js/Matrix3.js';
 import Ray2 from '../../../dot/js/Ray2.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import { kite, BoundsIntersection, Overlap, RayIntersection, SegmentIntersection, svgNumber, Quadratic, Segment, Line } from '../imports.js';
+import { BoundsIntersection, kite, Line, Overlap, Quadratic, RayIntersection, Segment, SegmentIntersection, svgNumber } from '../imports.js';
 
 const solveQuadraticRootsReal = Utils.solveQuadraticRootsReal; // function that returns an array of number
 const solveCubicRootsReal = Utils.solveCubicRootsReal; // function that returns an array of number

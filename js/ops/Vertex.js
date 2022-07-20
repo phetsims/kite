@@ -9,8 +9,8 @@
  */
 
 import Vector2 from '../../../dot/js/Vector2.js';
-import Poolable from '../../../phet-core/js/Poolable.js';
 import cleanArray from '../../../phet-core/js/cleanArray.js';
+import Poolable from '../../../phet-core/js/Poolable.js';
 import { kite, Line } from '../imports.js';
 
 let globaId = 0;

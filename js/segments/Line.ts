@@ -11,7 +11,7 @@ import Matrix3 from '../../../dot/js/Matrix3.js';
 import Ray2 from '../../../dot/js/Ray2.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import { kite, Arc, svgNumber, RayIntersection, SegmentIntersection, ClosestToPointResult, PiecewiseLinearOptions, Segment, Overlap } from '../imports.js';
+import { Arc, ClosestToPointResult, kite, Overlap, PiecewiseLinearOptions, RayIntersection, Segment, SegmentIntersection, svgNumber } from '../imports.js';
 
 const scratchVector2 = new Vector2( 0, 0 );
 

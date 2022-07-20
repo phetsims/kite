@@ -11,7 +11,7 @@ import Matrix3 from '../../../dot/js/Matrix3.js';
 import Ray2 from '../../../dot/js/Ray2.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import { kite, Overlap, RayIntersection, SegmentIntersection, svgNumber, Line, Segment, EllipticalArc } from '../imports.js';
+import { EllipticalArc, kite, Line, Overlap, RayIntersection, Segment, SegmentIntersection, svgNumber } from '../imports.js';
 
 // TODO: See if we should use this more
 const TWO_PI = Math.PI * 2;

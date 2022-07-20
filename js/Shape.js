@@ -23,7 +23,7 @@ import Bounds2 from '../../dot/js/Bounds2.js';
 import Ray2 from '../../dot/js/Ray2.js';
 import Vector2 from '../../dot/js/Vector2.js';
 import merge from '../../phet-core/js/merge.js';
-import { kite, Graph, svgPath, Arc, Cubic, EllipticalArc, Line, Quadratic, LineStyles, Subpath, svgNumber } from './imports.js';
+import { Arc, Cubic, EllipticalArc, Graph, kite, Line, LineStyles, Quadratic, Subpath, svgNumber, svgPath } from './imports.js';
 
 //  (We can't get joist's random reference here)
 const randomSource = Math.random; // eslint-disable-line bad-sim-text

@@ -13,7 +13,7 @@ import Matrix3 from '../../../dot/js/Matrix3.js';
 import Ray2 from '../../../dot/js/Ray2.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import { kite, Overlap, RayIntersection, svgNumber, Segment, Line, Cubic } from '../imports.js';
+import { Cubic, kite, Line, Overlap, RayIntersection, Segment, svgNumber } from '../imports.js';
 
 // constants
 const solveQuadraticRootsReal = Utils.solveQuadraticRootsReal;
