@@ -136,7 +136,7 @@ class Vertex {
   }
 
   /**
-   * Comparse two edges for sortEdges. Should have executed that first, as it relies on information looked up in that
+   * Compare two edges for sortEdges. Should have executed that first, as it relies on information looked up in that
    * process.
    * @public
    *
