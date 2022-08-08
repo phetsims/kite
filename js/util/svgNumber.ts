@@ -11,7 +11,7 @@
 
 import { kite } from '../imports.js';
 
-const svgNumber = ( n: number ) => {
+const svgNumber = ( n: number ): string => {
   return n.toFixed( 20 ); // eslint-disable-line bad-sim-text
 };
 
