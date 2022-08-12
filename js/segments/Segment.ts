@@ -9,7 +9,7 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import IEmitter from '../../../axon/js/IEmitter.js';
+import TEmitter from '../../../axon/js/TEmitter.js';
 import TinyEmitter from '../../../axon/js/TinyEmitter.js';
 import Bounds2 from '../../../dot/js/Bounds2.js';
 import Matrix3 from '../../../dot/js/Matrix3.js';
@@ -81,7 +81,7 @@ type PiecewiseLinearOrArcOptions = {
 
 export default abstract class Segment {
 
-  public invalidationEmitter: IEmitter;
+  public invalidationEmitter: TEmitter;
 
   protected constructor() {
     this.invalidationEmitter = new TinyEmitter();
