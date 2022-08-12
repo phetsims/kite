@@ -20,7 +20,7 @@ const solveQuadraticRootsReal = Utils.solveQuadraticRootsReal;
 const arePointsCollinear = Utils.arePointsCollinear;
 
 // Used in multiple filters
-function isBetween0And1( t: number ) {
+function isBetween0And1( t: number ): boolean {
   return t >= 0 && t <= 1;
 }
 

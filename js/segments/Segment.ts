@@ -298,7 +298,7 @@ export default abstract class Segment {
     let dashOffset = 0;
     let isInside = true;
 
-    function nextDashIndex() {
+    function nextDashIndex(): void {
       dashIndex = ( dashIndex + 1 ) % lineDash.length;
       isInside = !isInside;
     }
@@ -775,6 +775,6 @@ export default abstract class Segment {
 
 kite.register( 'Segment', Segment );
 
-function swapSegmentIntersection( segmentIntersection: SegmentIntersection ) {
+function swapSegmentIntersection( segmentIntersection: SegmentIntersection ): SegmentIntersection {
   return segmentIntersection.getSwapped();
 }
