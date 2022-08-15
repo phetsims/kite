@@ -64,14 +64,6 @@ export default class BoundsIntersection {
    * @returns -  This reference for chaining
    */
   public initialize( a: Segment, b: Segment, atMin: number, atMax: number, btMin: number, btMax: number, aMin: Vector2, aMax: Vector2, bMin: Vector2, bMax: Vector2 ): BoundsIntersection {
-    assert && assert( typeof atMin === 'number' );
-    assert && assert( typeof atMax === 'number' );
-    assert && assert( typeof btMin === 'number' );
-    assert && assert( typeof btMax === 'number' );
-    assert && assert( aMin instanceof Vector2 );
-    assert && assert( aMax instanceof Vector2 );
-    assert && assert( bMin instanceof Vector2 );
-    assert && assert( bMax instanceof Vector2 );
 
     this.a = a;
     this.b = b;
@@ -274,10 +266,6 @@ export default class BoundsIntersection {
    * Given the endpoints of two monotone segment regions, returns whether their bounding boxes intersect.
    */
   private static boxIntersects( aMin: Vector2, aMax: Vector2, bMin: Vector2, bMax: Vector2 ): boolean {
-    assert && assert( aMin instanceof Vector2 );
-    assert && assert( aMax instanceof Vector2 );
-    assert && assert( bMin instanceof Vector2 );
-    assert && assert( bMax instanceof Vector2 );
 
     // e.g. Bounds2.includeBounds
     const minX = Math.max( Math.min( aMin.x, aMax.x ), Math.min( bMin.x, bMax.x ) );

@@ -912,8 +912,6 @@ export default class Arc extends Segment {
    * @returns - Any overlaps (from 0 to 2)
    */
   public static getOverlaps( arc1: Arc, arc2: Arc ): Overlap[] {
-    assert && assert( arc1 instanceof Arc );
-    assert && assert( arc2 instanceof Arc );
 
     if ( arc1._center.distance( arc2._center ) > 1e-8 || Math.abs( arc1._radius - arc2._radius ) > 1e-8 ) {
       return [];
@@ -931,9 +929,7 @@ export default class Arc extends Segment {
    * @param radius2 - Radius of the second circle
    */
   public static getCircleIntersectionPoint( center1: Vector2, radius1: number, center2: Vector2, radius2: number ): Vector2[] {
-    assert && assert( center1 instanceof Vector2 );
     assert && assert( typeof radius1 === 'number' && isFinite( radius1 ) && radius1 >= 0 );
-    assert && assert( center2 instanceof Vector2 );
     assert && assert( typeof radius2 === 'number' && isFinite( radius2 ) && radius2 >= 0 );
 
     const delta = center2.minus( center1 );
@@ -980,9 +976,6 @@ export default class Arc extends Segment {
     const epsilon = 1e-8;
 
     const results = [];
-
-    assert && assert( a instanceof Arc );
-    assert && assert( b instanceof Arc );
 
     // If we effectively have the same circle, just different sections of it. The only finite intersections could be
     // at the endpoints, so we'll inspect those.

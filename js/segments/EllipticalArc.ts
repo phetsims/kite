@@ -913,8 +913,6 @@ export default class EllipticalArc extends Segment {
    * anticlockwise information, and determine if the FULL ellipses overlap.
    */
   public static getOverlapType( a: EllipticalArc, b: EllipticalArc, epsilon = 1e-10 ): EllipticalArcOverlapType {
-    assert && assert( a instanceof EllipticalArc );
-    assert && assert( b instanceof EllipticalArc );
 
     // Different centers can't overlap continuously
     if ( a._center.distance( b._center ) < epsilon ) {
@@ -947,8 +945,6 @@ export default class EllipticalArc extends Segment {
    * @returns - Any overlaps (from 0 to 2)
    */
   public static getOverlaps( a: EllipticalArc, b: EllipticalArc ): Overlap[] {
-    assert && assert( a instanceof EllipticalArc );
-    assert && assert( b instanceof EllipticalArc );
 
     const overlapType = EllipticalArc.getOverlapType( a, b );
 
@@ -965,8 +961,6 @@ export default class EllipticalArc extends Segment {
    * Returns any (finite) intersection between the two elliptical arc segments.
    */
   public static override intersect( a: EllipticalArc, b: EllipticalArc, epsilon = 1e-10 ): SegmentIntersection[] {
-    assert && assert( a instanceof EllipticalArc );
-    assert && assert( b instanceof EllipticalArc );
 
     const overlapType = EllipticalArc.getOverlapType( a, b, epsilon );
 

@@ -374,9 +374,6 @@ export default abstract class Segment {
     minLevels = minLevels === undefined ? options.minLevels! : minLevels;
     maxLevels = maxLevels === undefined ? options.maxLevels! : maxLevels;
 
-    assert && assert( typeof minLevels === 'number' );
-    assert && assert( typeof maxLevels === 'number' );
-
     segments = segments || [];
     const pointMap = options.pointMap || _.identity;
 

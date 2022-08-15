@@ -32,7 +32,6 @@ export default class RayIntersection {
     assert && assert( typeof distance === 'number' && isFinite( distance ) && distance >= 0, 'invalid distance' );
     assert && assert( point instanceof Vector2, 'invalid point' );
     assert && assert( normal instanceof Vector2 && Math.abs( normal.magnitude - 1 ) < 1e-7, 'invalid normal' );
-    assert && assert( typeof wind === 'number' );
     assert && assert( typeof t === 'number' && t >= -1e-10 && t <= 1 + 1e-10, `t out of range: ${t}` );
 
     this.point = point;

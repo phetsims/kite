@@ -573,8 +573,6 @@ export default class Line extends Segment {
    * Returns any (finite) intersection between the two line segments.
    */
   public static override intersect( a: Line, b: Line ): SegmentIntersection[] {
-    assert && assert( a instanceof Line );
-    assert && assert( b instanceof Line );
 
     const lineSegmentIntersection = Utils.lineSegmentIntersection(
       a.start.x, a.start.y, a.end.x, a.end.y,
@@ -597,8 +595,6 @@ export default class Line extends Segment {
    * This should be more optimized than the general intersection routine of arbitrary segments.
    */
   public static intersectOther( line: Line, other: Segment ): SegmentIntersection[] {
-    assert && assert( line instanceof Line );
-    assert && assert( other instanceof Segment );
 
     // Set up a ray
     const delta = line.end.minus( line.start );
