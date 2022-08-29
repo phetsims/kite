@@ -1475,7 +1475,7 @@ class Shape {
    * @param {Array.<number>} lineDash
    * @param {number} lineDashOffset
    * @param {Object} [options]
-   * @returns {Array.<Subpath>}
+   * @returns {Shape}
    */
   getDashedShape( lineDash, lineDashOffset, options ) {
     options = merge( {
