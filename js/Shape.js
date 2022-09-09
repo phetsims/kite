@@ -1992,7 +1992,8 @@ class Shape {
 
   /**
    * Creates a rounded rectangle, where each corner can have a different radius. The radii default to 0, and may be set
-   * using topLeft, topRight, bottomLeft and bottomRight in the options.
+   * using topLeft, topRight, bottomLeft and bottomRight in the options. If the specified radii are larger than the dimension
+   * on that side, they radii are reduced proportionally, see https://github.com/phetsims/under-pressure/issues/151
    * @public
    *
    * E.g.:
@@ -2011,11 +2012,12 @@ class Shape {
    * @returns {Shape}
    */
   static roundedRectangleWithRadii( x, y, width, height, cornerRadii ) {
+
     // defaults to 0 (not using merge, since we reference each multiple times)
-    const topLeftRadius = cornerRadii && cornerRadii.topLeft || 0;
-    const topRightRadius = cornerRadii && cornerRadii.topRight || 0;
-    const bottomLeftRadius = cornerRadii && cornerRadii.bottomLeft || 0;
-    const bottomRightRadius = cornerRadii && cornerRadii.bottomRight || 0;
+    let topLeftRadius = cornerRadii && cornerRadii.topLeft || 0;
+    let topRightRadius = cornerRadii && cornerRadii.topRight || 0;
+    let bottomLeftRadius = cornerRadii && cornerRadii.bottomLeft || 0;
+    let bottomRightRadius = cornerRadii && cornerRadii.bottomRight || 0;
 
     // type and constraint assertions
     assert && assert( typeof x === 'number' && isFinite( x ), 'Non-finite x' );
@@ -2030,6 +2032,29 @@ class Shape {
       'Invalid bottomLeft' );
     assert && assert( typeof bottomRightRadius === 'number' && bottomRightRadius >= 0 && isFinite( bottomRightRadius ),
       'Invalid bottomRight' );
+
+    // The width and height take precedence over the corner radii. If the sum of the corner radii exceed
+    // that dimension, then the corner radii are reduced proportionately
+    if ( topLeftRadius + topRightRadius >= width || bottomLeftRadius + bottomRightRadius >= width ) {
+
+      const topSum = topLeftRadius + topRightRadius;
+      topLeftRadius = topLeftRadius / topSum * width;
+      topRightRadius = topRightRadius / topSum * width;
+
+      const bottomSum = bottomLeftRadius + bottomRightRadius;
+      bottomLeftRadius = bottomLeftRadius / bottomSum * width;
+      bottomRightRadius = bottomRightRadius / bottomSum * width;
+    }
+    if ( topLeftRadius + bottomLeftRadius >= height || topRightRadius + bottomRightRadius >= height ) {
+
+      const leftSum = topLeftRadius + bottomLeftRadius;
+      topLeftRadius = topLeftRadius / leftSum * height;
+      bottomLeftRadius = bottomLeftRadius / leftSum * height;
+
+      const rightSum = topRightRadius + bottomRightRadius;
+      topRightRadius = topRightRadius / rightSum * height;
+      bottomRightRadius = bottomRightRadius / rightSum * height;
+    }
 
     // verify there is no overlap between corners
     assert && assert( topLeftRadius + topRightRadius <= width, 'Corner overlap on top edge' );
