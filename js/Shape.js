@@ -2035,23 +2035,26 @@ class Shape {
 
     // The width and height take precedence over the corner radii. If the sum of the corner radii exceed
     // that dimension, then the corner radii are reduced proportionately
-    if ( topLeftRadius + topRightRadius >= width || bottomLeftRadius + bottomRightRadius >= width ) {
+    const topSum = topLeftRadius + topRightRadius;
+    if ( topSum > width && topSum > 0 ) {
 
-      const topSum = topLeftRadius + topRightRadius;
       topLeftRadius = topLeftRadius / topSum * width;
       topRightRadius = topRightRadius / topSum * width;
+    }
+    const bottomSum = bottomLeftRadius + bottomRightRadius;
+    if ( bottomSum > width && bottomSum > 0 ) {
 
-      const bottomSum = bottomLeftRadius + bottomRightRadius;
       bottomLeftRadius = bottomLeftRadius / bottomSum * width;
       bottomRightRadius = bottomRightRadius / bottomSum * width;
     }
-    if ( topLeftRadius + bottomLeftRadius >= height || topRightRadius + bottomRightRadius >= height ) {
+    const leftSum = topLeftRadius + bottomLeftRadius;
+    if ( leftSum > height && leftSum > 0 ) {
 
-      const leftSum = topLeftRadius + bottomLeftRadius;
       topLeftRadius = topLeftRadius / leftSum * height;
       bottomLeftRadius = bottomLeftRadius / leftSum * height;
-
-      const rightSum = topRightRadius + bottomRightRadius;
+    }
+    const rightSum = topRightRadius + bottomRightRadius;
+    if ( rightSum > height && rightSum > 0 ) {
       topRightRadius = topRightRadius / rightSum * height;
       bottomRightRadius = bottomRightRadius / rightSum * height;
     }
