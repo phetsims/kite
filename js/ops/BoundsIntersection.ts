@@ -229,7 +229,7 @@ export default class BoundsIntersection {
     const aInternals = _.zip( [ 0 ].concat( aExtrema ), aExtrema.concat( [ 1 ] ) );
     const bInternals = _.zip( [ 0 ].concat( bExtrema ), bExtrema.concat( [ 1 ] ) );
 
-    // Set up initial candidiate intersection ranges
+    // Set up initial candidate intersection ranges
     let intersections = [];
     for ( let i = 0; i < aInternals.length; i++ ) {
       for ( let j = 0; j < bInternals.length; j++ ) {
