@@ -1358,7 +1358,7 @@ class Graph {
   }
 
   /**
-   * Given the inner and outer boundaries, it compues a tree representation to determine what boundaries are
+   * Given the inner and outer boundaries, it computes a tree representation to determine what boundaries are
    * holes of what other boundaries, then sets up face holes with the result.
    * @public
    *
