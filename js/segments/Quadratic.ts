@@ -171,7 +171,7 @@ export default class Quadratic extends Segment {
     assert && assert( t >= 0, 'tangentAt t should be non-negative' );
     assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
-    // For a quadratic curve, the derivavtive is given by : 2(1-t)( control - start ) + 2t( end - control )
+    // For a quadratic curve, the derivative is given by : 2(1-t)( control - start ) + 2t( end - control )
     // TODO: allocation reduction
     return this._control.minus( this._start ).times( 2 * ( 1 - t ) ).plus( this._end.minus( this._control ).times( 2 * t ) );
   }

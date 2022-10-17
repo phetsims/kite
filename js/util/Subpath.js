@@ -309,7 +309,7 @@ class Subpath {
   }
 
   /**
-   * Returns a line that would closed this subpath
+   * Returns a line that would close this subpath
    * @public
    *
    * @returns {Line}
