@@ -18,7 +18,7 @@ function quote( s ) {
    * carriage return, line separator, paragraph separator, and line feed.
    * Any character may appear in the form of an escape sequence.
    *
-   * For portability, we also escape escape all control and non-ASCII
+   * For portability, we also escape all control and non-ASCII
    * characters. Note that "\0" and "\v" escape sequences are not used
    * because JSHint does not like the first and IE the second.
    */
@@ -34,7 +34,7 @@ function quote( s ) {
          + '"';
 }
 
-var result = {
+const result = {
   /*
    * Parses the input with a generated parser. If the parsing is successfull,
    * returns a value explicitly or implicitly specified by the grammar from
@@ -42,69 +42,69 @@ var result = {
    * unsuccessful, throws |PEG.parser.SyntaxError| describing the error.
    */
   parse: function( input, startRule ) {
-    var parseFunctions = {
-      "svgPath": parse_svgPath,
-      "movetoDrawtoCommandGroups": parse_movetoDrawtoCommandGroups,
-      "movetoDrawtoCommandGroup": parse_movetoDrawtoCommandGroup,
-      "drawtoCommands": parse_drawtoCommands,
-      "drawtoCommand": parse_drawtoCommand,
-      "moveto": parse_moveto,
-      "movetoArgumentSequence": parse_movetoArgumentSequence,
-      "closepath": parse_closepath,
-      "lineto": parse_lineto,
-      "linetoArgumentSequence": parse_linetoArgumentSequence,
-      "horizontalLineto": parse_horizontalLineto,
-      "horizontalLinetoArgumentSequence": parse_horizontalLinetoArgumentSequence,
-      "verticalLineto": parse_verticalLineto,
-      "verticalLinetoArgumentSequence": parse_verticalLinetoArgumentSequence,
-      "curveto": parse_curveto,
-      "curvetoArgumentSequence": parse_curvetoArgumentSequence,
-      "curvetoArgument": parse_curvetoArgument,
-      "smoothCurveto": parse_smoothCurveto,
-      "smoothCurvetoArgumentSequence": parse_smoothCurvetoArgumentSequence,
-      "smoothCurvetoArgument": parse_smoothCurvetoArgument,
-      "quadraticBezierCurveto": parse_quadraticBezierCurveto,
-      "quadraticBezierCurvetoArgumentSequence": parse_quadraticBezierCurvetoArgumentSequence,
-      "quadraticBezierCurvetoArgument": parse_quadraticBezierCurvetoArgument,
-      "smoothQuadraticBezierCurveto": parse_smoothQuadraticBezierCurveto,
-      "smoothQuadraticBezierCurvetoArgumentSequence": parse_smoothQuadraticBezierCurvetoArgumentSequence,
-      "ellipticalArc": parse_ellipticalArc,
-      "ellipticalArcArgumentSequence": parse_ellipticalArcArgumentSequence,
-      "ellipticalArcArgument": parse_ellipticalArcArgument,
-      "coordinatePair": parse_coordinatePair,
-      "nonnegativeNumber": parse_nonnegativeNumber,
-      "number": parse_number,
-      "flag": parse_flag,
-      "commaWsp": parse_commaWsp,
-      "comma": parse_comma,
-      "floatingPointConstant": parse_floatingPointConstant,
-      "fractionalConstant": parse_fractionalConstant,
-      "exponent": parse_exponent,
-      "sign": parse_sign,
-      "digitSequence": parse_digitSequence,
-      "digit": parse_digit,
-      "wsp": parse_wsp
+    const parseFunctions = {
+      svgPath: parse_svgPath,
+      movetoDrawtoCommandGroups: parse_movetoDrawtoCommandGroups,
+      movetoDrawtoCommandGroup: parse_movetoDrawtoCommandGroup,
+      drawtoCommands: parse_drawtoCommands,
+      drawtoCommand: parse_drawtoCommand,
+      moveto: parse_moveto,
+      movetoArgumentSequence: parse_movetoArgumentSequence,
+      closepath: parse_closepath,
+      lineto: parse_lineto,
+      linetoArgumentSequence: parse_linetoArgumentSequence,
+      horizontalLineto: parse_horizontalLineto,
+      horizontalLinetoArgumentSequence: parse_horizontalLinetoArgumentSequence,
+      verticalLineto: parse_verticalLineto,
+      verticalLinetoArgumentSequence: parse_verticalLinetoArgumentSequence,
+      curveto: parse_curveto,
+      curvetoArgumentSequence: parse_curvetoArgumentSequence,
+      curvetoArgument: parse_curvetoArgument,
+      smoothCurveto: parse_smoothCurveto,
+      smoothCurvetoArgumentSequence: parse_smoothCurvetoArgumentSequence,
+      smoothCurvetoArgument: parse_smoothCurvetoArgument,
+      quadraticBezierCurveto: parse_quadraticBezierCurveto,
+      quadraticBezierCurvetoArgumentSequence: parse_quadraticBezierCurvetoArgumentSequence,
+      quadraticBezierCurvetoArgument: parse_quadraticBezierCurvetoArgument,
+      smoothQuadraticBezierCurveto: parse_smoothQuadraticBezierCurveto,
+      smoothQuadraticBezierCurvetoArgumentSequence: parse_smoothQuadraticBezierCurvetoArgumentSequence,
+      ellipticalArc: parse_ellipticalArc,
+      ellipticalArcArgumentSequence: parse_ellipticalArcArgumentSequence,
+      ellipticalArcArgument: parse_ellipticalArcArgument,
+      coordinatePair: parse_coordinatePair,
+      nonnegativeNumber: parse_nonnegativeNumber,
+      number: parse_number,
+      flag: parse_flag,
+      commaWsp: parse_commaWsp,
+      comma: parse_comma,
+      floatingPointConstant: parse_floatingPointConstant,
+      fractionalConstant: parse_fractionalConstant,
+      exponent: parse_exponent,
+      sign: parse_sign,
+      digitSequence: parse_digitSequence,
+      digit: parse_digit,
+      wsp: parse_wsp
     };
 
     if ( startRule !== undefined ) {
       if ( parseFunctions[ startRule ] === undefined ) {
-        throw new Error( "Invalid rule name: " + quote( startRule ) + "." );
+        throw new Error( 'Invalid rule name: ' + quote( startRule ) + '.' );
       }
     }
     else {
-      startRule = "svgPath";
+      startRule = 'svgPath';
     }
 
-    var pos = 0;
-    var reportFailures = 0;
-    var rightmostFailuresPos = 0;
-    var rightmostFailuresExpected = [];
+    let pos = 0;
+    const reportFailures = 0;
+    let rightmostFailuresPos = 0;
+    let rightmostFailuresExpected = [];
 
     function padLeft( input, padding, length ) {
-      var result = input;
+      let result = input;
 
-      var padLength = length - input.length;
-      for ( var i = 0; i < padLength; i++ ) {
+      const padLength = length - input.length;
+      for ( let i = 0; i < padLength; i++ ) {
         result = padding + result;
       }
 
@@ -112,9 +112,9 @@ var result = {
     }
 
     function escape( ch ) {
-      var charCode = ch.charCodeAt( 0 );
-      var escapeChar;
-      var length;
+      const charCode = ch.charCodeAt( 0 );
+      let escapeChar;
+      let length;
 
       if ( charCode <= 0xFF ) {
         escapeChar = 'x';
@@ -142,8 +142,14 @@ var result = {
     }
 
     function parse_svgPath() {
-      var result0, result1, result2, result3;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let result2;
+      let
+        result3;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
@@ -155,7 +161,7 @@ var result = {
       }
       if ( result0 !== null ) {
         result1 = parse_movetoDrawtoCommandGroups();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = [];
           result3 = parse_wsp();
@@ -190,8 +196,13 @@ var result = {
     }
 
     function parse_movetoDrawtoCommandGroups() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
@@ -242,8 +253,13 @@ var result = {
     }
 
     function parse_movetoDrawtoCommandGroup() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
@@ -257,7 +273,7 @@ var result = {
         }
         if ( result1 !== null ) {
           result2 = parse_drawtoCommands();
-          result2 = result2 !== null ? result2 : "";
+          result2 = result2 !== null ? result2 : '';
           if ( result2 !== null ) {
             result0 = [ result0, result1, result2 ];
           }
@@ -285,8 +301,13 @@ var result = {
     }
 
     function parse_drawtoCommands() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
@@ -337,7 +358,7 @@ var result = {
     }
 
     function parse_drawtoCommand() {
-      var result0;
+      let result0;
 
       result0 = parse_closepath();
       if ( result0 === null ) {
@@ -368,19 +389,24 @@ var result = {
     }
 
     function parse_moveto() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       if ( input.charCodeAt( pos ) === 77 ) {
-        result0 = "M";
+        result0 = 'M';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"M\"" );
+          matchFailed( '"M"' );
         }
       }
       if ( result0 !== null ) {
@@ -419,13 +445,13 @@ var result = {
         pos0 = pos;
         pos1 = pos;
         if ( input.charCodeAt( pos ) === 109 ) {
-          result0 = "m";
+          result0 = 'm';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"m\"" );
+            matchFailed( '"m"' );
           }
         }
         if ( result0 !== null ) {
@@ -465,15 +491,20 @@ var result = {
     }
 
     function parse_movetoArgumentSequence() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_coordinatePair();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_linetoArgumentSequence();
           if ( result2 !== null ) {
@@ -513,29 +544,29 @@ var result = {
     }
 
     function parse_closepath() {
-      var result0;
-      var pos0;
+      let result0;
+      let pos0;
 
       pos0 = pos;
       if ( input.charCodeAt( pos ) === 90 ) {
-        result0 = "Z";
+        result0 = 'Z';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"Z\"" );
+          matchFailed( '"Z"' );
         }
       }
       if ( result0 === null ) {
         if ( input.charCodeAt( pos ) === 122 ) {
-          result0 = "z";
+          result0 = 'z';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"z\"" );
+            matchFailed( '"z"' );
           }
         }
       }
@@ -549,19 +580,24 @@ var result = {
     }
 
     function parse_lineto() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       if ( input.charCodeAt( pos ) === 76 ) {
-        result0 = "L";
+        result0 = 'L';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"L\"" );
+          matchFailed( '"L"' );
         }
       }
       if ( result0 !== null ) {
@@ -592,7 +628,7 @@ var result = {
       }
       if ( result0 !== null ) {
         result0 = ( function( offset, args ) {
-          return args.map( function( arg ) {
+          return args.map( arg => {
             return {
               cmd: 'lineTo',
               args: [ arg.x, arg.y ]
@@ -607,13 +643,13 @@ var result = {
         pos0 = pos;
         pos1 = pos;
         if ( input.charCodeAt( pos ) === 108 ) {
-          result0 = "l";
+          result0 = 'l';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"l\"" );
+            matchFailed( '"l"' );
           }
         }
         if ( result0 !== null ) {
@@ -644,7 +680,7 @@ var result = {
         }
         if ( result0 !== null ) {
           result0 = ( function( offset, args ) {
-            return args.map( function( arg ) {
+            return args.map( arg => {
               return {
                 cmd: 'lineToRelative',
                 args: [ arg.x, arg.y ]
@@ -660,15 +696,20 @@ var result = {
     }
 
     function parse_linetoArgumentSequence() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_coordinatePair();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_linetoArgumentSequence();
           if ( result2 !== null ) {
@@ -708,19 +749,24 @@ var result = {
     }
 
     function parse_horizontalLineto() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       if ( input.charCodeAt( pos ) === 72 ) {
-        result0 = "H";
+        result0 = 'H';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"H\"" );
+          matchFailed( '"H"' );
         }
       }
       if ( result0 !== null ) {
@@ -751,11 +797,11 @@ var result = {
       }
       if ( result0 !== null ) {
         result0 = ( function( offset, args ) {
-          return args.map( function( arg ) {
+          return args.map( arg => {
             return {
               cmd: 'horizontalLineTo',
               args: [ arg ]
-            }
+            };
           } );
         } )( pos0, result0[ 2 ] );
       }
@@ -766,13 +812,13 @@ var result = {
         pos0 = pos;
         pos1 = pos;
         if ( input.charCodeAt( pos ) === 104 ) {
-          result0 = "h";
+          result0 = 'h';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"h\"" );
+            matchFailed( '"h"' );
           }
         }
         if ( result0 !== null ) {
@@ -803,11 +849,11 @@ var result = {
         }
         if ( result0 !== null ) {
           result0 = ( function( offset, args ) {
-            return args.map( function( arg ) {
+            return args.map( arg => {
               return {
                 cmd: 'horizontalLineToRelative',
                 args: [ arg ]
-              }
+              };
             } );
           } )( pos0, result0[ 2 ] );
         }
@@ -819,15 +865,20 @@ var result = {
     }
 
     function parse_horizontalLinetoArgumentSequence() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_number();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_horizontalLinetoArgumentSequence();
           if ( result2 !== null ) {
@@ -867,19 +918,24 @@ var result = {
     }
 
     function parse_verticalLineto() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       if ( input.charCodeAt( pos ) === 86 ) {
-        result0 = "V";
+        result0 = 'V';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"V\"" );
+          matchFailed( '"V"' );
         }
       }
       if ( result0 !== null ) {
@@ -910,11 +966,11 @@ var result = {
       }
       if ( result0 !== null ) {
         result0 = ( function( offset, args ) {
-          return args.map( function( arg ) {
+          return args.map( arg => {
             return {
               cmd: 'verticalLineTo',
               args: [ arg ]
-            }
+            };
           } );
         } )( pos0, result0[ 2 ] );
       }
@@ -925,13 +981,13 @@ var result = {
         pos0 = pos;
         pos1 = pos;
         if ( input.charCodeAt( pos ) === 118 ) {
-          result0 = "v";
+          result0 = 'v';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"v\"" );
+            matchFailed( '"v"' );
           }
         }
         if ( result0 !== null ) {
@@ -962,11 +1018,11 @@ var result = {
         }
         if ( result0 !== null ) {
           result0 = ( function( offset, args ) {
-            return args.map( function( arg ) {
+            return args.map( arg => {
               return {
                 cmd: 'verticalLineToRelative',
                 args: [ arg ]
-              }
+              };
             } );
           } )( pos0, result0[ 2 ] );
         }
@@ -978,15 +1034,20 @@ var result = {
     }
 
     function parse_verticalLinetoArgumentSequence() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_number();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_verticalLinetoArgumentSequence();
           if ( result2 !== null ) {
@@ -1026,19 +1087,24 @@ var result = {
     }
 
     function parse_curveto() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       if ( input.charCodeAt( pos ) === 67 ) {
-        result0 = "C";
+        result0 = 'C';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"C\"" );
+          matchFailed( '"C"' );
         }
       }
       if ( result0 !== null ) {
@@ -1069,11 +1135,11 @@ var result = {
       }
       if ( result0 !== null ) {
         result0 = ( function( offset, args ) {
-          return args.map( function( arg ) {
+          return args.map( arg => {
             return {
               cmd: 'cubicCurveTo',
               args: arg
-            }
+            };
           } );
         } )( pos0, result0[ 2 ] );
       }
@@ -1084,13 +1150,13 @@ var result = {
         pos0 = pos;
         pos1 = pos;
         if ( input.charCodeAt( pos ) === 99 ) {
-          result0 = "c";
+          result0 = 'c';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"c\"" );
+            matchFailed( '"c"' );
           }
         }
         if ( result0 !== null ) {
@@ -1121,11 +1187,11 @@ var result = {
         }
         if ( result0 !== null ) {
           result0 = ( function( offset, args ) {
-            return args.map( function( arg ) {
+            return args.map( arg => {
               return {
                 cmd: 'cubicCurveToRelative',
                 args: arg
-              }
+              };
             } );
           } )( pos0, result0[ 2 ] );
         }
@@ -1137,15 +1203,20 @@ var result = {
     }
 
     function parse_curvetoArgumentSequence() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_curvetoArgument();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_curvetoArgumentSequence();
           if ( result2 !== null ) {
@@ -1185,20 +1256,27 @@ var result = {
     }
 
     function parse_curvetoArgument() {
-      var result0, result1, result2, result3, result4;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let result2;
+      let result3;
+      let
+        result4;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_coordinatePair();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_coordinatePair();
           if ( result2 !== null ) {
             result3 = parse_commaWsp();
-            result3 = result3 !== null ? result3 : "";
+            result3 = result3 !== null ? result3 : '';
             if ( result3 !== null ) {
               result4 = parse_coordinatePair();
               if ( result4 !== null ) {
@@ -1238,19 +1316,24 @@ var result = {
     }
 
     function parse_smoothCurveto() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       if ( input.charCodeAt( pos ) === 83 ) {
-        result0 = "S";
+        result0 = 'S';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"S\"" );
+          matchFailed( '"S"' );
         }
       }
       if ( result0 !== null ) {
@@ -1281,11 +1364,11 @@ var result = {
       }
       if ( result0 !== null ) {
         result0 = ( function( offset, args ) {
-          return args.map( function( arg ) {
+          return args.map( arg => {
             return {
               cmd: 'smoothCubicCurveTo',
               args: arg
-            }
+            };
           } );
         } )( pos0, result0[ 2 ] );
       }
@@ -1296,13 +1379,13 @@ var result = {
         pos0 = pos;
         pos1 = pos;
         if ( input.charCodeAt( pos ) === 115 ) {
-          result0 = "s";
+          result0 = 's';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"s\"" );
+            matchFailed( '"s"' );
           }
         }
         if ( result0 !== null ) {
@@ -1333,11 +1416,11 @@ var result = {
         }
         if ( result0 !== null ) {
           result0 = ( function( offset, args ) {
-            return args.map( function( arg ) {
+            return args.map( arg => {
               return {
                 cmd: 'smoothCubicCurveToRelative',
                 args: arg
-              }
+              };
             } );
           } )( pos0, result0[ 2 ] );
         }
@@ -1349,15 +1432,20 @@ var result = {
     }
 
     function parse_smoothCurvetoArgumentSequence() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_smoothCurvetoArgument();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_smoothCurvetoArgumentSequence();
           if ( result2 !== null ) {
@@ -1397,15 +1485,20 @@ var result = {
     }
 
     function parse_smoothCurvetoArgument() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_coordinatePair();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_coordinatePair();
           if ( result2 !== null ) {
@@ -1435,19 +1528,24 @@ var result = {
     }
 
     function parse_quadraticBezierCurveto() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       if ( input.charCodeAt( pos ) === 81 ) {
-        result0 = "Q";
+        result0 = 'Q';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"Q\"" );
+          matchFailed( '"Q"' );
         }
       }
       if ( result0 !== null ) {
@@ -1478,11 +1576,11 @@ var result = {
       }
       if ( result0 !== null ) {
         result0 = ( function( offset, args ) {
-          return args.map( function( arg ) {
+          return args.map( arg => {
             return {
               cmd: 'quadraticCurveTo',
               args: arg
-            }
+            };
           } );
         } )( pos0, result0[ 2 ] );
       }
@@ -1493,13 +1591,13 @@ var result = {
         pos0 = pos;
         pos1 = pos;
         if ( input.charCodeAt( pos ) === 113 ) {
-          result0 = "q";
+          result0 = 'q';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"q\"" );
+            matchFailed( '"q"' );
           }
         }
         if ( result0 !== null ) {
@@ -1530,11 +1628,11 @@ var result = {
         }
         if ( result0 !== null ) {
           result0 = ( function( offset, args ) {
-            return args.map( function( arg ) {
+            return args.map( arg => {
               return {
                 cmd: 'quadraticCurveToRelative',
                 args: arg
-              }
+              };
             } );
           } )( pos0, result0[ 2 ] );
         }
@@ -1546,15 +1644,20 @@ var result = {
     }
 
     function parse_quadraticBezierCurvetoArgumentSequence() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_quadraticBezierCurvetoArgument();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_quadraticBezierCurvetoArgumentSequence();
           if ( result2 !== null ) {
@@ -1594,15 +1697,20 @@ var result = {
     }
 
     function parse_quadraticBezierCurvetoArgument() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_coordinatePair();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_coordinatePair();
           if ( result2 !== null ) {
@@ -1632,19 +1740,24 @@ var result = {
     }
 
     function parse_smoothQuadraticBezierCurveto() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       if ( input.charCodeAt( pos ) === 84 ) {
-        result0 = "T";
+        result0 = 'T';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"T\"" );
+          matchFailed( '"T"' );
         }
       }
       if ( result0 !== null ) {
@@ -1675,11 +1788,11 @@ var result = {
       }
       if ( result0 !== null ) {
         result0 = ( function( offset, args ) {
-          return args.map( function( arg ) {
+          return args.map( arg => {
             return {
               cmd: 'smoothQuadraticCurveTo',
               args: [ arg.x, arg.y ]
-            }
+            };
           } );
         } )( pos0, result0[ 2 ] );
       }
@@ -1690,13 +1803,13 @@ var result = {
         pos0 = pos;
         pos1 = pos;
         if ( input.charCodeAt( pos ) === 116 ) {
-          result0 = "t";
+          result0 = 't';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"t\"" );
+            matchFailed( '"t"' );
           }
         }
         if ( result0 !== null ) {
@@ -1727,11 +1840,11 @@ var result = {
         }
         if ( result0 !== null ) {
           result0 = ( function( offset, args ) {
-            return args.map( function( arg ) {
+            return args.map( arg => {
               return {
                 cmd: 'smoothQuadraticCurveToRelative',
                 args: [ arg.x, arg.y ]
-              }
+              };
             } );
           } )( pos0, result0[ 2 ] );
         }
@@ -1743,15 +1856,20 @@ var result = {
     }
 
     function parse_smoothQuadraticBezierCurvetoArgumentSequence() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_coordinatePair();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_smoothQuadraticBezierCurvetoArgumentSequence();
           if ( result2 !== null ) {
@@ -1791,19 +1909,24 @@ var result = {
     }
 
     function parse_ellipticalArc() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       if ( input.charCodeAt( pos ) === 65 ) {
-        result0 = "A";
+        result0 = 'A';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"A\"" );
+          matchFailed( '"A"' );
         }
       }
       if ( result0 !== null ) {
@@ -1834,9 +1957,9 @@ var result = {
       }
       if ( result0 !== null ) {
         result0 = ( function( offset, args ) {
-          return args.map( function( arg ) {
+          return args.map( arg => {
             arg[ 2 ] *= Math.PI / 180;
-            return { cmd: 'ellipticalArcTo', args: arg }
+            return { cmd: 'ellipticalArcTo', args: arg };
           } );
         } )( pos0, result0[ 2 ] );
       }
@@ -1847,13 +1970,13 @@ var result = {
         pos0 = pos;
         pos1 = pos;
         if ( input.charCodeAt( pos ) === 97 ) {
-          result0 = "a";
+          result0 = 'a';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"a\"" );
+            matchFailed( '"a"' );
           }
         }
         if ( result0 !== null ) {
@@ -1884,9 +2007,9 @@ var result = {
         }
         if ( result0 !== null ) {
           result0 = ( function( offset, args ) {
-            return args.map( function( arg ) {
+            return args.map( arg => {
               arg[ 2 ] *= Math.PI / 180;
-              return { cmd: 'ellipticalArcToRelative', args: arg }
+              return { cmd: 'ellipticalArcToRelative', args: arg };
             } );
           } )( pos0, result0[ 2 ] );
         }
@@ -1898,15 +2021,20 @@ var result = {
     }
 
     function parse_ellipticalArcArgumentSequence() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_ellipticalArcArgument();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_ellipticalArcArgumentSequence();
           if ( result2 !== null ) {
@@ -1946,20 +2074,33 @@ var result = {
     }
 
     function parse_ellipticalArcArgument() {
-      var result0, result1, result2, result3, result4, result5, result6, result7, result8, result9, result10;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let result2;
+      let result3;
+      let result4;
+      let result5;
+      let result6;
+      let result7;
+      let result8;
+      let result9;
+      let
+        result10;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_nonnegativeNumber();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_nonnegativeNumber();
           if ( result2 !== null ) {
             result3 = parse_commaWsp();
-            result3 = result3 !== null ? result3 : "";
+            result3 = result3 !== null ? result3 : '';
             if ( result3 !== null ) {
               result4 = parse_number();
               if ( result4 !== null ) {
@@ -1968,12 +2109,12 @@ var result = {
                   result6 = parse_flag();
                   if ( result6 !== null ) {
                     result7 = parse_commaWsp();
-                    result7 = result7 !== null ? result7 : "";
+                    result7 = result7 !== null ? result7 : '';
                     if ( result7 !== null ) {
                       result8 = parse_flag();
                       if ( result8 !== null ) {
                         result9 = parse_commaWsp();
-                        result9 = result9 !== null ? result9 : "";
+                        result9 = result9 !== null ? result9 : '';
                         if ( result9 !== null ) {
                           result10 = parse_coordinatePair();
                           if ( result10 !== null ) {
@@ -2034,7 +2175,7 @@ var result = {
         pos = pos1;
       }
       if ( result0 !== null ) {
-        result0 = ( function( offset, rx, ry, rot, largeArc, sweep, to ) { return [ rx, ry, rot, largeArc, sweep, to.x, to.y ] } )( pos0, result0[ 0 ], result0[ 2 ], result0[ 4 ], result0[ 6 ], result0[ 8 ], result0[ 10 ] );
+        result0 = ( function( offset, rx, ry, rot, largeArc, sweep, to ) { return [ rx, ry, rot, largeArc, sweep, to.x, to.y ]; } )( pos0, result0[ 0 ], result0[ 2 ], result0[ 4 ], result0[ 6 ], result0[ 8 ], result0[ 10 ] );
       }
       if ( result0 === null ) {
         pos = pos0;
@@ -2043,15 +2184,20 @@ var result = {
     }
 
     function parse_coordinatePair() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_number();
       if ( result0 !== null ) {
         result1 = parse_commaWsp();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_number();
           if ( result2 !== null ) {
@@ -2081,8 +2227,8 @@ var result = {
     }
 
     function parse_nonnegativeNumber() {
-      var result0;
-      var pos0;
+      let result0;
+      let pos0;
 
       pos0 = pos;
       result0 = parse_floatingPointConstant();
@@ -2106,13 +2252,17 @@ var result = {
     }
 
     function parse_number() {
-      var result0, result1;
-      var pos0, pos1;
+      let result0;
+      let
+        result1;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_sign();
-      result0 = result0 !== null ? result0 : "";
+      result0 = result0 !== null ? result0 : '';
       if ( result0 !== null ) {
         result1 = parse_floatingPointConstant();
         if ( result1 !== null ) {
@@ -2137,7 +2287,7 @@ var result = {
         pos0 = pos;
         pos1 = pos;
         result0 = parse_sign();
-        result0 = result0 !== null ? result0 : "";
+        result0 = result0 !== null ? result0 : '';
         if ( result0 !== null ) {
           result1 = parse_digitSequence();
           if ( result1 !== null ) {
@@ -2163,18 +2313,18 @@ var result = {
     }
 
     function parse_flag() {
-      var result0;
-      var pos0;
+      let result0;
+      let pos0;
 
       pos0 = pos;
       if ( input.charCodeAt( pos ) === 48 ) {
-        result0 = "0";
+        result0 = '0';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"0\"" );
+          matchFailed( '"0"' );
         }
       }
       if ( result0 !== null ) {
@@ -2186,13 +2336,13 @@ var result = {
       if ( result0 === null ) {
         pos0 = pos;
         if ( input.charCodeAt( pos ) === 49 ) {
-          result0 = "1";
+          result0 = '1';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"1\"" );
+            matchFailed( '"1"' );
           }
         }
         if ( result0 !== null ) {
@@ -2206,8 +2356,12 @@ var result = {
     }
 
     function parse_commaWsp() {
-      var result0, result1, result2, result3;
-      var pos0;
+      let result0;
+      let result1;
+      let result2;
+      let
+        result3;
+      let pos0;
 
       pos0 = pos;
       result1 = parse_wsp();
@@ -2223,7 +2377,7 @@ var result = {
       }
       if ( result0 !== null ) {
         result1 = parse_comma();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = [];
           result3 = parse_wsp();
@@ -2275,31 +2429,35 @@ var result = {
     }
 
     function parse_comma() {
-      var result0;
+      let result0;
 
       if ( input.charCodeAt( pos ) === 44 ) {
-        result0 = ",";
+        result0 = ',';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\",\"" );
+          matchFailed( '","' );
         }
       }
       return result0;
     }
 
     function parse_floatingPointConstant() {
-      var result0, result1;
-      var pos0, pos1;
+      let result0;
+      let
+        result1;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_fractionalConstant();
       if ( result0 !== null ) {
         result1 = parse_exponent();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result0 = [ result0, result1 ];
         }
@@ -2347,22 +2505,27 @@ var result = {
     }
 
     function parse_fractionalConstant() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       result0 = parse_digitSequence();
-      result0 = result0 !== null ? result0 : "";
+      result0 = result0 !== null ? result0 : '';
       if ( result0 !== null ) {
         if ( input.charCodeAt( pos ) === 46 ) {
-          result1 = ".";
+          result1 = '.';
           pos++;
         }
         else {
           result1 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\".\"" );
+            matchFailed( '"."' );
           }
         }
         if ( result1 !== null ) {
@@ -2396,13 +2559,13 @@ var result = {
         result0 = parse_digitSequence();
         if ( result0 !== null ) {
           if ( input.charCodeAt( pos ) === 46 ) {
-            result1 = ".";
+            result1 = '.';
             pos++;
           }
           else {
             result1 = null;
             if ( reportFailures === 0 ) {
-              matchFailed( "\".\"" );
+              matchFailed( '"."' );
             }
           }
           if ( result1 !== null ) {
@@ -2418,7 +2581,7 @@ var result = {
           pos = pos1;
         }
         if ( result0 !== null ) {
-          result0 = ( function( offset, a ) { return a } )( pos0, result0[ 0 ] );
+          result0 = ( function( offset, a ) { return a; } )( pos0, result0[ 0 ] );
         }
         if ( result0 === null ) {
           pos = pos0;
@@ -2428,36 +2591,41 @@ var result = {
     }
 
     function parse_exponent() {
-      var result0, result1, result2;
-      var pos0, pos1;
+      let result0;
+      let result1;
+      let
+        result2;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
       if ( input.charCodeAt( pos ) === 101 ) {
-        result0 = "e";
+        result0 = 'e';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"e\"" );
+          matchFailed( '"e"' );
         }
       }
       if ( result0 === null ) {
         if ( input.charCodeAt( pos ) === 69 ) {
-          result0 = "E";
+          result0 = 'E';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"E\"" );
+            matchFailed( '"E"' );
           }
         }
       }
       if ( result0 !== null ) {
         result1 = parse_sign();
-        result1 = result1 !== null ? result1 : "";
+        result1 = result1 !== null ? result1 : '';
         if ( result1 !== null ) {
           result2 = parse_digitSequence();
           if ( result2 !== null ) {
@@ -2487,27 +2655,27 @@ var result = {
     }
 
     function parse_sign() {
-      var result0;
+      let result0;
 
       if ( input.charCodeAt( pos ) === 43 ) {
-        result0 = "+";
+        result0 = '+';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\"+\"" );
+          matchFailed( '"+"' );
         }
       }
       if ( result0 === null ) {
         if ( input.charCodeAt( pos ) === 45 ) {
-          result0 = "-";
+          result0 = '-';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"-\"" );
+            matchFailed( '"-"' );
           }
         }
       }
@@ -2515,8 +2683,12 @@ var result = {
     }
 
     function parse_digitSequence() {
-      var result0, result1;
-      var pos0, pos1;
+      let result0;
+      let
+        result1;
+      let pos0;
+      let
+        pos1;
 
       pos0 = pos;
       pos1 = pos;
@@ -2548,7 +2720,7 @@ var result = {
     }
 
     function parse_digit() {
-      var result0;
+      let result0;
 
       if ( /^[0-9]/.test( input.charAt( pos ) ) ) {
         result0 = input.charAt( pos );
@@ -2557,56 +2729,56 @@ var result = {
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "[0-9]" );
+          matchFailed( '[0-9]' );
         }
       }
       return result0;
     }
 
     function parse_wsp() {
-      var result0;
+      let result0;
 
       if ( input.charCodeAt( pos ) === 32 ) {
-        result0 = " ";
+        result0 = ' ';
         pos++;
       }
       else {
         result0 = null;
         if ( reportFailures === 0 ) {
-          matchFailed( "\" \"" );
+          matchFailed( '" "' );
         }
       }
       if ( result0 === null ) {
         if ( input.charCodeAt( pos ) === 9 ) {
-          result0 = "\t";
+          result0 = '\t';
           pos++;
         }
         else {
           result0 = null;
           if ( reportFailures === 0 ) {
-            matchFailed( "\"\\t\"" );
+            matchFailed( '"\\t"' );
           }
         }
         if ( result0 === null ) {
           if ( input.charCodeAt( pos ) === 13 ) {
-            result0 = "\r";
+            result0 = '\r';
             pos++;
           }
           else {
             result0 = null;
             if ( reportFailures === 0 ) {
-              matchFailed( "\"\\r\"" );
+              matchFailed( '"\\r"' );
             }
           }
           if ( result0 === null ) {
             if ( input.charCodeAt( pos ) === 10 ) {
-              result0 = "\n";
+              result0 = '\n';
               pos++;
             }
             else {
               result0 = null;
               if ( reportFailures === 0 ) {
-                matchFailed( "\"\\n\"" );
+                matchFailed( '"\\n"' );
               }
             }
           }
@@ -2619,9 +2791,9 @@ var result = {
     function cleanupExpected( expected ) {
       expected.sort();
 
-      var lastExpected = null;
-      var cleanExpected = [];
-      for ( var i = 0; i < expected.length; i++ ) {
+      let lastExpected = null;
+      const cleanExpected = [];
+      for ( let i = 0; i < expected.length; i++ ) {
         if ( expected[ i ] !== lastExpected ) {
           cleanExpected.push( expected[ i ] );
           lastExpected = expected[ i ];
@@ -2638,18 +2810,18 @@ var result = {
        * enough to prevent it.
        */
 
-      var line = 1;
-      var column = 1;
-      var seenCR = false;
+      let line = 1;
+      let column = 1;
+      let seenCR = false;
 
-      for ( var i = 0; i < Math.max( pos, rightmostFailuresPos ); i++ ) {
-        var ch = input.charAt( i );
-        if ( ch === "\n" ) {
+      for ( let i = 0; i < Math.max( pos, rightmostFailuresPos ); i++ ) {
+        const ch = input.charAt( i );
+        if ( ch === '\n' ) {
           if ( !seenCR ) { line++; }
           column = 1;
           seenCR = false;
         }
-        else if ( ch === "\r" || ch === "\u2028" || ch === "\u2029" ) {
+        else if ( ch === '\r' || ch === '\u2028' || ch === '\u2029' ) {
           line++;
           column = 1;
           seenCR = true;
@@ -2665,14 +2837,14 @@ var result = {
 
 
     function createMoveTo( args, isRelative ) {
-      var result = [ {
+      const result = [ {
         cmd: isRelative ? 'moveToRelative' : 'moveTo',
         args: [ args[ 0 ].x, args[ 0 ].y ]
       } ];
 
       // any other coordinate pairs are implicit lineTos
       if ( args.length > 1 ) {
-        for ( var i = 1; i < args.length; i++ ) {
+        for ( let i = 1; i < args.length; i++ ) {
           result.push( {
             cmd: isRelative ? 'lineToRelative' : 'lineTo',
             args: [ args[ i ].x, args[ i ].y ]
@@ -2683,7 +2855,7 @@ var result = {
     }
 
 
-    var result = parseFunctions[ startRule ]();
+    const result = parseFunctions[ startRule ]();
 
     /*
      * The parser is now in one of the following three states:
@@ -2710,9 +2882,9 @@ var result = {
      * handle these states.
      */
     if ( result === null || pos !== input.length ) {
-      var offset = Math.max( pos, rightmostFailuresPos );
-      var found = offset < input.length ? input.charAt( offset ) : null;
-      var errorPosition = computeErrorPosition();
+      const offset = Math.max( pos, rightmostFailuresPos );
+      const found = offset < input.length ? input.charAt( offset ) : null;
+      const errorPosition = computeErrorPosition();
 
       throw new this.SyntaxError(
         cleanupExpected( rightmostFailuresExpected ),
@@ -2734,27 +2906,29 @@ var result = {
 
 result.SyntaxError = function( expected, found, offset, line, column ) {
   function buildMessage( expected, found ) {
-    var expectedHumanized, foundHumanized;
+    let expectedHumanized;
+    let
+      foundHumanized;
 
     switch( expected.length ) {
       case 0:
-        expectedHumanized = "end of input";
+        expectedHumanized = 'end of input';
         break;
       case 1:
         expectedHumanized = expected[ 0 ];
         break;
       default:
-        expectedHumanized = expected.slice( 0, expected.length - 1 ).join( ", " )
-                            + " or "
+        expectedHumanized = expected.slice( 0, expected.length - 1 ).join( ', ' )
+                            + ' or '
                             + expected[ expected.length - 1 ];
     }
 
-    foundHumanized = found ? quote( found ) : "end of input";
+    foundHumanized = found ? quote( found ) : 'end of input';
 
-    return "Expected " + expectedHumanized + " but " + foundHumanized + " found.";
+    return 'Expected ' + expectedHumanized + ' but ' + foundHumanized + ' found.';
   }
 
-  this.name = "SyntaxError";
+  this.name = 'SyntaxError';
   this.expected = expected;
   this.found = found;
   this.message = buildMessage( expected, found );
