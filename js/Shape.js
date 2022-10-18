@@ -26,7 +26,7 @@ import merge from '../../phet-core/js/merge.js';
 import { Arc, Cubic, EllipticalArc, Graph, kite, Line, LineStyles, Quadratic, Subpath, svgNumber, svgPath } from './imports.js';
 
 //  (We can't get joist's random reference here)
-const randomSource = Math.random; // eslint-disable-line bad-sim-text
+const randomSource = Math.random;
 
 /**
  * Convenience function that returns a Vector2
