@@ -872,10 +872,10 @@ export default class Arc extends Segment {
    * @returns - Any overlaps (from 0 to 2)
    */
   public static getAngularOverlaps( startAngle1: number, endAngle1: number, startAngle2: number, endAngle2: number ): Overlap[] {
-    assert && assert( typeof startAngle1 === 'number' && isFinite( startAngle1 ) );
-    assert && assert( typeof endAngle1 === 'number' && isFinite( endAngle1 ) );
-    assert && assert( typeof startAngle2 === 'number' && isFinite( startAngle2 ) );
-    assert && assert( typeof endAngle2 === 'number' && isFinite( endAngle2 ) );
+    assert && assert( isFinite( startAngle1 ) );
+    assert && assert( isFinite( endAngle1 ) );
+    assert && assert( isFinite( startAngle2 ) );
+    assert && assert( isFinite( endAngle2 ) );
 
     // Remap start of arc 1 to 0, and the end to be positive (sign1 )
     let end1 = endAngle1 - startAngle1;
@@ -924,8 +924,8 @@ export default class Arc extends Segment {
    * @param radius2 - Radius of the second circle
    */
   public static getCircleIntersectionPoint( center1: Vector2, radius1: number, center2: Vector2, radius2: number ): Vector2[] {
-    assert && assert( typeof radius1 === 'number' && isFinite( radius1 ) && radius1 >= 0 );
-    assert && assert( typeof radius2 === 'number' && isFinite( radius2 ) && radius2 >= 0 );
+    assert && assert( isFinite( radius1 ) && radius1 >= 0 );
+    assert && assert( isFinite( radius2 ) && radius2 >= 0 );
 
     const delta = center2.minus( center1 );
     const d = delta.magnitude;

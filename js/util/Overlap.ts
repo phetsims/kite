@@ -30,9 +30,9 @@ export default class Overlap {
    * - All of those t values are in the range [0,1]
    */
   public constructor( a: number, b: number ) {
-    assert && assert( typeof a === 'number' && isFinite( a ) && a !== 0,
+    assert && assert( isFinite( a ) && a !== 0,
       'a should be a finite non-zero number' );
-    assert && assert( typeof b === 'number' && isFinite( b ),
+    assert && assert( isFinite( b ),
       'b should be a finite number' );
 
     this.a = a;
