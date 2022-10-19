@@ -72,7 +72,6 @@ export default class Arc extends Segment {
    * Sets the center of the Arc.
    */
   public setCenter( center: Vector2 ): this {
-    assert && assert( center instanceof Vector2, `Arc center should be a Vector2: ${center}` );
     assert && assert( center.isFinite(), `Arc center should be finite: ${center.toString()}` );
 
     if ( !this._center.equals( center ) ) {
@@ -99,7 +98,6 @@ export default class Arc extends Segment {
    * Sets the radius of the Arc.
    */
   public setRadius( radius: number ): this {
-    assert && assert( typeof radius === 'number', `Arc radius should be a number: ${radius}` );
     assert && assert( isFinite( radius ), `Arc radius should be a finite number: ${radius}` );
 
     if ( this._radius !== radius ) {
@@ -126,7 +124,6 @@ export default class Arc extends Segment {
    * Sets the startAngle of the Arc.
    */
   public setStartAngle( startAngle: number ): this {
-    assert && assert( typeof startAngle === 'number', `Arc startAngle should be a number: ${startAngle}` );
     assert && assert( isFinite( startAngle ), `Arc startAngle should be a finite number: ${startAngle}` );
 
     if ( this._startAngle !== startAngle ) {
@@ -153,7 +150,6 @@ export default class Arc extends Segment {
    * Sets the endAngle of the Arc.
    */
   public setEndAngle( endAngle: number ): this {
-    assert && assert( typeof endAngle === 'number', `Arc endAngle should be a number: ${endAngle}` );
     assert && assert( isFinite( endAngle ), `Arc endAngle should be a finite number: ${endAngle}` );
 
     if ( this._endAngle !== endAngle ) {
@@ -180,7 +176,6 @@ export default class Arc extends Segment {
    * Sets the anticlockwise of the Arc.
    */
   public setAnticlockwise( anticlockwise: boolean ): this {
-    assert && assert( typeof anticlockwise === 'boolean', `Arc anticlockwise should be a boolean: ${anticlockwise}` );
 
     if ( this._anticlockwise !== anticlockwise ) {
       this._anticlockwise = anticlockwise;

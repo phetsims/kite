@@ -29,10 +29,9 @@ export default class RayIntersection {
    * @param t - Parametric value (for the segment) of the intersection
    */
   public constructor( distance: number, point: Vector2, normal: Vector2, wind: number, t: number ) {
-    assert && assert( typeof distance === 'number' && isFinite( distance ) && distance >= 0, 'invalid distance' );
-    assert && assert( point instanceof Vector2, 'invalid point' );
-    assert && assert( normal instanceof Vector2 && Math.abs( normal.magnitude - 1 ) < 1e-7, 'invalid normal' );
-    assert && assert( typeof t === 'number' && t >= -1e-10 && t <= 1 + 1e-10, `t out of range: ${t}` );
+    assert && assert( isFinite( distance ) && distance >= 0, 'invalid distance' );
+    assert && assert( Math.abs( normal.magnitude - 1 ) < 1e-7, 'invalid normal' );
+    assert && assert( t >= -1e-10 && t <= 1 + 1e-10, `t out of range: ${t}` );
 
     this.point = point;
     this.normal = normal;

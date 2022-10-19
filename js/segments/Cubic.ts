@@ -91,7 +91,6 @@ export default class Cubic extends Segment {
    * Sets the start point of the Cubic.
    */
   public setStart( start: Vector2 ): this {
-    assert && assert( start instanceof Vector2, `Cubic start should be a Vector2: ${start}` );
     assert && assert( start.isFinite(), `Cubic start should be finite: ${start.toString()}` );
 
     if ( !this._start.equals( start ) ) {
@@ -118,7 +117,6 @@ export default class Cubic extends Segment {
    * Sets the first control point of the Cubic.
    */
   public setControl1( control1: Vector2 ): this {
-    assert && assert( control1 instanceof Vector2, `Cubic control1 should be a Vector2: ${control1}` );
     assert && assert( control1.isFinite(), `Cubic control1 should be finite: ${control1.toString()}` );
 
     if ( !this._control1.equals( control1 ) ) {
@@ -145,7 +143,6 @@ export default class Cubic extends Segment {
    * Sets the second control point of the Cubic.
    */
   public setControl2( control2: Vector2 ): this {
-    assert && assert( control2 instanceof Vector2, `Cubic control2 should be a Vector2: ${control2}` );
     assert && assert( control2.isFinite(), `Cubic control2 should be finite: ${control2.toString()}` );
 
     if ( !this._control2.equals( control2 ) ) {
@@ -172,7 +169,6 @@ export default class Cubic extends Segment {
    * Sets the end point of the Cubic.
    */
   public setEnd( end: Vector2 ): this {
-    assert && assert( end instanceof Vector2, `Cubic end should be a Vector2: ${end}` );
     assert && assert( end.isFinite(), `Cubic end should be finite: ${end.toString()}` );
 
     if ( !this._end.equals( end ) ) {
@@ -926,8 +922,6 @@ export default class Cubic extends Segment {
    * @returns - The solution, if there is one (and only one)
    */
   public static getOverlaps( cubic1: Cubic, cubic2: Cubic, epsilon = 1e-6 ): Overlap[] {
-    assert && assert( cubic1 instanceof Cubic, 'first Cubic is not an instance of Cubic' );
-    assert && assert( cubic2 instanceof Cubic, 'second Cubic is not an instance of Cubic' );
 
     /*
      * For a 1-dimensional cubic bezier, we have the formula:

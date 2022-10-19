@@ -90,7 +90,6 @@ export default class EllipticalArc extends Segment {
    * Sets the center of the EllipticalArc.
    */
   public setCenter( center: Vector2 ): this {
-    assert && assert( center instanceof Vector2, `EllipticalArc center should be a Vector2: ${center}` );
     assert && assert( center.isFinite(), `EllipticalArc center should be finite: ${center.toString()}` );
 
     if ( !this._center.equals( center ) ) {
@@ -117,7 +116,6 @@ export default class EllipticalArc extends Segment {
    * Sets the semi-major radius of the EllipticalArc.
    */
   public setRadiusX( radiusX: number ): this {
-    assert && assert( typeof radiusX === 'number', `EllipticalArc radiusX should be a number: ${radiusX}` );
     assert && assert( isFinite( radiusX ), `EllipticalArc radiusX should be a finite number: ${radiusX}` );
 
     if ( this._radiusX !== radiusX ) {
@@ -144,7 +142,6 @@ export default class EllipticalArc extends Segment {
    * Sets the semi-minor radius of the EllipticalArc.
    */
   public setRadiusY( radiusY: number ): this {
-    assert && assert( typeof radiusY === 'number', `EllipticalArc radiusY should be a number: ${radiusY}` );
     assert && assert( isFinite( radiusY ), `EllipticalArc radiusY should be a finite number: ${radiusY}` );
 
     if ( this._radiusY !== radiusY ) {
@@ -170,7 +167,6 @@ export default class EllipticalArc extends Segment {
    * Sets the rotation of the EllipticalArc.
    */
   public setRotation( rotation: number ): this {
-    assert && assert( typeof rotation === 'number', `EllipticalArc rotation should be a number: ${rotation}` );
     assert && assert( isFinite( rotation ), `EllipticalArc rotation should be a finite number: ${rotation}` );
 
     if ( this._rotation !== rotation ) {
@@ -196,7 +192,6 @@ export default class EllipticalArc extends Segment {
    * Sets the startAngle of the EllipticalArc.
    */
   public setStartAngle( startAngle: number ): this {
-    assert && assert( typeof startAngle === 'number', `EllipticalArc startAngle should be a number: ${startAngle}` );
     assert && assert( isFinite( startAngle ), `EllipticalArc startAngle should be a finite number: ${startAngle}` );
 
     if ( this._startAngle !== startAngle ) {
@@ -222,7 +217,6 @@ export default class EllipticalArc extends Segment {
    * Sets the endAngle of the EllipticalArc.
    */
   public setEndAngle( endAngle: number ): this {
-    assert && assert( typeof endAngle === 'number', `EllipticalArc endAngle should be a number: ${endAngle}` );
     assert && assert( isFinite( endAngle ), `EllipticalArc endAngle should be a finite number: ${endAngle}` );
 
     if ( this._endAngle !== endAngle ) {
@@ -248,8 +242,6 @@ export default class EllipticalArc extends Segment {
    * Sets the anticlockwise of the EllipticalArc.
    */
   public setAnticlockwise( anticlockwise: boolean ): this {
-    assert && assert( typeof anticlockwise === 'boolean', `EllipticalArc anticlockwise should be a boolean: ${anticlockwise}` );
-
     if ( this._anticlockwise !== anticlockwise ) {
       this._anticlockwise = anticlockwise;
       this.invalidate();

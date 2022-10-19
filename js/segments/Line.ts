@@ -49,7 +49,6 @@ export default class Line extends Segment {
    * Sets the start point of the Line.
    */
   public setStart( start: Vector2 ): this {
-    assert && assert( start instanceof Vector2, `Line start should be a Vector2: ${start}` );
     assert && assert( start.isFinite(), `Line start should be finite: ${start.toString()}` );
 
     if ( !this._start.equals( start ) ) {
@@ -75,7 +74,6 @@ export default class Line extends Segment {
    * Sets the end point of the Line.
    */
   public setEnd( end: Vector2 ): this {
-    assert && assert( end instanceof Vector2, `Line end should be a Vector2: ${end}` );
     assert && assert( end.isFinite(), `Line end should be finite: ${end.toString()}` );
 
     if ( !this._end.equals( end ) ) {
@@ -495,8 +493,6 @@ export default class Line extends Segment {
    * @returns - The solution, if there is one (and only one)
    */
   public static getOverlaps( line1: Line, line2: Line, epsilon = 1e-6 ): Overlap[] {
-    assert && assert( line1 instanceof Line, 'first Line is not an instance of Line' );
-    assert && assert( line2 instanceof Line, 'second Line is not an instance of Line' );
 
     /*
      * NOTE: For implementation details in this function, please see Cubic.getOverlaps. It goes over all of the

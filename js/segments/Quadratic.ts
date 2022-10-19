@@ -67,7 +67,6 @@ export default class Quadratic extends Segment {
    * Sets the start point of the Quadratic.
    */
   public setStart( start: Vector2 ): this {
-    assert && assert( start instanceof Vector2, `Quadratic start should be a Vector2: ${start}` );
     assert && assert( start.isFinite(), `Quadratic start should be finite: ${start.toString()}` );
 
     if ( !this._start.equals( start ) ) {
@@ -93,7 +92,6 @@ export default class Quadratic extends Segment {
    * Sets the control point of the Quadratic.
    */
   public setControl( control: Vector2 ): this {
-    assert && assert( control instanceof Vector2, `Quadratic control should be a Vector2: ${control}` );
     assert && assert( control.isFinite(), `Quadratic control should be finite: ${control.toString()}` );
 
     if ( !this._control.equals( control ) ) {
@@ -119,7 +117,6 @@ export default class Quadratic extends Segment {
    * Sets the end point of the Quadratic.
    */
   public setEnd( end: Vector2 ): this {
-    assert && assert( end instanceof Vector2, `Quadratic end should be a Vector2: ${end}` );
     assert && assert( end.isFinite(), `Quadratic end should be finite: ${end.toString()}` );
 
     if ( !this._end.equals( end ) ) {
@@ -665,8 +662,6 @@ export default class Quadratic extends Segment {
    * @returns - The solution, if there is one (and only one)
    */
   public static getOverlaps( quadratic1: Quadratic, quadratic2: Quadratic, epsilon = 1e-6 ): Overlap[] {
-    assert && assert( quadratic1 instanceof Quadratic, 'first Quadratic is not an instance of Quadratic' );
-    assert && assert( quadratic2 instanceof Quadratic, 'second Quadratic is not an instance of Quadratic' );
 
     /*
      * NOTE: For implementation details in this function, please see Cubic.getOverlaps. It goes over all of the
