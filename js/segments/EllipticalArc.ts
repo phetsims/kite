@@ -1000,15 +1000,15 @@ export default class EllipticalArc extends Segment {
 
 export class EllipticalArcOverlapType extends EnumerationValue {
   // radiusX of one equals radiusX of the other, with equivalent centers and rotations to work
-  public static MATCHING_OVERLAP = new EllipticalArcOverlapType();
+  public static readonly MATCHING_OVERLAP = new EllipticalArcOverlapType();
 
   // radiusX of one equals radiusY of the other, with equivalent centers and rotations to work
-  public static OPPOSITE_OVERLAP = new EllipticalArcOverlapType();
+  public static readonly OPPOSITE_OVERLAP = new EllipticalArcOverlapType();
 
   // no overlap
-  public static NONE = new EllipticalArcOverlapType();
+  public static readonly NONE = new EllipticalArcOverlapType();
 
-  public static enumeration = new Enumeration( EllipticalArcOverlapType );
+  public static readonly enumeration = new Enumeration( EllipticalArcOverlapType );
 }
 
 kite.register( 'EllipticalArc', EllipticalArc );
