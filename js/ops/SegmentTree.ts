@@ -39,7 +39,7 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
    *                  segments
    */
   public constructor( epsilon = 1e-6 ) {
-    // @ts-ignore -- TODO: Poolable support
+    // @ts-expect-error -- TODO: Poolable support
     this.rootNode = SegmentNode.createFromPool( this, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY );
     this.rootNode.isBlack = true;
 
@@ -186,9 +186,9 @@ class SegmentNode<T> {
       // Do an interruptable iteration
       for ( let i = 0; i < this.items.length; i++ ) {
         const item = this.items[ i ];
-        // @ts-ignore
+        // @ts-expect-error
         if ( !item.internalData.segmentId || item.internalData.segmentId < id ) {
-          // @ts-ignore
+          // @ts-expect-error
           item.internalData.segmentId = id;
           abort = interruptableCallback( item );
           if ( abort ) {
@@ -431,12 +431,12 @@ class SegmentNode<T> {
     else {
       this.splitValue = n;
 
-      // @ts-ignore -- TODO: Poolable support
+      // @ts-expect-error -- TODO: Poolable support
       const newLeft = SegmentNode.createFromPool( this.tree, this.min, n );
       newLeft.parent = this;
       this.left = newLeft;
 
-      // @ts-ignore -- TODO: Poolable support
+      // @ts-expect-error -- TODO: Poolable support
       const newRight = SegmentNode.createFromPool( this.tree, n, this.max );
       newRight.parent = this;
       this.right = newRight;
@@ -559,7 +559,6 @@ class SegmentNode<T> {
   }
 
   public toString(): string {
-    // @ts-ignore
     return `[${this.min} ${this.max}] split:${this.splitValue} ${this.isBlack ? 'black' : 'red'} ${this.items}`;
   }
 }

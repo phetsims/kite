@@ -738,10 +738,10 @@ export default abstract class Segment {
    * Returns a Segment from the serialized representation.
    */
   public static deserialize( obj: IntentionalAny ): Segment {
-    // @ts-ignore TODO: namespacing
+    // @ts-expect-error TODO: namespacing
     assert && assert( obj.type && kite[ obj.type ] && kite[ obj.type ].deserialize );
 
-    // @ts-ignore TODO: namespacing
+    // @ts-expect-error TODO: namespacing
     return kite[ obj.type ].deserialize( obj );
   }
 
