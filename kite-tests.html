@@ -31,7 +31,7 @@
       },
       "devDependencies": {
         "grunt": "~1.5.3",
-        "pegjs": "0.7.0"
+        "pegjs": "~0.7.0"
       },
       "phet": {
         "supportedBrands": [
@@ -54,7 +54,10 @@
         "supportsOutputJS": true
       },
       "eslintConfig": {
-        "extends": "../chipper/eslint/sim_eslintrc.js"
+        "extends": "../chipper/eslint/sim_eslintrc.js",
+        "rules": {
+          "todo-should-have-issue": "off"
+        }
       }
     };
   window.phet.chipper.stringRepos =
@@ -80,6 +83,7 @@
         "requirejsNamespace": "TWIXT"
       }
     ];
+  window.phet.chipper.allowLocaleSwitching = true;
 
   // Identify the brand (assume generated brand if not provided with query parameters)
   const brandMatch = location.search.match( /brand=([^&]+)/ );
