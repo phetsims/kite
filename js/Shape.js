@@ -1700,7 +1700,7 @@ class Shape {
    */
   toString() {
     // TODO: consider a more verbose but safer way?
-    return `new kite.Shape( '${this.getSVGPath()}' )`;
+    return `new phet.kite.Shape( '${this.getSVGPath()}' )`;
   }
 
   /*---------------------------------------------------------------------------*
@@ -2065,12 +2065,12 @@ class Shape {
     assert && assert( topLeftRadius + bottomLeftRadius <= height, 'Corner overlap on left edge' );
     assert && assert( topRightRadius + bottomRightRadius <= height, 'Corner overlap on right edge' );
 
-    const shape = new kite.Shape();
+    const shape = new Shape();
     const right = x + width;
     const bottom = y + height;
 
     // To draw the rounded rectangle, we use the implicit "line from last segment to next segment" and the close() for
-    // all of the straight line edges between arcs, or lineTo the corner.
+    // all the straight line edges between arcs, or lineTo the corner.
 
     if ( bottomRightRadius > 0 ) {
       shape.arc( right - bottomRightRadius, bottom - bottomRightRadius, bottomRightRadius, 0, Math.PI / 2, false );

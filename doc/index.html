@@ -234,7 +234,7 @@ grunt build</pre>
     <h3 id="shape" class="section">Shape</h3>
 
     <p>
-      Represents a shape that is composed of one or more subpaths. <code>new kite.Shape()</code> will create an empty shape, which can then
+      Represents a shape that is composed of one or more subpaths. <code>new phet.kite.Shape()</code> will create an empty shape, which can then
       have drawing commands (like <a href="#shape-moveTo">moveTo</a> or <a href="#shape-lineTo">lineTo</a>) applied to it.
       The semantics are effectively the same as the Canvas 2D interface <a
         href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#canvaspathmethods">CanvasPathMethods</a>, where
@@ -266,7 +266,7 @@ grunt build</pre>
         context.canvas.height = 64;
         var shape =
           /*START*/
-            new kite.Shape().moveTo( 10, 22 )
+            new phet.kite.Shape().moveTo( 10, 22 )
                             .lineTo( 54, 22 )
                             .moveTo( 10, 42 )
                             .lineTo( 54, 42 )
@@ -293,7 +293,7 @@ grunt build</pre>
         context.canvas.height = 64;
         var shape =
           /*START*/
-            new kite.Shape().moveTo( 20, 32 )
+            new phet.kite.Shape().moveTo( 20, 32 )
                             .lineTo( 32, 12 )
                             .lineTo( 44, 32 )
                             .lineTo( 32, 52 )
@@ -322,7 +322,7 @@ grunt build</pre>
         context.canvas.height = 64;
         var shape =
           /*START*/
-            new kite.Shape().moveTo( 10, 10 )
+            new phet.kite.Shape().moveTo( 10, 10 )
                             .quadraticCurveTo( 54, 10, 54, 54 )
                             .quadraticCurveTo( 10, 54, 32, 32 )
         /*END*/

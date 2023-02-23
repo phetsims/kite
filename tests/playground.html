@@ -37,19 +37,19 @@
   console.log( 'loaded' );
 
   window.interTest = function() {
-    window.a = new kite.Cubic( dot.v2( 0, 0 ), dot.v2( 10, 0 ), dot.v2( 10, 10 ), dot.v2( 20, 10 ) );
-    window.b = new kite.Line( dot.v2( 0, -1 ), dot.v2( 20, 11 ) );
+    window.a = new phet.kite.Cubic( phet.dot.v2( 0, 0 ), phet.dot.v2( 10, 0 ), phet.dot.v2( 10, 10 ), phet.dot.v2( 20, 10 ) );
+    window.b = new phet.kite.Line( phet.dot.v2( 0, -1 ), phet.dot.v2( 20, 11 ) );
     setTimeout( function() {
-      window.intersections = kite.Segment.boundsBasedIntersect( a, b );
+      window.intersections = phet.kite.Segment.boundsBasedIntersect( a, b );
       console.log( window.intersections );
-      window.intersections2 = kite.BoundsIntersection.intersect( a, b );
+      window.intersections2 = phet.kite.BoundsIntersection.intersect( a, b );
       console.log( window.intersections2 );
     } );
   };
 
   window.cubicIssue = function() {
     setTimeout( function() {
-      window.result = kite.Segment.polynomialGetOverlapCubic( 528.84, 0, 9.072000000000116, -1.5120000000002847, 536.4, -13.60799999999972, 4.5359999999996035, 1.5120000000000573 );
+      window.result = phet.kite.Segment.polynomialGetOverlapCubic( 528.84, 0, 9.072000000000116, -1.5120000000002847, 536.4, -13.60799999999972, 4.5359999999996035, 1.5120000000000573 );
     } );
 
     // {"type":"Cubic","startX":528.84,"startY":372.12,"control1X":528.84,"control1Y":363.912,"control2X":531.864,"control2Y":362.544,"endX":536.4,"endY":358.44}
@@ -69,7 +69,7 @@
       var SPEAKER_BACK_Y_SPACE = ( SPEAKER_HEIGHT - SPEAKER_BACK_HEIGHT ) / 2.0;
       var CORNER_RADIUS = 1.0;
 
-      window.shape = new kite.Shape()
+      window.shape = new phet.kite.Shape()
         .moveTo( SPEAKER_WIDTH, 0 )
         .lineTo( SPEAKER_BACK_WIDTH, SPEAKER_BACK_Y_SPACE )
         .lineTo( CORNER_RADIUS, SPEAKER_BACK_Y_SPACE )
@@ -81,7 +81,7 @@
         .lineTo( SPEAKER_WIDTH, 0 )
         .close();
 
-      window.strokedShape = shape.getStrokedShape( new kite.LineStyles( {
+      window.strokedShape = shape.getStrokedShape( new phet.kite.LineStyles( {
         lineWidth: 1.5,
         lineJoin: 'round'
       } ) );
@@ -89,21 +89,21 @@
   };
 
   window.overlapTest = function() {
-    window.a = new kite.Line( new dot.Vector2( 0, 0 ), new dot.Vector2( 6.123233995736766e-16, -10 ) );
-    window.b = new kite.Line( new dot.Vector2( -1.8369701987210296e-15, -10 ), new dot.Vector2( 0, 0 ) );
+    window.a = new phet.kite.Line( new phet.dot.Vector2( 0, 0 ), new phet.dot.Vector2( 6.123233995736766e-16, -10 ) );
+    window.b = new phet.kite.Line( new phet.dot.Vector2( -1.8369701987210296e-15, -10 ), new phet.dot.Vector2( 0, 0 ) );
 
-    console.log( kite.Line.getOverlaps( a, b ) );
+    console.log( phet.kite.Line.getOverlaps( a, b ) );
   };
 
   window.initTest = function() {
 
-    window.shapes = _.range( 0, 5 ).map( i => kite.Shape.polygon( [
-      dot.Vector2.ZERO,
-      dot.Vector2.createPolar( 10, 2 * Math.PI * i / 5 - Math.PI / 2 ),
-      dot.Vector2.createPolar( 10, 2 * Math.PI * ( i + 1 ) / 5 - Math.PI / 2 )
+    window.shapes = _.range( 0, 5 ).map( i => phet.kite.Shape.polygon( [
+      phet.dot.Vector2.ZERO,
+      phet.dot.Vector2.createPolar( 10, 2 * Math.PI * i / 5 - Math.PI / 2 ),
+      phet.dot.Vector2.createPolar( 10, 2 * Math.PI * ( i + 1 ) / 5 - Math.PI / 2 )
     ] ) );
 
-    window.graph = new kite.Graph();
+    window.graph = new phet.kite.Graph();
     for ( var i = 0; i < shapes.length; i++ ) {
       graph.addShape( i, shapes[ i ] );
     }
@@ -175,17 +175,17 @@ new id 16
     window.shape = subgraph.facesToShape();
     console.log( shape.getSVGPath() );
 
-    // window.cubic = new kite.Cubic( dot.v2( 0 ,0 ), dot.v2( 0, 3 ), dot.v2( 10, 7 ), dot.v3( 10, 9 ) );
-    // return kite.Cubic.getOverlaps( cubic.subdivided( 0.7 )[ 0 ], cubic.subdivided( 0.3 )[ 1 ] );
+    // window.cubic = new phet.kite.Cubic( phet.dot.v2( 0 ,0 ), phet.dot.v2( 0, 3 ), phet.dot.v2( 10, 7 ), phet.dot.v3( 10, 9 ) );
+    // return phet.kite.Cubic.getOverlaps( cubic.subdivided( 0.7 )[ 0 ], cubic.subdivided( 0.3 )[ 1 ] );
   };
 
   window.perfTest = function() {
     ( function step() {
       requestAnimationFrame( step );
 
-      var a = new kite.Shape();
-      var b = new kite.Shape();
-      var c = new kite.Shape();
+      var a = new phet.kite.Shape();
+      var b = new phet.kite.Shape();
+      var c = new phet.kite.Shape();
 
       a.moveTo( 0, 2 ).cubicCurveTo( 22, 2, -1, 10, 25, 10 ).lineTo( 25, 16.5 ).lineTo( 0, 16.5 ).close();
       a.moveTo( 0, 10 ).lineTo( 10, 10 ).lineTo( 10, 25 ).lineTo( 0, 25 ).close();
@@ -204,23 +204,23 @@ new id 16
 
   window.initLineTest = function() {
     // intersection with one ray returns a different result than another. need to add indeterminate intersection handling
-    window.shape = new kite.Shape( 'M -100 -100 L -50 50 L 50 50 L 30 0' );
-    window.ray1 = new dot.Ray2( dot.v2( 50, 267 ), dot.v2( 0, -1 ) );
-    window.ray2 = new dot.Ray2( dot.v2( 50, 267 ), dot.v2( 1, 0 ) );
+    window.shape = new phet.kite.Shape( 'M -100 -100 L -50 50 L 50 50 L 30 0' );
+    window.ray1 = new phet.dot.Ray2( phet.dot.v2( 50, 267 ), phet.dot.v2( 0, -1 ) );
+    window.ray2 = new phet.dot.Ray2( phet.dot.v2( 50, 267 ), phet.dot.v2( 1, 0 ) );
     console.log( 'ray1: ' + shape.windingIntersection( ray1 ) );
     console.log( 'ray2: ' + shape.windingIntersection( ray2 ) );
   }
 
   window.debugArcs = function() {
-    var normalCircle = new kite.Arc( dot.v2( 0, 0 ), 40, 0, Math.PI * 2, false );
-    var reversedCircle = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 2, 0, true );
-    var rotatedCircle = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI, 3 * Math.PI, false );
-    var normalArc = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 0.25, Math.PI * 0.75, false );
-    var normalSecondArc = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 0.5, Math.PI * 1, false );
-    var largeArc = new kite.Arc( dot.v2( 0, 0 ), 40, 0, Math.PI * 1.8, false );
-    var largeSecondArc = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 1.6, Math.PI * 2.4, false );
-    var largeMatchingArc = new kite.Arc( dot.v2( 0, 0 ), 40, Math.PI * 1.8, Math.PI * 2.4, false );
-    var offsetCircle = new kite.Arc( dot.v2( 30, 0 ), 40, 0, Math.PI * 2, false );
+    var normalCircle = new phet.kite.Arc( phet.dot.v2( 0, 0 ), 40, 0, Math.PI * 2, false );
+    var reversedCircle = new phet.kite.Arc( phet.dot.v2( 0, 0 ), 40, Math.PI * 2, 0, true );
+    var rotatedCircle = new phet.kite.Arc( phet.dot.v2( 0, 0 ), 40, Math.PI, 3 * Math.PI, false );
+    var normalArc = new phet.kite.Arc( phet.dot.v2( 0, 0 ), 40, Math.PI * 0.25, Math.PI * 0.75, false );
+    var normalSecondArc = new phet.kite.Arc( phet.dot.v2( 0, 0 ), 40, Math.PI * 0.5, Math.PI * 1, false );
+    var largeArc = new phet.kite.Arc( phet.dot.v2( 0, 0 ), 40, 0, Math.PI * 1.8, false );
+    var largeSecondArc = new phet.kite.Arc( phet.dot.v2( 0, 0 ), 40, Math.PI * 1.6, Math.PI * 2.4, false );
+    var largeMatchingArc = new phet.kite.Arc( phet.dot.v2( 0, 0 ), 40, Math.PI * 1.8, Math.PI * 2.4, false );
+    var offsetCircle = new phet.kite.Arc( phet.dot.v2( 30, 0 ), 40, 0, Math.PI * 2, false );
     debugArcOverlap( normalCircle, normalArc );
     debugArcOverlap( normalCircle, reversedCircle );
     debugArcOverlap( normalArc, normalSecondArc );
@@ -233,19 +233,19 @@ new id 16
   };
 
   window.debugEllipticalArcs = function() {
-    var normalEllipse = new kite.EllipticalArc( dot.v2( 0, 0 ), 40, 20, Math.PI * 0.1, 0, Math.PI * 2, false );
-    var mirrorEllipse = new kite.EllipticalArc( dot.v2( 0, 0 ), 40, 20, Math.PI * 1.1, Math.PI, Math.PI * 3, false );
-    var normalEllipticalArc = new kite.EllipticalArc( dot.v2( 0, 0 ), 40, 20, Math.PI * 0.1, 0, Math.PI / 4, false );
+    var normalEllipse = new phet.kite.EllipticalArc( phet.dot.v2( 0, 0 ), 40, 20, Math.PI * 0.1, 0, Math.PI * 2, false );
+    var mirrorEllipse = new phet.kite.EllipticalArc( phet.dot.v2( 0, 0 ), 40, 20, Math.PI * 1.1, Math.PI, Math.PI * 3, false );
+    var normalEllipticalArc = new phet.kite.EllipticalArc( phet.dot.v2( 0, 0 ), 40, 20, Math.PI * 0.1, 0, Math.PI / 4, false );
     debugEllipticalArcOverlap( normalEllipse, normalEllipticalArc );
     debugEllipticalArcOverlap( normalEllipse, mirrorEllipse );
   };
 
   function debugArcOverlap( arc1, arc2 ) {
-    debugOverlap( arc1, arc2, kite.Arc.getOverlaps );
+    debugOverlap( arc1, arc2, phet.kite.Arc.getOverlaps );
   }
 
   function debugEllipticalArcOverlap( arc1, arc2 ) {
-    debugOverlap( arc1, arc2, kite.EllipticalArc.getOverlaps );
+    debugOverlap( arc1, arc2, phet.kite.EllipticalArc.getOverlaps );
   }
 
   function debugOverlap( segment1, segment2, overlapFunction ) {
@@ -309,20 +309,20 @@ new id 16
   }
 
   window.bleh = () => {
-    const aShape = new kite.Shape( 'M 172.00000000000000000000 39.00000000000000000000 L 172.00000000000000000000 -51.00000000000000000000 L 225.00000000000000000000 -83.00000000000000000000 L 225.00000000000000000000 72.00000000000000000000 L 172.00000000000000000000 39.00000000000000000000 Z ' );
-    const bShape = new kite.Shape( 'M 239.85954693211317589885 9.90930831842961623579 A 79.71909386422636600855 39.85954693211318300428 450 0 1 160.14045306788682410115 9.90930831842964110479 A 79.71909386422636600855 39.85954693211318300428 450 0 1 239.85954693211317589885 9.90930831842959669586 Z ' );
+    const aShape = new phet.kite.Shape( 'M 172.00000000000000000000 39.00000000000000000000 L 172.00000000000000000000 -51.00000000000000000000 L 225.00000000000000000000 -83.00000000000000000000 L 225.00000000000000000000 72.00000000000000000000 L 172.00000000000000000000 39.00000000000000000000 Z ' );
+    const bShape = new phet.kite.Shape( 'M 239.85954693211317589885 9.90930831842961623579 A 79.71909386422636600855 39.85954693211318300428 450 0 1 160.14045306788682410115 9.90930831842964110479 A 79.71909386422636600855 39.85954693211318300428 450 0 1 239.85954693211317589885 9.90930831842959669586 Z ' );
     aShape.shapeIntersection( bShape );
 
   };
 
   window.debugGraph = function( graph ) {
-    var bounds = dot.Bounds2.NOTHING.copy();
+    var bounds = phet.dot.Bounds2.NOTHING.copy();
     for ( var i = 0; i < graph.edges.length; i++ ) {
       bounds.includeBounds( graph.edges[ i ].segment.getBounds() );
     }
     // const epsilon = 0.002;
     const epsilon = 0.03;
-    bounds = new dot.Bounds2( 225-epsilon, 72-epsilon, 225+epsilon, 72+epsilon );
+    bounds = new phet.dot.Bounds2( 225-epsilon, 72-epsilon, 225+epsilon, 72+epsilon );
 
     var debugSize = 512;
     var pad = 20;
