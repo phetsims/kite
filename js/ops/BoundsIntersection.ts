@@ -280,9 +280,7 @@ export default class BoundsIntersection {
    * process is done.
    */
   private static cleanPool(): void {
-    for ( let i = 0; i < BoundsIntersection.pool.objects.length; i++ ) {
-      BoundsIntersection.pool.objects[ i ].clean();
-    }
+    BoundsIntersection.pool.forEach( intersection => intersection.clean() );
   }
 
   public freeToPool(): void {
