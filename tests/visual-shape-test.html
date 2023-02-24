@@ -148,7 +148,7 @@
    * State
    *---------------------------------------------------------------------------*/
 
-  var strokeStyles = new kite.LineStyles( {
+  var strokeStyles = new phet.kite.LineStyles( {
     lineWidth: 30,
     lineCap: 'butt',
     lineJoin: 'miter',
@@ -175,7 +175,7 @@
   var shapeBounds = false;
   var shapeRotBounds = false;
 
-  var shape = new kite.Shape();
+  var shape = new phet.kite.Shape();
   var transformedShape;
   var strokedShape;
 
@@ -190,7 +190,7 @@
   var offset = 0;
   var reflection = false;
 
-  var rotationMatrix = dot.Matrix3.rotation2( Math.PI / 4 );
+  var rotationMatrix = phet.dot.Matrix3.rotation2( Math.PI / 4 );
   var inverseRotationMatrix = rotationMatrix.inverted();
 
   /*---------------------------------------------------------------------------*
@@ -213,11 +213,11 @@
 
     transformedShape = shape;
     if ( transformActive ) {
-      var matrix = dot.Matrix3.translation( translation, 0 )
-        .timesMatrix( dot.Matrix3.rotation2( rotation ) )
-        .timesMatrix( dot.Matrix3.scale( scaling ) )
-        .timesMatrix( dot.Matrix3.pool.create( 1, shear, 0, 0, 1, 0, 0, 0, 1 ) )
-        .timesMatrix( reflection ? dot.Matrix3.X_REFLECTION : dot.Matrix3.IDENTITY );
+      var matrix = phet.dot.Matrix3.translation( translation, 0 )
+        .timesMatrix( phet.dot.Matrix3.rotation2( rotation ) )
+        .timesMatrix( phet.dot.Matrix3.scale( scaling ) )
+        .timesMatrix( phet.dot.Matrix3.pool.create( 1, shear, 0, 0, 1, 0, 0, 0, 1 ) )
+        .timesMatrix( reflection ? phet.dot.Matrix3.X_REFLECTION : phet.dot.Matrix3.IDENTITY );
       transformedShape = shape.transformed( matrix );
       // console.log( matrix.toString() + '\n' );
     }
@@ -344,10 +344,10 @@
 
         if ( segmentControlNet ) {
           var pts = [];
-          if ( segment instanceof kite.Quadratic ) {
+          if ( segment instanceof phet.kite.Quadratic ) {
             pts = [ segment.start, segment.control, segment.end ];
           }
-          else if ( segment instanceof kite.Cubic ) {
+          else if ( segment instanceof phet.kite.Cubic ) {
             pts = [ segment.start, segment.control1, segment.control2, segment.end ];
           }
           if ( pts.length ) {
@@ -412,19 +412,19 @@
    * Basic segments
    *----------------------------------------------------------------------------*/
   updateListener( 'line', function() {
-    shape = new kite.Shape().moveTo( -100, -100 ).lineTo( -50, 50 );
+    shape = new phet.kite.Shape().moveTo( -100, -100 ).lineTo( -50, 50 );
   } );
   updateListener( 'quadratic', function() {
-    shape = new kite.Shape().moveTo( -100, -100 ).quadraticCurveTo( -50, 50, 50, 50 );
+    shape = new phet.kite.Shape().moveTo( -100, -100 ).quadraticCurveTo( -50, 50, 50, 50 );
   } );
   updateListener( 'cubic', function() {
-    shape = new kite.Shape().moveTo( -100, -100 ).cubicCurveTo( -50, 50, 50, 50, 0, 100 );
+    shape = new phet.kite.Shape().moveTo( -100, -100 ).cubicCurveTo( -50, 50, 50, 50, 0, 100 );
   } );
   updateListener( 'arc', function() {
-    shape = new kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, false );
+    shape = new phet.kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, false );
   } );
   updateListener( 'ellipticalArc', function() {
-    shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 4, Math.PI / 4, -Math.PI / 2, false );
+    shape = new phet.kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 4, Math.PI / 4, -Math.PI / 2, false );
   } );
 
   /*---------------------------------------------------------------------------*
@@ -432,74 +432,74 @@
    *----------------------------------------------------------------------------*/
 
   updateListener( 'lines', function() {
-    shape = new kite.Shape().moveTo( -100, -100 ).lineTo( -50, 50 ).lineTo( 50, 50 ).lineTo( 30, 0 );
+    shape = new phet.kite.Shape().moveTo( -100, -100 ).lineTo( -50, 50 ).lineTo( 50, 50 ).lineTo( 30, 0 );
   } );
   updateListener( 'arc1', function() {
-    shape = new kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, false );
+    shape = new phet.kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, false );
   } );
   updateListener( 'arc2', function() {
-    shape = new kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, true );
+    shape = new phet.kite.Shape().arc( 0, 0, 100, Math.PI / 4, -Math.PI / 2, true );
   } );
   updateListener( 'arc3', function() {
-    shape = new kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, false );
+    shape = new phet.kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, false );
   } );
   updateListener( 'arc4', function() {
-    shape = new kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, true );
+    shape = new phet.kite.Shape().arc( 0, 0, 100, -Math.PI / 4, Math.PI / 2, true );
   } );
   updateListener( 'narc1', function() {
-    shape = new kite.Shape().arc( 0, 0, -100, Math.PI / 4, -Math.PI / 2, false );
+    shape = new phet.kite.Shape().arc( 0, 0, -100, Math.PI / 4, -Math.PI / 2, false );
   } );
   updateListener( 'ellipse1', function() {
-    shape = new kite.Shape().ellipse( 0, 0, 100, 50, 0 );
+    shape = new phet.kite.Shape().ellipse( 0, 0, 100, 50, 0 );
   } );
   updateListener( 'ellipse2', function() {
-    shape = new kite.Shape().ellipse( 0, 0, 100, 50, Math.PI / 2 );
+    shape = new phet.kite.Shape().ellipse( 0, 0, 100, 50, Math.PI / 2 );
   } );
   updateListener( 'ellipse3', function() {
-    shape = new kite.Shape().ellipse( 0, 0, 100, 50, Math.PI / 4 );
+    shape = new phet.kite.Shape().ellipse( 0, 0, 100, 50, Math.PI / 4 );
   } );
   updateListener( 'circle', function() {
-    shape = new kite.Shape().arc( 0, 0, 100, 0, Math.PI * 2, false );
+    shape = new phet.kite.Shape().arc( 0, 0, 100, 0, Math.PI * 2, false );
   } );
   updateListener( 'rect', function() {
-    shape = new kite.Shape().rect( -100, -75, 200, 150 );
+    shape = new phet.kite.Shape().rect( -100, -75, 200, 150 );
   } );
   updateListener( 'earc1', function() {
-    shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
+    shape = new phet.kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
   } );
   updateListener( 'earc2', function() {
-    shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, true );
+    shape = new phet.kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, true );
   } );
   updateListener( 'earc3', function() {
-    shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, -Math.PI / 3, Math.PI / 6, false );
+    shape = new phet.kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, -Math.PI / 3, Math.PI / 6, false );
   } );
   updateListener( 'earc4', function() {
-    shape = new kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, -Math.PI / 3, Math.PI / 6, true );
+    shape = new phet.kite.Shape().ellipticalArc( 0, 0, 100, 50, Math.PI / 3, -Math.PI / 3, Math.PI / 6, true );
   } );
   updateListener( 'nxearc1', function() {
-    shape = new kite.Shape().ellipticalArc( 0, 0, -100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
+    shape = new phet.kite.Shape().ellipticalArc( 0, 0, -100, 50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
   } );
   updateListener( 'nyearc1', function() {
-    shape = new kite.Shape().ellipticalArc( 0, 0, 100, -50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
+    shape = new phet.kite.Shape().ellipticalArc( 0, 0, 100, -50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
   } );
   updateListener( 'nxyearc1', function() {
-    shape = new kite.Shape().ellipticalArc( 0, 0, -100, -50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
+    shape = new phet.kite.Shape().ellipticalArc( 0, 0, -100, -50, Math.PI / 3, Math.PI / 4, -Math.PI / 2, false );
   } );
   updateListener( 'rrect', function() {
-    shape = new kite.Shape().roundRect( -50, -50, 100, 100, 30, 30 );
+    shape = new phet.kite.Shape().roundRect( -50, -50, 100, 100, 30, 30 );
   } );
   updateListener( 'errect', function() {
-    shape = new kite.Shape().roundRect( -50, -50, 100, 100, 20, 40 );
+    shape = new phet.kite.Shape().roundRect( -50, -50, 100, 100, 20, 40 );
   } );
   updateListener( 'bucket', function() {
-    shape = new kite.Shape().moveTo( -60, 0 )
+    shape = new phet.kite.Shape().moveTo( -60, 0 )
       .lineTo( -48, 42 )
       .cubicCurveTo( -36, 51, 36, 51, 48, 42 )
       .lineTo( 60, 0 )
       .ellipticalArc( 0, 0, 60, 7.5, 0, 0, -Math.PI, false )
       .close();
-    var point = dot.v2( -131.07772925764198, -274.65043668122274 );
-    var ray = new dot.Ray2( point, dot.v2( 1, 0 ) );
+    var point = phet.dot.v2( -131.07772925764198, -274.65043668122274 );
+    var ray = new phet.dot.Ray2( point, phet.dot.v2( 1, 0 ) );
     console.log( shape.intersection( ray ) );
   } );
   updateListener( 'polarrow', function() {
@@ -509,7 +509,7 @@
     var middleRadius = 70;
     var halfHeadWidth = 40 / 2;
     var halfTailWidth = 20 / 2;
-    shape = new kite.Shape().moveTo( tipAngle, middleRadius )
+    shape = new phet.kite.Shape().moveTo( tipAngle, middleRadius )
       .lineTo( baseAngle, middleRadius + halfHeadWidth )
       .lineTo( baseAngle, middleRadius + halfTailWidth )
       .lineTo( tailAngle, middleRadius + halfTailWidth )
@@ -521,28 +521,28 @@
     shape = shape.polarToCartesian();
   } );
   updateListener( 'spline', function() {
-    shape = new kite.Shape().cardinalSpline( [
-      dot.v2( -100, 0 ),
-      dot.v2( 100, 0 ),
-      dot.v2( -100, 200 ),
-      dot.v2( 100, 200 )
+    shape = new phet.kite.Shape().cardinalSpline( [
+      phet.dot.v2( -100, 0 ),
+      phet.dot.v2( 100, 0 ),
+      phet.dot.v2( -100, 200 ),
+      phet.dot.v2( 100, 200 )
     ], { isClosedLineSegments: true, tension: -1 } ).close().cardinalSpline( [
-      dot.v2( 200, 0 ),
-      dot.v2( 400, 0 ),
-      dot.v2( 200, 200 ),
-      dot.v2( 400, 200 )
+      phet.dot.v2( 200, 0 ),
+      phet.dot.v2( 400, 0 ),
+      phet.dot.v2( 200, 200 ),
+      phet.dot.v2( 400, 200 )
     ], { isClosedLineSegments: true, tension: 0 } ).close().cardinalSpline( [
-      dot.v2( 500, 0 ),
-      dot.v2( 700, 0 ),
-      dot.v2( 500, 200 ),
-      dot.v2( 700, 200 )
+      phet.dot.v2( 500, 0 ),
+      phet.dot.v2( 700, 0 ),
+      phet.dot.v2( 500, 200 ),
+      phet.dot.v2( 700, 200 )
     ], { isClosedLineSegments: true, tension: 1 } ).close();
   } );
   updateListener( 'svgPath', function() {
     var s;
     var el = document.getElementById( 'svgPath' );
     try {
-      shape = new kite.Shape( el.value );
+      shape = new phet.kite.Shape( el.value );
       el.style.backgroundColor = '#dfd';
     }
     catch( e ) {
@@ -683,7 +683,7 @@
   document.getElementById( 'hit-fill' ).addEventListener( 'click', function() {
     for ( var x = -200; x <= 200; x++ ) {
       for ( var y = -200; y <= 200; y++ ) {
-        if ( !transformedShape.containsPoint( new dot.Vector2( x + 0.5, y + 0.5 ) ) ) {
+        if ( !transformedShape.containsPoint( new phet.dot.Vector2( x + 0.5, y + 0.5 ) ) ) {
           context.beginPath();
           context.fillStyle = 'rgba(255,0,0,0.5)';
           context.fillRect( x, y, 1, 1 );
@@ -696,7 +696,7 @@
     var shp = transformedShape.getStrokedShape( strokeStyles );
     for ( var x = -200; x <= 200; x++ ) {
       for ( var y = -200; y <= 200; y++ ) {
-        if ( !shp.containsPoint( new dot.Vector2( x + 0.5, y + 0.5 ) ) ) {
+        if ( !shp.containsPoint( new phet.dot.Vector2( x + 0.5, y + 0.5 ) ) ) {
           context.beginPath();
           context.fillStyle = 'rgba(255,0,0,0.5)';
           context.fillRect( x, y, 1, 1 );
@@ -718,17 +718,17 @@
   canvas.addEventListener( 'mousemove', function( domEvent ) {
     if ( hitMouse ) {
       render();
-      var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
+      var pos = new phet.dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
 
       var resolution = 192;
       var displayLength = 500;
       var multiplier = Math.PI * 2 / resolution;
       for ( var i = 0; i < resolution; i++ ) {
         var angle = multiplier * i;
-        var ray = new dot.Ray2( pos, dot.Vector2.createPolar( 1, angle ) );
+        var ray = new phet.dot.Ray2( pos, phet.dot.Vector2.createPolar( 1, angle ) );
 
-        var a = pos.plus( dot.Vector2.createPolar( displayLength, ( i - 0.5 ) * multiplier ) );
-        var b = pos.plus( dot.Vector2.createPolar( displayLength, ( i + 0.5 ) * multiplier ) );
+        var a = pos.plus( phet.dot.Vector2.createPolar( displayLength, ( i - 0.5 ) * multiplier ) );
+        var b = pos.plus( phet.dot.Vector2.createPolar( displayLength, ( i + 0.5 ) * multiplier ) );
         var end = ray.pointAtDistance( 200 );
 
         var wind = strokedShape.windingIntersection( ray );
@@ -743,7 +743,7 @@
     }
     if ( hitMouseSpan ) {
       render();
-      var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
+      var pos = new phet.dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
 
       var resolution = 192;
       var displayLength = 1000;
@@ -753,16 +753,16 @@
         var angle = multiplier * i;
         var minAngle = ( i - 0.5 ) * multiplier;
         var maxAngle = ( i + 0.5 ) * multiplier;
-        var ray = new dot.Ray2( pos, dot.Vector2.createPolar( 1, angle ) );
+        var ray = new phet.dot.Ray2( pos, phet.dot.Vector2.createPolar( 1, angle ) );
 
         var hits = strokedShape.intersection( ray );
 
         function drawSegment( a, b, color ) {
           context.beginPath();
-          var p1 = pos.plus( dot.Vector2.createPolar( a, minAngle ) );
-          var p2 = pos.plus( dot.Vector2.createPolar( a, maxAngle ) );
-          var p3 = pos.plus( dot.Vector2.createPolar( b, maxAngle ) );
-          var p4 = pos.plus( dot.Vector2.createPolar( b, minAngle ) );
+          var p1 = pos.plus( phet.dot.Vector2.createPolar( a, minAngle ) );
+          var p2 = pos.plus( phet.dot.Vector2.createPolar( a, maxAngle ) );
+          var p3 = pos.plus( phet.dot.Vector2.createPolar( b, maxAngle ) );
+          var p4 = pos.plus( phet.dot.Vector2.createPolar( b, minAngle ) );
 
           context.moveTo( p1.x, p1.y );
           context.lineTo( p2.x, p2.y );
@@ -816,7 +816,7 @@
     }
     if ( hitDistance ) {
       render();
-      var pos = new dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
+      var pos = new phet.dot.Vector2( domEvent.clientX - xOffset, domEvent.clientY - yOffset ); // ok since we are at 0,0 no scrolling
 
       // use strokedShape
       var segments = [];
@@ -825,7 +825,7 @@
           segments.push( segment );
         } );
       } );
-      var closestList = kite.Segment.closestToPoint( segments, pos, 1e-3 );
+      var closestList = phet.kite.Segment.closestToPoint( segments, pos, 1e-3 );
 
       _.each( closestList, function( info ) {
         context.beginPath();
