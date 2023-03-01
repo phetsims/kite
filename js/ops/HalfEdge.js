@@ -8,7 +8,7 @@
  */
 
 import Vector2 from '../../../dot/js/Vector2.js';
-import Poolable from '../../../phet-core/js/Poolable.js';
+import Pool from '../../../phet-core/js/Pool.js';
 import { kite } from '../imports.js';
 
 let globaId = 0;
@@ -17,7 +17,7 @@ class HalfEdge {
   /**
    * @public (kite-internal)
    *
-   * NOTE: Use HalfEdge.createFromPool for most usage instead of using the constructor directly.
+   * NOTE: Use HalfEdge.pool.create for most usage instead of using the constructor directly.
    *
    * @param {Edge} edge
    * @param {boolean} isReversed
@@ -195,10 +195,16 @@ class HalfEdge {
       return this.edge.segment;
     }
   }
+
+  // @public
+  freeToPool() {
+    HalfEdge.pool.freeToPool( this );
+  }
+
+  // @public
+  static pool = new Pool( HalfEdge );
 }
 
 kite.register( 'HalfEdge', HalfEdge );
-
-Poolable.mixInto( HalfEdge );
 
 export default HalfEdge;

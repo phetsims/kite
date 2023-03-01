@@ -59,7 +59,7 @@ class Graph {
     this.loops = [];
 
     // @public {Face}
-    this.unboundedFace = Face.createFromPool( null );
+    this.unboundedFace = Face.pool.create( null );
 
     // @public {Array.<Face>}
     this.faces = [ this.unboundedFace ];
@@ -142,7 +142,7 @@ class Graph {
     } );
 
     graph.boundaries = obj.boundaries.map( data => {
-      const boundary = new Boundary( data.halfEdges.map( id => halfEdgeMap[ id ] ) );
+      const boundary = Boundary.pool.create( data.halfEdges.map( id => halfEdgeMap[ id ] ) );
       boundaryMap[ data.id ] = boundary;
       boundary.signedArea = data.signedArea;
       boundary.bounds = Bounds2.Bounds2IO.fromStateObject( data.bounds );
@@ -249,27 +249,27 @@ class Graph {
 
       // If they are exactly equal, don't take a chance on floating-point arithmetic
       if ( start.equals( end ) ) {
-        vertices.push( Vertex.createFromPool( start ) );
+        vertices.push( Vertex.pool.create( start ) );
       }
       else {
         assert && assert( start.distance( end ) < 1e-5, 'Inaccurate start/end points' );
-        vertices.push( Vertex.createFromPool( start.average( end ) ) );
+        vertices.push( Vertex.pool.create( start.average( end ) ) );
       }
     }
     if ( !closed ) {
       // If we aren't closed, create an "end" vertex since it may be different from the "start"
-      vertices.push( Vertex.createFromPool( segments[ segments.length - 1 ].end ) );
+      vertices.push( Vertex.pool.create( segments[ segments.length - 1 ].end ) );
     }
 
     // Create the loop object from the vertices, filling in edges
-    const loop = Loop.createFromPool( shapeId, closed );
+    const loop = Loop.pool.create( shapeId, closed );
     for ( index = 0; index < segments.length; index++ ) {
       let nextIndex = index + 1;
       if ( closed && nextIndex === segments.length ) {
         nextIndex = 0;
       }
 
-      const edge = Edge.createFromPool( segments[ index ], vertices[ index ], vertices[ nextIndex ] );
+      const edge = Edge.pool.create( segments[ index ], vertices[ index ], vertices[ nextIndex ] );
       loop.halfEdges.push( edge.forwardHalf );
       this.addEdge( edge );
     }
@@ -381,19 +381,19 @@ class Graph {
       const edge = this.edges[ i ];
       if ( edge.forwardHalf.face.filled !== edge.reversedHalf.face.filled ) {
         if ( !vertexMap[ edge.startVertex.id ] ) {
-          const newStartVertex = Vertex.createFromPool( edge.startVertex.point );
+          const newStartVertex = Vertex.pool.create( edge.startVertex.point );
           graph.vertices.push( newStartVertex );
           vertexMap[ edge.startVertex.id ] = newStartVertex;
         }
         if ( !vertexMap[ edge.endVertex.id ] ) {
-          const newEndVertex = Vertex.createFromPool( edge.endVertex.point );
+          const newEndVertex = Vertex.pool.create( edge.endVertex.point );
           graph.vertices.push( newEndVertex );
           vertexMap[ edge.endVertex.id ] = newEndVertex;
         }
 
         const startVertex = vertexMap[ edge.startVertex.id ];
         const endVertex = vertexMap[ edge.endVertex.id ];
-        graph.addEdge( Edge.createFromPool( edge.segment, startVertex, endVertex ) );
+        graph.addEdge( Edge.pool.create( edge.segment, startVertex, endVertex ) );
       }
     }
 
@@ -735,7 +735,7 @@ class Graph {
 
     let beforeVertex;
     if ( aBefore && bBefore ) {
-      beforeVertex = Vertex.createFromPool( middle.start );
+      beforeVertex = Vertex.pool.create( middle.start );
       this.vertices.push( beforeVertex );
     }
     else if ( aBefore ) {
@@ -747,7 +747,7 @@ class Graph {
 
     let afterVertex;
     if ( aAfter && bAfter ) {
-      afterVertex = Vertex.createFromPool( middle.end );
+      afterVertex = Vertex.pool.create( middle.end );
       this.vertices.push( afterVertex );
     }
     else if ( aAfter ) {
@@ -757,7 +757,7 @@ class Graph {
       afterVertex = aEdge.endVertex;
     }
 
-    const middleEdge = Edge.createFromPool( middle, beforeVertex, afterVertex );
+    const middleEdge = Edge.pool.create( middle, beforeVertex, afterVertex );
     newEdges.push( middleEdge );
 
     let aBeforeEdge;
@@ -767,19 +767,19 @@ class Graph {
 
     // Add "leftover" edges
     if ( aBefore ) {
-      aBeforeEdge = Edge.createFromPool( aBefore, aEdge.startVertex, beforeVertex );
+      aBeforeEdge = Edge.pool.create( aBefore, aEdge.startVertex, beforeVertex );
       newEdges.push( aBeforeEdge );
     }
     if ( aAfter ) {
-      aAfterEdge = Edge.createFromPool( aAfter, afterVertex, aEdge.endVertex );
+      aAfterEdge = Edge.pool.create( aAfter, afterVertex, aEdge.endVertex );
       newEdges.push( aAfterEdge );
     }
     if ( bBefore ) {
-      bBeforeEdge = Edge.createFromPool( bBefore, bEdge.startVertex, overlap.a > 0 ? beforeVertex : afterVertex );
+      bBeforeEdge = Edge.pool.create( bBefore, bEdge.startVertex, overlap.a > 0 ? beforeVertex : afterVertex );
       newEdges.push( bBeforeEdge );
     }
     if ( bAfter ) {
-      bAfterEdge = Edge.createFromPool( bAfter, overlap.a > 0 ? afterVertex : beforeVertex, bEdge.endVertex );
+      bAfterEdge = Edge.pool.create( bAfter, overlap.a > 0 ? afterVertex : beforeVertex, bEdge.endVertex );
       newEdges.push( bAfterEdge );
     }
 
@@ -830,12 +830,12 @@ class Graph {
 
           const segments = segment.subdivisions( [ selfIntersection.aT, selfIntersection.bT ] );
 
-          const vertex = Vertex.createFromPool( selfIntersection.point );
+          const vertex = Vertex.pool.create( selfIntersection.point );
           this.vertices.push( vertex );
 
-          const startEdge = Edge.createFromPool( segments[ 0 ], edge.startVertex, vertex );
-          const middleEdge = Edge.createFromPool( segments[ 1 ], vertex, vertex );
-          const endEdge = Edge.createFromPool( segments[ 2 ], vertex, edge.endVertex );
+          const startEdge = Edge.pool.create( segments[ 0 ], edge.startVertex, vertex );
+          const middleEdge = Edge.pool.create( segments[ 1 ], vertex, vertex );
+          const endEdge = Edge.pool.create( segments[ 2 ], vertex, edge.endVertex );
 
           this.removeEdge( edge );
 
@@ -1007,7 +1007,7 @@ class Graph {
       vertex = bT < 0.5 ? bEdge.startVertex : bEdge.endVertex;
     }
     else {
-      vertex = Vertex.createFromPool( point );
+      vertex = Vertex.pool.create( point );
       this.vertices.push( vertex );
     }
 
@@ -1048,8 +1048,8 @@ class Graph {
     const segments = edge.segment.subdivided( t );
     assert && assert( segments.length === 2 );
 
-    const firstEdge = Edge.createFromPool( segments[ 0 ], edge.startVertex, vertex );
-    const secondEdge = Edge.createFromPool( segments[ 1 ], vertex, edge.endVertex );
+    const firstEdge = Edge.pool.create( segments[ 0 ], edge.startVertex, vertex );
+    const secondEdge = Edge.pool.create( segments[ 1 ], vertex, edge.endVertex );
 
     // Remove old connections
     this.removeEdge( edge );
@@ -1131,7 +1131,7 @@ class Graph {
           const distance = vertex.point.distance( otherVertex.point );
           if ( distance < 1e-5 ) {
 
-              const newVertex = Vertex.createFromPool( distance === 0 ? vertex.point : vertex.point.average( otherVertex.point ) );
+              const newVertex = Vertex.pool.create( distance === 0 ? vertex.point : vertex.point.average( otherVertex.point ) );
               this.vertices.push( newVertex );
 
               arrayRemove( this.vertices, vertex );
@@ -1146,7 +1146,7 @@ class Graph {
                   if ( ( edge.segment.bounds.width > 1e-5 || edge.segment.bounds.height > 1e-5 ) &&
                        ( edge.segment instanceof Cubic || edge.segment instanceof Arc || edge.segment instanceof EllipticalArc ) ) {
                     // Replace it with a new edge that is from the vertex to itself
-                    const replacementEdge = Edge.createFromPool( edge.segment, newVertex, newVertex );
+                    const replacementEdge = Edge.pool.create( edge.segment, newVertex, newVertex );
                     this.addEdge( replacementEdge );
                     this.replaceEdgeInLoops( edge, [ replacementEdge.forwardHalf ] );
                   }
@@ -1347,13 +1347,13 @@ class Graph {
           break;
         }
       }
-      const boundary = Boundary.createFromPool( boundaryHalfEdges );
+      const boundary = Boundary.pool.create( boundaryHalfEdges );
       ( boundary.signedArea > 0 ? this.innerBoundaries : this.outerBoundaries ).push( boundary );
       this.boundaries.push( boundary );
     }
 
     for ( let i = 0; i < this.innerBoundaries.length; i++ ) {
-      this.faces.push( Face.createFromPool( this.innerBoundaries[ i ] ) );
+      this.faces.push( Face.pool.create( this.innerBoundaries[ i ] ) );
     }
   }
 

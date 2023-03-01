@@ -11,7 +11,7 @@ import Bounds2 from '../../../dot/js/Bounds2.js';
 import Ray2 from '../../../dot/js/Ray2.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import cleanArray from '../../../phet-core/js/cleanArray.js';
-import Poolable from '../../../phet-core/js/Poolable.js';
+import Pool from '../../../phet-core/js/Pool.js';
 import { kite, Subpath } from '../imports.js';
 
 let globaId = 0;
@@ -20,7 +20,7 @@ class Boundary {
   /**
    * @public (kite-internal)
    *
-   * NOTE: Use Boundary.createFromPool for most usage instead of using the constructor directly.
+   * NOTE: Use Boundary.pool.create for most usage instead of using the constructor directly.
    *
    * @param {Array.<HalfEdge>} halfEdges
    */
@@ -236,10 +236,16 @@ class Boundary {
     }
     return new Subpath( segments, null, true );
   }
+
+  // @public
+  freeToPool() {
+    Boundary.pool.freeToPool( this );
+  }
+
+  // @public
+  static pool = new Pool( Boundary );
 }
 
 kite.register( 'Boundary', Boundary );
-
-Poolable.mixInto( Boundary );
 
 export default Boundary;

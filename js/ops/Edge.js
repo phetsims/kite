@@ -6,7 +6,7 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import Poolable from '../../../phet-core/js/Poolable.js';
+import Pool from '../../../phet-core/js/Pool.js';
 import { HalfEdge, kite, Line, Segment, Vertex } from '../imports.js';
 
 let globaId = 0;
@@ -15,7 +15,7 @@ class Edge {
   /**
    * @public (kite-internal)
    *
-   * NOTE: Use Edge.createFromPool for most usage instead of using the constructor directly.
+   * NOTE: Use Edge.pool.create for most usage instead of using the constructor directly.
    *
    * @param {Segment} segment
    * @param {Vertex} startVertex
@@ -58,8 +58,8 @@ class Edge {
     this.signedAreaFragment = segment.getSignedAreaFragment();
 
     // @public {HalfEdge|null} - Null when disposed (in pool)
-    this.forwardHalf = HalfEdge.createFromPool( this, false );
-    this.reversedHalf = HalfEdge.createFromPool( this, true );
+    this.forwardHalf = HalfEdge.pool.create( this, false );
+    this.reversedHalf = HalfEdge.pool.create( this, true );
 
     // @public {boolean} - Used for depth-first search
     this.visited = false;
@@ -141,10 +141,16 @@ class Edge {
     assert && assert( !( this.segment instanceof Line ) || this.startVertex !== this.endVertex,
       'No line segments for same vertices' );
   }
+
+  // @public
+  freeToPool() {
+    Edge.pool.freeToPool( this );
+  }
+
+  // @public
+  static pool = new Pool( Edge );
 }
 
 kite.register( 'Edge', Edge );
-
-Poolable.mixInto( Edge );
 
 export default Edge;

@@ -10,7 +10,7 @@
 
 import Vector2 from '../../../dot/js/Vector2.js';
 import cleanArray from '../../../phet-core/js/cleanArray.js';
-import Poolable from '../../../phet-core/js/Poolable.js';
+import Pool from '../../../phet-core/js/Pool.js';
 import { kite, Line } from '../imports.js';
 
 let globaId = 0;
@@ -19,7 +19,7 @@ class Vertex {
   /**
    * @public (kite-internal)
    *
-   * NOTE: Use Vertex.createFromPool for most usage instead of using the constructor directly.
+   * NOTE: Use Vertex.pool.create for most usage instead of using the constructor directly.
    *
    * @param {Vector2} point - The point where the vertex should be located.
    */
@@ -166,10 +166,16 @@ class Vertex {
       }
     }
   }
+
+  // @public
+  freeToPool() {
+    Vertex.pool.freeToPool( this );
+  }
+
+  // @public
+  static pool = new Pool( Vertex );
 }
 
 kite.register( 'Vertex', Vertex );
-
-Poolable.mixInto( Vertex );
 
 export default Vertex;

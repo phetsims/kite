@@ -13,7 +13,7 @@
 
 import arrayRemove from '../../../phet-core/js/arrayRemove.js';
 import cleanArray from '../../../phet-core/js/cleanArray.js';
-import Poolable from '../../../phet-core/js/Poolable.js';
+import Pool from '../../../phet-core/js/Pool.js';
 import { Edge, kite } from '../imports.js';
 
 let globalId = 1;
@@ -39,8 +39,7 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
    *                  segments
    */
   public constructor( epsilon = 1e-6 ) {
-    // @ts-expect-error -- TODO: Poolable support
-    this.rootNode = SegmentNode.createFromPool( this, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY );
+    this.rootNode = SegmentNode.pool.create( this, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY ) as SegmentNode<T>;
     this.rootNode.isBlack = true;
 
     this.epsilon = epsilon;
@@ -431,13 +430,11 @@ class SegmentNode<T> {
     else {
       this.splitValue = n;
 
-      // @ts-expect-error -- TODO: Poolable support
-      const newLeft = SegmentNode.createFromPool( this.tree, this.min, n );
+      const newLeft = SegmentNode.pool.create( this.tree, this.min, n ) as SegmentNode<T>;
       newLeft.parent = this;
       this.left = newLeft;
 
-      // @ts-expect-error -- TODO: Poolable support
-      const newRight = SegmentNode.createFromPool( this.tree, n, this.max );
+      const newRight = SegmentNode.pool.create( this.tree, n, this.max ) as SegmentNode<T>;
       newRight.parent = this;
       this.right = newRight;
 
@@ -561,7 +558,12 @@ class SegmentNode<T> {
   public toString(): string {
     return `[${this.min} ${this.max}] split:${this.splitValue} ${this.isBlack ? 'black' : 'red'} ${this.items}`;
   }
-}
-Poolable.mixInto( SegmentNode );
 
+  public freeToPool(): void {
+    SegmentNode.pool.freeToPool( this );
+  }
+
+  public static pool = new Pool( SegmentNode );
+
+}
 kite.register( 'SegmentTree', SegmentTree );

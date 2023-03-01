@@ -12,7 +12,7 @@
  */
 
 import cleanArray from '../../../phet-core/js/cleanArray.js';
-import Poolable from '../../../phet-core/js/Poolable.js';
+import Pool from '../../../phet-core/js/Pool.js';
 import { kite } from '../imports.js';
 
 let globaId = 0;
@@ -21,7 +21,7 @@ class Face {
   /**
    * @public (kite-internal)
    *
-   * NOTE: Use Face.createFromPool for most usage instead of using the constructor directly.
+   * NOTE: Use Face.pool.create for most usage instead of using the constructor directly.
    *
    * @param {Boundary|null} boundary - Null if it's the unbounded face
    */
@@ -127,10 +127,16 @@ class Face {
       this.recursivelyAddHoles( outerBoundary.childBoundaries[ i ] );
     }
   }
+
+  // @public
+  freeToPool() {
+    Face.pool.freeToPool( this );
+  }
+
+  // @public
+  static pool = new Pool( Face );
 }
 
 kite.register( 'Face', Face );
-
-Poolable.mixInto( Face );
 
 export default Face;

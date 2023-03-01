@@ -15,7 +15,7 @@
  */
 
 import cleanArray from '../../../phet-core/js/cleanArray.js';
-import Poolable from '../../../phet-core/js/Poolable.js';
+import Pool from '../../../phet-core/js/Pool.js';
 import { kite, Subpath } from '../imports.js';
 
 let globaId = 0;
@@ -24,7 +24,7 @@ class Loop {
   /**
    * @public (kite-internal)
    *
-   * NOTE: Use Loop.createFromPool for most usage instead of using the constructor directly.
+   * NOTE: Use Loop.pool.create for most usage instead of using the constructor directly.
    *
    * @param {number} shapeId
    * @param {boolean} closed
@@ -102,10 +102,16 @@ class Loop {
     cleanArray( this.halfEdges );
     this.freeToPool();
   }
+
+  // @public
+  freeToPool() {
+    Loop.pool.freeToPool( this );
+  }
+
+  // @public
+  static pool = new Pool( Loop );
 }
 
 kite.register( 'Loop', Loop );
-
-Poolable.mixInto( Loop );
 
 export default Loop;
