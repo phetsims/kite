@@ -1,4 +1,4 @@
-// Copyright 2017-2022, University of Colorado Boulder
+// Copyright 2017-2023, University of Colorado Boulder
 
 /**
  * A directed set of half-edges determined by how the original shapes/subpaths were directionally. This is distinct from
