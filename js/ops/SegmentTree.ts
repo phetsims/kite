@@ -563,7 +563,7 @@ class SegmentNode<T> {
     SegmentNode.pool.freeToPool( this );
   }
 
-  public static pool = new Pool( SegmentNode );
+  public static readonly pool = new Pool( SegmentNode );
 
 }
 kite.register( 'SegmentTree', SegmentTree );

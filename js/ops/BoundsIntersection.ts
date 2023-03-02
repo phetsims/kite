@@ -287,7 +287,7 @@ export default class BoundsIntersection {
     BoundsIntersection.pool.freeToPool( this );
   }
 
-  public static pool = new Pool( BoundsIntersection );
+  public static readonly pool = new Pool( BoundsIntersection );
 }
 
 kite.register( 'BoundsIntersection', BoundsIntersection );
