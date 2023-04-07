@@ -23,7 +23,7 @@ import Bounds2 from '../../dot/js/Bounds2.js';
 import Ray2 from '../../dot/js/Ray2.js';
 import Vector2 from '../../dot/js/Vector2.js';
 import merge from '../../phet-core/js/merge.js';
-import { Arc, Cubic, EllipticalArc, Graph, kite, Line, LineStyles, Quadratic, Subpath, svgNumber, svgPath } from './imports.js';
+import { Arc, Cubic, EllipticalArc, Graph, kite, Line, LineStyles, Quadratic, Subpath, svgNumber, svgPath, Segment } from './imports.js';
 
 //  (We can't get joist's random reference here)
 const randomSource = Math.random;
@@ -1673,6 +1673,29 @@ class Shape {
       }
     }
     return sum.dividedScalar( count );
+  }
+
+  /**
+   * Returns an array of potential closest point results on the Shape to the given point.
+   * @public
+   *
+   * @param {Vector2} point
+   * @returns {ClosestToPointResult[]}
+   */
+  getClosestPoints( point ) {
+    return Segment.filterClosestToPointResult( _.flatten( this.subpaths.map( subpath => subpath.getClosestPoints( point ) ) ) );
+  }
+
+  /**
+   * Returns a single point ON the Shape boundary that is closest to the given point (picks an arbitrary one if there
+   * are multiple).
+   * @public
+   *
+   * @param {Vector2} point
+   * @returns {Vector2}
+   */
+  getClosestPoint( point ) {
+    return this.getClosestPoints( point )[ 0 ].closestPoint;
   }
 
   /**

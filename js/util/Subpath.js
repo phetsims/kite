@@ -320,6 +320,17 @@ class Subpath {
   }
 
   /**
+   * Returns an array of potential closest points on the subpath to the given point.
+   * @public
+   *
+   * @param {Vector2} point
+   * @returns {ClosestToPointResult[]}
+   */
+  getClosestPoints( point ) {
+    return Segment.filterClosestToPointResult( _.flatten( this.segments.map( segment => segment.getClosestPoints( point ) ) ) );
+  }
+
+  /**
    * Draws the segment to the 2D Canvas context, assuming the context's current location is already at the start point
    * @public
    *

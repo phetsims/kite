@@ -471,6 +471,11 @@ export default abstract class Segment {
     return new Shape( [ new Subpath( [ this ] ) ] );
   }
 
+  public getClosestPoints( point: Vector2 ): ClosestToPointResult[] {
+    // TODO: solve segments to determine this analytically! (only implemented for Line right now, should be easy to do with some things)
+    return Segment.closestToPoint( [ this ], point, 1e-7 );
+  }
+
   /**
    * List of results (since there can be duplicates), threshold is used for subdivision,
    * where it will exit if all of the segments are shorter than the threshold
@@ -767,6 +772,18 @@ export default abstract class Segment {
       return false;
     }
     return true;
+  }
+
+  public static filterClosestToPointResult( results: ClosestToPointResult[] ): ClosestToPointResult[] {
+    if ( results.length === 0 ) {
+      return [];
+    }
+
+    const closestDistanceSquared = _.minBy( results, result => result.distanceSquared )!.distanceSquared;
+
+    // Return all results that are within 1e-11 of the closest distance (to account for floating point error), but unique
+    // based on the location.
+    return _.uniqWith( results.filter( result => Math.abs( result.distanceSquared - closestDistanceSquared ) < 1e-11 ), ( a, b ) => a.closestPoint.distanceSquared( b.closestPoint ) < 1e-11 );
   }
 }
 

@@ -473,6 +473,27 @@ export default class Line extends Segment {
     return null;
   }
 
+  public override getClosestPoints( point: Vector2 ): ClosestToPointResult[] {
+    const delta = this._end.minus( this._start );
+
+    // Normalized start => end
+    const normalizedDirection = delta.normalized();
+
+    // Normalized distance along the line from the start to the point
+    const intersectionNormalized = point.minus( this._start ).dot( normalizedDirection );
+
+    const intersectionT = Utils.clamp( intersectionNormalized / delta.magnitude, 0, 1 );
+
+    const intersectionPoint = this.positionAt( intersectionT );
+
+    return [ {
+      segment: this,
+      t: intersectionT,
+      closestPoint: intersectionPoint,
+      distanceSquared: intersectionPoint.distanceSquared( point )
+    } ];
+  }
+
   /**
    * Returns a Line from the serialized representation.
    */
