@@ -20,10 +20,11 @@
 
 import TinyEmitter from '../../axon/js/TinyEmitter.js';
 import Bounds2 from '../../dot/js/Bounds2.js';
+import dotRandom from '../../dot/js/dotRandom.js';
 import Ray2 from '../../dot/js/Ray2.js';
 import Vector2 from '../../dot/js/Vector2.js';
 import merge from '../../phet-core/js/merge.js';
-import { Arc, Cubic, EllipticalArc, Graph, kite, Line, LineStyles, Quadratic, Subpath, svgNumber, svgPath, Segment } from './imports.js';
+import { Arc, Cubic, EllipticalArc, Graph, kite, Line, LineStyles, Quadratic, Segment, Subpath, svgNumber, svgPath } from './imports.js';
 
 //  (We can't get joist's random reference here)
 const randomSource = Math.random;
@@ -1265,10 +1266,49 @@ class Shape {
    * @returns {boolean}
    */
   containsPoint( point ) {
-    // we pick a ray, and determine the winding number over that ray. if the number of segments crossing it CCW == number of segments crossing it CW, then the point is contained in the shape
-    const ray = new Ray2( point, Vector2.X_UNIT );
 
-    return this.windingIntersection( ray ) !== 0;
+    // We pick a ray, and determine the winding number over that ray. if the number of segments crossing it
+    // CCW == number of segments crossing it CW, then the point is contained in the shape
+
+    const rayDirection = Vector2.X_UNIT.copy(); // we may mutate it
+
+    // Try to find a ray that doesn't intersect with any of the vertices of the shape segments,
+    // see https://github.com/phetsims/kite/issues/94.
+    // Put a limit on attempts, so we don't try forever
+    let count = 0;
+    while ( count < 5 ) {
+      count++;
+
+      // Look for cases where the proposed ray will intersect with one of the vertices of a shape segment - in this case
+      // the intersection in windingIntersection may not be well-defined and won't be counted, so we need to use a ray
+      // with a different direction
+      const rayIntersectsSegmentVertex = _.some( this.subpaths, subpath => {
+        return _.some( subpath.segments, segment => {
+          const delta = segment.start.minus( point );
+          const magnitude = delta.magnitude;
+          if ( magnitude !== 0 ) {
+            delta.divideScalar( magnitude ); // normalize it
+            delta.subtract( rayDirection ); // check against the proposed ray direction
+            return delta.magnitudeSquared < 1e-9;
+          }
+          else {
+            // If our point is on a segment start, there probably won't be a great ray to use
+            return false;
+          }
+        } );
+      } );
+
+      if ( rayIntersectsSegmentVertex ) {
+        // the proposed ray may not work because it intersects with a segment vertex - try another one
+        rayDirection.rotate( dotRandom.nextDouble() );
+      }
+      else {
+        // Should be safe to use this rayDirection for windingIntersection
+        break;
+      }
+    }
+
+    return this.windingIntersection( new Ray2( point, rayDirection ) ) !== 0;
   }
 
   /**
