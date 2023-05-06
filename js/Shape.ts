@@ -21,77 +21,160 @@
 import TinyEmitter from '../../axon/js/TinyEmitter.js';
 import Bounds2 from '../../dot/js/Bounds2.js';
 import dotRandom from '../../dot/js/dotRandom.js';
+import Matrix3 from '../../dot/js/Matrix3.js';
 import Ray2 from '../../dot/js/Ray2.js';
 import Vector2 from '../../dot/js/Vector2.js';
-import merge from '../../phet-core/js/merge.js';
-import { Arc, Cubic, EllipticalArc, Graph, kite, Line, LineStyles, Quadratic, Segment, Subpath, svgNumber, svgPath } from './imports.js';
+import IntentionalAny from '../../phet-core/js/types/IntentionalAny.js';
+import optionize, { combineOptions } from '../../phet-core/js/optionize.js';
+import { Arc, ClosestToPointResult, Cubic, EllipticalArc, Graph, kite, Line, LineStyles, Quadratic, RayIntersection, Segment, Subpath, svgNumber, svgPath } from './imports.js';
 
-//  (We can't get joist's random reference here)
+// (We can't get joist's random reference here)
 const randomSource = Math.random;
 
-/**
- * Convenience function that returns a Vector2
- * used throughout this file as an abbreviation for a displacement, a position or a point.
- * @private
- * @param {number} x
- * @param {number} y
- * @returns {Vector2}
- */
-function v( x, y ) { return new Vector2( x, y ); }
+// Convenience function that returns a Vector2, used throughout this file as an abbreviation for a displacement, a
+// position or a point.
+const v = ( x: number, y: number ) => new Vector2( x, y );
 
 /**
  * The tension parameter controls how smoothly the curve turns through its control points. For a Catmull-Rom curve,
  * the tension is zero. The tension should range from -1 to 1.
- * @private
- * @param {Vector2} beforeVector
- * @param {Vector2} currentVector
- * @param {Vector2} afterVector
- * @param {number} tension - the tension should range from -1 to 1.
- * @returns {Vector2}
+ * @param beforeVector
+ * @param currentVector
+ * @param afterVector
+ * @param tension - the tension should range from -1 to 1.
  */
-function weightedSplineVector( beforeVector, currentVector, afterVector, tension ) {
+const weightedSplineVector = ( beforeVector: Vector2, currentVector: Vector2, afterVector: Vector2, tension: number ) => {
   return afterVector.copy()
     .subtract( beforeVector )
     .multiplyScalar( ( 1 - tension ) / 6 )
     .add( currentVector );
-}
+};
 
 // a normalized vector for non-zero winding checks
 // var weirdDir = v( Math.PI, 22 / 7 );
 
-class Shape {
+type CardinalSplineOptions = {
+  // the tension parameter controls how smoothly the curve turns through its
+  // control points. For a Catmull-Rom curve the tension is zero.
+  // the tension should range from  -1 to 1
+  tension?: number;
+
+  // is the resulting shape forming a closed line?
+  isClosedLineSegments?: boolean;
+};
+
+type NonlinearTransformedOptions = {
+  // how many levels to force subdivisions
+  minLevels?: number;
+
+  // prevent subdivision past this level
+  maxLevels?: number;
+
+  // controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve. smaller => more subdivision
+  distanceEpsilon?: number | null;
+
+  // controls level of subdivision by attempting to ensure a maximum curvature change between segments. smaller => more subdivision
+  // Do not provide this AND includeCurvature
+  curveEpsilon?: number | null;
+
+  // whether to include a default curveEpsilon (usually off by default)
+  includeCurvature?: boolean;
+
+  // represents a (usually non-linear) transformation applied
+  pointMap?: ( v: Vector2 ) => Vector2;
+
+  // if the method name is found on the segment, it is called with the expected signature function( options ) : Array[Segment]
+  // instead of using our brute-force logic. Supports optimizations for custom non-linear transforms (like polar coordinates)
+  methodName?: string;
+};
+
+type GetDashedShapeOptions = {
+  // controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve
+  distanceEpsilon?: number;
+
+  // controls level of subdivision by attempting to ensure a maximum curvature change between segments
+  curveEpsilon?: number;
+};
+
+type CornerRadiiOptions = {
+  topLeft: number;
+  topRight: number;
+  bottomRight: number;
+  bottomLeft: number;
+};
+
+type OffsetsOptions = {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+};
+
+// STATIC API that is used when turning parsed SVG into a Shape. Methods with these types will be called during the
+// "apply parsed SVG" step. IF these need to be changed, it will need to be accompanied by changes to svgPath.pegjs
+// and the SVG parser. If we change this WITHOUT doing that, things will break (so basically, don't change this).
+type CanApplyParsedSVG = {
+  moveTo( x: number, y: number ): Shape;
+  moveToRelative( x: number, y: number ): Shape;
+  lineTo( x: number, y: number ): Shape;
+  lineToRelative( x: number, y: number ): Shape;
+  close(): Shape;
+  horizontalLineTo( x: number ): Shape;
+  horizontalLineToRelative( x: number ): Shape;
+  verticalLineTo( y: number ): Shape;
+  verticalLineToRelative( y: number ): Shape;
+  cubicCurveTo( x1: number, y1: number, x2: number, y2: number, x: number, y: number ): Shape;
+  cubicCurveToRelative( x1: number, y1: number, x2: number, y2: number, x: number, y: number ): Shape;
+  smoothCubicCurveTo( x2: number, y2: number, x: number, y: number ): Shape;
+  smoothCubicCurveToRelative( x2: number, y2: number, x: number, y: number ): Shape;
+  quadraticCurveTo( x1: number, y1: number, x: number, y: number ): Shape;
+  quadraticCurveToRelative( x1: number, y1: number, x: number, y: number ): Shape;
+  smoothQuadraticCurveTo( x: number, y: number ): Shape;
+  smoothQuadraticCurveToRelative( x: number, y: number ): Shape;
+  ellipticalArcTo( rx: number, ry: number, rotation: number, largeArc: boolean, sweep: boolean, x: number, y: number ): Shape;
+  ellipticalArcToRelative( rx: number, ry: number, rotation: number, largeArc: boolean, sweep: boolean, x: number, y: number ): Shape;
+};
+
+// Type of the parsed SVG item that is returned by the parser (from svgPath.js)
+type ParsedSVGItem = {
+  // Turn each method into { cmd: 'methodName', args: [ ... ] }
+  [ K in keyof CanApplyParsedSVG ]: CanApplyParsedSVG[ K ] extends ( ...args: infer Args ) => Shape ? { cmd: K; args: Args } : never;
+}[ keyof CanApplyParsedSVG ];
+
+class Shape implements CanApplyParsedSVG {
+
+  // Lower-level piecewise mathematical description using segments, also individually immutable
+  public readonly subpaths: Subpath[] = [];
+
+  // If non-null, computed bounds for all pieces added so far. Lazily computed with getBounds/bounds ES5 getter
+  private _bounds: Bounds2 | null;
+
+  // So we can invalidate all of the points without firing invalidation tons of times
+  private _invalidatingPoints = false;
+
+  // When set by makeImmutable(), it indicates this Shape won't be changed from now on, and attempts to change it may
+  // result in errors.
+  private _immutable = false;
+
+  public readonly invalidatedEmitter: TinyEmitter = new TinyEmitter();
+
+  private readonly _invalidateListener: () => void;
+
+  // For tracking the last quadratic/cubic control point for smooth* functions,
+  // see https://github.com/phetsims/kite/issues/38
+  private lastQuadraticControlPoint: Vector2 | null = null;
+  private lastCubicControlPoint: Vector2 | null = null;
+
   /**
-   * @public
-   *
    * All arguments optional, they are for the copy() method. if used, ensure that 'bounds' is consistent with 'subpaths'
-   *
-   * @param {Array.<Subpath>|string} [subpaths]
-   * @param {Bounds2} [bounds]
    */
-  constructor( subpaths, bounds ) {
+  public constructor( subpaths?: Subpath[] | string, bounds?: Bounds2 ) {
 
-    // @public {Array.<Subpath>} Lower-level piecewise mathematical description using segments, also
-    // individually immutable
-    this.subpaths = [];
-
-    // @private {Bounds2} If non-null, computed bounds for all pieces added so far. Lazily computed with
-    // getBounds/bounds ES5 getter
-    this._bounds = bounds ? bounds.copy() : null; // {Bounds2 | null}
-
-    // @public {TinyEmitter}
-    this.invalidatedEmitter = new TinyEmitter();
+    this._bounds = bounds ? bounds.copy() : null;
 
     this.resetControlPoints();
 
-    // @private {function}
     this._invalidateListener = this.invalidate.bind( this );
-
-    // @private {boolean} - So we can invalidate all of the points without firing invalidation tons of times
-    this._invalidatingPoints = false;
-
-    // @private {boolean} - When set by makeImmutable(), it indicates this Shape won't be changed from now on, and
-    //                      attempts to change it may result in errors.
-    this._immutable = false;
 
     // Add in subpaths from the constructor (if applicable)
     if ( typeof subpaths === 'object' ) {
@@ -102,12 +185,12 @@ class Shape {
     }
 
     if ( subpaths && typeof subpaths !== 'object' ) {
-      assert && assert( typeof subpaths === 'string', 'if subpaths is not an object, it must be a string' );
       // parse the SVG path
-      _.each( svgPath.parse( subpaths ), item => {
+      _.each( svgPath.parse( subpaths ), ( item: ParsedSVGItem ) => {
         assert && assert( Shape.prototype[ item.cmd ] !== undefined, `method ${item.cmd} from parsed SVG does not exist` );
-        // eslint-disable-next-line prefer-spread
-        this[ item.cmd ].apply( this, item.args );
+
+        // @ts-expect-error - This is a valid call, but TypeScript isn't figuring it out based on the union type right now
+        this[ item.cmd ].apply( this, item.args ); // eslint-disable-line prefer-spread
       } );
     }
 
@@ -118,85 +201,60 @@ class Shape {
 
   /**
    * Resets the control points
-   * @private
    *
    * for tracking the last quadratic/cubic control point for smooth* functions
    * see https://github.com/phetsims/kite/issues/38
    */
-  resetControlPoints() {
+  private resetControlPoints(): void {
     this.lastQuadraticControlPoint = null;
     this.lastCubicControlPoint = null;
   }
 
   /**
    * Sets the quadratic control point
-   * @private
-   *
-   * @param {Vector2} point
    */
-  setQuadraticControlPoint( point ) {
+  private setQuadraticControlPoint( point: Vector2 ): void {
     this.lastQuadraticControlPoint = point;
     this.lastCubicControlPoint = null;
   }
 
   /**
    * Sets the cubic control point
-   * @private
-   *
-   * @param {Vector2} point
    */
-  setCubicControlPoint( point ) {
+  private setCubicControlPoint( point: Vector2 ): void {
     this.lastQuadraticControlPoint = null;
     this.lastCubicControlPoint = point;
   }
 
   /**
    * Moves to a point given by the coordinates x and y
-   * @public
-   *
-   * @param {number} x
-   * @param {number} y
-   * @returns {Shape}
    */
-  moveTo( x, y ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+  public moveTo( x: number, y: number ): this {
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
     return this.moveToPoint( v( x, y ) );
   }
 
   /**
    * Moves a relative displacement (x,y) from last point
-   * @public
-   *
-   * @param {number} x
-   * @param {number} y
-   * @returns {Shape}
    */
-  moveToRelative( x, y ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+  public moveToRelative( x: number, y: number ): this {
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
     return this.moveToPointRelative( v( x, y ) );
   }
 
   /**
    * Moves a relative displacement (point) from last point
-   * @public
-   *
-   * @param {Vector2} point - a displacement
-   * @returns {Shape}
    */
-  moveToPointRelative( point ) {
-    return this.moveToPoint( this.getRelativePoint().plus( point ) );
+  public moveToPointRelative( displacement: Vector2 ): this {
+    return this.moveToPoint( this.getRelativePoint().plus( displacement ) );
   }
 
   /**
    * Adds to this shape a subpath that moves (no joint) it to a point
-   * @public
-   *
-   * @param {Vector2} point
-   * @returns {Shape}
    */
-  moveToPoint( point ) {
+  public moveToPoint( point: Vector2 ): this {
     this.addSubpath( new Subpath().addPoint( point ) );
     this.resetControlPoints();
 
@@ -205,51 +263,36 @@ class Shape {
 
   /**
    * Adds to this shape a straight line from last point to the coordinate (x,y)
-   * @public
-   *
-   * @param {number} x
-   * @param {number} y
-   * @returns {Shape}
    */
-  lineTo( x, y ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+  public lineTo( x: number, y: number ): this {
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
     return this.lineToPoint( v( x, y ) );
   }
 
   /**
    * Adds to this shape a straight line displaced by a relative amount x, and y from last point
-   * @public
    *
-   * @param {number} x - horizontal displacement
-   * @param {number} y - vertical displacement
-   * @returns {Shape}
+   * @param x - horizontal displacement
+   * @param y - vertical displacement
    */
-  lineToRelative( x, y ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+  public lineToRelative( x: number, y: number ): this {
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
     return this.lineToPointRelative( v( x, y ) );
   }
 
   /**
    * Adds to this shape a straight line displaced by a relative displacement (point)
-   * @public
-   *
-   * @param {Vector2} point - a displacement
-   * @returns {Shape}
    */
-  lineToPointRelative( point ) {
-    return this.lineToPoint( this.getRelativePoint().plus( point ) );
+  public lineToPointRelative( displacement: Vector2 ): this {
+    return this.lineToPoint( this.getRelativePoint().plus( displacement ) );
   }
 
   /**
    * Adds to this shape a straight line from this lastPoint to point
-   * @public
-   *
-   * @param {Vector2} point
-   * @returns {Shape}
    */
-  lineToPoint( point ) {
+  public lineToPoint( point: Vector2 ): this {
     // see http://www.w3.org/TR/2dcontext/#dom-context-2d-lineto
     if ( this.hasSubpaths() ) {
       const start = this.getLastSubpath().getLastPoint();
@@ -268,73 +311,55 @@ class Shape {
 
   /**
    * Adds a horizontal line (x represents the x-coordinate of the end point)
-   * @public
-   *
-   * @param {number} x
-   * @returns {Shape}
    */
-  horizontalLineTo( x ) {
+  public horizontalLineTo( x: number ): this {
     return this.lineTo( x, this.getRelativePoint().y );
   }
 
   /**
    * Adds a horizontal line (x represent a horizontal displacement)
-   * @public
-   *
-   * @param {number} x
-   * @returns {Shape}
    */
-  horizontalLineToRelative( x ) {
+  public horizontalLineToRelative( x: number ): this {
     return this.lineToRelative( x, 0 );
   }
 
   /**
    * Adds a vertical line (y represents the y-coordinate of the end point)
-   * @public
-   *
-   * @param {number} y
-   * @returns {Shape}
    */
-  verticalLineTo( y ) {
+  public verticalLineTo( y: number ): this {
     return this.lineTo( this.getRelativePoint().x, y );
   }
 
   /**
    * Adds a vertical line (y represents a vertical displacement)
-   * @public
-   *
-   * @param {number} y
-   * @returns {Shape}
    */
-  verticalLineToRelative( y ) {
+  public verticalLineToRelative( y: number ): this {
     return this.lineToRelative( 0, y );
   }
 
   /**
    * Zig-zags between the current point and the specified point
-   * @public
    *
-   * @param {number} endX - the end of the shape
-   * @param {number} endY - the end of the shape
-   * @param {number} amplitude - the vertical amplitude of the zig zag wave
-   * @param {number} numberZigZags - the number of oscillations
-   * @param {boolean} symmetrical - flag for drawing a symmetrical zig zag
+   * @param endX - the end of the shape
+   * @param endY - the end of the shape
+   * @param amplitude - the vertical amplitude of the zig zag wave
+   * @param numberZigZags - the number of oscillations
+   * @param symmetrical - flag for drawing a symmetrical zig zag
    */
-  zigZagTo( endX, endY, amplitude, numberZigZags, symmetrical ) {
+  public zigZagTo( endX: number, endY: number, amplitude: number, numberZigZags: number, symmetrical: boolean ): this {
     return this.zigZagToPoint( new Vector2( endX, endY ), amplitude, numberZigZags, symmetrical );
   }
 
   /**
    * Zig-zags between the current point and the specified point.
    * Implementation moved from circuit-construction-kit-common on April 22, 2019.
-   * @public
    *
-   * @param {Vector2} endPoint - the end of the shape
-   * @param {number} amplitude - the vertical amplitude of the zig zag wave, signed to choose initial direction
-   * @param {number} numberZigZags - the number of complete oscillations
-   * @param {boolean} symmetrical - flag for drawing a symmetrical zig zag
+   * @param endPoint - the end of the shape
+   * @param amplitude - the vertical amplitude of the zig zag wave, signed to choose initial direction
+   * @param numberZigZags - the number of complete oscillations
+   * @param symmetrical - flag for drawing a symmetrical zig zag
    */
-  zigZagToPoint( endPoint, amplitude, numberZigZags, symmetrical ) {
+  public zigZagToPoint( endPoint: Vector2, amplitude: number, numberZigZags: number, symmetrical: boolean ): this {
 
     assert && assert( Number.isInteger( numberZigZags ), `numberZigZags must be an integer: ${numberZigZags}` );
 
@@ -373,53 +398,47 @@ class Shape {
 
   /**
    * Adds a quadratic curve to this shape
-   * @public
    *
    * The curve is guaranteed to pass through the coordinate (x,y) but does not pass through the control point
    *
-   * @param {number} cpx - control point horizontal coordinate
-   * @param {number} cpy - control point vertical coordinate
-   * @param {number} x
-   * @param {number} y
-   * @returns {Shape}
+   * @param cpx - control point horizontal coordinate
+   * @param cpy - control point vertical coordinate
+   * @param x
+   * @param y
    */
-  quadraticCurveTo( cpx, cpy, x, y ) {
-    assert && assert( typeof cpx === 'number' && isFinite( cpx ), `cpx must be a finite number: ${cpx}` );
-    assert && assert( typeof cpy === 'number' && isFinite( cpy ), `cpy must be a finite number: ${cpy}` );
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+  public quadraticCurveTo( cpx: number, cpy: number, x: number, y: number ): this {
+    assert && assert( isFinite( cpx ), `cpx must be a finite number: ${cpx}` );
+    assert && assert( isFinite( cpy ), `cpy must be a finite number: ${cpy}` );
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
     return this.quadraticCurveToPoint( v( cpx, cpy ), v( x, y ) );
   }
 
   /**
    * Adds a quadratic curve to this shape. The control and final points are specified as displacment from the last
    * point in this shape
-   * @public
    *
-   * @param {number} cpx - control point horizontal coordinate
-   * @param {number} cpy - control point vertical coordinate
-   * @param {number} x - final x position of the quadratic curve
-   * @param {number} y - final y position of the quadratic curve
-   * @returns {Shape}
+   * @param cpx - control point horizontal coordinate
+   * @param cpy - control point vertical coordinate
+   * @param x - final x position of the quadratic curve
+   * @param y - final y position of the quadratic curve
    */
-  quadraticCurveToRelative( cpx, cpy, x, y ) {
-    assert && assert( typeof cpx === 'number' && isFinite( cpx ), `cpx must be a finite number: ${cpx}` );
-    assert && assert( typeof cpy === 'number' && isFinite( cpy ), `cpy must be a finite number: ${cpy}` );
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+  public quadraticCurveToRelative( cpx: number, cpy: number, x: number, y: number ): this {
+    assert && assert( isFinite( cpx ), `cpx must be a finite number: ${cpx}` );
+    assert && assert( isFinite( cpy ), `cpy must be a finite number: ${cpy}` );
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
     return this.quadraticCurveToPointRelative( v( cpx, cpy ), v( x, y ) );
   }
 
   /**
    * Adds a quadratic curve to this shape. The control and final points are specified as displacement from the
    * last point in this shape
-   * @public
    *
-   * @param {Vector2} controlPoint
-   * @param {Vector2} point - the quadratic curve passes through this point
-   * @returns {Shape}
+   * @param controlPoint
+   * @param point - the quadratic curve passes through this point
    */
-  quadraticCurveToPointRelative( controlPoint, point ) {
+  public quadraticCurveToPointRelative( controlPoint: Vector2, point: Vector2 ): this {
     const relativePoint = this.getRelativePoint();
     return this.quadraticCurveToPoint( relativePoint.plus( controlPoint ), relativePoint.plus( point ) );
   }
@@ -427,44 +446,38 @@ class Shape {
   /**
    * Adds a quadratic curve to this shape. The quadratic curves passes through the x and y coordinate.
    * The shape should join smoothly with the previous subpaths
-   * @public
    *
    * TODO: consider a rename to put 'smooth' farther back?
    *
-   * @param {number} x - final x position of the quadratic curve
-   * @param {number} y - final y position of the quadratic curve
-   * @returns {Shape}
+   * @param x - final x position of the quadratic curve
+   * @param y - final y position of the quadratic curve
    */
-  smoothQuadraticCurveTo( x, y ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+  public smoothQuadraticCurveTo( x: number, y: number ): this {
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
     return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ) );
   }
 
   /**
    * Adds a quadratic curve to this shape. The quadratic curves passes through the x and y coordinate.
    * The shape should join smoothly with the previous subpaths
-   * @public
    *
-   * @param {number} x - final x position of the quadratic curve
-   * @param {number} y - final y position of the quadratic curve
-   * @returns {Shape}
+   * @param x - final x position of the quadratic curve
+   * @param y - final y position of the quadratic curve
    */
-  smoothQuadraticCurveToRelative( x, y ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+  public smoothQuadraticCurveToRelative( x: number, y: number ): this {
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
     return this.quadraticCurveToPoint( this.getSmoothQuadraticControlPoint(), v( x, y ).plus( this.getRelativePoint() ) );
   }
 
   /**
    * Adds a quadratic bezier curve to this shape.
-   * @public
    *
-   * @param {Vector2} controlPoint
-   * @param {Vector2} point - the quadratic curve passes through this point
-   * @returns {Shape}
+   * @param controlPoint
+   * @param point - the quadratic curve passes through this point
    */
-  quadraticCurveToPoint( controlPoint, point ) {
+  public quadraticCurveToPoint( controlPoint: Vector2, point: Vector2 ): this {
     // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
     this.ensure( controlPoint );
     const start = this.getLastSubpath().getLastPoint();
@@ -482,103 +495,81 @@ class Shape {
 
   /**
    * Adds a cubic bezier curve to this shape.
-   * @public
    *
-   * @param {number} cp1x - control point 1,  horizontal coordinate
-   * @param {number} cp1y - control point 1,  vertical coordinate
-   * @param {number} cp2x - control point 2,  horizontal coordinate
-   * @param {number} cp2y - control point 2,  vertical coordinate
-   * @param {number} x - final x position of the cubic curve
-   * @param {number} y - final y position of the cubic curve
-   * @returns {Shape}
+   * @param cp1x - control point 1,  horizontal coordinate
+   * @param cp1y - control point 1,  vertical coordinate
+   * @param cp2x - control point 2,  horizontal coordinate
+   * @param cp2y - control point 2,  vertical coordinate
+   * @param x - final x position of the cubic curve
+   * @param y - final y position of the cubic curve
    */
-  cubicCurveTo( cp1x, cp1y, cp2x, cp2y, x, y ) {
-    assert && assert( typeof cp1x === 'number' && isFinite( cp1x ), `cp1x must be a finite number: ${cp1x}` );
-    assert && assert( typeof cp1y === 'number' && isFinite( cp1y ), `cp1y must be a finite number: ${cp1y}` );
-    assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), `cp2x must be a finite number: ${cp2x}` );
-    assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), `cp2y must be a finite number: ${cp2y}` );
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+  public cubicCurveTo( cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number ): this {
+    assert && assert( isFinite( cp1x ), `cp1x must be a finite number: ${cp1x}` );
+    assert && assert( isFinite( cp1y ), `cp1y must be a finite number: ${cp1y}` );
+    assert && assert( isFinite( cp2x ), `cp2x must be a finite number: ${cp2x}` );
+    assert && assert( isFinite( cp2y ), `cp2y must be a finite number: ${cp2y}` );
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
     return this.cubicCurveToPoint( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) );
   }
 
   /**
-   * @public
-   *
-   * @param {number} cp1x - control point 1,  horizontal displacement
-   * @param {number} cp1y - control point 1,  vertical displacement
-   * @param {number} cp2x - control point 2,  horizontal displacement
-   * @param {number} cp2y - control point 2,  vertical displacement
-   * @param {number} x - final horizontal displacement
-   * @param {number} y - final vertical displacment
-   * @returns {Shape}
+   * @param cp1x - control point 1,  horizontal displacement
+   * @param cp1y - control point 1,  vertical displacement
+   * @param cp2x - control point 2,  horizontal displacement
+   * @param cp2y - control point 2,  vertical displacement
+   * @param x - final horizontal displacement
+   * @param y - final vertical displacment
    */
-  cubicCurveToRelative( cp1x, cp1y, cp2x, cp2y, x, y ) {
-    assert && assert( typeof cp1x === 'number' && isFinite( cp1x ), `cp1x must be a finite number: ${cp1x}` );
-    assert && assert( typeof cp1y === 'number' && isFinite( cp1y ), `cp1y must be a finite number: ${cp1y}` );
-    assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), `cp2x must be a finite number: ${cp2x}` );
-    assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), `cp2y must be a finite number: ${cp2y}` );
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+  public cubicCurveToRelative( cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number ): this {
+    assert && assert( isFinite( cp1x ), `cp1x must be a finite number: ${cp1x}` );
+    assert && assert( isFinite( cp1y ), `cp1y must be a finite number: ${cp1y}` );
+    assert && assert( isFinite( cp2x ), `cp2x must be a finite number: ${cp2x}` );
+    assert && assert( isFinite( cp2y ), `cp2y must be a finite number: ${cp2y}` );
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
     return this.cubicCurveToPointRelative( v( cp1x, cp1y ), v( cp2x, cp2y ), v( x, y ) );
   }
 
   /**
-   * @public
-   *
-   * @param {Vector2} control1 - control displacement  1
-   * @param {Vector2} control2 - control displacement 2
-   * @param {Vector2} point - final displacement
-   * @returns {Shape}
+   * @param control1 - control displacement  1
+   * @param control2 - control displacement 2
+   * @param point - final displacement
    */
-  cubicCurveToPointRelative( control1, control2, point ) {
+  public cubicCurveToPointRelative( control1: Vector2, control2: Vector2, point: Vector2 ): this {
     const relativePoint = this.getRelativePoint();
     return this.cubicCurveToPoint( relativePoint.plus( control1 ), relativePoint.plus( control2 ), relativePoint.plus( point ) );
   }
 
   /**
-   * @public
-   *
-   * @param {number} cp2x - control point 2,  horizontal coordinate
-   * @param {number} cp2y - control point 2,  vertical coordinate
-   * @param {number} x
-   * @param {number} y
-   * @returns {Shape}
+   * @param cp2x - control point 2,  horizontal coordinate
+   * @param cp2y - control point 2,  vertical coordinate
+   * @param x
+   * @param y
    */
-  smoothCubicCurveTo( cp2x, cp2y, x, y ) {
-    assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), `cp2x must be a finite number: ${cp2x}` );
-    assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), `cp2y must be a finite number: ${cp2y}` );
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+  public smoothCubicCurveTo( cp2x: number, cp2y: number, x: number, y: number ): this {
+    assert && assert( isFinite( cp2x ), `cp2x must be a finite number: ${cp2x}` );
+    assert && assert( isFinite( cp2y ), `cp2y must be a finite number: ${cp2y}` );
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
     return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ), v( x, y ) );
   }
 
   /**
-   * @public
-   *
-   * @param {number} cp2x - control point 2,  horizontal coordinate
-   * @param {number} cp2y - control point 2,  vertical coordinate
-   * @param {number} x
-   * @param {number} y
-   * @returns {Shape}
+   * @param cp2x - control point 2,  horizontal coordinate
+   * @param cp2y - control point 2,  vertical coordinate
+   * @param x
+   * @param y
    */
-  smoothCubicCurveToRelative( cp2x, cp2y, x, y ) {
-    assert && assert( typeof cp2x === 'number' && isFinite( cp2x ), `cp2x must be a finite number: ${cp2x}` );
-    assert && assert( typeof cp2y === 'number' && isFinite( cp2y ), `cp2y must be a finite number: ${cp2y}` );
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
+  public smoothCubicCurveToRelative( cp2x: number, cp2y: number, x: number, y: number ): this {
+    assert && assert( isFinite( cp2x ), `cp2x must be a finite number: ${cp2x}` );
+    assert && assert( isFinite( cp2y ), `cp2y must be a finite number: ${cp2y}` );
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
     return this.cubicCurveToPoint( this.getSmoothCubicControlPoint(), v( cp2x, cp2y ).plus( this.getRelativePoint() ), v( x, y ).plus( this.getRelativePoint() ) );
   }
 
-  /**
-   * @public
-   *
-   * @param {Vector2} control1
-   * @param {Vector2} control2
-   * @param {Vector2} point
-   * @returns {Shape}
-   */
-  cubicCurveToPoint( control1, control2, point ) {
+  public cubicCurveToPoint( control1: Vector2, control2: Vector2, point: Vector2 ): this {
     // see http://www.w3.org/TR/2dcontext/#dom-context-2d-quadraticcurveto
     this.ensure( control1 );
     const start = this.getLastSubpath().getLastPoint();
@@ -596,33 +587,27 @@ class Shape {
   }
 
   /**
-   * @public
-   *
-   * @param {number} centerX - horizontal coordinate of the center of the arc
-   * @param {number} centerY - Center of the arc
-   * @param {number} radius - How far from the center the arc will be
-   * @param {number} startAngle - Angle (radians) of the start of the arc
-   * @param {number} endAngle - Angle (radians) of the end of the arc
-   * @param {boolean} [anticlockwise] - Decides which direction the arc takes around the center
-   * @returns {Shape}
+   * @param centerX - horizontal coordinate of the center of the arc
+   * @param centerY - Center of the arc
+   * @param radius - How far from the center the arc will be
+   * @param startAngle - Angle (radians) of the start of the arc
+   * @param endAngle - Angle (radians) of the end of the arc
+   * @param [anticlockwise] - Decides which direction the arc takes around the center
    */
-  arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) {
-    assert && assert( typeof centerX === 'number' && isFinite( centerX ), `centerX must be a finite number: ${centerX}` );
-    assert && assert( typeof centerY === 'number' && isFinite( centerY ), `centerY must be a finite number: ${centerY}` );
+  public arc( centerX: number, centerY: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean ): this {
+    assert && assert( isFinite( centerX ), `centerX must be a finite number: ${centerX}` );
+    assert && assert( isFinite( centerY ), `centerY must be a finite number: ${centerY}` );
     return this.arcPoint( v( centerX, centerY ), radius, startAngle, endAngle, anticlockwise );
   }
 
   /**
-   * @public
-   *
-   * @param {Vector2} center - Center of the arc (every point on the arc is equally far from the center)
-   * @param {number} radius - How far from the center the arc will be
-   * @param {number} startAngle - Angle (radians) of the start of the arc
-   * @param {number} endAngle - Angle (radians) of the end of the arc
-   * @param {boolean} [anticlockwise] - Decides which direction the arc takes around the center
-   * @returns {Shape}
+   * @param center - Center of the arc (every point on the arc is equally far from the center)
+   * @param radius - How far from the center the arc will be
+   * @param startAngle - Angle (radians) of the start of the arc
+   * @param endAngle - Angle (radians) of the end of the arc
+   * @param [anticlockwise] - Decides which direction the arc takes around the center
    */
-  arcPoint( center, radius, startAngle, endAngle, anticlockwise ) {
+  public arcPoint( center: Vector2, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean ): this {
     // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
     if ( anticlockwise === undefined ) {
       anticlockwise = false;
@@ -635,7 +620,7 @@ class Shape {
     const endPoint = arc.getEnd();
 
     // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
-    if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
+    if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint() ) ) {
       this.addSegmentAndBounds( new Line( this.getLastSubpath().getLastPoint(), startPoint ) );
     }
 
@@ -655,38 +640,34 @@ class Shape {
 
   /**
    * Creates an elliptical arc
-   * @public
    *
-   * @param {number} centerX - horizontal coordinate of the center of the arc
-   * @param {number} centerY -  vertical coordinate of the center of the arc
-   * @param {number} radiusX - semi axis
-   * @param {number} radiusY - semi axis
-   * @param {number} rotation - rotation of the elliptical arc with respect to the positive x axis.
-   * @param {number} startAngle
-   * @param {number} endAngle
-   * @param {boolean} [anticlockwise]
-   * @returns {Shape}
+   * @param centerX - horizontal coordinate of the center of the arc
+   * @param centerY -  vertical coordinate of the center of the arc
+   * @param radiusX - semi axis
+   * @param radiusY - semi axis
+   * @param rotation - rotation of the elliptical arc with respect to the positive x axis.
+   * @param startAngle
+   * @param endAngle
+   * @param [anticlockwise]
    */
-  ellipticalArc( centerX, centerY, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
-    assert && assert( typeof centerX === 'number' && isFinite( centerX ), `centerX must be a finite number: ${centerX}` );
-    assert && assert( typeof centerY === 'number' && isFinite( centerY ), `centerY must be a finite number: ${centerY}` );
+  public ellipticalArc( centerX: number, centerY: number, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise?: boolean ): this {
+    assert && assert( isFinite( centerX ), `centerX must be a finite number: ${centerX}` );
+    assert && assert( isFinite( centerY ), `centerY must be a finite number: ${centerY}` );
     return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise );
   }
 
   /**
    * Creates an elliptic arc
-   * @public
    *
-   * @param {Vector2} center
-   * @param {number} radiusX
-   * @param {number} radiusY
-   * @param {number} rotation - rotation of the arc with respect to the positive x axis.
-   * @param {number} startAngle -
-   * @param {number} endAngle
-   * @param {boolean} [anticlockwise]
-   * @returns {Shape}
+   * @param center
+   * @param radiusX
+   * @param radiusY
+   * @param rotation - rotation of the arc with respect to the positive x axis.
+   * @param startAngle -
+   * @param endAngle
+   * @param [anticlockwise]
    */
-  ellipticalArcPoint( center, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise ) {
+  public ellipticalArcPoint( center: Vector2, radiusX: number, radiusY: number, rotation: number, startAngle: number, endAngle: number, anticlockwise?: boolean ): this {
     // see http://www.w3.org/TR/2dcontext/#dom-context-2d-arc
     if ( anticlockwise === undefined ) {
       anticlockwise = false;
@@ -699,7 +680,7 @@ class Shape {
     const endPoint = ellipticalArc.end;
 
     // if there is already a point on the subpath, and it is different than our starting point, draw a line between them
-    if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint(), 0 ) ) {
+    if ( this.hasSubpaths() && this.getLastSubpath().getLength() > 0 && !startPoint.equals( this.getLastSubpath().getLastPoint() ) ) {
       this.addSegmentAndBounds( new Line( this.getLastSubpath().getLastPoint(), startPoint ) );
     }
 
@@ -719,11 +700,9 @@ class Shape {
 
   /**
    * Adds a subpath that joins the last point of this shape to the first point to form a closed shape
-   * @public
    *
-   * @returns {Shape}
    */
-  close() {
+  public close(): this {
     if ( this.hasSubpaths() ) {
       const previousPath = this.getLastSubpath();
       const nextPath = new Subpath();
@@ -738,17 +717,14 @@ class Shape {
 
   /**
    * Moves to the next subpath, but without adding any points to it (like a moveTo would do).
-   * @public
    *
    * This is particularly helpful for cases where you don't want to have to compute the explicit starting point of
    * the next subpath. For instance, if you want three disconnected circles:
    * - shape.circle( 50, 50, 20 ).newSubpath().circle( 100, 100, 20 ).newSubpath().circle( 150, 50, 20 )
    *
    * See https://github.com/phetsims/kite/issues/72 for more info.
-   *
-   * @returns {Shape}
    */
-  newSubpath() {
+  public newSubpath(): this {
     this.addSubpath( new Subpath() );
     this.resetControlPoints();
 
@@ -758,11 +734,8 @@ class Shape {
   /**
    * Makes this Shape immutable, so that attempts to further change the Shape will fail. This allows clients to avoid
    * adding change listeners to this Shape.
-   * @public
-   *
-   * @returns {Shape} - Self, for chaining
    */
-  makeImmutable() {
+  public makeImmutable(): this {
     this._immutable = true;
 
     this.notifyInvalidationListeners();
@@ -772,50 +745,43 @@ class Shape {
 
   /**
    * Returns whether this Shape is immutable (see makeImmutable for details).
-   * @public
-   *
-   * @returns {boolean}
    */
-  isImmutable() {
+  public isImmutable(): boolean {
     return this._immutable;
   }
 
   /**
    * Matches SVG's elliptical arc from http://www.w3.org/TR/SVG/paths.html
-   * @public
    *
    * WARNING: rotation (for now) is in DEGREES. This will probably change in the future.
    *
-   * @param {number} radiusX - Semi-major axis size
-   * @param {number} radiusY - Semi-minor axis size
-   * @param {number} rotation - Rotation of the ellipse (its semi-major axis)
-   * @param {boolean} largeArc - Whether the arc will go the longest route around the ellipse.
-   * @param {boolean} sweep - Whether the arc made goes from start to end "clockwise" (opposite of anticlockwise flag)
-   * @param {number} x - End point X position
-   * @param {number} y - End point Y position
-   * @returns {Shape} - this Shape for chaining
+   * @param radiusX - Semi-major axis size
+   * @param radiusY - Semi-minor axis size
+   * @param rotation - Rotation of the ellipse (its semi-major axis)
+   * @param largeArc - Whether the arc will go the longest route around the ellipse.
+   * @param sweep - Whether the arc made goes from start to end "clockwise" (opposite of anticlockwise flag)
+   * @param x - End point X position
+   * @param y - End point Y position
    */
-  ellipticalArcToRelative( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
+  public ellipticalArcToRelative( radiusX: number, radiusY: number, rotation: number, largeArc: boolean, sweep: boolean, x: number, y: number ): this {
     const relativePoint = this.getRelativePoint();
     return this.ellipticalArcTo( radiusX, radiusY, rotation, largeArc, sweep, x + relativePoint.x, y + relativePoint.y );
   }
 
   /**
    * Matches SVG's elliptical arc from http://www.w3.org/TR/SVG/paths.html
-   * @public
    *
    * WARNING: rotation (for now) is in DEGREES. This will probably change in the future.
    *
-   * @param {number} radiusX - Semi-major axis size
-   * @param {number} radiusY - Semi-minor axis size
-   * @param {number} rotation - Rotation of the ellipse (its semi-major axis)
-   * @param {boolean} largeArc - Whether the arc will go the longest route around the ellipse.
-   * @param {boolean} sweep - Whether the arc made goes from start to end "clockwise" (opposite of anticlockwise flag)
-   * @param {number} x - End point X position
-   * @param {number} y - End point Y position
-   * @returns {Shape} - this Shape for chaining
+   * @param radiusX - Semi-major axis size
+   * @param radiusY - Semi-minor axis size
+   * @param rotation - Rotation of the ellipse (its semi-major axis)
+   * @param largeArc - Whether the arc will go the longest route around the ellipse.
+   * @param sweep - Whether the arc made goes from start to end "clockwise" (opposite of anticlockwise flag)
+   * @param x - End point X position
+   * @param y - End point Y position
    */
-  ellipticalArcTo( radiusX, radiusY, rotation, largeArc, sweep, x, y ) {
+  public ellipticalArcTo( radiusX: number, radiusY: number, rotation: number, largeArc: boolean, sweep: boolean, x: number, y: number ): this {
     // See "F.6.5 Conversion from endpoint to center parameterization"
     // in https://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
 
@@ -858,10 +824,10 @@ class Shape {
     }
     const center = startPoint.blend( endPoint, 0.5 ).plus( centerPrime.rotated( rotation ) );
 
-    function signedAngle( u, v ) {
+    const signedAngle = ( u: Vector2, v: Vector2 ) => {
       // From spec: where the ± sign appearing here is the sign of ux vy − uy vx.
       return ( ( u.x * v.y - u.y * v.x ) > 0 ? 1 : -1 ) * u.angleBetween( v );
-    }
+    };
 
     const victor = new Vector2( ( prime.x - centerPrime.x ) / radiusX, ( prime.y - centerPrime.y ) / radiusY );
     const ross = new Vector2( ( -prime.x - centerPrime.x ) / radiusX, ( -prime.y - centerPrime.y ) / radiusY );
@@ -889,17 +855,11 @@ class Shape {
   }
 
   /**
-   * Draws a circle using the arc() call with the following parameters:
-   * circle( center, radius ) // center is a Vector2
-   * circle( centerX, centerY, radius )
-   * @public
-   *
-   * @param {Vector2|number} centerX
-   * @param {number} centerY
-   * @param {number} [radius]
-   * @returns {Shape} - this shape for chaining
+   * Draws a circle using the arc() call
    */
-  circle( centerX, centerY, radius ) {
+  public circle( center: Vector2, radius: number ): this;
+  public circle( centerX: number, centerY: number, radius: number ): this;
+  public circle( centerX: Vector2 | number, centerY: number, radius?: number ): this {
     if ( typeof centerX === 'object' ) {
       // circle( center, radius )
       const center = centerX;
@@ -907,30 +867,22 @@ class Shape {
       return this.arcPoint( center, radius, 0, Math.PI * 2, false ).close();
     }
     else {
-      assert && assert( typeof centerX === 'number' && isFinite( centerX ), `centerX must be a finite number: ${centerX}` );
-      assert && assert( typeof centerY === 'number' && isFinite( centerY ), `centerY must be a finite number: ${centerY}` );
+      assert && assert( isFinite( centerX ), `centerX must be a finite number: ${centerX}` );
+      assert && assert( isFinite( centerY ), `centerY must be a finite number: ${centerY}` );
 
       // circle( centerX, centerY, radius )
-      return this.arcPoint( v( centerX, centerY ), radius, 0, Math.PI * 2, false ).close();
+      return this.arcPoint( v( centerX, centerY ), radius!, 0, Math.PI * 2, false ).close();
     }
   }
 
   /**
-   * Draws an ellipse using the ellipticalArc() call with the following parameters:
-   * ellipse( center, radiusX, radiusY, rotation ) // center is a Vector2
-   * ellipse( centerX, centerY, radiusX, radiusY, rotation )
-   * @public
+   * Draws an ellipse using the ellipticalArc() call
    *
    * The rotation is about the centerX, centerY.
-   *
-   * @param {number|Vector2} centerX
-   * @param {number} [centerY]
-   * @param {number} radiusX
-   * @param {number} radiusY
-   * @param {number} rotation
-   * @returns {Shape}
    */
-  ellipse( centerX, centerY, radiusX, radiusY, rotation ) {
+  public ellipse( center: Vector2, radiusX: number, radiusY: number, rotation: number ): this;
+  public ellipse( centerX: number, centerY: number, radiusX: number, radiusY: number, rotation: number ): this;
+  public ellipse( centerX: Vector2 | number, centerY: number, radiusX: number, radiusY: number, rotation?: number ): this {
     // TODO: separate into ellipse() and ellipsePoint()?
     // TODO: Ellipse/EllipticalArc has a mess of parameters. Consider parameter object, or double-check parameter handling
     if ( typeof centerX === 'object' ) {
@@ -942,8 +894,8 @@ class Shape {
       return this.ellipticalArcPoint( center, radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false ).close();
     }
     else {
-      assert && assert( typeof centerX === 'number' && isFinite( centerX ), `centerX must be a finite number: ${centerX}` );
-      assert && assert( typeof centerY === 'number' && isFinite( centerY ), `centerY must be a finite number: ${centerY}` );
+      assert && assert( isFinite( centerX ), `centerX must be a finite number: ${centerX}` );
+      assert && assert( isFinite( centerY ), `centerY must be a finite number: ${centerY}` );
 
       // ellipse( centerX, centerY, radiusX, radiusY, rotation )
       return this.ellipticalArcPoint( v( centerX, centerY ), radiusX, radiusY, rotation || 0, 0, Math.PI * 2, false ).close();
@@ -952,19 +904,17 @@ class Shape {
 
   /**
    * Creates a rectangle shape
-   * @public
    *
-   * @param {number} x - left position
-   * @param {number} y - bottom position (in non inverted cartesian system)
-   * @param {number} width
-   * @param {number} height
-   * @returns {Shape}
+   * @param x - left position
+   * @param y - bottom position (in non inverted cartesian system)
+   * @param width
+   * @param height
    */
-  rect( x, y, width, height ) {
-    assert && assert( typeof x === 'number' && isFinite( x ), `x must be a finite number: ${x}` );
-    assert && assert( typeof y === 'number' && isFinite( y ), `y must be a finite number: ${y}` );
-    assert && assert( typeof width === 'number' && isFinite( width ), `width must be a finite number: ${width}` );
-    assert && assert( typeof height === 'number' && isFinite( height ), `height must be a finite number: ${height}` );
+  public rect( x: number, y: number, width: number, height: number ): this {
+    assert && assert( isFinite( x ), `x must be a finite number: ${x}` );
+    assert && assert( isFinite( y ), `y must be a finite number: ${y}` );
+    assert && assert( isFinite( width ), `width must be a finite number: ${width}` );
+    assert && assert( isFinite( height ), `height must be a finite number: ${height}` );
 
     const subpath = new Subpath();
     this.addSubpath( subpath );
@@ -986,17 +936,15 @@ class Shape {
 
   /**
    * Creates a round rectangle. All arguments are number.
-   * @public
    *
-   * @param {number} x
-   * @param {number} y
-   * @param {number} width - width of the rectangle
-   * @param {number} height - height of the rectangle
-   * @param {number} arcw - arc width
-   * @param {number} arch - arc height
-   * @returns {Shape}
+   * @param x
+   * @param y
+   * @param width - width of the rectangle
+   * @param height - height of the rectangle
+   * @param arcw - arc width
+   * @param arch - arc height
    */
-  roundRect( x, y, width, height, arcw, arch ) {
+  public roundRect( x: number, y: number, width: number, height: number, arcw: number, arch: number ): this {
     const lowX = x + arcw;
     const highX = x + width - arcw;
     const lowY = y + arch;
@@ -1025,12 +973,8 @@ class Shape {
 
   /**
    * Creates a polygon from an array of vertices.
-   * @public
-   *
-   * @param {Array.<Vector2>} vertices
-   * @returns {Shape}
    */
-  polygon( vertices ) {
+  public polygon( vertices: Vector2[] ): this {
     const length = vertices.length;
     if ( length > 0 ) {
       this.moveToPoint( vertices[ 0 ] );
@@ -1045,27 +989,18 @@ class Shape {
    * This is a convenience function that allows to generate Cardinal splines
    * from a position array. Cardinal spline differs from Bezier curves in that all
    * defined points on a Cardinal spline are on the path itself.
-   * @public
    *
    * It includes a tension parameter to allow the client to specify how tightly
    * the path interpolates between points. One can think of the tension as the tension in
    * a rubber band around pegs. however unlike a rubber band the tension can be negative.
    * the tension ranges from -1 to 1
-   *
-   * @param {Array.<Vector2>} positions
-   * @param {Object} [options] - see documentation below
-   * @returns {Shape}
    */
-  cardinalSpline( positions, options ) {
-    options = merge( {
-      // the tension parameter controls how smoothly the curve turns through its
-      // control points. For a Catmull-Rom curve the tension is zero.
-      // the tension should range from  -1 to 1
-      tension: 0,
+  public cardinalSpline( positions: Vector2[], providedOptions?: CardinalSplineOptions ): this {
 
-      // is the resulting shape forming a closed line?
+    const options = optionize<CardinalSplineOptions>()( {
+      tension: 0,
       isClosedLineSegments: false
-    }, options );
+    }, providedOptions );
 
     assert && assert( options.tension < 1 && options.tension > -1, ' the tension goes from -1 to 1 ' );
 
@@ -1126,22 +1061,16 @@ class Shape {
 
   /**
    * Returns a copy of this shape
-   * @public
-   *
-   * @returns {Shape}
    */
-  copy() {
+  public copy(): Shape {
     // copy each individual subpath, so future modifications to either Shape doesn't affect the other one
     return new Shape( _.map( this.subpaths, subpath => subpath.copy() ), this.bounds );
   }
 
   /**
    * Writes out this shape's path to a canvas 2d context. does NOT include the beginPath()!
-   * @public
-   *
-   * @param {CanvasRenderingContext2D} context
    */
-  writeToContext( context ) {
+  public writeToContext( context: CanvasRenderingContext2D ): void {
     const len = this.subpaths.length;
     for ( let i = 0; i < len; i++ ) {
       this.subpaths[ i ].writeToContext( context );
@@ -1149,12 +1078,10 @@ class Shape {
   }
 
   /**
-   * Returns something like "M150 0 L75 200 L225 200 Z" for a triangle
-   * @public
-   *
-   * @returns {string}
+   * Returns something like "M150 0 L75 200 L225 200 Z" for a triangle (to be used with a SVG path element's 'd'
+   * attribute)
    */
-  getSVGPath() {
+  public getSVGPath(): string {
     let string = '';
     const len = this.subpaths.length;
     for ( let i = 0; i < len; i++ ) {
@@ -1179,12 +1106,8 @@ class Shape {
 
   /**
    * Returns a new Shape that is transformed by the associated matrix
-   * @public
-   *
-   * @param {Matrix3} matrix
-   * @returns {Shape}
    */
-  transformed( matrix ) {
+  public transformed( matrix: Matrix3 ): Shape {
     // TODO: allocation reduction
     const subpaths = _.map( this.subpaths, subpath => subpath.transformed( matrix ) );
     const bounds = _.reduce( subpaths, ( bounds, subpath ) => bounds.union( subpath.bounds ), Bounds2.NOTHING );
@@ -1194,28 +1117,14 @@ class Shape {
   /**
    * Converts this subpath to a new shape made of many line segments (approximating the current shape) with the
    * transformation applied.
-   * @public
-   *
-   * Provided options (see Segment.nonlinearTransformed)
-   * - minLevels:                       how many levels to force subdivisions
-   * - maxLevels:                       prevent subdivision past this level
-   * - distanceEpsilon (optional null): controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve. smaller => more subdivision
-   * - curveEpsilon (optional null):    controls level of subdivision by attempting to ensure a maximum curvature change between segments. smaller => more subdivision
-   * -   OR includeCurvature:           {boolean}, whether to include a default curveEpsilon (usually off by default)
-   * - pointMap (optional):             function( Vector2 ) : Vector2, represents a (usually non-linear) transformation applied
-   * - methodName (optional):           if the method name is found on the segment, it is called with the expected signature function( options ) : Array[Segment]
-   *                                    instead of using our brute-force logic. Supports optimizations for custom non-linear transforms (like polar coordinates)
-   * @param {Object} [options]
-   * @returns {Shape}
    */
-  nonlinearTransformed( options ) {
-    // defaults
-    options = merge( {
+  public nonlinearTransformed( providedOptions?: NonlinearTransformedOptions ): Shape {
+    const options = combineOptions<NonlinearTransformedOptions>( {
       minLevels: 0,
       maxLevels: 7,
       distanceEpsilon: 0.16, // NOTE: this will change when the Shape is scaled, since this is a threshold for the square of a distance value
-      curveEpsilon: ( options && options.includeCurvature ) ? 0.002 : null
-    }, options );
+      curveEpsilon: ( providedOptions && providedOptions.includeCurvature ) ? 0.002 : null
+    }, providedOptions );
 
     // TODO: allocation reduction
     const subpaths = _.map( this.subpaths, subpath => subpath.nonlinearTransformed( options ) );
@@ -1226,17 +1135,13 @@ class Shape {
   /**
    * Maps points by treating their x coordinate as polar angle, and y coordinate as polar magnitude.
    * See http://en.wikipedia.org/wiki/Polar_coordinate_system
-   * @public
    *
    * Please see Shape.nonlinearTransformed for more documentation on adaptive discretization options (minLevels, maxLevels, distanceEpsilon, curveEpsilon)
    *
    * Example: A line from (0,10) to (pi,10) will be transformed to a circular arc from (10,0) to (-10,0) passing through (0,10).
-   *
-   * @param {Object} [options]
-   * @returns {Shape}
    */
-  polarToCartesian( options ) {
-    return this.nonlinearTransformed( merge( {
+  public polarToCartesian( options?: NonlinearTransformedOptions ): Shape {
+    return this.nonlinearTransformed( combineOptions<NonlinearTransformedOptions>( {
       pointMap: p => Vector2.createPolar( p.y, p.x ),
       methodName: 'polarToCartesian' // this will be called on Segments if it exists to do more optimized conversion (see Line)
     }, options ) );
@@ -1244,28 +1149,20 @@ class Shape {
 
   /**
    * Converts each segment into lines, using an adaptive (midpoint distance subdivision) method.
-   * @public
    *
    * NOTE: uses nonlinearTransformed method internally, but since we don't provide a pointMap or methodName, it won't create anything but line segments.
    * See nonlinearTransformed for documentation of options
-   *
-   * @param {Object} [options]
-   * @returns {Shape}
    */
-  toPiecewiseLinear( options ) {
-    assert && assert( !options.pointMap, 'No pointMap for toPiecewiseLinear allowed, since it could create non-linear segments' );
-    assert && assert( !options.methodName, 'No methodName for toPiecewiseLinear allowed, since it could create non-linear segments' );
+  public toPiecewiseLinear( options?: NonlinearTransformedOptions ): Shape {
+    assert && assert( !options || !options.pointMap, 'No pointMap for toPiecewiseLinear allowed, since it could create non-linear segments' );
+    assert && assert( !options || !options.methodName, 'No methodName for toPiecewiseLinear allowed, since it could create non-linear segments' );
     return this.nonlinearTransformed( options );
   }
 
   /**
    * Is this point contained in this shape
-   * @public
-   *
-   * @param {Vector2} point
-   * @returns {boolean}
    */
-  containsPoint( point ) {
+  public containsPoint( point: Vector2 ): boolean {
 
     // We pick a ray, and determine the winding number over that ray. if the number of segments crossing it
     // CCW == number of segments crossing it CW, then the point is contained in the shape
@@ -1313,15 +1210,10 @@ class Shape {
 
   /**
    * Hit-tests this shape with the ray. An array of all intersections of the ray with this shape will be returned.
-   * For details, see the documentation in Segment.js
-   * @public
-   *
-   * @param {Ray2} ray
-   * @returns {Array.<Intersection>} - See Segment.js for details. For this function, intersections will be returned
-   *                                   sorted by the distance from the ray's position.
+   * For this function, intersections will be returned sorted by the distance from the ray's position.
    */
-  intersection( ray ) {
-    let hits = [];
+  public intersection( ray: Ray2 ): RayIntersection[] {
+    let hits: RayIntersection[] = [];
     const numSubpaths = this.subpaths.length;
     for ( let i = 0; i < numSubpaths; i++ ) {
       const subpath = this.subpaths[ i ];
@@ -1344,16 +1236,14 @@ class Shape {
   /**
    * Returns whether the provided line segment would have some part on top or touching the interior (filled area) of
    * this shape.
-   * @public
    *
    * This differs somewhat from an intersection of the line segment with the Shape's path, as we will return true
    * ("intersection") if the line segment is entirely contained in the interior of the Shape's path.
    *
-   * @param {Vector2} startPoint - One end of the line segment
-   * @param {Vector2} endPoint - The other end of the line segment
-   * @returns {boolean}
+   * @param startPoint - One end of the line segment
+   * @param endPoint - The other end of the line segment
    */
-  interiorIntersectsLineSegment( startPoint, endPoint ) {
+  public interiorIntersectsLineSegment( startPoint: Vector2, endPoint: Vector2 ): boolean {
     // First check if our midpoint is in the Shape (as either our midpoint is in the Shape, OR the line segment will
     // intersect the Shape's boundary path).
     const midpoint = startPoint.blend( endPoint, 0.5 );
@@ -1388,12 +1278,8 @@ class Shape {
 
   /**
    * Returns the winding number for intersection with a ray
-   * @public
-   *
-   * @param {Ray2} ray
-   * @returns {number}
    */
-  windingIntersection( ray ) {
+  public windingIntersection( ray: Ray2 ): number {
     let wind = 0;
 
     const numSubpaths = this.subpaths.length;
@@ -1420,12 +1306,8 @@ class Shape {
    * Whether the path of the Shape intersects (or is contained in) the provided bounding box.
    * Computed by checking intersections with all four edges of the bounding box, or whether the Shape is totally
    * contained within the bounding box.
-   * @public
-   *
-   * @param {Bounds2} bounds
-   * @returns {boolean}
    */
-  intersectsBounds( bounds ) {
+  public intersectsBounds( bounds: Bounds2 ): boolean {
     // If the bounding box completely surrounds our shape, it intersects the bounds
     if ( this.bounds.intersection( bounds ).equals( this.bounds ) ) {
       return true;
@@ -1463,15 +1345,11 @@ class Shape {
   /**
    * Returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be
    * nested (doesn't do intersection computations yet)
-   * @public
    *
    * TODO: rename stroked( lineStyles )?
-   *
-   * @param {LineStyles} lineStyles
-   * @returns {Shape}
    */
-  getStrokedShape( lineStyles ) {
-    let subpaths = [];
+  public getStrokedShape( lineStyles: LineStyles ): Shape {
+    let subpaths: Subpath[] = [];
     const bounds = Bounds2.NOTHING.copy();
     let subLen = this.subpaths.length;
     for ( let i = 0; i < subLen; i++ ) {
@@ -1488,12 +1366,8 @@ class Shape {
 
   /**
    * Gets a shape offset by a certain amount.
-   * @public
-   *
-   * @param {number} distance
-   * @returns {Shape}
    */
-  getOffsetShape( distance ) {
+  public getOffsetShape( distance: number ): Shape {
     // TODO: abstract away this type of behavior
     const subpaths = [];
     const bounds = Bounds2.NOTHING.copy();
@@ -1510,32 +1384,20 @@ class Shape {
 
   /**
    * Returns a copy of this subpath with the dash "holes" removed (has many subpaths usually).
-   * @public
-   *
-   * @param {Array.<number>} lineDash
-   * @param {number} lineDashOffset
-   * @param {Object} [options]
-   * @returns {Shape}
    */
-  getDashedShape( lineDash, lineDashOffset, options ) {
-    options = merge( {
-      // controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve
+  public getDashedShape( lineDash: number[], lineDashOffset: number, providedOptions?: GetDashedShapeOptions ): Shape {
+    const options = optionize<GetDashedShapeOptions>()( {
       distanceEpsilon: 1e-10,
-
-      // controls level of subdivision by attempting to ensure a maximum curvature change between segments
       curveEpsilon: 1e-8
-    }, options );
+    }, providedOptions );
 
     return new Shape( _.flatten( this.subpaths.map( subpath => subpath.dashed( lineDash, lineDashOffset, options.distanceEpsilon, options.curveEpsilon ) ) ) );
   }
 
   /**
    * Returns the bounds of this shape. It is the bounding-box union of the bounds of each subpath contained.
-   * @public
-   *
-   * @returns {Bounds2}
    */
-  getBounds() {
+  public getBounds(): Bounds2 {
     if ( this._bounds === null ) {
       const bounds = Bounds2.NOTHING.copy();
       _.each( this.subpaths, subpath => {
@@ -1546,18 +1408,13 @@ class Shape {
     return this._bounds;
   }
 
-  get bounds() { return this.getBounds(); }
+  public get bounds(): Bounds2 { return this.getBounds(); }
 
   /**
    * Returns the bounds for a stroked version of this shape. The input lineStyles are used to determine the size and
    * style of the stroke, and then the bounds of the stroked shape are returned.
-   * @public
-   *
-   * @param {LineStyles} lineStyles
-   * @returns {Bounds2}
    */
-  getStrokedBounds( lineStyles ) {
-    assert && assert( lineStyles instanceof LineStyles );
+  public getStrokedBounds( lineStyles: LineStyles ): Bounds2 {
 
     // Check if all of our segments end vertically or horizontally AND our drawable subpaths are all closed. If so,
     // we can apply a bounds dilation.
@@ -1597,27 +1454,17 @@ class Shape {
 
   /**
    * Returns a simplified form of this shape.
-   * @public
    *
    * Runs it through the normal CAG process, which should combine areas where possible, handles self-intersection,
    * etc.
    *
    * NOTE: Currently (2017-10-04) adjacent segments may get simplified only if they are lines. Not yet complete.
-   *
-   * @returns {Shape}
    */
-  getSimplifiedAreaShape() {
+  public getSimplifiedAreaShape(): Shape {
     return Graph.simplifyNonZero( this );
   }
 
-  /**
-   * @public
-   *
-   * @param {Matrix3} matrix
-   * @param {LineStyles} [lineStyles]
-   * @returns {Bounds2}
-   */
-  getBoundsWithTransform( matrix, lineStyles ) {
+  public getBoundsWithTransform( matrix: Matrix3, lineStyles?: LineStyles ): Bounds2 {
     const bounds = Bounds2.NOTHING.copy();
 
     const numSubpaths = this.subpaths.length;
@@ -1635,14 +1482,12 @@ class Shape {
 
   /**
    * Return an approximate value of the area inside of this Shape (where containsPoint is true) using Monte-Carlo.
-   * @public
    *
    * NOTE: Generally, use getArea(). This can be used for verification, but takes a large number of samples.
    *
-   * @param {number} numSamples - How many times to randomly check for inclusion of points.
-   * @returns {number}
+   * @param numSamples - How many times to randomly check for inclusion of points.
    */
-  getApproximateArea( numSamples ) {
+  public getApproximateArea( numSamples: number ): number {
     const x = this.bounds.minX;
     const y = this.bounds.minY;
     const width = this.bounds.width;
@@ -1662,40 +1507,32 @@ class Shape {
   }
 
   /**
-   * Return the area inside of the Shape (where containsPoint is true), assuming there is no self-intersection or
+   * Return the area inside the Shape (where containsPoint is true), assuming there is no self-intersection or
    * overlap, and the same orientation (winding order) is used. Should also support holes (with opposite orientation),
    * assuming they don't intersect the containing subpath.
-   * @public
-   *
-   * @returns {number}
    */
-  getNonoverlappingArea() {
+  public getNonoverlappingArea(): number {
     // Only absolute-value the final value.
     return Math.abs( _.sum( this.subpaths.map( subpath => _.sum( subpath.getFillSegments().map( segment => segment.getSignedAreaFragment() ) ) ) ) );
   }
 
   /**
-   * Returns the area inside of the shape.
-   * @public
+   * Returns the area inside the shape.
    *
    * NOTE: This requires running it through a lot of computation to determine a non-overlapping non-self-intersecting
    *       form first. If the Shape is "simple" enough, getNonoverlappingArea would be preferred.
-   *
-   * @returns {number}
    */
-  getArea() {
+  public getArea(): number {
     return this.getSimplifiedAreaShape().getNonoverlappingArea();
   }
 
   /**
    * Return the approximate location of the centroid of the Shape (the average of all points where containsPoint is true)
    * using Monte-Carlo methods.
-   * @public
    *
-   * @param {number} numSamples - How many times to randomly check for inclusion of points.
-   * @returns {number}
+   * @param numSamples - How many times to randomly check for inclusion of points.
    */
-  getApproximateCentroid( numSamples ) {
+  public getApproximateCentroid( numSamples: number ): Vector2 {
     const x = this.bounds.minX;
     const y = this.bounds.minY;
     const width = this.bounds.width;
@@ -1717,24 +1554,16 @@ class Shape {
 
   /**
    * Returns an array of potential closest point results on the Shape to the given point.
-   * @public
-   *
-   * @param {Vector2} point
-   * @returns {ClosestToPointResult[]}
    */
-  getClosestPoints( point ) {
+  public getClosestPoints( point: Vector2 ): ClosestToPointResult[] {
     return Segment.filterClosestToPointResult( _.flatten( this.subpaths.map( subpath => subpath.getClosestPoints( point ) ) ) );
   }
 
   /**
    * Returns a single point ON the Shape boundary that is closest to the given point (picks an arbitrary one if there
    * are multiple).
-   * @public
-   *
-   * @param {Vector2} point
-   * @returns {Vector2}
    */
-  getClosestPoint( point ) {
+  public getClosestPoint( point: Vector2 ): Vector2 {
     return this.getClosestPoints( point )[ 0 ].closestPoint;
   }
 
@@ -1742,9 +1571,8 @@ class Shape {
    * Should be called after mutating the x/y of Vector2 points that were passed in to various Shape calls, so that
    * derived information computed (bounds, etc.) will be correct, and any clients (e.g. Scenery Paths) will be
    * notified of the updates.
-   * @public
    */
-  invalidatePoints() {
+  public invalidatePoints(): void {
     this._invalidatingPoints = true;
 
     const numSubpaths = this.subpaths.length;
@@ -1756,12 +1584,7 @@ class Shape {
     this.invalidate();
   }
 
-  /**
-   * @public
-   *
-   * @returns {string}
-   */
-  toString() {
+  public toString(): string {
     // TODO: consider a more verbose but safer way?
     return `new phet.kite.Shape( '${this.getSVGPath()}' )`;
   }
@@ -1770,10 +1593,7 @@ class Shape {
    * Internal subpath computations
    *----------------------------------------------------------------------------*/
 
-  /**
-   * @private
-   */
-  invalidate() {
+  private invalidate(): void {
     assert && assert( !this._immutable, 'Attempt to modify an immutable Shape' );
 
     if ( !this._invalidatingPoints ) {
@@ -1785,29 +1605,20 @@ class Shape {
 
   /**
    * Called when a part of the Shape has changed, or if metadata on the Shape has changed (e.g. it became immutable).
-   * @private
    */
-  notifyInvalidationListeners() {
+  private notifyInvalidationListeners(): void {
     this.invalidatedEmitter.emit();
   }
 
-  /**
-   * @private
-   *
-   * @param {Segment} segment
-   */
-  addSegmentAndBounds( segment ) {
+  private addSegmentAndBounds( segment: Segment ): void {
     this.getLastSubpath().addSegment( segment );
     this.invalidate();
   }
 
   /**
    * Makes sure that we have a subpath (and if there is no subpath, start it at this point)
-   * @private
-   *
-   * @param {Vector2} point
    */
-  ensure( point ) {
+  private ensure( point: Vector2 ): void {
     if ( !this.hasSubpaths() ) {
       this.addSubpath( new Subpath() );
       this.getLastSubpath().addPoint( point );
@@ -1816,11 +1627,8 @@ class Shape {
 
   /**
    * Adds a subpath
-   * @private
-   *
-   * @param {Subpath} subpath
    */
-  addSubpath( subpath ) {
+  private addSubpath( subpath: Subpath ): this {
     this.subpaths.push( subpath );
 
     // listen to when the subpath is invalidated (will cause bounds recomputation here)
@@ -1833,41 +1641,33 @@ class Shape {
 
   /**
    * Determines if there are any subpaths
-   * @private
-   *
-   * @returns {boolean}
    */
-  hasSubpaths() {
+  private hasSubpaths(): boolean {
     return this.subpaths.length > 0;
   }
 
   /**
    * Gets the last subpath
-   * @private
-   *
-   * @returns {Subpath}
    */
-  getLastSubpath() {
-    return _.last( this.subpaths );
+  private getLastSubpath(): Subpath {
+    assert && assert( this.hasSubpaths(), 'We should have a subpath if this is called' );
+
+    return _.last( this.subpaths )!;
   }
 
   /**
    * Gets the last point in the last subpath, or null if it doesn't exist
-   * @public
-   *
-   * @returns {Vector2|null}
    */
-  getLastPoint() {
-    return this.hasSubpaths() ? this.getLastSubpath().getLastPoint() : null;
+  public getLastPoint(): Vector2 {
+    assert && assert( this.hasSubpaths(), 'We should have a subpath if this is called' );
+    assert && assert( this.getLastSubpath().getLastPoint(), 'We should have a last point' );
+    return this.getLastSubpath().getLastPoint();
   }
 
   /**
    * Gets the last drawable segment in the last subpath, or null if it doesn't exist
-   * @private
-   *
-   * @returns {Segment|null}
    */
-  getLastSegment() {
+  private getLastSegment(): Segment | null {
     if ( !this.hasSubpaths() ) { return null; }
 
     const subpath = this.getLastSubpath();
@@ -1878,11 +1678,8 @@ class Shape {
 
   /**
    * Returns the control point to be used to create a smooth quadratic segments
-   * @private
-   *
-   * @returns {Vector2}
    */
-  getSmoothQuadraticControlPoint() {
+  private getSmoothQuadraticControlPoint(): Vector2 {
     const lastPoint = this.getLastPoint();
 
     if ( this.lastQuadraticControlPoint ) {
@@ -1895,11 +1692,8 @@ class Shape {
 
   /**
    * Returns the control point to be used to create a smooth cubic segment
-   * @private
-   *
-   * @returns {Vector2}
    */
-  getSmoothCubicControlPoint() {
+  private getSmoothCubicControlPoint(): Vector2 {
     const lastPoint = this.getLastPoint();
 
     if ( this.lastCubicControlPoint ) {
@@ -1912,84 +1706,64 @@ class Shape {
 
   /**
    * Returns the last point in the last subpath, or the Vector ZERO if it doesn't exist
-   * @private
-   *
-   * @returns {Vector2}
    */
-  getRelativePoint() {
-    const lastPoint = this.getLastPoint();
-    return lastPoint ? lastPoint : Vector2.ZERO;
+  private getRelativePoint(): Vector2 {
+    let result = Vector2.ZERO;
+
+    if ( this.hasSubpaths() ) {
+      const subpath = this.getLastSubpath();
+      if ( subpath.points.length ) {
+        result = subpath.getLastPoint();
+      }
+    }
+
+    return result;
   }
 
   /**
    * Returns a new shape that contains a union of the two shapes (a point in either shape is in the resulting shape).
-   * @public
-   *
-   * @param {Shape} shape
-   * @returns {Shape}
    */
-  shapeUnion( shape ) {
+  public shapeUnion( shape: Shape ): Shape {
     return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_UNION );
   }
 
   /**
    * Returns a new shape that contains the intersection of the two shapes (a point in both shapes is in the
    * resulting shape).
-   * @public
-   *
-   * @param {Shape} shape
-   * @returns {Shape}
    */
-  shapeIntersection( shape ) {
+  public shapeIntersection( shape: Shape ): Shape {
     return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_INTERSECTION );
   }
 
   /**
    * Returns a new shape that contains the difference of the two shapes (a point in the first shape and NOT in the
    * second shape is in the resulting shape).
-   * @public
-   *
-   * @param {Shape} shape
-   * @returns {Shape}
    */
-  shapeDifference( shape ) {
+  public shapeDifference( shape: Shape ): Shape {
     return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_DIFFERENCE );
   }
 
   /**
    * Returns a new shape that contains the xor of the two shapes (a point in only one shape is in the resulting
    * shape).
-   * @public
-   *
-   * @param {Shape} shape
-   * @returns {Shape}
    */
-  shapeXor( shape ) {
+  public shapeXor( shape: Shape ): Shape {
     return Graph.binaryResult( this, shape, Graph.BINARY_NONZERO_XOR );
   }
 
   /**
    * Returns a new shape that only contains portions of segments that are within the passed-in shape's area.
-   * @public
    *
-   * @param {Shape} shape
-   * @param {Object} [options] - See Graph.clipShape options
-   * @returns {Shape}
+   * // TODO: convert Graph to TS and get the types from there
    */
-  shapeClip( shape, options ) {
+  public shapeClip( shape: Shape, options?: { includeExterior?: boolean; includeBoundary: boolean; includeInterior: boolean } ): Shape {
     return Graph.clipShape( shape, this, options );
   }
 
   /**
-   * Returns the (sometimes approximate) arc length of all of the shape's subpaths combined.
-   * @public
-   *
-   * @param {number} [distanceEpsilon]
-   * @param {number} [curveEpsilon]
-   * @param {number} [maxLevels]
-   * @returns {number}
+   * Returns the (sometimes approximate) arc length of all the shape's subpaths combined.
    */
-  getArcLength( distanceEpsilon, curveEpsilon, maxLevels ) {
+  public getArcLength( distanceEpsilon?: number, curveEpsilon?: number, maxLevels?: number ): number {
     let length = 0;
     for ( let i = 0; i < this.subpaths.length; i++ ) {
       length += this.subpaths[ i ].getArcLength( distanceEpsilon, curveEpsilon, maxLevels );
@@ -1999,11 +1773,8 @@ class Shape {
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
-   * @public
-   *
-   * @returns {Object}
    */
-  serialize() {
+  public serialize(): IntentionalAny {
     return {
       type: 'Shape',
       subpaths: this.subpaths.map( subpath => subpath.serialize() )
@@ -2012,12 +1783,8 @@ class Shape {
 
   /**
    * Returns a Shape from the serialized representation.
-   * @public
-   *
-   * @param {Object} obj
-   * @returns {Shape}
    */
-  static deserialize( obj ) {
+  public static deserialize( obj: IntentionalAny ): Shape {
     assert && assert( obj.type === 'Shape' );
 
     return new Shape( obj.subpaths.map( Subpath.deserialize ) );
@@ -2025,39 +1792,24 @@ class Shape {
 
   /**
    * Creates a rectangle
-   * @public
-   *
-   * @param {number} x
-   * @param {number} y
-   * @param {number} width
-   * @param {number} height
-   * @returns {Shape}
    */
-  static rectangle( x, y, width, height ) {
+  public static rectangle( x: number, y: number, width: number, height: number ): Shape {
     return new Shape().rect( x, y, width, height );
   }
+  public static rect = Shape.rectangle;
 
   /**
    * Creates a round rectangle {Shape}, with {number} arguments. Uses circular or elliptical arcs if given.
-   * @public
-   *
-   * @param {number} x
-   * @param {number} y
-   * @param {number} width
-   * @param {number} height
-   * @param {number} arcw
-   * @param {number} arch
-   * @returns {Shape}
    */
-  static roundRect( x, y, width, height, arcw, arch ) {
+  public static roundRect( x: number, y: number, width: number, height: number, arcw: number, arch: number ): Shape {
     return new Shape().roundRect( x, y, width, height, arcw, arch );
   }
+  public static roundRectangle = Shape.roundRect;
 
   /**
    * Creates a rounded rectangle, where each corner can have a different radius. The radii default to 0, and may be set
    * using topLeft, topRight, bottomLeft and bottomRight in the options. If the specified radii are larger than the dimension
    * on that side, they radii are reduced proportionally, see https://github.com/phetsims/under-pressure/issues/151
-   * @public
    *
    * E.g.:
    *
@@ -2067,14 +1819,13 @@ class Shape {
    *   topRight: cornerRadius
    * } );
    *
-   * @param {number} x - Left edge position
-   * @param {number} y - Top edge position
-   * @param {number} width - Width of rectangle
-   * @param {number} height - Height of rectangle
-   * @param {Object} [cornerRadii] - Optional object with potential radii for each corner.
-   * @returns {Shape}
+   * @param x - Left edge position
+   * @param y - Top edge position
+   * @param width - Width of rectangle
+   * @param height - Height of rectangle
+   * @param [cornerRadii] - Optional object with potential radii for each corner.
    */
-  static roundedRectangleWithRadii( x, y, width, height, cornerRadii ) {
+  public static roundedRectangleWithRadii( x: number, y: number, width: number, height: number, cornerRadii?: CornerRadiiOptions ): Shape {
 
     // defaults to 0 (not using merge, since we reference each multiple times)
     let topLeftRadius = cornerRadii && cornerRadii.topLeft || 0;
@@ -2083,17 +1834,17 @@ class Shape {
     let bottomRightRadius = cornerRadii && cornerRadii.bottomRight || 0;
 
     // type and constraint assertions
-    assert && assert( typeof x === 'number' && isFinite( x ), 'Non-finite x' );
-    assert && assert( typeof y === 'number' && isFinite( y ), 'Non-finite y' );
-    assert && assert( typeof width === 'number' && width >= 0 && isFinite( width ), 'Negative or non-finite width' );
-    assert && assert( typeof height === 'number' && height >= 0 && isFinite( height ), 'Negative or non-finite height' );
-    assert && assert( typeof topLeftRadius === 'number' && topLeftRadius >= 0 && isFinite( topLeftRadius ),
+    assert && assert( isFinite( x ), 'Non-finite x' );
+    assert && assert( isFinite( y ), 'Non-finite y' );
+    assert && assert( width >= 0 && isFinite( width ), 'Negative or non-finite width' );
+    assert && assert( height >= 0 && isFinite( height ), 'Negative or non-finite height' );
+    assert && assert( topLeftRadius >= 0 && isFinite( topLeftRadius ),
       'Invalid topLeft' );
-    assert && assert( typeof topRightRadius === 'number' && topRightRadius >= 0 && isFinite( topRightRadius ),
+    assert && assert( topRightRadius >= 0 && isFinite( topRightRadius ),
       'Invalid topRight' );
-    assert && assert( typeof bottomLeftRadius === 'number' && bottomLeftRadius >= 0 && isFinite( bottomLeftRadius ),
+    assert && assert( bottomLeftRadius >= 0 && isFinite( bottomLeftRadius ),
       'Invalid bottomLeft' );
-    assert && assert( typeof bottomRightRadius === 'number' && bottomRightRadius >= 0 && isFinite( bottomRightRadius ),
+    assert && assert( bottomRightRadius >= 0 && isFinite( bottomRightRadius ),
       'Invalid bottomRight' );
 
     // The width and height take precedence over the corner radii. If the sum of the corner radii exceed
@@ -2169,15 +1920,9 @@ class Shape {
   }
 
   /**
-   * Returns a Shape from a bounds, offset by certain amounts, and with certain corner radii.
-   * @public
-   *
-   * @param {Bounds2} bounds
-   * @param {Object} offsets - { left, top, right, bottom }, all numbers. Determines how to expand the bounds
-   * @param {Object} radii - See Shape.roundedRectangleWithRadii
-   * @returns {Shape}
+   * Returns a Shape from a bounds, offset (expanded) by certain amounts, and with certain corner radii.
    */
-  static boundsOffsetWithRadii( bounds, offsets, radii ) {
+  public static boundsOffsetWithRadii( bounds: Bounds2, offsets: OffsetsOptions, radii?: CornerRadiiOptions ): Shape {
     const offsetBounds = bounds.withOffsets( offsets.left, offsets.top, offsets.right, offsets.bottom );
     return Shape.roundedRectangleWithRadii( offsetBounds.minX, offsetBounds.minY, offsetBounds.width, offsetBounds.height, radii );
   }
@@ -2185,57 +1930,41 @@ class Shape {
   /**
    * Creates a closed polygon from an array of vertices by connecting them by a series of lines.
    * The lines are joining the adjacent vertices in the array.
-   * @public
-   *
-   * @param {Array.<Vector2>} vertices
-   * @returns {Shape}
    */
-  static polygon( vertices ) {
+  public static polygon( vertices: Vector2[] ): Shape {
     return new Shape().polygon( vertices );
   }
 
   /**
    * Creates a rectangular shape from bounds
-   * @public
-   *
-   * @param {Bounds2} bounds
-   * @returns {Shape}
    */
-  static bounds( bounds ) {
+  public static bounds( bounds: Bounds2 ): Shape {
     return new Shape().rect( bounds.minX, bounds.minY, bounds.maxX - bounds.minX, bounds.maxY - bounds.minY );
   }
 
   /**
    * Creates a line segment, using either (x1,y1,x2,y2) or ({x1,y1},{x2,y2}) arguments
-   * @public
-   *
-   * @param {number|Vector2} a
-   * @param {number|Vector2} b
-   * @param {number} [c]
-   * @param {number} [d]
-   * @returns {Shape}
    */
-  static lineSegment( a, b, c, d ) {
-    // TODO: add type assertions?
+  public static lineSegment( x1: number, y1: number, x2: number, y2: number ): Shape;
+  public static lineSegment( p1: Vector2, p2: Vector2 ): Shape;
+  public static lineSegment( a: Vector2 | number, b: Vector2 | number, c?: number, d?: number ): Shape {
     if ( typeof a === 'number' ) {
-      return new Shape().moveTo( a, b ).lineTo( c, d );
+      return new Shape().moveTo( a, b as number ).lineTo( c!, d! );
     }
     else {
       // then a and b must be {Vector2}
-      return new Shape().moveToPoint( a ).lineToPoint( b );
+      return new Shape().moveToPoint( a ).lineToPoint( b as Vector2 );
     }
   }
 
   /**
    * Returns a regular polygon of radius and number of sides
    * The regular polygon is oriented such that the first vertex lies on the positive x-axis.
-   * @public
    *
-   * @param {number} sides - an integer
-   * @param {number} radius
-   * @returns {Shape}
+   * @param sides - an integer
+   * @param radius
    */
-  static regularPolygon( sides, radius ) {
+  public static regularPolygon( sides: number, radius: number ): Shape {
     const shape = new Shape();
     _.each( _.range( sides ), k => {
       const point = Vector2.createPolar( radius, 2 * Math.PI * k / sides );
@@ -2247,100 +1976,76 @@ class Shape {
   /**
    * Creates a circle
    * supports both circle( centerX, centerY, radius ), circle( center, radius ), and circle( radius ) with the center default to 0,0
-   * @public
-   *
-   * @param {Vector2|number} centerX
-   * @param {number} [centerY]
-   * @param {number} [radius]
-   * @returns {Shape}
    */
-  static circle( centerX, centerY, radius ) {
-    if ( centerY === undefined ) {
+  public static circle( centerX: number, centerY: number, radius: number ): Shape;
+  public static circle( center: Vector2, radius: number ): Shape;
+  public static circle( radius: number ): Shape;
+  public static circle( a: Vector2 | number, b?: number, c?: number ): Shape {
+    if ( b === undefined ) {
       // circle( radius ), center = 0,0
-      return new Shape().circle( 0, 0, centerX );
+      return new Shape().circle( 0, 0, a as number );
     }
-    return new Shape().circle( centerX, centerY, radius );
+    // @ts-expect-error - The signatures are compatible, it's just multiple different types at the same time
+    return new Shape().circle( a, b, c );
   }
 
   /**
    * Supports ellipse( centerX, centerY, radiusX, radiusY, rotation ), ellipse( center, radiusX, radiusY, rotation ), and ellipse( radiusX, radiusY, rotation )
    * with the center default to 0,0 and rotation of 0.  The rotation is about the centerX, centerY.
-   * @public
-   *
-   * @param {number|Vector2} centerX
-   * @param {number} [centerY]
-   * @param {number|Vector2} radiusX
-   * @param {number} [radiusY]
-   * @param {number} rotation
-   * @returns {Shape}
    */
-  static ellipse( centerX, centerY, radiusX, radiusY, rotation ) {
+  public static ellipse( centerX: number, centerY: number, radiusX: number, radiusY: number, rotation: number ): Shape;
+  public static ellipse( center: Vector2, radiusX: number, radiusY: number, rotation: number ): Shape;
+  public static ellipse( radiusX: number, radiusY: number, rotation: number ): Shape;
+  public static ellipse( a: Vector2 | number, b: number, c: number, d?: number, e?: number ): Shape {
     // TODO: Ellipse/EllipticalArc has a mess of parameters. Consider parameter object, or double-check parameter handling
-    if ( radiusY === undefined ) {
+    if ( d === undefined ) {
       // ellipse( radiusX, radiusY ), center = 0,0
-      return new Shape().ellipse( 0, 0, centerX, centerY, radiusX );
+      return new Shape().ellipse( 0, 0, a as number, b, c );
     }
-    return new Shape().ellipse( centerX, centerY, radiusX, radiusY, rotation );
+    // @ts-expect-error - The signatures are compatible, it's just multiple different types at the same time
+    return new Shape().ellipse( a, b, c, d, e );
   }
 
   /**
    * Supports both arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) and arc( center, radius, startAngle, endAngle, anticlockwise )
-   * @public
    *
-   * @param {Vector2|number} centerX
-   * @param {number} [centerY]
-   * @param {number} radius - How far from the center the arc will be
-   * @param {number} startAngle - Angle (radians) of the start of the arc
-   * @param {number} endAngle - Angle (radians) of the end of the arc
-   * @param {boolean} [anticlockwise] - Decides which direction the arc takes around the center
-   * @returns {Shape}
+   * @param radius - How far from the center the arc will be
+   * @param startAngle - Angle (radians) of the start of the arc
+   * @param endAngle - Angle (radians) of the end of the arc
+   * @param [anticlockwise] - Decides which direction the arc takes around the center
    */
-  static arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise ) {
-    return new Shape().arc( centerX, centerY, radius, startAngle, endAngle, anticlockwise );
+  public static arc( centerX: number, centerY: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean ): Shape;
+  public static arc( center: Vector2, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean ): Shape;
+  public static arc( a: Vector2 | number, b: number, c: number, d: number, e?: number | boolean, f?: boolean ): Shape {
+    // @ts-expect-error - The signatures are compatible, it's just multiple different types at the same time
+    return new Shape().arc( a, b, c, d, e, f );
   }
 
   /**
    * Returns the union of an array of shapes.
-   * @public
-   *
-   * @param {Array.<Shape>} shapes
-   * @returns {Shape}
    */
-  static union( shapes ) {
+  public static union( shapes: Shape[] ): Shape {
     return Graph.unionNonZero( shapes );
   }
 
   /**
    * Returns the intersection of an array of shapes.
-   * @public
-   *
-   * @param {Array.<Shape>} shapes
-   * @returns {Shape}
    */
-  static intersection( shapes ) {
+  public static intersection( shapes: Shape[] ): Shape {
     return Graph.intersectionNonZero( shapes );
   }
 
   /**
    * Returns the xor of an array of shapes.
-   * @public
-   *
-   * @param {Array.<Shape>} shapes
-   * @returns {Shape}
    */
-  static xor( shapes ) {
+  public static xor( shapes: Shape[] ): Shape {
     return Graph.xorNonZero( shapes );
   }
 
   /**
    * Returns a new Shape constructed by appending a list of segments together.
-   * @public
-   *
-   * @param {Array.<Segment>} segments
-   * @param {boolean} [closed]
-   * @returns {Shape}
    */
-  static segments( segments, closed ) {
+  public static segments( segments: Segment[], closed?: boolean ): Shape {
     if ( assert ) {
       for ( let i = 1; i < segments.length; i++ ) {
         assert( segments[ i - 1 ].end.equalsEpsilon( segments[ i ].start, 1e-6 ), 'Mismatched start/end' );
@@ -2352,13 +2057,5 @@ class Shape {
 }
 
 kite.register( 'Shape', Shape );
-
-/*---------------------------------------------------------------------------*
- * Shape shortcuts
- *----------------------------------------------------------------------------*/
-
-// @public {function}
-Shape.rect = Shape.rectangle;
-Shape.roundRectangle = Shape.roundRect;
 
 export default Shape;
