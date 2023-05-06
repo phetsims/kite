@@ -17,10 +17,10 @@ import Ray2 from '../../../dot/js/Ray2.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import optionize from '../../../phet-core/js/optionize.js';
-import IntentionalAny from '../../../phet-core/js/types/IntentionalAny.js';
-import { Arc, BoundsIntersection, EllipticalArc, kite, Line, RayIntersection, SegmentIntersection, Shape, Subpath } from '../imports.js';
+import KeysMatching from '../../../phet-core/js/types/KeysMatching.js';
+import { Arc, BoundsIntersection, Cubic, EllipticalArc, kite, Line, Quadratic, RayIntersection, SegmentIntersection, SerializedArc, SerializedCubic, SerializedEllipticalArc, SerializedLine, SerializedQuadratic, Shape, Subpath } from '../imports.js';
 
-type DashValues = {
+export type DashValues = {
 
   // Parametric (t) values for where dash boundaries exist
   values: number[];
@@ -31,6 +31,8 @@ type DashValues = {
   // Whether the start of the segment is inside a dash (instead of a gap)
   initiallyInside: boolean;
 };
+
+export type SerializedSegment = SerializedArc | SerializedCubic | SerializedEllipticalArc | SerializedLine | SerializedQuadratic;
 
 type SimpleOverlap = {
   a: number;
@@ -65,7 +67,12 @@ export type PiecewiseLinearOptions = {
 
   // if the method name is found on the segment, it is called with the expected signature
   // function( options ) : Array[Segment] instead of using our brute-force logic
-  methodName?: string;
+  methodName?: KeysMatching<Segment, ( options: PiecewiseLinearOptions ) => Segment[]> |
+               KeysMatching<Arc, ( options: PiecewiseLinearOptions ) => Segment[]> |
+               KeysMatching<Cubic, ( options: PiecewiseLinearOptions ) => Segment[]> |
+               KeysMatching<EllipticalArc, ( options: PiecewiseLinearOptions ) => Segment[]> |
+               KeysMatching<Line, ( options: PiecewiseLinearOptions ) => Segment[]> |
+               KeysMatching<Quadratic, ( options: PiecewiseLinearOptions ) => Segment[]>;
 };
 
 type PiecewiseLinearOrArcRecursionOptions = {
@@ -153,6 +160,10 @@ export default abstract class Segment {
 
   // Returns a new segment that represents this segment after transformation by the matrix
   public abstract transformed( matrix: Matrix3 ): Segment;
+
+  public abstract invalidate(): void;
+
+  public abstract serialize(): SerializedSegment;
 
   /**
    * Will return true if the start/end tangents are purely vertical or horizontal. If all of the segments of a shape
@@ -248,7 +259,7 @@ export default abstract class Segment {
   /**
    * Returns the (sometimes approximate) arc length of the segment.
    */
-  public getArcLength( distanceEpsilon: number, curveEpsilon: number, maxLevels: number ): number {
+  public getArcLength( distanceEpsilon?: number, curveEpsilon?: number, maxLevels?: number ): number {
     distanceEpsilon = distanceEpsilon === undefined ? 1e-10 : distanceEpsilon;
     curveEpsilon = curveEpsilon === undefined ? 1e-8 : curveEpsilon;
     maxLevels = maxLevels === undefined ? 15 : maxLevels;
@@ -742,7 +753,8 @@ export default abstract class Segment {
   /**
    * Returns a Segment from the serialized representation.
    */
-  public static deserialize( obj: IntentionalAny ): Segment {
+  public static deserialize( obj: SerializedSegment ): Segment {
+    // TODO: just import them now that we have circular reference protection, and switch between
     // @ts-expect-error TODO: namespacing
     assert && assert( obj.type && kite[ obj.type ] && kite[ obj.type ].deserialize );
 

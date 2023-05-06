@@ -31,7 +31,7 @@ function isBetween0And1( t: number ): boolean {
   return t >= 0 && t <= 1;
 }
 
-type SerializedCubic = {
+export type SerializedCubic = {
   type: 'Cubic';
   startX: number;
   startY: number;

@@ -15,7 +15,7 @@ import { Arc, ClosestToPointResult, kite, Overlap, PiecewiseLinearOptions, RayIn
 
 const scratchVector2 = new Vector2( 0, 0 );
 
-type SerializedLine = {
+export type SerializedLine = {
   type: 'Line';
   startX: number;
   startY: number;

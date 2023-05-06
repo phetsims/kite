@@ -24,9 +24,9 @@ import dotRandom from '../../dot/js/dotRandom.js';
 import Matrix3 from '../../dot/js/Matrix3.js';
 import Ray2 from '../../dot/js/Ray2.js';
 import Vector2 from '../../dot/js/Vector2.js';
-import IntentionalAny from '../../phet-core/js/types/IntentionalAny.js';
 import optionize, { combineOptions } from '../../phet-core/js/optionize.js';
-import { Arc, ClosestToPointResult, Cubic, EllipticalArc, Graph, kite, Line, LineStyles, Quadratic, RayIntersection, Segment, Subpath, svgNumber, svgPath } from './imports.js';
+import { Arc, ClosestToPointResult, Cubic, EllipticalArc, Graph, kite, Line, LineStyles, PiecewiseLinearOptions, Quadratic, RayIntersection, Segment, Subpath, svgNumber, svgPath } from './imports.js';
+import { SerializedSubpath } from './util/Subpath.js';
 
 // (We can't get joist's random reference here)
 const randomSource = Math.random;
@@ -53,6 +53,11 @@ const weightedSplineVector = ( beforeVector: Vector2, currentVector: Vector2, af
 // a normalized vector for non-zero winding checks
 // var weirdDir = v( Math.PI, 22 / 7 );
 
+export type SerializedShape = {
+  type: 'Shape';
+  subpaths: SerializedSubpath[];
+};
+
 type CardinalSplineOptions = {
   // the tension parameter controls how smoothly the curve turns through its
   // control points. For a Catmull-Rom curve the tension is zero.
@@ -63,30 +68,10 @@ type CardinalSplineOptions = {
   isClosedLineSegments?: boolean;
 };
 
-type NonlinearTransformedOptions = {
-  // how many levels to force subdivisions
-  minLevels?: number;
-
-  // prevent subdivision past this level
-  maxLevels?: number;
-
-  // controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve. smaller => more subdivision
-  distanceEpsilon?: number | null;
-
-  // controls level of subdivision by attempting to ensure a maximum curvature change between segments. smaller => more subdivision
-  // Do not provide this AND includeCurvature
-  curveEpsilon?: number | null;
-
+export type NonlinearTransformedOptions = {
   // whether to include a default curveEpsilon (usually off by default)
   includeCurvature?: boolean;
-
-  // represents a (usually non-linear) transformation applied
-  pointMap?: ( v: Vector2 ) => Vector2;
-
-  // if the method name is found on the segment, it is called with the expected signature function( options ) : Array[Segment]
-  // instead of using our brute-force logic. Supports optimizations for custom non-linear transforms (like polar coordinates)
-  methodName?: string;
-};
+} & PiecewiseLinearOptions;
 
 type GetDashedShapeOptions = {
   // controls level of subdivision by attempting to ensure a maximum (squared) deviation from the curve
@@ -1774,7 +1759,7 @@ class Shape implements CanApplyParsedSVG {
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
    */
-  public serialize(): IntentionalAny {
+  public serialize(): SerializedShape {
     return {
       type: 'Shape',
       subpaths: this.subpaths.map( subpath => subpath.serialize() )
@@ -1784,7 +1769,7 @@ class Shape implements CanApplyParsedSVG {
   /**
    * Returns a Shape from the serialized representation.
    */
-  public static deserialize( obj: IntentionalAny ): Shape {
+  public static deserialize( obj: SerializedShape ): Shape {
     assert && assert( obj.type === 'Shape' );
 
     return new Shape( obj.subpaths.map( Subpath.deserialize ) );
@@ -1825,7 +1810,7 @@ class Shape implements CanApplyParsedSVG {
    * @param height - Height of rectangle
    * @param [cornerRadii] - Optional object with potential radii for each corner.
    */
-  public static roundedRectangleWithRadii( x: number, y: number, width: number, height: number, cornerRadii?: CornerRadiiOptions ): Shape {
+  public static roundedRectangleWithRadii( x: number, y: number, width: number, height: number, cornerRadii?: Partial<CornerRadiiOptions> ): Shape {
 
     // defaults to 0 (not using merge, since we reference each multiple times)
     let topLeftRadius = cornerRadii && cornerRadii.topLeft || 0;

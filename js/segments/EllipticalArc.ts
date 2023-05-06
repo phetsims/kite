@@ -24,7 +24,7 @@ import { Arc, BoundsIntersection, kite, Line, Overlap, RayIntersection, Segment,
 // constants
 const toDegrees = Utils.toDegrees;
 
-type SerializedEllipticalArc = {
+export type SerializedEllipticalArc = {
   type: 'EllipticalArc';
   centerX: number;
   centerY: number;

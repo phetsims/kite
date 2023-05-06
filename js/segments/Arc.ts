@@ -16,7 +16,7 @@ import { EllipticalArc, kite, Line, Overlap, RayIntersection, Segment, SegmentIn
 // TODO: See if we should use this more
 const TWO_PI = Math.PI * 2;
 
-type SerializedArc = {
+export type SerializedArc = {
   type: 'Arc';
   centerX: number;
   centerY: number;

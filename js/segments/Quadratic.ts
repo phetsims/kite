@@ -24,7 +24,7 @@ function isBetween0And1( t: number ): boolean {
   return t >= 0 && t <= 1;
 }
 
-type SerializedQuadratic = {
+export type SerializedQuadratic = {
   type: 'Quadratic';
   startX: number;
   startY: number;
