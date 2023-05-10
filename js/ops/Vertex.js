@@ -62,9 +62,7 @@ class Vertex {
     this.data = null;
 
     // @public {*} - kite-internal
-    this.internalData = {
-
-    };
+    this.internalData = {};
 
     return this;
   }
