@@ -162,7 +162,8 @@ class Vertex {
         return curvatureA < curvatureB ? 1 : -1;
       }
       else {
-        throw new Error( 'TODO: Need to implement more advanced disambiguation ' );
+        assert && assert( false, 'TODO: Need to implement more advanced disambiguation ' );
+        return 1; // Arbitrary value for this case in the wild.
       }
     }
   }
