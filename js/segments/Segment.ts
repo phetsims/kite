@@ -19,6 +19,7 @@ import Vector2 from '../../../dot/js/Vector2.js';
 import optionize from '../../../phet-core/js/optionize.js';
 import KeysMatching from '../../../phet-core/js/types/KeysMatching.js';
 import { Arc, BoundsIntersection, Cubic, EllipticalArc, kite, Line, Quadratic, RayIntersection, SegmentIntersection, SerializedArc, SerializedCubic, SerializedEllipticalArc, SerializedLine, SerializedQuadratic, Shape, Subpath } from '../imports.js';
+import IntentionalAny from '../../../phet-core/js/types/IntentionalAny.js';
 
 export type DashValues = {
 
@@ -745,6 +746,22 @@ export default abstract class Segment {
     else if ( EllipticalArc && a instanceof EllipticalArc && b instanceof EllipticalArc ) {
       return EllipticalArc.intersect( a, b );
     }
+    else if ( Quadratic && Cubic && ( a instanceof Quadratic || a instanceof Cubic ) && ( b instanceof Quadratic || b instanceof Cubic ) ) {
+      const cubicA = a instanceof Cubic ? a : a.degreeElevated();
+      const cubicB = b instanceof Cubic ? b : b.degreeElevated();
+
+      // @ts-expect-error (no type definitions yet, perhaps useful if we use it more)
+      const paperCurveA = new paper.Curve( cubicA.start.x, cubicA.start.y, cubicA.control1.x, cubicA.control1.y, cubicA.control2.x, cubicA.control2.y, cubicA.end.x, cubicA.end.y );
+
+      // @ts-expect-error (no type definitions yet, perhaps useful if we use it more)
+      const paperCurveB = new paper.Curve( cubicB.start.x, cubicB.start.y, cubicB.control1.x, cubicB.control1.y, cubicB.control2.x, cubicB.control2.y, cubicB.end.x, cubicB.end.y );
+
+      const paperIntersections = paperCurveA.getIntersections( paperCurveB );
+      return paperIntersections.map( ( paperIntersection: IntentionalAny ) => {
+        const point = new Vector2( paperIntersection.point.x, paperIntersection.point.y );
+        return new SegmentIntersection( point, paperIntersection.time, paperIntersection.intersection.time );
+      } );
+    }
     else {
       return BoundsIntersection.intersect( a, b );
     }
@@ -804,3 +821,4 @@ kite.register( 'Segment', Segment );
 function swapSegmentIntersection( segmentIntersection: SegmentIntersection ): SegmentIntersection {
   return segmentIntersection.getSwapped();
 }
+
