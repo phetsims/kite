@@ -154,15 +154,17 @@ class Vertex {
       return angleA < angleB ? -1 : 1;
     }
     else {
-      const curvatureA = halfEdgeA.sortVector.y;
-      const curvatureB = halfEdgeB.sortVector.y;
-      if ( Math.abs( curvatureA - curvatureB ) > 1e-5 ) {
-        return curvatureA < curvatureB ? 1 : -1;
-      }
-      else {
-        assert && assert( false, 'TODO: Need to implement more advanced disambiguation' );
-        return 1; // Arbitrary value for this case in the wild.
-      }
+      // TODO: reduce allocations here (probably doesn't happen often?)
+      // We can check the signed area of the area right around the vertex, and decide on the order based on that.
+      const t = 1 - 1e-3;
+      const halfHalfEdgeA = halfEdgeA.getDirectionalSegment().subdivided( t )[ 1 ];
+      const halfHalfEdgeB = halfEdgeB.getDirectionalSegment().subdivided( t )[ 1 ];
+      const signedArea =
+        halfHalfEdgeA.getSignedAreaFragment()
+        - halfHalfEdgeB.getSignedAreaFragment()
+        + new Line( halfHalfEdgeB.start, halfHalfEdgeA.start ).getSignedAreaFragment();
+
+      return signedArea > 0 ? 1 : -1;
     }
   }
 
