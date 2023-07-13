@@ -908,7 +908,7 @@ export default class Arc extends Segment {
    */
   public static getOverlaps( arc1: Arc, arc2: Arc ): Overlap[] {
 
-    if ( arc1._center.distance( arc2._center ) > 1e-8 || Math.abs( arc1._radius - arc2._radius ) > 1e-8 ) {
+    if ( arc1._center.distance( arc2._center ) > 1e-4 || Math.abs( arc1._radius - arc2._radius ) > 1e-4 ) {
       return [];
     }
 

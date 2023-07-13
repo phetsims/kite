@@ -36,6 +36,11 @@ import { Arc, Boundary, Cubic, Edge, EdgeSegmentTree, EllipticalArc, Face, kite,
 let bridgeId = 0;
 let globalId = 0;
 
+const VERTEX_COLLAPSE_THRESHOLD_DISTANCE = 1e-5;
+const INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE = 0.1 * VERTEX_COLLAPSE_THRESHOLD_DISTANCE;
+const SPLIT_ENDPOINT_THRESHOLD_DISTANCE = 0.01 * VERTEX_COLLAPSE_THRESHOLD_DISTANCE;
+const T_THRESHOLD = 1e-6;
+
 class Graph {
   /**
    * @public (kite-internal)
@@ -309,6 +314,12 @@ class Graph {
     // Vertices can be left over where they have less than 2 incident edges, and they can be safely removed (since
     // they won't contribute to the area output).
     this.removeLowOrderVertices();
+
+    // // TODO: Why does this resolve some things? It seems like it should be unnecessary.
+    // this.eliminateIntersection();
+    // this.collapseVertices();
+    // this.removeBridges();
+    // this.removeLowOrderVertices();
 
     // Now that the graph has well-defined vertices and edges (2-edge-connected, nonoverlapping), we'll want to know
     // the order of edges around a vertex (if you rotate around a vertex, what edges are in what order?).
@@ -922,11 +933,20 @@ class Graph {
           const bSegment = otherEdge.segment;
           let intersections = Segment.intersect( aSegment, bSegment );
           intersections = intersections.filter( intersection => {
-            const aT = intersection.aT;
-            const bT = intersection.bT;
-            const aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
-            const bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
-            return aInternal || bInternal;
+            const point = intersection.point;
+
+            // Filter out endpoint-to-endpoint intersections, and at a radius where they would get collapsed into an
+            // endpoint anyway. If it's "internal" to one segment, we'll keep it.
+            return Graph.isInternal( point, intersection.aT, aSegment, INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE, T_THRESHOLD ) ||
+                   Graph.isInternal( point, intersection.bT, bSegment, INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE, T_THRESHOLD );
+
+            // return (
+            //   point.distance( aSegment.start ) > INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE &&
+            //   point.distance( aSegment.end ) > INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE
+            // ) || (
+            //   point.distance( bSegment.start ) > INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE &&
+            //   point.distance( bSegment.end ) > INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE
+            // );
           } );
           if ( intersections.length ) {
 
@@ -934,6 +954,12 @@ class Graph {
             const intersection = intersections[ 0 ];
 
             const result = this.simpleSplit( edge, otherEdge, intersection.aT, intersection.bT, intersection.point );
+
+            // const aT = intersection.aT;
+            // const bT = intersection.bT;
+            // const aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
+            // const bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
+            // console.log( 'split', intersection.aT, intersection.bT, aInternal, bInternal, result );
 
             if ( result ) {
               found = true;
@@ -996,8 +1022,14 @@ class Graph {
    * @returns {{addedEdges: Edge[], removedEdges: Edge[]}|null}
    */
   simpleSplit( aEdge, bEdge, aT, bT, point ) {
-    const aInternal = aT > 1e-6 && aT < ( 1 - 1e-6 );
-    const bInternal = bT > 1e-6 && bT < ( 1 - 1e-6 );
+    const aInternal = Graph.isInternal( point, aT, aEdge.segment, SPLIT_ENDPOINT_THRESHOLD_DISTANCE, T_THRESHOLD );
+    const bInternal = Graph.isInternal( point, bT, bEdge.segment, SPLIT_ENDPOINT_THRESHOLD_DISTANCE, T_THRESHOLD );
+    // const aInternal = point.distance( aEdge.segment.start ) > SPLIT_ENDPOINT_THRESHOLD_DISTANCE &&
+    //                   point.distance( aEdge.segment.end ) > SPLIT_ENDPOINT_THRESHOLD_DISTANCE;
+    // const bInternal = point.distance( bEdge.segment.start ) > SPLIT_ENDPOINT_THRESHOLD_DISTANCE &&
+    //                   point.distance( bEdge.segment.end ) > SPLIT_ENDPOINT_THRESHOLD_DISTANCE;
+    // const aInternal = aT > 1e-6 && aT < ( 1 - 1e-6 );
+    // const bInternal = bT > 1e-6 && bT < ( 1 - 1e-6 );
 
     let vertex = null;
     if ( !aInternal ) {
@@ -1073,7 +1105,7 @@ class Graph {
 
     // We'll expand bounds by this amount, so that "adjacent" bounds (with a potentially overlapping vertical or
     // horizontal line) will have a non-zero amount of area overlapping.
-    const epsilon = 1e-4;
+    const epsilon = 10 * VERTEX_COLLAPSE_THRESHOLD_DISTANCE; // TODO: could we reduce this factor to closer to the distance?
 
     // Our queue will store entries of { start: boolean, vertex: Vertex }, representing a sweep line similar to the
     // Bentley-Ottmann approach. We'll track which edges are passing through the sweep line.
@@ -1129,7 +1161,7 @@ class Graph {
         // TODO: Is this closure killing performance? https://github.com/phetsims/tasks/issues/1129
         segmentTree.query( vertex, otherVertex => {
           const distance = vertex.point.distance( otherVertex.point );
-          if ( distance < 1e-5 ) {
+          if ( distance < VERTEX_COLLAPSE_THRESHOLD_DISTANCE ) {
 
               const newVertex = Vertex.pool.create( distance === 0 ? vertex.point : vertex.point.average( otherVertex.point ) );
               this.vertices.push( newVertex );
@@ -1566,6 +1598,14 @@ class Graph {
     }
 
     throw new Error( 'Could not find boundary' );
+  }
+
+  // @public
+  static isInternal( point, t, segment, distanceThreshold, tThreshold ) {
+    return t > tThreshold &&
+           t < ( 1 - tThreshold ) &&
+           point.distance( segment.start ) > distanceThreshold &&
+           point.distance( segment.end ) > distanceThreshold;
   }
 
   /**
