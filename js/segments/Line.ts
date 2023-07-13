@@ -591,6 +591,8 @@ export default class Line extends Segment {
    */
   public static override intersect( a: Line, b: Line ): SegmentIntersection[] {
 
+    // TODO: look into numerically more accurate solutions?
+
     const lineSegmentIntersection = Utils.lineSegmentIntersection(
       a.start.x, a.start.y, a.end.x, a.end.y,
       b.start.x, b.start.y, b.end.x, b.end.y

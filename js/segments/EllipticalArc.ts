@@ -904,7 +904,7 @@ export default class EllipticalArc extends Segment {
    * Returns what type of overlap is possible based on the center/radii/rotation. We ignore the start/end angles and
    * anticlockwise information, and determine if the FULL ellipses overlap.
    */
-  public static getOverlapType( a: EllipticalArc, b: EllipticalArc, epsilon = 1e-10 ): EllipticalArcOverlapType {
+  public static getOverlapType( a: EllipticalArc, b: EllipticalArc, epsilon = 1e-4 ): EllipticalArcOverlapType {
 
     // Different centers can't overlap continuously
     if ( a._center.distance( b._center ) < epsilon ) {
