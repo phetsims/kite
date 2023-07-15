@@ -29,6 +29,7 @@ import './segments/Line.js';
 import './segments/Quadratic.js';
 import './segments/Segment.js';
 import './Shape.js';
+import './util/intersectConicMatrices.js';
 import './util/LineStyles.js';
 import './util/Overlap.js';
 import './util/SegmentIntersection.js';

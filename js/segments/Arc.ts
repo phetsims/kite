@@ -777,6 +777,33 @@ export default class Arc extends Segment {
   }
 
   /**
+   * Returns the matrix representation of the conic section of the circle.
+   * See https://en.wikipedia.org/wiki/Matrix_representation_of_conic_sections
+   */
+  public getConicMatrix(): Matrix3 {
+    // ( x - a )^2 + ( y - b )^2 = r^2
+    // x^2 - 2ax + a^2 + y^2 - 2by + b^2 = r^2
+    // x^2 + y^2 - 2ax - 2by + ( a^2 + b^2 - r^2 ) = 0
+
+    const a = this.center.x;
+    const b = this.center.y;
+
+    // Ax^2 + Bxy + Cy^2 + Dx + Ey + F = 0
+    const A = 1;
+    const B = 0;
+    const C = 1;
+    const D = -2 * a;
+    const E = -2 * b;
+    const F = a * a + b * b - this.radius * this.radius;
+
+    return Matrix3.rowMajor(
+      A, B / 2, D / 2,
+      B / 2, C, E / 2,
+      D / 2, E / 2, F
+    );
+  }
+
+  /**
    * Returns an Arc from the serialized representation.
    */
   public static override deserialize( obj: SerializedArc ): Arc {

@@ -19,6 +19,7 @@ export { default as Overlap } from './util/Overlap.js';
 export { default as RayIntersection } from './util/RayIntersection.js';
 export { default as SegmentIntersection } from './util/SegmentIntersection.js';
 export { default as svgNumber } from './util/svgNumber.js';
+export { default as intersectConicMatrices } from './util/intersectConicMatrices.js';
 export { default as svgPath } from './parser/svgPath.js';
 
 export { default as Segment } from './segments/Segment.js';
