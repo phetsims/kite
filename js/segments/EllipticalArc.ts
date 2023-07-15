@@ -24,6 +24,12 @@ import { Arc, BoundsIntersection, kite, Line, Overlap, RayIntersection, Segment,
 // constants
 const toDegrees = Utils.toDegrees;
 
+const unitCircleConicMatrix = Matrix3.rowMajor(
+  1, 0, 0,
+  0, 1, 0,
+  0, 0, -1
+);
+
 export type SerializedEllipticalArc = {
   type: 'EllipticalArc';
   centerX: number;
@@ -892,6 +898,27 @@ export default class EllipticalArc extends Segment {
   }
 
   /**
+   * Returns the matrix representation of the conic section of the ellipse.
+   * See https://en.wikipedia.org/wiki/Matrix_representation_of_conic_sections
+   */
+  public getConicMatrix(): Matrix3 {
+    // Ax^2 + Bxy + Cy^2 + Dx + Ey + F = 0
+
+    // x'^2 + y'^2 = 1      ---- our unit circle
+    // (x,y,1) = M * (x',y',1)   ---- our transform matrix
+    // C = [ 1, 0, 0, 0, 1, 0, 0, 0, -1 ] --- conic matrix for the unit circle
+
+    // (x',y',1)^T * C * (x',y',1) = 0  --- conic matrix equation for our unit circle
+    // ( M^-1 * (x,y,1) )^T * C * M^-1 * (x,y,1) = 0 --- substitute in our transform matrix
+    // (x,y,1)^T * ( M^-1^T * C * M^-1 ) * (x,y,1) = 0 --- isolate conic matrix for our ellipse
+
+    // ( M^-1^T * C * M^-1 ) is the conic matrix for our ellipse
+    const unitMatrix = EllipticalArc.computeUnitMatrix( this._center, this._radiusX, this._radiusY, this._rotation );
+    const invertedUnitMatrix = unitMatrix.inverted();
+    return invertedUnitMatrix.transposed().multiplyMatrix( unitCircleConicMatrix ).multiplyMatrix( invertedUnitMatrix );
+  }
+
+  /**
    * Returns an EllipticalArc from the serialized representation.
    */
   public static override deserialize( obj: SerializedEllipticalArc ): EllipticalArc {
@@ -987,14 +1014,21 @@ export default class EllipticalArc extends Segment {
   }
 
   /**
+   * Matrix tht transforms the unit circle into our ellipse
+   */
+  public static computeUnitMatrix( center: Vector2, radiusX: number, radiusY: number, rotation: number ): Matrix3 {
+    return Matrix3.translationFromVector( center )
+      .timesMatrix( Matrix3.rotation2( rotation ) )
+      .timesMatrix( Matrix3.scaling( radiusX, radiusY ) );
+  }
+
+  /**
    * Transforms the unit circle into our ellipse.
    *
    * adapted from http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
    */
   public static computeUnitTransform( center: Vector2, radiusX: number, radiusY: number, rotation: number ): Transform3 {
-    return new Transform3( Matrix3.translation( center.x, center.y ) // TODO: convert to Matrix3.translation( this._center) when available
-      .timesMatrix( Matrix3.rotation2( rotation ) )
-      .timesMatrix( Matrix3.scaling( radiusX, radiusY ) ) );
+    return new Transform3( EllipticalArc.computeUnitMatrix( center, radiusX, radiusY, rotation ) );
   }
 }
 
