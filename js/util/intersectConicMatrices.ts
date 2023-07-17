@@ -269,7 +269,7 @@ const intersectConicMatrices = ( a: Matrix3, b: Matrix3 ): ConicMatrixIntersecti
 
   if ( !potentialLambdas || potentialLambdas.length === 0 ) {
     // Probably overlapping, infinite intersections
-    return { points: [], lines: [] };
+    return { degenerateConicMatrices: [], points: [], lines: [] };
   }
 
   const uniqueLambdas = _.uniqWith( potentialLambdas, ( a, b ) => a.equals( b ) );
