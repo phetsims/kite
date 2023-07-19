@@ -29,10 +29,14 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
+import SingularValueDecomposition from '../../../dot/js/SingularValueDecomposition.js';
+import Matrix from '../../../dot/js/Matrix.js';
 import Matrix3 from '../../../dot/js/Matrix3.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import { kite } from '../imports.js';
 import Complex from '../../../dot/js/Complex.js';
+import Ray2 from '../../../dot/js/Ray2.js';
+import Vector4 from '../../../dot/js/Vector4.js';
 
 // Determinant of a 2x2 matrix
 const getDet2 = ( a: Complex, b: Complex, c: Complex, d: Complex ) => {
@@ -161,6 +165,230 @@ const getRank1DegenerateConicMatrix = ( matrix: Complex[] ) => {
   }
 };
 
+/**
+ * A degenerate conic is essentially a product of two lines, e.g. (Px + Qy + C)(Sx + Ty + U) = 0 (where everything is
+ * complex valued in this case). Each line is topologically equivalent to a plane.
+ */
+const getRealIntersectionsForDegenerateConic = ( matrix: Complex[] ): ( Vector2 | Ray2 )[] => {
+  // TODO: check whether we are symmetric.
+  const result: ( Vector2 | Ray2 )[] = [];
+
+  type ComplexXY = [ Complex, Complex ];
+
+  // Ax^2 + Bxy + Cy^2 + Dx + Ey + F = 0 (complex valued)
+  const A = matrix[ 0 ];
+  const B = matrix[ 1 ].times( Complex.real( 2 ) );
+  const C = matrix[ 4 ];
+  const D = matrix[ 2 ].times( Complex.real( 2 ) );
+  const E = matrix[ 5 ].times( Complex.real( 2 ) );
+  const F = matrix[ 8 ];
+
+  const ev = ( x: Complex, y: Complex ) => {
+    return A.times( x ).times( x )
+      .plus( B.times( x ).times( y ) )
+      .plus( C.times( y ).times( y ) )
+      .plus( D.times( x ) )
+      .plus( E.times( y ) )
+      .plus( F );
+  };
+
+  // We'll now find (ideally) two solutions for the conic, such that they are each on one of the lines
+  let solutions: ComplexXY[] = [];
+  const alpha = new Complex( -2.51653525696959, 1.52928502844020 ); // randomly chosen
+  // first try picking an x and solve for multiple y (x=alpha)
+  // (C)y^2 + (B*alpha + E)y + (A*alpha^2 + D*alpha + F) = 0
+  const xAlphaA = C;
+  const xAlphaB = B.times( alpha ).plus( E );
+  const xAlphaC = A.times( alpha ).times( alpha ).plus( D.times( alpha ) ).plus( F );
+  const xAlphaRoots = Complex.solveQuadraticRoots( xAlphaA, xAlphaB, xAlphaC );
+  if ( xAlphaRoots && xAlphaRoots.length >= 2 ) {
+    solutions = [
+      [ alpha, xAlphaRoots[ 0 ] ],
+      [ alpha, xAlphaRoots[ 1 ] ]
+    ];
+  }
+  else {
+    // Now try y=alpha
+    // (A)x^2 + (B*alpha + D)x + (C*alpha^2 + E*alpha + F) = 0
+    const yAlphaA = A;
+    const yAlphaB = B.times( alpha ).plus( D );
+    const yAlphaC = C.times( alpha ).times( alpha ).plus( E.times( alpha ) ).plus( F );
+    const yAlphaRoots = Complex.solveQuadraticRoots( yAlphaA, yAlphaB, yAlphaC );
+    if ( yAlphaRoots && yAlphaRoots.length >= 2 ) {
+      solutions = [
+        [ yAlphaRoots[ 0 ], alpha ],
+        [ yAlphaRoots[ 1 ], alpha ]
+      ];
+    }
+    else {
+      // Select only one root if we have it, we might have a double line
+      if ( xAlphaRoots && xAlphaRoots.length === 1 ) {
+        solutions = [
+          [ alpha, xAlphaRoots[ 0 ] ]
+        ];
+      }
+      else if ( yAlphaRoots && yAlphaRoots.length === 1 ) {
+        solutions = [
+          [ yAlphaRoots[ 0 ], alpha ]
+        ];
+      }
+      else {
+        throw new Error( 'Implement more advanced initialization to find two solutions' );
+      }
+    }
+  }
+
+  solutions.forEach( ( solution: ComplexXY ) => {
+    debugger;
+    // Here, we'll be breaking out the complex x,y into quads of: [ realX, realY, imaginaryX, imaginaryY ] denoted as
+    // [ rx, ry, ix, iy ].
+
+    const rx = solution[ 0 ].real;
+    const ry = solution[ 1 ].real;
+    const ix = solution[ 0 ].imaginary;
+    const iy = solution[ 1 ].imaginary;
+    const rA = A.real;
+    const rB = B.real;
+    const rC = C.real;
+    const rD = D.real;
+    const rE = E.real;
+    const iA = A.imaginary;
+    const iB = B.imaginary;
+    const iC = C.imaginary;
+    const iD = D.imaginary;
+    const iE = E.imaginary;
+
+    type ExpandedRealXY = Vector4; // rx, ry, ix, iy
+
+    const realGradient: ExpandedRealXY = new Vector4(
+      -2 * iA * ix - iB * iy + rD + 2 * rA * rx + rB * ry,
+      -iB * ix - 2 * iC * iy + rE + rB * rx + 2 * rC * ry,
+      -iD - 2 * ix * rA - iy * rB - 2 * iA * rx - iB * ry,
+      -iE - ix * rB - 2 * iy * rC - iB * rx - 2 * iC * ry
+    );
+
+    // [ number, number, number, number ]
+    const imaginaryGradient: ExpandedRealXY = new Vector4(
+      iD + 2 * ix * rA + iy * rB + 2 * iA * rx + iB * ry,
+      iE + ix * rB + 2 * iy * rC + iB * rx + 2 * iC * ry,
+      -2 * iA * ix - iB * iy + rD + 2 * rA * rx + rB * ry,
+      -iB * ix - 2 * iC * iy + rE + rB * rx + 2 * rC * ry
+    );
+
+    const randomPointA: ExpandedRealXY = new Vector4(
+      6.1951068548253,
+      -1.1592689503860,
+      0.1602918829294,
+      3.205818692048202
+    );
+
+    const randomPointB: ExpandedRealXY = new Vector4(
+      -5.420628549296924,
+      -15.2069583028685,
+      0.1595906020488680,
+      5.10688288040682
+    );
+
+    const proj = ( v: ExpandedRealXY, u: ExpandedRealXY ) => {
+      return u.timesScalar( v.dot( u ) / u.dot( u ) );
+    };
+
+    // Gram-Schmidt orthogonalization to get a nice basis
+    const basisRealGradient = realGradient;
+    const basisImaginaryGradient = imaginaryGradient
+      .minus( proj( imaginaryGradient, basisRealGradient ) );
+    const basisPlane0 = randomPointA
+      .minus( proj( randomPointA, basisRealGradient ) )
+      .minus( proj( randomPointA, basisImaginaryGradient ) );
+    const basisPlane1 = randomPointB
+      .minus( proj( randomPointB, basisRealGradient ) )
+      .minus( proj( randomPointB, basisImaginaryGradient ) )
+      .minus( proj( randomPointB, basisPlane0 ) );
+
+    // Our basis in the exclusively-imaginary plane
+    const basisMatrix = new Matrix( 2, 2, [
+      basisPlane0.z, basisPlane1.z,
+      basisPlane0.w, basisPlane1.w
+    ] );
+    const singularValues = new SingularValueDecomposition( basisMatrix ).getSingularValues();
+
+    let realSolution: Vector2 | null = null;
+    if ( Math.abs( ix ) < 1e-10 && Math.abs( iy ) < 1e-10 ) {
+
+      realSolution = new Vector2( rx, ry );
+    }
+    else {
+      // iP + t * iB0 + u * iB1 = 0, if we can find t,u where (P + t * B0 + u * B1) is real
+      //
+      // [ iB0x IB1x ] [ t ] = [ -iPx ]
+      // [ iB0y IB1y ] [ u ]   [ -iPy ]
+
+      if ( Math.abs( singularValues[ 1 ] ) > 1e-10 ) {
+        // rank 2
+        const tu = basisMatrix.solve( new Matrix( 2, 1, [ -ix, -iy ] ) ).extractVector2( 0 );
+        realSolution = new Vector2(
+          rx + tu.x * basisPlane0.z + tu.y * basisPlane1.z,
+          ry + tu.x * basisPlane0.w + tu.y * basisPlane1.w
+        );
+      }
+      else if ( Math.abs( singularValues[ 0 ] ) > 1e-10 ) {
+        // rank 1 - columns are multiples of each other, one possibly (0,0)
+
+        // For imaginary bases (we'll use them potentially multiple times if we have a rank 1 matrix
+        const largestBasis = Math.abs( basisPlane0.z ) + Math.abs( basisPlane0.w ) > Math.abs( basisPlane1.z ) + Math.abs( basisPlane1.w ) ? basisPlane0 : basisPlane1;
+        const largestBasisImaginaryVector = new Vector2( largestBasis.z, largestBasis.w );
+
+        const t = new Vector2( ix, iy ).dot( largestBasisImaginaryVector ) / largestBasisImaginaryVector.dot( largestBasisImaginaryVector );
+        const potentialSolution = new Vector4( rx, ry, ix, iy ).minus( largestBasis.timesScalar( t ) );
+        if ( Math.abs( potentialSolution.z ) < 1e-8 && Math.abs( potentialSolution.w ) < 1e-8 ) {
+          realSolution = new Vector2( potentialSolution.x, potentialSolution.y );
+        }
+      }
+      else {
+        // rank 0 AND our solution is NOT real, then there is no solution
+        realSolution = null;
+      }
+
+      if ( realSolution ) {
+        // We need to check if we have a line of solutions now!
+        if ( Math.abs( singularValues[ 1 ] ) > 1e-10 ) {
+          // rank 2
+          // Our solution is the only solution (no linear combination of basis vectors besides our current solution
+          // that would be real)
+          result.push( realSolution );
+        }
+        else if ( Math.abs( singularValues[ 0 ] ) > 1e-10 ) {
+          // rank 1
+          // Our bases are a multiple of each other. We need to find a linear combination of them that is real, then
+          // every multiple of that will be a solution (line). If either is (0,0), we will use that one, so check that
+          // first
+          // TODO: can we deduplicate this with code above?
+          const zeroLarger = Math.abs( basisPlane0.z ) + Math.abs( basisPlane0.w ) > Math.abs( basisPlane1.z ) + Math.abs( basisPlane1.w );
+          const smallestBasis = zeroLarger ? basisPlane1 : basisPlane0;
+          const largestBasis = zeroLarger ? basisPlane0 : basisPlane1;
+
+          // Find the largest component, so if we have a zero x or y in both our bases, it will work out fine
+          const xLarger = Math.abs( largestBasis.z ) > Math.abs( largestBasis.w );
+
+          // largestBasis * t = smallestBasis, supports smallestBasis=(0,0)
+          const t = xLarger ? ( smallestBasis.z / largestBasis.z ) : ( smallestBasis.w / largestBasis.w );
+
+          const direction4 = largestBasis.timesScalar( t ).minus( smallestBasis );
+
+          // Should be unconditionally a non-zero direction, otherwise they wouldn't be basis vectors
+          result.push( new Ray2( realSolution, new Vector2( direction4.x, direction4.y ).normalized() ) );
+        }
+        else {
+          // rank 0
+          // THEY ARE ALL SOLUTIONS, we're on the real plane. That isn't useful to us, so we don't add any results
+        }
+      }
+    }
+  } );
+
+  return result;
+};
+
 const getLinesForDegenerateConic = ( matrix: Complex[] ): Complex[][] => {
   const rank1DegenerateConicMatrix = getRank1DegenerateConicMatrix( matrix );
   return [
@@ -218,6 +446,7 @@ type ConicMatrixIntersections = {
   points: Vector2[];
   degenerateConicMatrices: Complex[][];
   lines: Complex[][];
+  intersectionCollections: ( Vector2 | Ray2 )[][];
 };
 
 // NOTE: Assumes these matrices are NOT degenerate (will only be tested for circles/ellipses)
@@ -269,7 +498,7 @@ const intersectConicMatrices = ( a: Matrix3, b: Matrix3 ): ConicMatrixIntersecti
 
   if ( !potentialLambdas || potentialLambdas.length === 0 ) {
     // Probably overlapping, infinite intersections
-    return { degenerateConicMatrices: [], points: [], lines: [] };
+    return { degenerateConicMatrices: [], intersectionCollections: [], points: [], lines: [] };
   }
 
   const uniqueLambdas = _.uniqWith( potentialLambdas, ( a, b ) => a.equals( b ) );
@@ -292,8 +521,10 @@ const intersectConicMatrices = ( a: Matrix3, b: Matrix3 ): ConicMatrixIntersecti
 
   const result: Vector2[] = [];
   const lineCollections = degenerateConicMatrices.map( getLinesForDegenerateConic );
-
   console.log( lineCollections );
+
+  const intersectionCollections = degenerateConicMatrices.map( getRealIntersectionsForDegenerateConic );
+  console.log( intersectionCollections );
 
   for ( let i = 0; i < lineCollections.length; i++ ) {
     const lines0 = lineCollections[ i ];
@@ -326,7 +557,8 @@ const intersectConicMatrices = ( a: Matrix3, b: Matrix3 ): ConicMatrixIntersecti
   return {
     points: result,
     degenerateConicMatrices: degenerateConicMatrices,
-    lines: _.flatten( lineCollections )
+    lines: _.flatten( lineCollections ),
+    intersectionCollections: intersectionCollections
   };
 };
 export default intersectConicMatrices;
