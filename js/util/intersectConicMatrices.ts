@@ -183,14 +183,14 @@ const getRealIntersectionsForDegenerateConic = ( matrix: Complex[] ): ( Vector2 
   const E = matrix[ 5 ].times( Complex.real( 2 ) );
   const F = matrix[ 8 ];
 
-  const ev = ( x: Complex, y: Complex ) => {
-    return A.times( x ).times( x )
-      .plus( B.times( x ).times( y ) )
-      .plus( C.times( y ).times( y ) )
-      .plus( D.times( x ) )
-      .plus( E.times( y ) )
-      .plus( F );
-  };
+  // const ev = ( x: Complex, y: Complex ) => {
+  //   return A.times( x ).times( x )
+  //     .plus( B.times( x ).times( y ) )
+  //     .plus( C.times( y ).times( y ) )
+  //     .plus( D.times( x ) )
+  //     .plus( E.times( y ) )
+  //     .plus( F );
+  // };
 
   // We'll now find (ideally) two solutions for the conic, such that they are each on one of the lines
   let solutions: ComplexXY[] = [];
@@ -239,9 +239,27 @@ const getRealIntersectionsForDegenerateConic = ( matrix: Complex[] ): ( Vector2 
   }
 
   solutions.forEach( ( solution: ComplexXY ) => {
-    debugger;
     // Here, we'll be breaking out the complex x,y into quads of: [ realX, realY, imaginaryX, imaginaryY ] denoted as
     // [ rx, ry, ix, iy ].
+
+    /**
+     * Broken case:
+      A
+      Complex {real: -2.3062816034702394e-7, imaginary: -0.000050001623100918746}
+      B
+      Complex {real: 0, imaginary: 0}
+      C
+      Complex {real: -2.3062816034702394e-7, imaginary: -0.000050001623100918746}
+      D
+      Complex {real: -0.009907748735827226, imaginary: 0.0200006492403675}
+      E
+      Complex {real: 0.00009225126416367857, imaginary: 0.0200006492403675}
+      F
+      Complex {real: 1.9838810287765227, imaginary: -3.5001136170643123}
+
+
+     real: 200.0025, 100   and 200.0025, 300    are better solutions, but obviously could be refined
+     */
 
     const rx = solution[ 0 ].real;
     const ry = solution[ 1 ].real;
