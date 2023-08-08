@@ -186,7 +186,7 @@ class SegmentNode<T> {
       for ( let i = 0; i < this.items.length; i++ ) {
         const item = this.items[ i ];
         // @ts-expect-error
-        if ( !item.internalData.segmentId || item.internalData.segmentId < id ) {
+        if ( !item.internalData?.segmentId || item.internalData?.segmentId < id ) {
           // @ts-expect-error
           item.internalData.segmentId = id;
           abort = interruptableCallback( item );
