@@ -45,4 +45,4 @@ Ensure you're in the kite directory and run `grunt --lint=false --report-media=f
 MIT license, see [LICENSE](LICENSE)
 
 ### Contributing
-If you would like to contribute to this repo, please read our [contributing guidelines](https://github.com/phetsims/community/blob/master/CONTRIBUTING.md).
+If you would like to contribute to this repo, please read our [contributing guidelines](https://github.com/phetsims/community/blob/main/CONTRIBUTING.md).
