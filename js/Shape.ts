@@ -81,7 +81,7 @@ type GetDashedShapeOptions = {
   curveEpsilon?: number;
 };
 
-type CornerRadiiOptions = {
+export type CornerRadiiOptions = {
   topLeft: number;
   topRight: number;
   bottomRight: number;

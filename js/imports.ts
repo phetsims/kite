@@ -37,7 +37,7 @@ export type { SerializedEllipticalArc } from './segments/EllipticalArc.js';
 
 export { default as Subpath } from './util/Subpath.js';
 export { default as Shape } from './Shape.js';
-export type { SerializedShape, NonlinearTransformedOptions } from './Shape.js';
+export type { CornerRadiiOptions, SerializedShape, NonlinearTransformedOptions } from './Shape.js';
 
 export { default as HalfEdge } from './ops/HalfEdge.js';
 export { default as Vertex } from './ops/Vertex.js';
