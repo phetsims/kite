@@ -474,6 +474,10 @@ export default class Line extends Segment {
   }
 
   public override getClosestPoints( point: Vector2 ): ClosestToPointResult[] {
+    // TODO: Can be simplified by getting the normalized direction vector, getting its perpendicular, and dotting with
+    // TODO: the start or end point (should be the same result).
+    // TODO: See LinearEdge.evaluateClosestDistanceToOrigin for details.
+
     const delta = this._end.minus( this._start );
 
     // Normalized start => end
