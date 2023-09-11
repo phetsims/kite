@@ -11,8 +11,7 @@ Documentation, examples, and downloads are available at http://phetsims.github.i
 ### To check out and build the code
 
 Our processes depend on [Node.js](http://nodejs.org/) and [Grunt](http://gruntjs.com/). It's highly recommended to
-install
-Node.js and then grunt with `npm install -g grunt-cli`.
+install Node.js and then grunt with `npm install -g grunt-cli`.
 
 (1) Clone the simulation and its dependencies:
 
