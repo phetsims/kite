@@ -13,7 +13,7 @@ import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import { EllipticalArc, kite, Line, Overlap, RayIntersection, Segment, SegmentIntersection, svgNumber } from '../imports.js';
 
-// TODO: See if we should use this more
+// TODO: See if we should use this more https://github.com/phetsims/tasks/issues/1129
 const TWO_PI = Math.PI * 2;
 
 export type SerializedArc = {
@@ -260,7 +260,7 @@ export default class Arc extends Segment {
       return [ this ];
     }
 
-    // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles
+    // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles https://github.com/phetsims/tasks/issues/1129
     const angle0 = this.angleAt( 0 );
     const angleT = this.angleAt( t );
     const angle1 = this.angleAt( 1 );
@@ -484,7 +484,7 @@ export default class Arc extends Segment {
    * Returns the angle for the parametrized t value. The t value should range from 0 to 1 (inclusive).
    */
   public angleAt( t: number ): number {
-    //TODO: add asserts
+    //TODO: add asserts https://github.com/phetsims/tasks/issues/1129
     return this._startAngle + ( this.getActualEndAngle() - this._startAngle ) * t;
   }
 
@@ -511,7 +511,7 @@ export default class Arc extends Segment {
    */
   public containsAngle( angle: number ): boolean {
     // transform the angle into the appropriate coordinate form
-    // TODO: check anticlockwise version!
+    // TODO: check anticlockwise version! https://github.com/phetsims/tasks/issues/1129
     const normalizedAngle = this._anticlockwise ? angle - this._endAngle : angle - this._startAngle;
 
     // get the angle between 0 and 2pi
@@ -591,7 +591,7 @@ export default class Arc extends Segment {
     _.each( [ 0, Math.PI / 2, Math.PI, 3 * Math.PI / 2 ], angle => {
       if ( this.containsAngle( angle ) ) {
         const t = this.tAtAngle( angle );
-        const epsilon = 0.0000000001; // TODO: general kite epsilon?, also do 1e-Number format
+        const epsilon = 0.0000000001; // TODO: general kite epsilon?, also do 1e-Number format https://github.com/phetsims/tasks/issues/1129
         if ( t > epsilon && t < 1 - epsilon ) {
           result.push( t );
         }
@@ -682,7 +682,7 @@ export default class Arc extends Segment {
   /**
    * Returns a new copy of this arc, transformed by the given matrix.
    *
-   * TODO: test various transform types, especially rotations, scaling, shears, etc.
+   * TODO: test various transform types, especially rotations, scaling, shears, etc. https://github.com/phetsims/tasks/issues/1129
    */
   public transformed( matrix: Matrix3 ): Arc | EllipticalArc {
     // so we can handle reflections in the transform, we do the general case handling for start/end angles
@@ -1031,7 +1031,7 @@ export default class Arc extends Segment {
 
       const radius = ( startDiff.magnitude + middleDiff.magnitude + endDiff.magnitude ) / 3;
 
-      // Try anticlockwise first. TODO: Don't require creation of extra Arcs
+      // Try anticlockwise first. TODO: Don't require creation of extra Arcs https://github.com/phetsims/tasks/issues/1129
       const arc = new Arc( center, radius, startAngle, endAngle, false );
       if ( arc.containsAngle( middleAngle ) ) {
         return arc;

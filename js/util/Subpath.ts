@@ -203,7 +203,7 @@ class Subpath {
   /**
    * Returns the numbers of points in this subpath
    *
-   * TODO: This is a confusing name! It should be getNumPoints() or something
+   * TODO: This is a confusing name! It should be getNumPoints() or something https://github.com/phetsims/tasks/issues/1129
    */
   public getLength(): number {
     return this.points.length;
@@ -370,7 +370,7 @@ class Subpath {
   /**
    * Returns a subpath that is offset from this subpath by a distance
    *
-   * TODO: Resolve the bug with the inside-line-join overlap. We have the intersection handling now (potentially)
+   * TODO: Resolve the bug with the inside-line-join overlap. We have the intersection handling now (potentially) https://github.com/phetsims/tasks/issues/1129
    */
   public offset( distance: number ): Subpath {
     if ( !this.isDrawable() ) {
