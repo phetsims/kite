@@ -12,7 +12,7 @@
  * Notes for elliptical arcs: http://www.w3.org/TR/SVG/implnote.html#PathElementImplementationNotes
  * Notes for painting strokes: https://svgwg.org/svg2-draft/painting.html
  *
- * TODO: add nonzero / evenodd support when browsers support it https://github.com/phetsims/tasks/issues/1129
+ * TODO: add nonzero / evenodd support when browsers support it https://github.com/phetsims/kite/issues/102
  * TODO: docs
  *
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
@@ -432,7 +432,7 @@ class Shape implements CanApplyParsedSVG {
    * Adds a quadratic curve to this shape. The quadratic curves passes through the x and y coordinate.
    * The shape should join smoothly with the previous subpaths
    *
-   * TODO: consider a rename to put 'smooth' farther back? https://github.com/phetsims/tasks/issues/1129
+   * TODO: consider a rename to put 'smooth' farther back? https://github.com/phetsims/kite/issues/102
    *
    * @param x - final x position of the quadratic curve
    * @param y - final y position of the quadratic curve
@@ -470,7 +470,7 @@ class Shape implements CanApplyParsedSVG {
     this.getLastSubpath().addPoint( point );
     const nondegenerateSegments = quadratic.getNondegenerateSegments();
     _.each( nondegenerateSegments, segment => {
-      // TODO: optimization https://github.com/phetsims/tasks/issues/1129
+      // TODO: optimization https://github.com/phetsims/kite/issues/102
       this.addSegmentAndBounds( segment );
     } );
     this.setQuadraticControlPoint( controlPoint );
@@ -868,8 +868,8 @@ class Shape implements CanApplyParsedSVG {
   public ellipse( center: Vector2, radiusX: number, radiusY: number, rotation: number ): this;
   public ellipse( centerX: number, centerY: number, radiusX: number, radiusY: number, rotation: number ): this;
   public ellipse( centerX: Vector2 | number, centerY: number, radiusX: number, radiusY: number, rotation?: number ): this {
-    // TODO: separate into ellipse() and ellipsePoint()? https://github.com/phetsims/tasks/issues/1129
-    // TODO: Ellipse/EllipticalArc has a mess of parameters. Consider parameter object, or double-check parameter handling https://github.com/phetsims/tasks/issues/1129
+    // TODO: separate into ellipse() and ellipsePoint()? https://github.com/phetsims/kite/issues/102
+    // TODO: Ellipse/EllipticalArc has a mess of parameters. Consider parameter object, or double-check parameter handling https://github.com/phetsims/kite/issues/102
     if ( typeof centerX === 'object' ) {
       // ellipse( center, radiusX, radiusY, rotation )
       const center = centerX;
@@ -1093,7 +1093,7 @@ class Shape implements CanApplyParsedSVG {
    * Returns a new Shape that is transformed by the associated matrix
    */
   public transformed( matrix: Matrix3 ): Shape {
-    // TODO: allocation reduction https://github.com/phetsims/tasks/issues/1129
+    // TODO: allocation reduction https://github.com/phetsims/kite/issues/102
     const subpaths = _.map( this.subpaths, subpath => subpath.transformed( matrix ) );
     const bounds = _.reduce( subpaths, ( bounds, subpath ) => bounds.union( subpath.bounds ), Bounds2.NOTHING );
     return new Shape( subpaths, bounds );
@@ -1111,7 +1111,7 @@ class Shape implements CanApplyParsedSVG {
       curveEpsilon: ( providedOptions && providedOptions.includeCurvature ) ? 0.002 : null
     }, providedOptions );
 
-    // TODO: allocation reduction https://github.com/phetsims/tasks/issues/1129
+    // TODO: allocation reduction https://github.com/phetsims/kite/issues/102
     const subpaths = _.map( this.subpaths, subpath => subpath.nonlinearTransformed( options ) );
     const bounds = _.reduce( subpaths, ( bounds, subpath ) => bounds.union( subpath.bounds ), Bounds2.NOTHING );
     return new Shape( subpaths, bounds );
@@ -1236,7 +1236,7 @@ class Shape implements CanApplyParsedSVG {
       return true;
     }
 
-    // TODO: if an issue, we can reduce this allocation to a scratch variable local in the Shape.js scope. https://github.com/phetsims/tasks/issues/1129
+    // TODO: if an issue, we can reduce this allocation to a scratch variable local in the Shape.js scope. https://github.com/phetsims/kite/issues/102
     const delta = endPoint.minus( startPoint );
     const length = delta.magnitude;
 
@@ -1306,7 +1306,7 @@ class Shape implements CanApplyParsedSVG {
 
     let hitPoint;
     let i;
-    // TODO: could optimize to intersect differently so we bail sooner https://github.com/phetsims/tasks/issues/1129
+    // TODO: could optimize to intersect differently so we bail sooner https://github.com/phetsims/kite/issues/102
     const horizontalRayIntersections = this.intersection( minHorizontalRay ).concat( this.intersection( maxHorizontalRay ) );
     for ( i = 0; i < horizontalRayIntersections.length; i++ ) {
       hitPoint = horizontalRayIntersections[ i ].point;
@@ -1331,7 +1331,7 @@ class Shape implements CanApplyParsedSVG {
    * Returns a new Shape that is an outline of the stroked path of this current Shape. currently not intended to be
    * nested (doesn't do intersection computations yet)
    *
-   * TODO: rename stroked( lineStyles )? https://github.com/phetsims/tasks/issues/1129
+   * TODO: rename stroked( lineStyles )? https://github.com/phetsims/kite/issues/102
    */
   public getStrokedShape( lineStyles: LineStyles ): Shape {
     let subpaths: Subpath[] = [];
@@ -1353,7 +1353,7 @@ class Shape implements CanApplyParsedSVG {
    * Gets a shape offset by a certain amount.
    */
   public getOffsetShape( distance: number ): Shape {
-    // TODO: abstract away this type of behavior https://github.com/phetsims/tasks/issues/1129
+    // TODO: abstract away this type of behavior https://github.com/phetsims/kite/issues/102
     const subpaths = [];
     const bounds = Bounds2.NOTHING.copy();
     let subLen = this.subpaths.length;
@@ -1570,7 +1570,7 @@ class Shape implements CanApplyParsedSVG {
   }
 
   public toString(): string {
-    // TODO: consider a more verbose but safer way? https://github.com/phetsims/tasks/issues/1129
+    // TODO: consider a more verbose but safer way? https://github.com/phetsims/kite/issues/102
     return `new phet.kite.Shape( '${this.getSVGPath()}' )`;
   }
 
@@ -1739,7 +1739,7 @@ class Shape implements CanApplyParsedSVG {
   /**
    * Returns a new shape that only contains portions of segments that are within the passed-in shape's area.
    *
-   * // TODO: convert Graph to TS and get the types from there https://github.com/phetsims/tasks/issues/1129
+   * // TODO: convert Graph to TS and get the types from there https://github.com/phetsims/kite/issues/102
    */
   public shapeClip( shape: Shape, options?: { includeExterior?: boolean; includeBoundary: boolean; includeInterior: boolean } ): Shape {
     return Graph.clipShape( shape, this, options );
@@ -1982,7 +1982,7 @@ class Shape implements CanApplyParsedSVG {
   public static ellipse( center: Vector2, radiusX: number, radiusY: number, rotation: number ): Shape;
   public static ellipse( radiusX: number, radiusY: number, rotation: number ): Shape;
   public static ellipse( a: Vector2 | number, b: number, c: number, d?: number, e?: number ): Shape {
-    // TODO: Ellipse/EllipticalArc has a mess of parameters. Consider parameter object, or double-check parameter handling https://github.com/phetsims/tasks/issues/1129
+    // TODO: Ellipse/EllipticalArc has a mess of parameters. Consider parameter object, or double-check parameter handling https://github.com/phetsims/kite/issues/102
     if ( d === undefined ) {
       // ellipse( radiusX, radiusY ), center = 0,0
       return new Shape().ellipse( 0, 0, a as number, b, c );

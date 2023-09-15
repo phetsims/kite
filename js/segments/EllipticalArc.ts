@@ -335,7 +335,7 @@ export default class EllipticalArc extends Segment {
       return [ this ];
     }
 
-    // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles https://github.com/phetsims/tasks/issues/1129
+    // TODO: verify that we don't need to switch anticlockwise here, or subtract 2pi off any angles https://github.com/phetsims/kite/issues/102
     const angle0 = this.angleAt( 0 );
     const angleT = this.angleAt( t );
     const angle1 = this.angleAt( 1 );
@@ -404,7 +404,7 @@ export default class EllipticalArc extends Segment {
     }
 
     if ( this._radiusX < this._radiusY ) {
-      // TODO: check this https://github.com/phetsims/tasks/issues/1129
+      // TODO: check this https://github.com/phetsims/kite/issues/102
       throw new Error( 'Not verified to work if radiusX < radiusY' );
     }
 
@@ -608,7 +608,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
    *
-   * TODO: remove duplication with Arc https://github.com/phetsims/tasks/issues/1129
+   * TODO: remove duplication with Arc https://github.com/phetsims/kite/issues/102
    */
   public mapAngle( angle: number ): number {
     if ( Math.abs( Utils.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
@@ -626,7 +626,7 @@ export default class EllipticalArc extends Segment {
   /**
    * Returns the parametrized value t for a given angle. The value t should range from 0 to 1 (inclusive).
    *
-   * TODO: remove duplication with Arc https://github.com/phetsims/tasks/issues/1129
+   * TODO: remove duplication with Arc https://github.com/phetsims/kite/issues/102
    */
   public tAtAngle( angle: number ): number {
     return ( this.mapAngle( angle ) - this._startAngle ) / ( this.getActualEndAngle() - this._startAngle );
@@ -758,7 +758,7 @@ export default class EllipticalArc extends Segment {
     _.each( this.possibleExtremaAngles, ( angle: number ) => {
       if ( this.unitArcSegment.containsAngle( angle ) ) {
         const t = this.tAtAngle( angle );
-        const epsilon = 0.0000000001; // TODO: general kite epsilon? https://github.com/phetsims/tasks/issues/1129
+        const epsilon = 0.0000000001; // TODO: general kite epsilon? https://github.com/phetsims/kite/issues/102
         if ( t > epsilon && t < 1 - epsilon ) {
           result.push( t );
         }
@@ -822,7 +822,7 @@ export default class EllipticalArc extends Segment {
     const reflected = matrix.getDeterminant() < 0;
 
     // reverse the 'clockwiseness' if our transform includes a reflection
-    // TODO: check reflections. swapping angle signs should fix clockwiseness https://github.com/phetsims/tasks/issues/1129
+    // TODO: check reflections. swapping angle signs should fix clockwiseness https://github.com/phetsims/kite/issues/102
     const anticlockwise = reflected ? !this._anticlockwise : this._anticlockwise;
     const startAngle = reflected ? -this._startAngle : this._startAngle;
     let endAngle = reflected ? -this._endAngle : this._endAngle;

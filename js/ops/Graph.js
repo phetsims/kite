@@ -8,7 +8,7 @@
  *
  * See Graph.binaryResult for the general procedure for CAG.
  *
- * TODO: Use https://github.com/mauriciosantos/Buckets-JS for priority queue, implement simple sweep line https://github.com/phetsims/tasks/issues/1129
+ * TODO: Use https://github.com/mauriciosantos/Buckets-JS for priority queue, implement simple sweep line https://github.com/phetsims/kite/issues/102
  *       with "enters" and "leaves" entries in the queue. When edge removed, remove "leave" from queue.
  *       and add any replacement edges. Applies to overlap and intersection handling.
  *       NOTE: This should impact performance a lot, as we are currently over-scanning and re-scanning a lot.
@@ -550,7 +550,7 @@ class Graph {
 
           assert && assert( this.loops.length === 0 );
 
-          // TODO: Can we avoid this in the inner loop? https://github.com/phetsims/tasks/issues/1129
+          // TODO: Can we avoid this in the inner loop? https://github.com/phetsims/kite/issues/102
           if ( aEdge.startVertex === vertex ) {
             aSegment = aSegment.reversed();
           }
@@ -607,7 +607,7 @@ class Graph {
     const addToQueue = edge => {
       const bounds = edge.segment.bounds;
 
-      // TODO: see if object allocations are slow here https://github.com/phetsims/tasks/issues/1129
+      // TODO: see if object allocations are slow here https://github.com/phetsims/kite/issues/102
       queue.push( { start: true, edge: edge }, bounds.minY - epsilon );
       queue.push( { start: false, edge: edge }, bounds.maxY + epsilon );
     };
@@ -643,7 +643,7 @@ class Graph {
         let overlappedEdge;
         let addedEdges;
 
-        // TODO: Is this closure killing performance? https://github.com/phetsims/tasks/issues/1129
+        // TODO: Is this closure killing performance? https://github.com/phetsims/kite/issues/102
         segmentTree.query( edge, otherEdge => {
           const overlaps = edge.segment.getOverlaps( otherEdge.segment );
 
@@ -833,7 +833,7 @@ class Graph {
       const segment = edge.segment;
 
       if ( segment instanceof Cubic ) {
-        // TODO: This might not properly handle when it only one endpoint is on the curve https://github.com/phetsims/tasks/issues/1129
+        // TODO: This might not properly handle when it only one endpoint is on the curve https://github.com/phetsims/kite/issues/102
         const selfIntersection = segment.getSelfIntersection();
 
         if ( selfIntersection ) {
@@ -889,7 +889,7 @@ class Graph {
     const addToQueue = edge => {
       const bounds = edge.segment.bounds;
 
-      // TODO: see if object allocations are slow here https://github.com/phetsims/tasks/issues/1129
+      // TODO: see if object allocations are slow here https://github.com/phetsims/kite/issues/102
       queue.push( { start: true, edge: edge }, bounds.minY - epsilon );
       queue.push( { start: false, edge: edge }, bounds.maxY + epsilon );
     };
@@ -926,7 +926,7 @@ class Graph {
         let addedEdges;
         let removedEdges;
 
-        // TODO: Is this closure killing performance? https://github.com/phetsims/tasks/issues/1129
+        // TODO: Is this closure killing performance? https://github.com/phetsims/kite/issues/102
         segmentTree.query( edge, otherEdge => {
 
           const aSegment = edge.segment;
@@ -942,7 +942,7 @@ class Graph {
           } );
           if ( intersections.length ) {
 
-            // TODO: In the future, handle multiple intersections (instead of re-running) https://github.com/phetsims/tasks/issues/1129
+            // TODO: In the future, handle multiple intersections (instead of re-running) https://github.com/phetsims/kite/issues/102
             const intersection = intersections[ 0 ];
 
             const result = this.simpleSplit( edge, otherEdge, intersection.aT, intersection.bT, intersection.point );
@@ -1102,7 +1102,7 @@ class Graph {
 
     // Adds an vertex to the queue
     const addToQueue = vertex => {
-      // TODO: see if object allocations are slow here https://github.com/phetsims/tasks/issues/1129
+      // TODO: see if object allocations are slow here https://github.com/phetsims/kite/issues/102
       queue.push( { start: true, vertex: vertex }, vertex.point.y - epsilon );
       queue.push( { start: false, vertex: vertex }, vertex.point.y + epsilon );
     };
@@ -1138,7 +1138,7 @@ class Graph {
         let overlappedVertex;
         let addedVertices;
 
-        // TODO: Is this closure killing performance? https://github.com/phetsims/tasks/issues/1129
+        // TODO: Is this closure killing performance? https://github.com/phetsims/kite/issues/102
         segmentTree.query( vertex, otherVertex => {
           const distance = vertex.point.distance( otherVertex.point );
           if ( distance < VERTEX_COLLAPSE_THRESHOLD_DISTANCE ) {
@@ -1377,7 +1377,7 @@ class Graph {
    * This information is stored in the childBoundaries array of Boundary, and is then read out to set up faces.
    */
   computeBoundaryTree() {
-    // TODO: detect "indeterminate" for robustness (and try new angles?) https://github.com/phetsims/tasks/issues/1129
+    // TODO: detect "indeterminate" for robustness (and try new angles?) https://github.com/phetsims/kite/issues/102
     const unboundedHoles = []; // {Array.<Boundary>}
 
     // We'll want to compute a ray for each outer boundary that starts at an extreme point for that direction and
@@ -1563,7 +1563,7 @@ class Graph {
    * Returns the boundary that contains the specified half-edge.
    * @private
    *
-   * TODO: find a better way, this is crazy inefficient https://github.com/phetsims/tasks/issues/1129
+   * TODO: find a better way, this is crazy inefficient https://github.com/phetsims/kite/issues/102
    *
    * @param {HalfEdge} halfEdge
    * @returns {Boundary}
@@ -1735,7 +1735,7 @@ class Graph {
    * Returns the xor of an array of shapes.
    * @public
    *
-   * TODO: reduce code duplication? https://github.com/phetsims/tasks/issues/1129
+   * TODO: reduce code duplication? https://github.com/phetsims/kite/issues/102
    *
    * @param {Array.<Shape>} shapes
    * @returns {Shape}
