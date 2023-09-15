@@ -132,7 +132,7 @@ const computeAlpha = ( degenerateConicMatrix: Complex[], antiSymmetricMatrix: Co
   const a10 = antiSymmetricMatrix[ 3 ];
   const a11 = antiSymmetricMatrix[ 4 ];
 
-  // TODO: less garbage creation
+  // TODO: less garbage creation https://github.com/phetsims/kite/issues/97
   const A = a01.times( a10 ).minus( a00.times( a11 ) );
   const B = a11.negated().times( d00 ).plus( a10.times( d01 ) ).plus( a01.times( d10 ) ).minus( a00.times( d11 ) );
   const C = d01.times( d10 ).minus( d00.times( d11 ) );
@@ -170,7 +170,7 @@ const getRank1DegenerateConicMatrix = ( matrix: Complex[] ) => {
  * complex valued in this case). Each line is topologically equivalent to a plane.
  */
 const getRealIntersectionsForDegenerateConic = ( matrix: Complex[] ): ( Vector2 | Ray2 )[] => {
-  // TODO: check whether we are symmetric.
+  // TODO: check whether we are symmetric. https://github.com/phetsims/kite/issues/97
   const result: ( Vector2 | Ray2 )[] = [];
 
   type ComplexXY = [ Complex, Complex ];
@@ -380,7 +380,7 @@ const getRealIntersectionsForDegenerateConic = ( matrix: Complex[] ): ( Vector2 
           // Our bases are a multiple of each other. We need to find a linear combination of them that is real, then
           // every multiple of that will be a solution (line). If either is (0,0), we will use that one, so check that
           // first
-          // TODO: can we deduplicate this with code above?
+          // TODO: can we deduplicate this with code above? https://github.com/phetsims/kite/issues/97
           const zeroLarger = Math.abs( basisPlane0.z ) + Math.abs( basisPlane0.w ) > Math.abs( basisPlane1.z ) + Math.abs( basisPlane1.w );
           const smallestBasis = zeroLarger ? basisPlane1 : basisPlane0;
           const largestBasis = zeroLarger ? basisPlane0 : basisPlane1;
@@ -450,7 +450,7 @@ const lineIntersect = ( line1: Complex[], line2: Complex[] ): Vector2 | null => 
       return null;
     }
 
-    // TODO: epsilon evaluation?
+    // TODO: epsilon evaluation? https://github.com/phetsims/kite/issues/97
     if ( Math.abs( x.imaginary ) < 1e-8 && Math.abs( y.imaginary ) < 1e-8 ) {
       return new Vector2( x.real, y.real );
     }

@@ -315,7 +315,7 @@ class Graph {
     // they won't contribute to the area output).
     this.removeLowOrderVertices();
 
-    // // TODO: Why does this resolve some things? It seems like it should be unnecessary.
+    // // TODO: Why does this resolve some things? It seems like it should be unnecessary. https://github.com/phetsims/kite/issues/98
     // this.eliminateIntersection();
     // this.collapseVertices();
     // this.removeBridges();
@@ -939,14 +939,6 @@ class Graph {
             // endpoint anyway. If it's "internal" to one segment, we'll keep it.
             return Graph.isInternal( point, intersection.aT, aSegment, INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE, T_THRESHOLD ) ||
                    Graph.isInternal( point, intersection.bT, bSegment, INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE, T_THRESHOLD );
-
-            // return (
-            //   point.distance( aSegment.start ) > INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE &&
-            //   point.distance( aSegment.end ) > INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE
-            // ) || (
-            //   point.distance( bSegment.start ) > INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE &&
-            //   point.distance( bSegment.end ) > INTERSECTION_ENDPOINT_THRESHOLD_DISTANCE
-            // );
           } );
           if ( intersections.length ) {
 
@@ -954,12 +946,6 @@ class Graph {
             const intersection = intersections[ 0 ];
 
             const result = this.simpleSplit( edge, otherEdge, intersection.aT, intersection.bT, intersection.point );
-
-            // const aT = intersection.aT;
-            // const bT = intersection.bT;
-            // const aInternal = aT > 1e-5 && aT < ( 1 - 1e-5 );
-            // const bInternal = bT > 1e-5 && bT < ( 1 - 1e-5 );
-            // console.log( 'split', intersection.aT, intersection.bT, aInternal, bInternal, result );
 
             if ( result ) {
               found = true;
@@ -1024,12 +1010,6 @@ class Graph {
   simpleSplit( aEdge, bEdge, aT, bT, point ) {
     const aInternal = Graph.isInternal( point, aT, aEdge.segment, SPLIT_ENDPOINT_THRESHOLD_DISTANCE, T_THRESHOLD );
     const bInternal = Graph.isInternal( point, bT, bEdge.segment, SPLIT_ENDPOINT_THRESHOLD_DISTANCE, T_THRESHOLD );
-    // const aInternal = point.distance( aEdge.segment.start ) > SPLIT_ENDPOINT_THRESHOLD_DISTANCE &&
-    //                   point.distance( aEdge.segment.end ) > SPLIT_ENDPOINT_THRESHOLD_DISTANCE;
-    // const bInternal = point.distance( bEdge.segment.start ) > SPLIT_ENDPOINT_THRESHOLD_DISTANCE &&
-    //                   point.distance( bEdge.segment.end ) > SPLIT_ENDPOINT_THRESHOLD_DISTANCE;
-    // const aInternal = aT > 1e-6 && aT < ( 1 - 1e-6 );
-    // const bInternal = bT > 1e-6 && bT < ( 1 - 1e-6 );
 
     let vertex = null;
     if ( !aInternal ) {
@@ -1105,7 +1085,7 @@ class Graph {
 
     // We'll expand bounds by this amount, so that "adjacent" bounds (with a potentially overlapping vertical or
     // horizontal line) will have a non-zero amount of area overlapping.
-    const epsilon = 10 * VERTEX_COLLAPSE_THRESHOLD_DISTANCE; // TODO: could we reduce this factor to closer to the distance?
+    const epsilon = 10 * VERTEX_COLLAPSE_THRESHOLD_DISTANCE; // TODO: could we reduce this factor to closer to the distance? https://github.com/phetsims/kite/issues/98
 
     // Our queue will store entries of { start: boolean, vertex: Vertex }, representing a sweep line similar to the
     // Bentley-Ottmann approach. We'll track which edges are passing through the sweep line.
