@@ -41,7 +41,7 @@
   <!-- eslint-disable --> <!--TODO: fix lint https://github.com/phetsims/chipper/issues/1405-->
 
   <script type="text/javascript">
-    function docExample( id, draw ) {
+    window.docExample = ( id, draw ) => {
       var canvas = document.getElementById( id );
       var context = canvas.getContext( '2d' );
       draw( context );
@@ -262,7 +262,7 @@ grunt build</pre>
     </p>
     <canvas id="example-moveTo" class="exampleScene" style="width: 64px; height: 64px; margin: 0 auto;"></canvas>
     <script type="text/javascript">
-      docExample( 'example-moveTo', function( context ) {
+      window.docExample( 'example-moveTo', function( context ) {
         context.canvas.width = 64;
         context.canvas.height = 64;
         var shape =
@@ -289,7 +289,7 @@ grunt build</pre>
     </p>
     <canvas id="example-lineTo" class="exampleScene" style="width: 64px; height: 64px; margin: 0 auto;"></canvas>
     <script type="text/javascript">
-      docExample( 'example-lineTo', function( context ) {
+      window.docExample( 'example-lineTo', function( context ) {
         context.canvas.width = 64;
         context.canvas.height = 64;
         var shape =
@@ -318,7 +318,7 @@ grunt build</pre>
     </p>
     <canvas id="example-quadraticCurveTo" class="exampleScene" style="width: 64px; height: 64px; margin: 0 auto;"></canvas>
     <script type="text/javascript">
-      docExample( 'example-quadraticCurveTo', function( context ) {
+      window.docExample( 'example-quadraticCurveTo', function( context ) {
         context.canvas.width = 64;
         context.canvas.height = 64;
         var shape =
