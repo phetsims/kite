@@ -189,7 +189,7 @@ export default class Line extends Segment {
    */
   public getStartTangent(): Vector2 {
     if ( this._tangent === null ) {
-      // TODO: allocation reduction https://github.com/phetsims/kite/issues/102
+      // TODO: allocation reduction https://github.com/phetsims/kite/issues/76
       this._tangent = this._end.minus( this._start ).normalized();
     }
     return this._tangent;
@@ -211,7 +211,7 @@ export default class Line extends Segment {
    * Returns the bounds of this segment.
    */
   public getBounds(): Bounds2 {
-    // TODO: allocation reduction https://github.com/phetsims/kite/issues/102
+    // TODO: allocation reduction https://github.com/phetsims/kite/issues/76
     if ( this._bounds === null ) {
       this._bounds = Bounds2.NOTHING.copy().addPoint( this._start ).addPoint( this._end );
     }
@@ -582,7 +582,7 @@ export default class Line extends Segment {
     const qt0 = b;
     const qt1 = a + b;
 
-    // TODO: do we want an epsilon in here to be permissive? https://github.com/phetsims/kite/issues/102
+    // TODO: do we want an epsilon in here to be permissive? https://github.com/phetsims/kite/issues/76
     if ( ( qt0 > 1 && qt1 > 1 ) || ( qt0 < 0 && qt1 < 0 ) ) {
       return noOverlap;
     }

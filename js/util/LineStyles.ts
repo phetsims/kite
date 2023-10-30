@@ -192,7 +192,7 @@ export default class LineStyles {
     }
     else {
       // no join necessary here since we have the acute angle. just simple lineTo for now so that the next segment starts from the right place
-      // TODO: can we prevent self-intersection here? https://github.com/phetsims/kite/issues/102
+      // TODO: can we prevent self-intersection here? https://github.com/phetsims/kite/issues/76
       return bevel;
     }
   }

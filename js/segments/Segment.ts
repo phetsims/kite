@@ -181,7 +181,7 @@ export default abstract class Segment {
   }
 
   /**
-   * TODO: override everywhere so this isn't necessary (it's not particularly efficient!) https://github.com/phetsims/kite/issues/102
+   * TODO: override everywhere so this isn't necessary (it's not particularly efficient!) https://github.com/phetsims/kite/issues/76
    */
   public getBoundsWithTransform( matrix: Matrix3 ): Bounds2 {
     const transformedSegment = this.transformed( matrix );
@@ -484,7 +484,7 @@ export default abstract class Segment {
   }
 
   public getClosestPoints( point: Vector2 ): ClosestToPointResult[] {
-    // TODO: solve segments to determine this analytically! (only implemented for Line right now, should be easy to do with some things) https://github.com/phetsims/kite/issues/102
+    // TODO: solve segments to determine this analytically! (only implemented for Line right now, should be easy to do with some things) https://github.com/phetsims/kite/issues/76
     return Segment.closestToPoint( [ this ], point, 1e-7 );
   }
 
@@ -492,7 +492,7 @@ export default abstract class Segment {
    * List of results (since there can be duplicates), threshold is used for subdivision,
    * where it will exit if all of the segments are shorter than the threshold
    *
-   * TODO: solve segments to determine this analytically! https://github.com/phetsims/kite/issues/102
+   * TODO: solve segments to determine this analytically! https://github.com/phetsims/kite/issues/76
    */
   public static closestToPoint( segments: Segment[], point: Vector2, threshold: number ): ClosestToPointResult[] {
     type Item = {
@@ -771,11 +771,11 @@ export default abstract class Segment {
    * Returns a Segment from the serialized representation.
    */
   public static deserialize( obj: SerializedSegment ): Segment {
-    // TODO: just import them now that we have circular reference protection, and switch between https://github.com/phetsims/kite/issues/102
-    // @ts-expect-error TODO: namespacing https://github.com/phetsims/kite/issues/102
+    // TODO: just import them now that we have circular reference protection, and switch between https://github.com/phetsims/kite/issues/76
+    // @ts-expect-error TODO: namespacing https://github.com/phetsims/kite/issues/76
     assert && assert( obj.type && kite[ obj.type ] && kite[ obj.type ].deserialize );
 
-    // @ts-expect-error TODO: namespacing https://github.com/phetsims/kite/issues/102
+    // @ts-expect-error TODO: namespacing https://github.com/phetsims/kite/issues/76
     return kite[ obj.type ].deserialize( obj );
   }
 

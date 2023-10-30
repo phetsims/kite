@@ -152,7 +152,7 @@ export default class Quadratic extends Segment {
 
     const mt = 1 - t;
     // described from t=[0,1] as: (1-t)^2 start + 2(1-t)t control + t^2 end
-    // TODO: allocation reduction https://github.com/phetsims/kite/issues/102
+    // TODO: allocation reduction https://github.com/phetsims/kite/issues/76
     return this._start.times( mt * mt ).plus( this._control.times( 2 * mt * t ) ).plus( this._end.times( t * t ) );
   }
 
@@ -169,7 +169,7 @@ export default class Quadratic extends Segment {
     assert && assert( t <= 1, 'tangentAt t should be no greater than 1' );
 
     // For a quadratic curve, the derivative is given by : 2(1-t)( control - start ) + 2t( end - control )
-    // TODO: allocation reduction https://github.com/phetsims/kite/issues/102
+    // TODO: allocation reduction https://github.com/phetsims/kite/issues/76
     return this._control.minus( this._start ).times( 2 * ( 1 - t ) ).plus( this._end.minus( this._control ).times( 2 * t ) );
   }
 
@@ -189,7 +189,7 @@ export default class Quadratic extends Segment {
     assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
 
     // see http://cagd.cs.byu.edu/~557/text/ch2.pdf p31
-    // TODO: remove code duplication with Cubic https://github.com/phetsims/kite/issues/102
+    // TODO: remove code duplication with Cubic https://github.com/phetsims/kite/issues/76
     const epsilon = 0.0000001;
     if ( Math.abs( t - 0.5 ) > 0.5 - epsilon ) {
       const isZero = t < 0.5;
@@ -260,7 +260,7 @@ export default class Quadratic extends Segment {
   public getStartTangent(): Vector2 {
     if ( this._startTangent === null ) {
       const controlIsStart = this._start.equals( this._control );
-      // TODO: allocation reduction https://github.com/phetsims/kite/issues/102
+      // TODO: allocation reduction https://github.com/phetsims/kite/issues/76
       this._startTangent = controlIsStart ?
                            this._end.minus( this._start ).normalized() :
                            this._control.minus( this._start ).normalized();
@@ -276,7 +276,7 @@ export default class Quadratic extends Segment {
   public getEndTangent(): Vector2 {
     if ( this._endTangent === null ) {
       const controlIsEnd = this._end.equals( this._control );
-      // TODO: allocation reduction https://github.com/phetsims/kite/issues/102
+      // TODO: allocation reduction https://github.com/phetsims/kite/issues/76
       this._endTangent = controlIsEnd ?
                          this._end.minus( this._start ).normalized() :
                          this._end.minus( this._control ).normalized();
@@ -395,8 +395,8 @@ export default class Quadratic extends Segment {
    * @param reverse
    */
   public offsetTo( r: number, reverse: boolean ): Quadratic[] {
-    // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html https://github.com/phetsims/kite/issues/102
-    // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf https://github.com/phetsims/kite/issues/102
+    // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html https://github.com/phetsims/kite/issues/76
+    // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf https://github.com/phetsims/kite/issues/76
     let curves: Quadratic[] = [ this ];
 
     // subdivide this curve
@@ -419,7 +419,7 @@ export default class Quadratic extends Segment {
    * Elevation of this quadratic Bezier curve to a cubic Bezier curve
    */
   public degreeElevated(): Cubic {
-    // TODO: allocation reduction https://github.com/phetsims/kite/issues/102
+    // TODO: allocation reduction https://github.com/phetsims/kite/issues/76
     return new Cubic(
       this._start,
       this._start.plus( this._control.timesScalar( 2 ) ).dividedScalar( 3 ),
@@ -475,9 +475,9 @@ export default class Quadratic extends Segment {
   }
 
   public getInteriorExtremaTs(): number[] {
-    // TODO: we assume here we are reduce, so that a criticalX doesn't equal a criticalY? https://github.com/phetsims/kite/issues/102
+    // TODO: we assume here we are reduce, so that a criticalX doesn't equal a criticalY? https://github.com/phetsims/kite/issues/76
     const result = [];
-    const epsilon = 0.0000000001; // TODO: general kite epsilon? https://github.com/phetsims/kite/issues/102
+    const epsilon = 0.0000000001; // TODO: general kite epsilon? https://github.com/phetsims/kite/issues/76
 
     const criticalX = this.getTCriticalX();
     const criticalY = this.getTCriticalY();
@@ -752,7 +752,7 @@ export default class Quadratic extends Segment {
     const qt0 = b;
     const qt1 = a + b;
 
-    // TODO: do we want an epsilon in here to be permissive? https://github.com/phetsims/kite/issues/102
+    // TODO: do we want an epsilon in here to be permissive? https://github.com/phetsims/kite/issues/76
     if ( ( qt0 > 1 && qt1 > 1 ) || ( qt0 < 0 && qt1 < 0 ) ) {
       return noOverlap;
     }

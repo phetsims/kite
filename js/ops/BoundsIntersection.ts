@@ -250,7 +250,7 @@ export default class BoundsIntersection {
     }
 
     // Subdivide continuously
-    // TODO: is 50 the proper number of iterations? https://github.com/phetsims/kite/issues/102
+    // TODO: is 50 the proper number of iterations? https://github.com/phetsims/kite/issues/76
     for ( let i = 0; i < 50; i++ ) {
       const newIntersections: BoundsIntersection[] = [];
       for ( let j = intersections.length - 1; j >= 0; j-- ) {

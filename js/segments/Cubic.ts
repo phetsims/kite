@@ -253,7 +253,7 @@ export default class Cubic extends Segment {
     assert && assert( t <= 1, 'curvatureAt t should be no greater than 1' );
 
     // see http://cagd.cs.byu.edu/~557/text/ch2.pdf p31
-    // TODO: remove code duplication with Quadratic https://github.com/phetsims/kite/issues/102
+    // TODO: remove code duplication with Quadratic https://github.com/phetsims/kite/issues/76
     const epsilon = 0.0000001;
     if ( Math.abs( t - 0.5 ) > 0.5 - epsilon ) {
       const isZero = t < 0.5;
@@ -286,7 +286,7 @@ export default class Cubic extends Segment {
     }
 
     // de Casteljau method
-    // TODO: add a 'bisect' or 'between' method for vectors? https://github.com/phetsims/kite/issues/102
+    // TODO: add a 'bisect' or 'between' method for vectors? https://github.com/phetsims/kite/issues/76
     const left = this._start.blend( this._control1, t );
     const right = this._control2.blend( this._end, t );
     const middle = this._control1.blend( this._control2, t );
@@ -360,7 +360,7 @@ export default class Cubic extends Segment {
   public get endTangent(): Vector2 { return this.getEndTangent(); }
 
   /**
-   * TODO: documentation https://github.com/phetsims/kite/issues/102
+   * TODO: documentation https://github.com/phetsims/kite/issues/76
    */
   public getR(): Vector2 {
     // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
@@ -373,7 +373,7 @@ export default class Cubic extends Segment {
   public get r(): Vector2 { return this.getR(); }
 
   /**
-   * TODO: documentation https://github.com/phetsims/kite/issues/102
+   * TODO: documentation https://github.com/phetsims/kite/issues/76
    */
   public getS(): Vector2 {
     // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
@@ -509,7 +509,7 @@ export default class Cubic extends Segment {
    */
   private computeCuspInfo(): void {
     // from http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf
-    // TODO: allocation reduction https://github.com/phetsims/kite/issues/102
+    // TODO: allocation reduction https://github.com/phetsims/kite/issues/76
     const a = this._start.times( -1 ).plus( this._control1.times( 3 ) ).plus( this._control2.times( -3 ) ).plus( this._end );
     const b = this._start.times( 3 ).plus( this._control1.times( -6 ) ).plus( this._control2.times( 3 ) );
     const c = this._start.times( -3 ).plus( this._control1.times( 3 ) );
@@ -609,7 +609,7 @@ export default class Cubic extends Segment {
   public hasCusp(): boolean {
     const tCusp = this.getTCusp();
 
-    const epsilon = 1e-7; // TODO: make this available to change? https://github.com/phetsims/kite/issues/102
+    const epsilon = 1e-7; // TODO: make this available to change? https://github.com/phetsims/kite/issues/76
     return tCusp >= 0 && tCusp <= 1 && this.tangentAt( tCusp ).magnitude < epsilon;
   }
 
@@ -619,8 +619,8 @@ export default class Cubic extends Segment {
   }
 
   public offsetTo( r: number, reverse: boolean ): Line[] {
-    // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html https://github.com/phetsims/kite/issues/102
-    // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf https://github.com/phetsims/kite/issues/102
+    // TODO: implement more accurate method at http://www.antigrain.com/research/adaptive_bezier/index.html https://github.com/phetsims/kite/issues/76
+    // TODO: or more recently (and relevantly): http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/BezierFlattening.pdf https://github.com/phetsims/kite/issues/76
 
     // how many segments to create (possibly make this more adaptive?)
     const quantity = 32;
@@ -687,7 +687,7 @@ export default class Cubic extends Segment {
     const ts = this.getXExtremaT().concat( this.getYExtremaT() );
     const result: number[] = [];
     _.each( ts, t => {
-      const epsilon = 0.0000000001; // TODO: general kite epsilon? https://github.com/phetsims/kite/issues/102
+      const epsilon = 0.0000000001; // TODO: general kite epsilon? https://github.com/phetsims/kite/issues/76
       if ( t > epsilon && t < 1 - epsilon ) {
         // don't add duplicate t values
         if ( _.every( result, otherT => Math.abs( t - otherT ) > epsilon ) ) {
@@ -1049,7 +1049,7 @@ export default class Cubic extends Segment {
     const qt0 = b;
     const qt1 = a + b;
 
-    // TODO: do we want an epsilon in here to be permissive? https://github.com/phetsims/kite/issues/102
+    // TODO: do we want an epsilon in here to be permissive? https://github.com/phetsims/kite/issues/76
     if ( ( qt0 > 1 && qt1 > 1 ) || ( qt0 < 0 && qt1 < 0 ) ) {
       return noOverlap;
     }
