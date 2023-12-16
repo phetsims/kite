@@ -48,6 +48,7 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
   }
 
   public abstract getMinX( item: T, epsilon: number ): number;
+
   public abstract getMaxX( item: T, epsilon: number ): number;
 
   /**
@@ -268,7 +269,7 @@ class SegmentNode<T> {
       y.splitValue = this.max;
 
       // Start recomputation of stored items
-      const xEdges: T[] = cleanArray( scratchArray );
+      const xEdges = cleanArray( scratchArray as T[] );
       xEdges.push( ...this.items );
       cleanArray( this.items );
 
@@ -326,7 +327,7 @@ class SegmentNode<T> {
     x.splitValue = this.min;
 
     // Start recomputation of stored items
-    const yEdges: T[] = cleanArray( scratchArray );
+    const yEdges = cleanArray( scratchArray as T[] );
     yEdges.push( ...this.items );
     cleanArray( this.items );
 
@@ -566,4 +567,5 @@ class SegmentNode<T> {
   public static readonly pool = new Pool( SegmentNode );
 
 }
+
 kite.register( 'SegmentTree', SegmentTree );
