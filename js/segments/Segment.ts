@@ -821,4 +821,3 @@ kite.register( 'Segment', Segment );
 function swapSegmentIntersection( segmentIntersection: SegmentIntersection ): SegmentIntersection {
   return segmentIntersection.getSwapped();
 }
-
