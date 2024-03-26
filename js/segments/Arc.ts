@@ -995,7 +995,7 @@ export default class Arc extends Segment {
    * Returns any (finite) intersection between the two arc segments.
    */
   public static override intersect( a: Arc, b: Arc ): SegmentIntersection[] {
-    const epsilon = 1e-8;
+    const epsilon = 1e-7;
 
     const results = [];
 
