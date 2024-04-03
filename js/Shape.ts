@@ -1090,6 +1090,54 @@ class Shape implements CanApplyParsedSVG {
   }
 
   /**
+   * Returns something like "M150 0 L75 200 L225 200 Z" for a triangle (to be used with a SVG path element's 'd'
+   * attribute)
+   *
+   * Patched to work around https://github.com/phetsims/graphing-quadratics/issues/206, by splitting Quadratic Bezier
+   * segments into half with the de Casteljau algorithm.
+   */
+  public getSVGPathWithSafariWorkaround(): string {
+    let string = '';
+    const len = this.subpaths.length;
+    for ( let i = 0; i < len; i++ ) {
+      const subpath = this.subpaths[ i ];
+      if ( subpath.isDrawable() ) {
+        // since the commands after this are relative to the previous 'point', we need to specify a move to the initial point
+        const startPoint = subpath.segments[ 0 ].start;
+
+        string += `M ${svgNumber( startPoint.x )} ${svgNumber( startPoint.y )} `;
+
+        for ( let k = 0; k < subpath.segments.length; k++ ) {
+          const segment = subpath.segments[ k ];
+          if ( segment instanceof Quadratic ) {
+            const start = segment.start;
+            const control = segment.control;
+            const end = segment.end;
+
+            const startMidX = ( start.x + control.x ) / 2;
+            const startMidY = ( start.y + control.y ) / 2;
+            const endMidX = ( control.x + end.x ) / 2;
+            const endMidY = ( control.y + end.y ) / 2;
+            const midX = ( startMidX + endMidX ) / 2;
+            const midY = ( startMidY + endMidY ) / 2;
+
+            string += `Q ${svgNumber( startMidX )} ${svgNumber( startMidY )} ${svgNumber( midX )} ${svgNumber( midY )} `;
+            string += `Q ${svgNumber( endMidX )} ${svgNumber( endMidY )} ${svgNumber( end.x )} ${svgNumber( end.y )} `;
+          }
+          else {
+            string += `${subpath.segments[ k ].getSVGPathFragment()} `;
+          }
+        }
+
+        if ( subpath.isClosed() ) {
+          string += 'Z ';
+        }
+      }
+    }
+    return string;
+  }
+
+  /**
    * Returns a new Shape that is transformed by the associated matrix
    */
   public transformed( matrix: Matrix3 ): Shape {
