@@ -442,7 +442,7 @@ class SegmentNode<T> {
       // Check if we need to do red-black tree balancing
       if ( !this.isBlack && this.parent ) {
         const parent = this.parent;
-        const sibling = parent.otherChild( this )!;
+        const sibling = parent.otherChild( this );
         if ( sibling.isBlack ) {
           if ( this === parent.left ) {
             parent.rightRotate( tree );
