@@ -6,7 +6,7 @@ const pegjs = require( 'pegjs' );
 const fs = require( 'fs' );
 
 // use chipper's gruntfile
-const Gruntfile = require( '../chipper/js/grunt/Gruntfile.js' ); // eslint-disable-line require-statement-match
+const Gruntfile = require( '../chipper/js/grunt/gruntMain.js' ); // eslint-disable-line require-statement-match
 
 // Add repo-specific grunt tasks
 module.exports = function( grunt ) {
