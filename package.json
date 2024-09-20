@@ -28,6 +28,18 @@
     "extends": "../chipper/eslint/phet-library_eslintrc.js",
     "ignorePatterns": [
       "js/parser/svgPath.js"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "**/*.ts"
+        ],
+        "parserOptions": {
+          "project": [
+            "../kite/tsconfig.json"
+          ]
+        }
+      }
     ]
   }
 }
