@@ -36,7 +36,7 @@
         ],
         "parserOptions": {
           "project": [
-            "../kite/tsconfig.json"
+            "../chipper/tsconfig/eslint-all/tsconfig.json"
           ]
         }
       }
