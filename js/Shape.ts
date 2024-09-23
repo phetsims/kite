@@ -123,7 +123,7 @@ type CanApplyParsedSVG = {
 // Type of the parsed SVG item that is returned by the parser (from svgPath.js)
 type ParsedSVGItem = {
   // Turn each method into { cmd: 'methodName', args: [ ... ] }
-  [ K in keyof CanApplyParsedSVG ]: CanApplyParsedSVG[ K ] extends ( ...args: infer Args ) => Shape ? { cmd: K; args: Args } : never;
+  [K in keyof CanApplyParsedSVG]: CanApplyParsedSVG[ K ] extends ( ...args: infer Args ) => Shape ? { cmd: K; args: Args } : never;
 }[ keyof CanApplyParsedSVG ];
 
 class Shape implements CanApplyParsedSVG {
@@ -1781,6 +1781,7 @@ class Shape implements CanApplyParsedSVG {
   public static rectangle( x: number, y: number, width: number, height: number ): Shape {
     return new Shape().rect( x, y, width, height );
   }
+
   public static rect = Shape.rectangle;
 
   /**
@@ -1789,6 +1790,7 @@ class Shape implements CanApplyParsedSVG {
   public static roundRect( x: number, y: number, width: number, height: number, arcw: number, arch: number ): Shape {
     return new Shape().roundRect( x, y, width, height, arcw, arch );
   }
+
   public static roundRectangle = Shape.roundRect;
 
   /**
