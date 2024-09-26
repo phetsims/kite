@@ -23,11 +23,5 @@
       "../sherpa/lib/flatqueue-1.2.1.js"
     ],
     "supportsOutputJS": true
-  },
-  "eslintConfig": {
-    "extends": "../chipper/eslint/phet-library_eslintrc.js",
-    "ignorePatterns": [
-      "js/parser/svgPath.js"
-    ]
   }
 }
