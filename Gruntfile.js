@@ -1,12 +1,11 @@
 // Copyright 2013-2016, University of Colorado Boulder
 
-/* eslint-env node */
 
 const pegjs = require( 'pegjs' );
 const fs = require( 'fs' );
 
 // use chipper's gruntfile
-const Gruntfile = require( '../chipper/js/grunt/gruntMain.js' ); // eslint-disable-line require-statement-match
+const Gruntfile = require( '../chipper/js/grunt/gruntMain.js' ); // eslint-disable-line phet/require-statement-match
 
 // Add repo-specific grunt tasks
 module.exports = function( grunt ) {
