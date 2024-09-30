@@ -15,5 +15,13 @@ export default [
     ignores: [
       'js/parser/svgPath.js'
     ]
+  },
+  {
+    files: [
+      'js/grunt/**/*'
+    ],
+    rules: {
+      'phet/bad-sim-text': 'off'
+    }
   }
 ];
