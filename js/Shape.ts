@@ -1571,7 +1571,7 @@ class Shape implements CanApplyParsedSVG {
 
   public toString(): string {
     // TODO: consider a more verbose but safer way? https://github.com/phetsims/kite/issues/76
-    return `new phet.kite.Shape( '${this.getSVGPath()}' )`;
+    return `new phet.kite.Shape( '${this.getSVGPath().trim()}' )`;
   }
 
   /*---------------------------------------------------------------------------*
