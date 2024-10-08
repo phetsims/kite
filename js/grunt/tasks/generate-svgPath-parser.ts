@@ -7,10 +7,11 @@
  */
 
 import fs from 'fs';
-// @ts-expect-error TODO: why does it not think we are in node land? https://github.com/phetsims/chipper/issues/1463
 import pegjs from 'pegjs';
 
 const pegInput = fs.readFileSync( 'js/parser/svgPath.pegjs', 'utf8' );
+
+// @ts-expect-error - older version of pegjs such that typescript doesn't know about this function
 let source = pegjs.buildParser( pegInput ).toSource();
 
 // replace fixed strings at the start/end with our prefix/suffix, so that it will work nicely with require.js
