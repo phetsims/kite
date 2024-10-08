@@ -1,5 +1,19 @@
-// TODO: when this file was the actual contents, and ./js/tsconfig was the extends, then eslint broke with this error on all browser files in this repo https://github.com/phetsims/chipper/issues/1463:
-//   0:0  error  Parsing error: C:\Users\mjkauzmann\PHET\git\kite\js\kite.ts was not found by the project service. Consider either including it in the tsconfig.json or including it in allowDefaultProject
 {
-  "extends": "./js/tsconfig.json"
+  "extends": "../chipper/tsconfig-core.json",
+  "include": [
+    "js/**/*",
+    "images/**/*",
+    "mipmaps/**/*",
+    "sounds/**/*"
+  ],
+  "exclude": [
+    "js/grunt/**/*",
+    "*"
+  ],
+  "references": [
+    {
+      // TODO: What to do about this self-referential path because kite/ in in buildjson? It isn't a loop though, https://github.com/phetsims/chipper/issues/1469
+      "path": "../chipper/tsconfig/buildjson"
+    }
+  ]
 }
