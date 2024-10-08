@@ -17,6 +17,7 @@ export default [
     ]
   },
   {
+    // TODO: https://github.com/phetsims/chipper/issues/1463
     files: [
       'js/grunt/**/*'
     ],
