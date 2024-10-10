@@ -13,16 +13,8 @@ export default [
   ...phetLibraryEslintConfig,
   {
     ignores: [
-      'js/parser/svgPath.js'
+      'js/parser/svgPath.js',
+      'js/grunt/**/*' // TODO: support this, https://github.com/phetsims/chipper/issues/1451
     ]
-  },
-  {
-    // TODO: https://github.com/phetsims/chipper/issues/1463
-    files: [
-      'js/grunt/**/*'
-    ],
-    rules: {
-      'phet/bad-sim-text': 'off'
-    }
   }
 ];
