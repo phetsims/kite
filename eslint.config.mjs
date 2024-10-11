@@ -14,7 +14,7 @@ export default [
   {
     ignores: [
       'js/parser/svgPath.js',
-      'js/grunt/**/*' // TODO: support this, https://github.com/phetsims/chipper/issues/1451
+      'js/grunt/**/*' // TODO: support this, https://github.com/phetsims/chipper/issues/1464
     ]
   }
 ];
