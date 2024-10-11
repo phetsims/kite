@@ -12,7 +12,6 @@
   ],
   "references": [
     {
-      // TODO: What to do about this self-referential path because kite/ in in buildjson? It isn't a loop though, https://github.com/phetsims/chipper/issues/1469
       "path": "../chipper/tsconfig/buildjson"
     }
   ]
