@@ -6,7 +6,7 @@
   ],
   "references": [
     {
-      "path": "../chipper/tsconfig/buildtools"
+      "path": "../chipper/tsconfig/buildtools/tsconfig.json"
     }
   ]
 }
