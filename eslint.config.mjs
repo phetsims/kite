@@ -7,14 +7,25 @@
  * @author Michael Kauzmann (PhET Interactive Simulations)
  */
 
-import phetLibraryEslintConfig from '../chipper/eslint/phet-library.eslint.config.mjs';
+import { getNodeConfiguration } from '../chipper/eslint/node.eslint.config.mjs';
+import { getPhetLibraryConfiguration } from '../chipper/eslint/phet-library.eslint.config.mjs';
+import rootEslintConfig from '../chipper/eslint/root.eslint.config.mjs';
+
+const nodeFiles = [
+  'js/grunt/**/*',
+  '*'
+];
 
 export default [
-  ...phetLibraryEslintConfig,
+  ...rootEslintConfig,
+  ...getPhetLibraryConfiguration( {
+    files: [ '**/*' ],
+    ignores: nodeFiles
+  } ),
+  ...getNodeConfiguration( { files: nodeFiles } ),
   {
     ignores: [
-      'js/parser/svgPath.js',
-      'js/grunt/**/*' // TODO: support this, https://github.com/phetsims/chipper/issues/1464
+      'js/parser/svgPath.js'
     ]
   }
 ];

@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig-node.json",
+  "extends": "../../tsconfig-kite-node.json",
   "references": [
     {
       "path": "../../../chipper/tsconfig/buildtools/tsconfig.json"

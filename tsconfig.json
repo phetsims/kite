@@ -2,7 +2,7 @@
   "files": [],
   "references": [
     {
-      "path": "./tsconfig-node.json"
+      "path": "./tsconfig-kite-node.json"
     },
     {
       "path": "./tsconfig-kite-browser.json"
