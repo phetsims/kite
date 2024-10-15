@@ -1,8 +1,7 @@
 {
   "extends": "../chipper/tsconfig/shared/tsconfig-node.json",
   "include": [
-    "js/grunt/**/*",
-    "*"
+    "js/grunt/**/*"
   ],
   "references": [
     {

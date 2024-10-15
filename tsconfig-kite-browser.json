@@ -7,8 +7,7 @@
     "sounds/**/*"
   ],
   "exclude": [
-    "js/grunt/**/*",
-    "*"
+    "js/grunt/**/*"
   ],
   "references": [
     {
