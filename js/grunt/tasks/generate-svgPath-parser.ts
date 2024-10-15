@@ -3,7 +3,6 @@
 /**
  * Uses js/parser/svgPath.pegjs to generate js/parser/svgPath.js
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
- * TODO: move this to chipper to simplify things? https://github.com/phetsims/chipper/issues/1464
  */
 
 import fs from 'fs';
