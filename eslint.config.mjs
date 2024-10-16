@@ -7,7 +7,7 @@
  * @author Michael Kauzmann (PhET Interactive Simulations)
  */
 
-import { getNodeConfiguration } from '../chipper/eslint/node.eslint.config.mjs';
+import getNodeConfiguration from '../chipper/eslint/getNodeConfiguration.mjs';
 import { getPhetLibraryConfiguration } from '../chipper/eslint/phet-library.eslint.config.mjs';
 import rootEslintConfig from '../chipper/eslint/root.eslint.config.mjs';
 
