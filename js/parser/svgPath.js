@@ -1,6 +1,6 @@
 /*
  * NOTE: Generated from svgPath.pegjs using PEG.js, with added kite namespace and require.js compatibility.
- * See svgPath.pegjs for more documentation, or run 'grunt generate-svgPath-parser' to regenerate.
+ * See svgPath.pegjs for more documentation, or run 'grunt generate-svg-path-parser' to regenerate.
  */
 
 import kite from '../kite.js';
