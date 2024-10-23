@@ -1,5 +1,5 @@
 {
-  "extends": "../perennial-alias/tsconfig/shared/tsconfig-node.json",
+  "extends": "../perennial-alias/tsconfig/tsconfig-node.json",
   "include": [
     "js/grunt/**/*"
   ],
