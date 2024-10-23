@@ -5,7 +5,7 @@
   ],
   "references": [
     {
-      "path": "../perennial-alias/tsconfig/buildtools/tsconfig.json"
+      "path": "../chipper/tsconfig/buildtools/tsconfig.json"
     }
   ]
 }
