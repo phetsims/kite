@@ -9,6 +9,7 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
+/* global paper */
 import TEmitter from '../../../axon/js/TEmitter.js';
 import TinyEmitter from '../../../axon/js/TinyEmitter.js';
 import Bounds2 from '../../../dot/js/Bounds2.js';
