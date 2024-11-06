@@ -8,8 +8,8 @@
  */
 
 import getNodeConfiguration from '../perennial-alias/js/eslint/config/util/getNodeConfiguration.mjs';
-import { getPhetLibraryConfiguration } from '../perennial-alias/js/eslint/phet-library.eslint.config.mjs';
-import rootEslintConfig from '../perennial-alias/js/eslint/root.eslint.config.mjs';
+import { getPhetLibraryConfiguration } from '../perennial-alias/js/eslint/config/phet-library.eslint.config.mjs';
+import rootEslintConfig from '../perennial-alias/js/eslint/config/root.eslint.config.mjs';
 
 const nodeFiles = [
   'js/grunt/**/*'
