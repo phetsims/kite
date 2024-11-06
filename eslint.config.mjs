@@ -7,7 +7,7 @@
  * @author Michael Kauzmann (PhET Interactive Simulations)
  */
 
-import getNodeConfiguration from '../perennial-alias/js/eslint/getNodeConfiguration.mjs';
+import getNodeConfiguration from '../perennial-alias/js/eslint/config/util/getNodeConfiguration.mjs';
 import { getPhetLibraryConfiguration } from '../perennial-alias/js/eslint/phet-library.eslint.config.mjs';
 import rootEslintConfig from '../perennial-alias/js/eslint/root.eslint.config.mjs';
 
