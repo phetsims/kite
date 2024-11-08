@@ -18,9 +18,9 @@ import Ray2 from '../../../dot/js/Ray2.js';
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import optionize from '../../../phet-core/js/optionize.js';
+import IntentionalAny from '../../../phet-core/js/types/IntentionalAny.js';
 import KeysMatching from '../../../phet-core/js/types/KeysMatching.js';
 import { Arc, BoundsIntersection, Cubic, EllipticalArc, kite, Line, Quadratic, RayIntersection, SegmentIntersection, SerializedArc, SerializedCubic, SerializedEllipticalArc, SerializedLine, SerializedQuadratic, Shape, Subpath } from '../imports.js';
-import IntentionalAny from '../../../phet-core/js/types/IntentionalAny.js';
 
 export type DashValues = {
 

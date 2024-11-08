@@ -29,14 +29,14 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import SingularValueDecomposition from '../../../dot/js/SingularValueDecomposition.js';
+import Complex from '../../../dot/js/Complex.js';
 import Matrix from '../../../dot/js/Matrix.js';
 import Matrix3 from '../../../dot/js/Matrix3.js';
-import Vector2 from '../../../dot/js/Vector2.js';
-import { kite } from '../imports.js';
-import Complex from '../../../dot/js/Complex.js';
 import Ray2 from '../../../dot/js/Ray2.js';
+import SingularValueDecomposition from '../../../dot/js/SingularValueDecomposition.js';
+import Vector2 from '../../../dot/js/Vector2.js';
 import Vector4 from '../../../dot/js/Vector4.js';
+import { kite } from '../imports.js';
 
 // Determinant of a 2x2 matrix
 const getDet2 = ( a: Complex, b: Complex, c: Complex, d: Complex ) => {

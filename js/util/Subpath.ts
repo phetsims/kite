@@ -11,8 +11,8 @@
 
 import TinyEmitter from '../../../axon/js/TinyEmitter.js';
 import Bounds2 from '../../../dot/js/Bounds2.js';
-import Vector2 from '../../../dot/js/Vector2.js';
 import Matrix3 from '../../../dot/js/Matrix3.js';
+import Vector2 from '../../../dot/js/Vector2.js';
 import { Arc, ClosestToPointResult, DashValues, kite, Line, LineStyles, PiecewiseLinearOptions, Segment, SerializedSegment } from '../imports.js';
 
 type DashItem = DashValues & {
