@@ -1,7 +1,7 @@
 // Copyright 2013-2016, University of Colorado Boulder
 
 const Gruntfile = require( '../chipper/Gruntfile' );
-const registerTasks = require( '../perennial-alias/js/grunt/util/registerTasks' );
+const registerTasks = require( '../perennial-alias/js/grunt/commonjs/registerTasks' );
 
 /**
  * Kite grunt tasks
