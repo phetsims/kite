@@ -7,21 +7,10 @@
  * @author Michael Kauzmann (PhET Interactive Simulations)
  */
 
-import { getPhetLibraryConfiguration } from '../perennial-alias/js/eslint/config/phet-library.eslint.config.mjs';
-import rootEslintConfig from '../perennial-alias/js/eslint/config/root.eslint.config.mjs';
-import getNodeConfiguration from '../perennial-alias/js/eslint/config/util/getNodeConfiguration.mjs';
-
-const nodeFiles = [
-  'js/grunt/**/*'
-];
+import phetLibraryEslintConfig from '../perennial-alias/js/eslint/config/phet-library.eslint.config.mjs';
 
 export default [
-  ...rootEslintConfig,
-  ...getPhetLibraryConfiguration( {
-    files: [ '**/*' ],
-    ignores: nodeFiles
-  } ),
-  ...getNodeConfiguration( { files: nodeFiles } ),
+  ...phetLibraryEslintConfig,
   {
     ignores: [
       'js/parser/svgPath.js'
