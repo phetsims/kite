@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig-kite-node.json",
+  "extends": "../../../perennial-alias/tsconfig/tsconfig-node.json",
   "references": [
     {
       "path": "../../../chipper/tsconfig/buildtools/tsconfig.json"
