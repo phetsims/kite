@@ -43,3 +43,7 @@ source = source.substring( 0, endIndex ) + suffix;
 fs.writeFileSync( 'js/parser/svgPath.js', source, 'utf8' );
 
 console.log( 'Please reformat the generated svgPath.js before checking in!' );
+
+// TODO: Why does this not fail lint in Webstorm? Rename grunt/tasks/eslint.config.mjs -> blarg.config.mjs and it
+//  catches lint errors fails correctly. https://github.com/phetsims/chipper/issues/1483
+// (async()=>{})();
