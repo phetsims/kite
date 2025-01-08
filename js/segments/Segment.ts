@@ -292,7 +292,7 @@ export default abstract class Segment {
     assert && assert( lineDash.length > 0, 'Do not call with an empty dash array' );
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const self = this;
+    const selfReference = this; // eslint-disable-line consistent-this
 
     const values = [];
     let arcLength = 0;
@@ -334,7 +334,7 @@ export default abstract class Segment {
     ( function recur( t0: number, t1: number, p0: Vector2, p1: Vector2, depth: number ) {
       // Compute the t/position at the midpoint t value
       const tMid = ( t0 + t1 ) / 2;
-      const pMid = self.positionAt( tMid );
+      const pMid = selfReference.positionAt( tMid );
 
       // If it's flat enough (or we hit our recursion limit), process it
       if ( depth > 14 || Segment.isSufficientlyFlat( distanceEpsilon, curveEpsilon, p0, pMid, p1 ) ) {
