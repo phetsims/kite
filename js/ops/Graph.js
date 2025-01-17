@@ -31,7 +31,7 @@ import Vector2 from '../../../dot/js/Vector2.js';
 import arrayRemove from '../../../phet-core/js/arrayRemove.js';
 import cleanArray from '../../../phet-core/js/cleanArray.js';
 import merge from '../../../phet-core/js/merge.js';
-import { Arc, Boundary, Cubic, Edge, EdgeSegmentTree, EllipticalArc, Face, kite, Line, Loop, Segment, Subpath, Vertex, VertexSegmentTree } from '../imports.js';
+import { Arc, Boundary, Cubic, Edge, EdgeSegmentTree, EllipticalArc, Face, kite, Line, Loop, Segment, Shape, Subpath, Vertex, VertexSegmentTree } from '../imports.js';
 
 let bridgeId = 0;
 let globalId = 0;
@@ -439,7 +439,7 @@ class Graph {
         }
       }
     }
-    return new kite.Shape( subpaths );
+    return new Shape( subpaths );
   }
 
   /**
@@ -1866,7 +1866,7 @@ class Graph {
 
     graph.dispose();
 
-    return new kite.Shape( subpaths );
+    return new Shape( subpaths );
   }
 }
 
