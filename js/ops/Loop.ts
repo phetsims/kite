@@ -15,24 +15,35 @@
  */
 
 import cleanArray from '../../../phet-core/js/cleanArray.js';
-import Pool from '../../../phet-core/js/Pool.js';
-import { kite, Subpath } from '../imports.js';
+import Pool, { TPoolable } from '../../../phet-core/js/Pool.js';
+import kite from '../kite.js';
+import type HalfEdge from './HalfEdge.js';
 
-let globaId = 0;
+let globalId = 0;
 
-class Loop {
+export type SerializedLoop = {
+  type: 'Loop';
+  id: number;
+  shapeId: number;
+  closed: boolean;
+  halfEdges: number[];
+};
+
+export default class Loop implements TPoolable {
+
+  public readonly id: number = ++globalId;
+
+  // Set in initialize
+  public shapeId = 0;
+  public closed = false;
+  public halfEdges: HalfEdge[] = [];
+
   /**
-   * @public (kite-internal)
+   * (kite-internal)
    *
    * NOTE: Use Loop.pool.create for most usage instead of using the constructor directly.
-   *
-   * @param {number} shapeId
-   * @param {boolean} closed
    */
-  constructor( shapeId, closed ) {
-    // @public {number}
-    this.id = ++globaId;
-
+  public constructor( shapeId: number, closed: boolean ) {
     // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
     // definitions.
     this.initialize( shapeId, closed );
@@ -41,35 +52,19 @@ class Loop {
   /**
    * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
    * support pooling.
-   * @private
-   *
-   * @param {number} shapeId
-   * @param {boolean} closed
-   * @returns {Loop} - This reference for chaining
    */
-  initialize( shapeId, closed ) {
-    assert && assert( typeof shapeId === 'number' );
-    assert && assert( typeof closed === 'boolean' );
-
-    // @public {number}
+  private initialize( shapeId: number, closed: boolean ): this {
     this.shapeId = shapeId;
-
-    // @public {boolean}
     this.closed = closed;
-
-    // @public {Array.<HalfEdge>}
-    this.halfEdges = cleanArray( this.halfEdges );
+    cleanArray( this.halfEdges );
 
     return this;
   }
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
-   * @public
-   *
-   * @returns {Object}
    */
-  serialize() {
+  public serialize(): SerializedLoop {
     return {
       type: 'Loop',
       id: this.id,
@@ -80,38 +75,21 @@ class Loop {
   }
 
   /**
-   * Returns a Subpath equivalent to this loop.
-   * @public
-   *
-   * @returns {Subpath}
-   */
-  toSubpath() {
-    const segments = [];
-    for ( let i = 0; i < this.halfEdges.length; i++ ) {
-      segments.push( this.halfEdges[ i ].getDirectionalSegment() );
-    }
-    return new Subpath( segments, undefined, this.closed );
-  }
-
-  /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
-   * @public
    */
-  dispose() {
+  public dispose(): void {
     cleanArray( this.halfEdges );
     this.freeToPool();
   }
 
-  // @public
-  freeToPool() {
+  public freeToPool(): void {
     Loop.pool.freeToPool( this );
   }
 
-  // @public
-  static pool = new Pool( Loop );
+  public static pool = new Pool( Loop, {
+    initialize: Loop.prototype.initialize
+  } );
 }
 
 kite.register( 'Loop', Loop );
-
-export default Loop;

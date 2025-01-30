@@ -8,7 +8,7 @@
 
 import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import { kite } from '../imports.js';
+import kite from '../kite.js';
 
 export default class SegmentIntersection {
 

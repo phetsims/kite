@@ -13,7 +13,11 @@ import TinyEmitter from '../../../axon/js/TinyEmitter.js';
 import Bounds2 from '../../../dot/js/Bounds2.js';
 import Matrix3 from '../../../dot/js/Matrix3.js';
 import Vector2 from '../../../dot/js/Vector2.js';
-import { Arc, ClosestToPointResult, DashValues, kite, Line, LineStyles, PiecewiseLinearOptions, Segment, SerializedSegment } from '../imports.js';
+import Segment, { Line, Arc, ClosestToPointResult, DashValues, PiecewiseLinearOptions, SerializedSegment } from '../segments/Segment.js';
+import LineStyles from './LineStyles.js';
+import kite from '../kite.js';
+import type Boundary from '../ops/Boundary.js';
+import type Loop from '../ops/Loop.js';
 
 type DashItem = DashValues & {
   hasLeftFilled: boolean;
@@ -588,6 +592,22 @@ class Subpath {
 
     // Convert to subpaths
     return _.flatten( dashItems.map( dashItem => dashItem.segmentArrays ) ).map( segments => new Subpath( segments ) );
+  }
+
+  public static fromBoundary( boundary: Boundary ): Subpath {
+    const segments = [];
+    for ( let i = 0; i < boundary.halfEdges.length; i++ ) {
+      segments.push( boundary.halfEdges[ i ].getDirectionalSegment() );
+    }
+    return new Subpath( segments, undefined, true );
+  }
+
+  public static fromLoop( loop: Loop ): Subpath {
+    const segments = [];
+    for ( let i = 0; i < loop.halfEdges.length; i++ ) {
+      segments.push( loop.halfEdges[ i ].getDirectionalSegment() );
+    }
+    return new Subpath( segments, undefined, loop.closed );
   }
 
   /**

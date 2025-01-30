@@ -11,7 +11,9 @@
 
 import Vector2 from '../../../dot/js/Vector2.js';
 import Pool from '../../../phet-core/js/Pool.js';
-import { kite, Segment, SegmentIntersection } from '../imports.js';
+import kite from '../kite.js';
+import type Segment from '../segments/Segment.js';
+import SegmentIntersection from '../util/SegmentIntersection.js';
 
 type ActiveBoundsIntersection = {
   [ PropertyName in keyof BoundsIntersection ]: BoundsIntersection[PropertyName] extends ( infer T | null ) ? T : BoundsIntersection[PropertyName];

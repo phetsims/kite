@@ -8,25 +8,59 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import Vector2 from '../../../dot/js/Vector2.js';
+import Vector2, { Vector2StateObject } from '../../../dot/js/Vector2.js';
 import cleanArray from '../../../phet-core/js/cleanArray.js';
 import Pool from '../../../phet-core/js/Pool.js';
-import { kite, Line } from '../imports.js';
+import kite from '../kite.js';
+import { Line } from '../segments/Segment.js';
+import type HalfEdge from './HalfEdge.js';
+import IntentionalAny from '../../../phet-core/js/types/IntentionalAny.js';
 
-let globaId = 0;
+let globalId = 0;
 
-class Vertex {
+export type SerializedVertex = {
+  type: 'Vertex';
+  id: number;
+  point: Vector2StateObject;
+  incidentHalfEdges: number[];
+  visited: boolean;
+  visitIndex: number;
+  lowIndex: number;
+};
+
+export default class Vertex {
+
+  public readonly id: number = ++globalId;
+
+  // NOTE: created in initialize. Certain things may be null when disposed (in pool)
+  public point: Vector2 = Vector2.ZERO;
+
+  // Records the half-edge that points to (ends at) this vertex.
+  public incidentHalfEdges: HalfEdge[] = [];
+
+  // Used for depth-first search
+  public visited = false;
+
+  // Visit index for bridge detection (more efficient to have inline here)
+  public visitIndex = 0;
+
+  // Low index for bridge detection (more efficient to have inline here)
+  public lowIndex = 0;
+
+  // Available for arbitrary client usage. -- Keep JSONable
+  public data: IntentionalAny = null;
+
+  // @kite-internal
+  public internalData: IntentionalAny = null;
+
   /**
-   * @public (kite-internal)
+   * (kite-internal)
    *
    * NOTE: Use Vertex.pool.create for most usage instead of using the constructor directly.
    *
-   * @param {Vector2} point - The point where the vertex should be located.
+   * @param point - The point where the vertex should be located.
    */
-  constructor( point ) {
-    // @public {number}
-    this.id = ++globaId;
-
+  public constructor( point: Vector2 ) {
     // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
     // definitions.
     this.initialize( point );
@@ -35,33 +69,15 @@ class Vertex {
   /**
    * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
    * support pooling.
-   * @private
-   *
-   * @param {Vector2} point
-   * @returns {Vertex} - This reference for chaining
    */
-  initialize( point ) {
-    assert && assert( point instanceof Vector2 );
-
-    // @public {Vector2}
+  private initialize( point: Vector2 ): this {
     this.point = point;
 
-    // @public {Array.<HalfEdge>} - Records the half-edge that points to (ends at) this vertex.
-    this.incidentHalfEdges = cleanArray( this.incidentHalfEdges );
-
-    // @public {boolean} - Used for depth-first search
+    cleanArray( this.incidentHalfEdges );
     this.visited = false;
-
-    // @public {number} - Visit index for bridge detection (more efficient to have inline here)
     this.visitIndex = 0;
-
-    // @public {number} - Low index for bridge detection (more efficient to have inline here)
     this.lowIndex = 0;
-
-    // @public {*} - Available for arbitrary client usage. -- Keep JSONable
     this.data = null;
-
-    // @public {*} - kite-internal
     this.internalData = {};
 
     return this;
@@ -69,11 +85,8 @@ class Vertex {
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
-   * @public
-   *
-   * @returns {Object}
    */
-  serialize() {
+  public serialize(): SerializedVertex {
     return {
       type: 'Vertex',
       id: this.id,
@@ -88,9 +101,8 @@ class Vertex {
   /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
-   * @public
    */
-  dispose() {
+  public dispose(): void {
     this.point = Vector2.ZERO;
     cleanArray( this.incidentHalfEdges );
     this.freeToPool();
@@ -98,9 +110,8 @@ class Vertex {
 
   /**
    * Sorts the edges in increasing angle order.
-   * @public
    */
-  sortEdges() {
+  public sortEdges(): void {
     const vectors = []; // x coordinate will be "angle", y coordinate will be curvature
     for ( let i = 0; i < this.incidentHalfEdges.length; i++ ) {
       const halfEdge = this.incidentHalfEdges[ i ];
@@ -136,13 +147,8 @@ class Vertex {
   /**
    * Compare two edges for sortEdges. Should have executed that first, as it relies on information looked up in that
    * process.
-   * @public
-   *
-   * @param {Edge} halfEdgeA
-   * @param {Edge} halfEdgeB
-   * @returns {number}
    */
-  static edgeComparison( halfEdgeA, halfEdgeB ) {
+  public static edgeComparison( halfEdgeA: HalfEdge, halfEdgeB: HalfEdge ): number {
     const angleA = halfEdgeA.sortVector.x;
     const angleB = halfEdgeB.sortVector.x;
 
@@ -168,15 +174,13 @@ class Vertex {
     }
   }
 
-  // @public
-  freeToPool() {
+  public freeToPool(): void {
     Vertex.pool.freeToPool( this );
   }
 
-  // @public
-  static pool = new Pool( Vertex );
+  public static pool = new Pool( Vertex, {
+    initialize: Vertex.prototype.initialize
+  } );
 }
 
 kite.register( 'Vertex', Vertex );
-
-export default Vertex;

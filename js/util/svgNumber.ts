@@ -9,7 +9,7 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import { kite } from '../imports.js';
+import kite from '../kite.js';
 
 const svgNumber = ( n: number ): string => {
   return n.toFixed( 20 ); // eslint-disable-line phet/bad-sim-text

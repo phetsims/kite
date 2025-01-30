@@ -22,21 +22,11 @@ export { default as svgNumber } from './util/svgNumber.js';
 export { default as intersectConicMatrices } from './util/intersectConicMatrices.js';
 export { default as svgPath } from './parser/svgPath.js';
 
-export { default as Segment } from './segments/Segment.js';
-export type { ClosestToPointResult, PiecewiseLinearOptions, DashValues, SerializedSegment } from './segments/Segment.js';
-export { default as Line } from './segments/Line.js';
-export type { SerializedLine } from './segments/Line.js';
-export { default as Quadratic } from './segments/Quadratic.js';
-export type { SerializedQuadratic } from './segments/Quadratic.js';
-export { default as Cubic } from './segments/Cubic.js';
-export type { SerializedCubic } from './segments/Cubic.js';
-export { default as Arc } from './segments/Arc.js';
-export type { SerializedArc } from './segments/Arc.js';
-export { default as EllipticalArc } from './segments/EllipticalArc.js';
-export type { SerializedEllipticalArc } from './segments/EllipticalArc.js';
+export { default as Segment, Line, Quadratic, Cubic, Arc, EllipticalArc } from './segments/Segment.js';
+export type { ClosestToPointResult, PiecewiseLinearOptions, DashValues, SerializedSegment, SerializedLine, SerializedQuadratic, SerializedCubic, SerializedArc, SerializedEllipticalArc } from './segments/Segment.js';
 
 export { default as Subpath } from './util/Subpath.js';
-export { default as Shape } from './Shape.js';
+export { default as Shape, Graph } from './Shape.js';
 export type { CornerRadiiOptions, SerializedShape, NonlinearTransformedOptions } from './Shape.js';
 
 export { default as HalfEdge } from './ops/HalfEdge.js';
@@ -49,4 +39,3 @@ export { default as BoundsIntersection } from './ops/BoundsIntersection.js';
 export { default as SegmentTree } from './ops/SegmentTree.js';
 export { default as EdgeSegmentTree } from './ops/EdgeSegmentTree.js';
 export { default as VertexSegmentTree } from './ops/VertexSegmentTree.js';
-export { default as Graph } from './ops/Graph.js';

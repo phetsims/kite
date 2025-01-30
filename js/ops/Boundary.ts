@@ -7,27 +7,41 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import Bounds2 from '../../../dot/js/Bounds2.js';
+import Bounds2, { Bounds2StateObject } from '../../../dot/js/Bounds2.js';
 import Ray2 from '../../../dot/js/Ray2.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import cleanArray from '../../../phet-core/js/cleanArray.js';
 import Pool from '../../../phet-core/js/Pool.js';
-import { kite, Subpath } from '../imports.js';
+import kite from '../kite.js';
+import type HalfEdge from './HalfEdge.js';
+import type Transform3 from '../../../dot/js/Transform3.js';
 
-let globaId = 0;
+let globalId = 0;
 
-class Boundary {
+export type SerializedBoundary = {
+  type: 'Boundary';
+  id: number;
+  halfEdges: number[];
+  signedArea: number;
+  bounds: Bounds2StateObject;
+  childBoundaries: number[];
+};
+
+export default class Boundary {
+
+  public readonly id: number = ++globalId;
+
+  public halfEdges: HalfEdge[] = [];
+  public signedArea = 0;
+  public bounds: Bounds2 = Bounds2.NOTHING;
+  public childBoundaries: Boundary[] = [];
+
   /**
-   * @public (kite-internal)
+   * (kite-internal)
    *
    * NOTE: Use Boundary.pool.create for most usage instead of using the constructor directly.
-   *
-   * @param {Array.<HalfEdge>} halfEdges
    */
-  constructor( halfEdges ) {
-    // @public {number}
-    this.id = ++globaId;
-
+  public constructor( halfEdges: HalfEdge[] ) {
     // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
     // definitions.
     this.initialize( halfEdges );
@@ -36,22 +50,11 @@ class Boundary {
   /**
    * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
    * support pooling.
-   * @private
-   *
-   * @param {Array.<HalfEdge>} halfEdges
-   * @returns {Boundary} - This reference for chaining
    */
-  initialize( halfEdges ) {
-    // @public {Array.<HalfEdge>}
+  private initialize( halfEdges: HalfEdge[] ): this {
     this.halfEdges = halfEdges;
-
-    // @public {number}
     this.signedArea = this.computeSignedArea();
-
-    // @public {Bounds2}
     this.bounds = this.computeBounds();
-
-    // @public {Array.<Boundary>}
     this.childBoundaries = cleanArray( this.childBoundaries );
 
     return this;
@@ -59,11 +62,8 @@ class Boundary {
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
-   * @public
-   *
-   * @returns {Object}
    */
-  serialize() {
+  public serialize(): SerializedBoundary {
     return {
       type: 'Boundary',
       id: this.id,
@@ -77,9 +77,8 @@ class Boundary {
   /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
-   * @public
    */
-  dispose() {
+  public dispose(): void {
     this.halfEdges = [];
     cleanArray( this.childBoundaries );
     this.freeToPool();
@@ -88,26 +87,20 @@ class Boundary {
   /**
    * Returns whether this boundary is essentially "counter-clockwise" (in the non-reversed coordinate system) with
    * positive signed area, or "clockwise" with negative signed area.
-   * @public
    *
    * Boundaries are treated as "inner" boundaries when they are counter-clockwise, as the path followed will generally
    * follow the inside of a face (given how the "next" edge of a vertex is computed).
-   *
-   * @returns {number}
    */
-  isInner() {
+  public isInner(): boolean {
     return this.signedArea > 0;
   }
 
   /**
    * Returns the signed area of this boundary, given its half edges.
-   * @public
    *
    * Each half-edge has its own contribution to the signed area, which are summed together.
-   *
-   * @returns {number}
    */
-  computeSignedArea() {
+  public computeSignedArea(): number {
     let signedArea = 0;
     for ( let i = 0; i < this.halfEdges.length; i++ ) {
       signedArea += this.halfEdges[ i ].signedAreaFragment;
@@ -117,11 +110,8 @@ class Boundary {
 
   /**
    * Returns the bounds of the boundary (the union of each of the boundary's segments' bounds).
-   * @public
-   *
-   * @returns {Bounds2}
    */
-  computeBounds() {
+  public computeBounds(): Bounds2 {
     const bounds = Bounds2.NOTHING.copy();
 
     for ( let i = 0; i < this.halfEdges.length; i++ ) {
@@ -133,16 +123,14 @@ class Boundary {
   /**
    * Returns a point on the boundary which, when the shape (and point) are transformed with the given transform, would
    * be a point with the minimal y value.
-   * @public
    *
    * Will only return one point, even if there are multiple points that have the same minimal y values for the
    * boundary. The point may be at the end of one of the edges/segments (at a vertex), but also may somewhere in the
    * middle of an edge/segment.
    *
-   * @param {Transform3} transform - Transform used because we want the inverse also.
-   * @returns {Vector2}
+   * @param transform - Transform used because we want the inverse also.
    */
-  computeExtremePoint( transform ) {
+  public computeExtremePoint( transform: Transform3 ): Vector2 {
     assert && assert( this.halfEdges.length > 0, 'There is no extreme point if we have no edges' );
 
     // Transform all of the segments into the new transformed coordinate space.
@@ -187,7 +175,6 @@ class Boundary {
   /**
    * Returns a ray (position and direction) pointing away from our boundary at an "extreme" point, so that the ray
    * will be guaranteed not to intersect this boundary.
-   * @public
    *
    * The ray's position will be slightly offset from the boundary, so that it will not technically intersect the
    * boundary where the extreme point lies. The extreme point will be chosen such that it would have the smallest
@@ -197,11 +184,8 @@ class Boundary {
    * in the negative-y direction (e.g. a vector of (0,-1)). This should guarantee it is facing away from the
    * boundary, and will be consistent in direction with other extreme rays (needed for its use case with the
    * boundary graph).
-   *
-   * @param {Transform3} transform
-   * @returns {Ray2}
    */
-  computeExtremeRay( transform ) {
+  public computeExtremeRay( transform: Transform3 ): Ray2 {
     const extremePoint = this.computeExtremePoint( transform );
     const orientation = transform.inverseDelta2( new Vector2( 0, -1 ) ).normalized();
     return new Ray2( extremePoint.plus( orientation.timesScalar( 1e-4 ) ), orientation );
@@ -209,12 +193,8 @@ class Boundary {
 
   /**
    * Returns whether this boundary includes the specified half-edge.
-   * @public
-   *
-   * @param {HalfEdge} halfEdge
-   * @returns {boolean}
    */
-  hasHalfEdge( halfEdge ) {
+  public hasHalfEdge( halfEdge: HalfEdge ): boolean {
     for ( let i = 0; i < this.halfEdges.length; i++ ) {
       if ( this.halfEdges[ i ] === halfEdge ) {
         return true;
@@ -223,29 +203,13 @@ class Boundary {
     return false;
   }
 
-  /**
-   * Converts this boundary to a Subpath, so that we can construct things like Shape objects from it.
-   * @public
-   *
-   * @returns {Subpath}
-   */
-  toSubpath() {
-    const segments = [];
-    for ( let i = 0; i < this.halfEdges.length; i++ ) {
-      segments.push( this.halfEdges[ i ].getDirectionalSegment() );
-    }
-    return new Subpath( segments, null, true );
-  }
-
-  // @public
-  freeToPool() {
+  public freeToPool(): void {
     Boundary.pool.freeToPool( this );
   }
 
-  // @public
-  static pool = new Pool( Boundary );
+  public static pool = new Pool( Boundary, {
+    initialize: Boundary.prototype.initialize
+  } );
 }
 
 kite.register( 'Boundary', Boundary );
-
-export default Boundary;

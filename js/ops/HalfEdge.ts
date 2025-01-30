@@ -7,25 +7,55 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import Vector2 from '../../../dot/js/Vector2.js';
+import Vector2, { Vector2StateObject } from '../../../dot/js/Vector2.js';
 import Pool from '../../../phet-core/js/Pool.js';
-import { kite } from '../imports.js';
+import kite from '../kite.js';
+import type Edge from './Edge.js';
+import type Face from './Face.js';
+import type Vertex from './Vertex.js';
+import IntentionalAny from '../../../phet-core/js/types/IntentionalAny.js';
+import type Segment from '../segments/Segment.js';
 
-let globaId = 0;
+let globalId = 0;
 
-class HalfEdge {
+export type SerializedHalfEdge = {
+  type: 'HalfEdge';
+  id: number;
+  edge: number;
+  face: number | null;
+  isReversed: boolean;
+  signedAreaFragment: number;
+  startVertex: number | null;
+  endVertex: number | null;
+  sortVector: Vector2StateObject;
+  data: IntentionalAny;
+};
+
+export default class HalfEdge {
+
+  public readonly id: number = ++globalId;
+
+  // Set in initialize, will be null when disposed (in pool)
+  public edge: Edge = null as unknown as Edge;
+  public face: Face | null = null;
+  public isReversed = false;
+  public signedAreaFragment = 0;
+  public startVertex: Vertex | null = null;
+  public endVertex: Vertex | null = null;
+
+  // Used for vertex sorting in Vertex.js. X is angle of end tangent (shifted),
+  // Y is curvature at end. See Vertex edge sort for more information.
+  public sortVector: Vector2 = new Vector2( 0, 0 );
+
+  // Available for arbitrary client usage. -- Keep JSONable
+  public data: IntentionalAny = null;
+
   /**
-   * @public (kite-internal)
+   * (kite-internal)
    *
    * NOTE: Use HalfEdge.pool.create for most usage instead of using the constructor directly.
-   *
-   * @param {Edge} edge
-   * @param {boolean} isReversed
    */
-  constructor( edge, isReversed ) {
-    // @public {number}
-    this.id = ++globaId;
-
+  public constructor( edge: Edge, isReversed: boolean ) {
     // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
     // definitions.
     this.initialize( edge, isReversed );
@@ -34,37 +64,14 @@ class HalfEdge {
   /**
    * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
    * support pooling.
-   * @private
-   *
-   * @param {Edge} edge
-   * @param {boolean} isReversed
-   * @returns {HalfEdge} - This reference for chaining
    */
-  initialize( edge, isReversed ) {
-    assert && assert( edge instanceof kite.Edge );
-    assert && assert( typeof isReversed === 'boolean' );
-
-    // @public {Edge|null} - Null if disposed (in pool)
+  private initialize( edge: Edge, isReversed: boolean ): this {
     this.edge = edge;
-
-    // @public {Face|null} - Filled in later, contains a face reference
-    this.face = null;
-
-    // @public {boolean}
+    this.face = null; // Filled in later, contains a face reference
     this.isReversed = isReversed;
-
-    // @public {number}
     this.signedAreaFragment = edge.signedAreaFragment * ( isReversed ? -1 : 1 );
-
-    // @public {Vertex|null}
     this.startVertex = null;
     this.endVertex = null;
-
-    // @public {Vector2} - Used for vertex sorting in Vertex.js. X is angle of end tangent (shifted),
-    // Y is curvature at end. See Vertex edge sort for more information.
-    this.sortVector = this.sortVector || new Vector2( 0, 0 );
-
-    // @public {*} - Available for arbitrary client usage. --- KEEP JSON
     this.data = null;
 
     this.updateReferences(); // Initializes vertex references
@@ -74,11 +81,8 @@ class HalfEdge {
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
-   * @public
-   *
-   * @returns {Object}
    */
-  serialize() {
+  public serialize(): SerializedHalfEdge {
     return {
       type: 'HalfEdge',
       id: this.id,
@@ -96,10 +100,9 @@ class HalfEdge {
   /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
-   * @public
    */
-  dispose() {
-    this.edge = null;
+  public dispose(): void {
+    this.edge = null as unknown as Edge;
     this.face = null;
     this.startVertex = null;
     this.endVertex = null;
@@ -109,19 +112,17 @@ class HalfEdge {
 
   /**
    * Returns the next half-edge, walking around counter-clockwise as possible. Assumes edges have been sorted.
-   * @public
    *
-   * @param {function} [filter] - function( {Edge} ) => {boolean}. If it returns false, the edge will be skipped, and
-   *                              not returned by getNext
+   * @param [filter] - If it returns false, the edge will be skipped, and not returned by getNext
    */
-  getNext( filter ) {
+  public getNext( filter?: ( edge: Edge ) => boolean ): HalfEdge {
     // Starting at 1, forever incrementing (we will bail out with normal conditions)
     for ( let i = 1; ; i++ ) {
-      let index = this.endVertex.incidentHalfEdges.indexOf( this ) - i;
+      let index = this.endVertex!.incidentHalfEdges.indexOf( this ) - i;
       if ( index < 0 ) {
-        index += this.endVertex.incidentHalfEdges.length;
+        index += this.endVertex!.incidentHalfEdges.length;
       }
-      const halfEdge = this.endVertex.incidentHalfEdges[ index ].getReversed();
+      const halfEdge = this.endVertex!.incidentHalfEdges[ index ].getReversed();
       if ( filter && !filter( halfEdge.edge ) ) {
         continue;
       }
@@ -132,9 +133,9 @@ class HalfEdge {
 
   /**
    * Update possibly reversed vertex references.
-   * @private
+   * (kite-internal)
    */
-  updateReferences() {
+  public updateReferences(): void {
     this.startVertex = this.isReversed ? this.edge.endVertex : this.edge.startVertex;
     this.endVertex = this.isReversed ? this.edge.startVertex : this.edge.endVertex;
     assert && assert( this.startVertex );
@@ -143,11 +144,8 @@ class HalfEdge {
 
   /**
    * Returns the tangent of the edge at the end vertex (in the direction away from the vertex).
-   * @public
-   *
-   * @returns {Vector2}
    */
-  getEndTangent() {
+  public getEndTangent(): Vector2 {
     if ( this.isReversed ) {
       return this.edge.segment.startTangent;
     }
@@ -158,11 +156,8 @@ class HalfEdge {
 
   /**
    * Returns the curvature of the edge at the end vertex.
-   * @public
-   *
-   * @returns {number}
    */
-  getEndCurvature() {
+  public getEndCurvature(): number {
     if ( this.isReversed ) {
       return -this.edge.segment.curvatureAt( 0 );
     }
@@ -173,21 +168,15 @@ class HalfEdge {
 
   /**
    * Returns the opposite half-edge for the same edge.
-   * @public
-   *
-   * @returns {HalfEdge}
    */
-  getReversed() {
+  public getReversed(): HalfEdge {
     return this.isReversed ? this.edge.forwardHalf : this.edge.reversedHalf;
   }
 
   /**
    * Returns a segment that starts at our startVertex and ends at our endVertex (may be reversed to accomplish that).
-   * @public
-   *
-   * @returns {Segment}
    */
-  getDirectionalSegment() {
+  public getDirectionalSegment(): Segment {
     if ( this.isReversed ) {
       return this.edge.segment.reversed();
     }
@@ -196,15 +185,13 @@ class HalfEdge {
     }
   }
 
-  // @public
-  freeToPool() {
+  public freeToPool(): void {
     HalfEdge.pool.freeToPool( this );
   }
 
-  // @public
-  static pool = new Pool( HalfEdge );
+  public static pool = new Pool( HalfEdge, {
+    initialize: HalfEdge.prototype.initialize
+  } );
 }
 
 kite.register( 'HalfEdge', HalfEdge );
-
-export default HalfEdge;

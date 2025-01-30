@@ -6,15 +6,17 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import { Edge, kite, SegmentTree } from '../imports.js';
+import SegmentTree from './SegmentTree.js';
+import Edge from './Edge.js';
+import kite from '../kite.js';
 
 export default class EdgeSegmentTree extends SegmentTree<Edge> {
   public getMinX( edge: Edge, epsilon: number ): number {
-    return edge.segment!.bounds.left - epsilon;
+    return edge.segment.bounds.left - epsilon;
   }
 
   public getMaxX( edge: Edge, epsilon: number ): number {
-    return edge.segment!.bounds.right + epsilon;
+    return edge.segment.bounds.right + epsilon;
   }
 }
 

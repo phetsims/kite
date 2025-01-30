@@ -6,25 +6,56 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import Pool from '../../../phet-core/js/Pool.js';
-import { HalfEdge, kite, Line, Segment, Vertex } from '../imports.js';
+import Pool, { TPoolable } from '../../../phet-core/js/Pool.js';
+import HalfEdge, { SerializedHalfEdge } from './HalfEdge.js';
+import kite from '../kite.js';
+import Segment, { Line, SerializedSegment } from '../segments/Segment.js';
+import Vertex from './Vertex.js';
+import IntentionalAny from '../../../phet-core/js/types/IntentionalAny.js';
 
-let globaId = 0;
+let globalId = 0;
 
-class Edge {
+export type SerializedEdge = {
+  type: 'Edge';
+  id: number;
+  segment: SerializedSegment;
+  startVertex: number | null;
+  endVertex: number | null;
+  signedAreaFragment: number;
+  forwardHalf: SerializedHalfEdge;
+  reversedHalf: SerializedHalfEdge;
+  visited: boolean;
+  data: IntentionalAny;
+};
+
+export default class Edge implements TPoolable {
+
+  public readonly id: number = ++globalId;
+
+  // Set in initialize, will be null when disposed (in pool)
+  public segment: Segment = null as unknown as Segment;
+  public startVertex: Vertex = null as unknown as Vertex;
+  public endVertex: Vertex = null as unknown as Vertex;
+
+  public signedAreaFragment = 0;
+  public forwardHalf: HalfEdge = null as unknown as HalfEdge;
+  public reversedHalf: HalfEdge = null as unknown as HalfEdge;
+
+  // Used for depth-first search
+  public visited = false;
+
+  // Available for arbitrary client usage. -- Keep JSONable
+  public data: IntentionalAny = null;
+
+  // @kite-internal
+  public internalData: IntentionalAny = null;
+
   /**
-   * @public (kite-internal)
+   * (kite-internal)
    *
    * NOTE: Use Edge.pool.create for most usage instead of using the constructor directly.
-   *
-   * @param {Segment} segment
-   * @param {Vertex} startVertex
-   * @param {Vertex} endVertex
    */
-  constructor( segment, startVertex, endVertex ) {
-    // @public {number}
-    this.id = ++globaId;
-
+  public constructor( segment: Segment, startVertex: Vertex, endVertex: Vertex ) {
     // NOTE: most object properties are declared/documented in the initialize method. Please look there for most
     // definitions.
     this.initialize( segment, startVertex, endVertex );
@@ -33,55 +64,28 @@ class Edge {
   /**
    * Similar to a usual constructor, but is set up so it can be called multiple times (with dispose() in-between) to
    * support pooling.
-   * @private
-   *
-   * @param {Segment} segment
-   * @param {Vertex} startVertex
-   * @param {Vertex} endVertex
-   * @returns {Edge} - This reference for chaining
    */
-  initialize( segment, startVertex, endVertex ) {
-    assert && assert( segment instanceof Segment );
-    assert && assert( startVertex instanceof Vertex );
-    assert && assert( endVertex instanceof Vertex );
+  private initialize( segment: Segment, startVertex: Vertex, endVertex: Vertex ): this {
     assert && assert( segment.start.distance( startVertex.point ) < 1e-3 );
     assert && assert( segment.end.distance( endVertex.point ) < 1e-3 );
 
-    // @public {Segment|null} - Null when disposed (in pool)
     this.segment = segment;
-
-    // @public {Vertex|null} - Null when disposed (in pool)
     this.startVertex = startVertex;
     this.endVertex = endVertex;
-
-    // @public {number}
     this.signedAreaFragment = segment.getSignedAreaFragment();
-
-    // @public {HalfEdge|null} - Null when disposed (in pool)
     this.forwardHalf = HalfEdge.pool.create( this, false );
     this.reversedHalf = HalfEdge.pool.create( this, true );
-
-    // @public {boolean} - Used for depth-first search
     this.visited = false;
-
-    // @public {*} - Available for arbitrary client usage. -- Keep JSONable
     this.data = null;
-
-    // @public {*} - kite-internal
-    this.internalData = {
-
-    };
+    this.internalData = {};
 
     return this;
   }
 
   /**
    * Returns an object form that can be turned back into a segment with the corresponding deserialize method.
-   * @public
-   *
-   * @returns {Object}
    */
-  serialize() {
+  public serialize(): SerializedEdge {
     return {
       type: 'Edge',
       id: this.id,
@@ -99,18 +103,17 @@ class Edge {
   /**
    * Removes references (so it can allow other objects to be GC'ed or pooled), and frees itself to the pool so it
    * can be reused.
-   * @public
    */
-  dispose() {
-    this.segment = null;
-    this.startVertex = null;
-    this.endVertex = null;
+  public dispose(): void {
+    this.segment = null as unknown as Segment;
+    this.startVertex = null as unknown as Vertex;
+    this.endVertex = null as unknown as Vertex;
 
     this.forwardHalf.dispose();
     this.reversedHalf.dispose();
 
-    this.forwardHalf = null;
-    this.reversedHalf = null;
+    this.forwardHalf = null as unknown as HalfEdge;
+    this.reversedHalf = null as unknown as HalfEdge;
 
     this.data = null;
 
@@ -119,12 +122,8 @@ class Edge {
 
   /**
    * Returns the other vertex associated with an edge.
-   * @public
-   *
-   * @param {Vertex} vertex
-   * @returns {Vertex}
    */
-  getOtherVertex( vertex ) {
+  public getOtherVertex( vertex: Vertex ): Vertex {
     assert && assert( vertex === this.startVertex || vertex === this.endVertex );
 
     return this.startVertex === vertex ? this.endVertex : this.startVertex;
@@ -132,9 +131,8 @@ class Edge {
 
   /**
    * Update possibly reversed vertex references (since they may be updated)
-   * @public
    */
-  updateReferences() {
+  public updateReferences(): void {
     this.forwardHalf.updateReferences();
     this.reversedHalf.updateReferences();
 
@@ -142,15 +140,13 @@ class Edge {
       'No line segments for same vertices' );
   }
 
-  // @public
-  freeToPool() {
+  public freeToPool(): void {
     Edge.pool.freeToPool( this );
   }
 
-  // @public
-  static pool = new Pool( Edge );
+  public static pool = new Pool( Edge, {
+    initialize: Edge.prototype.initialize
+  } );
 }
 
 kite.register( 'Edge', Edge );
-
-export default Edge;

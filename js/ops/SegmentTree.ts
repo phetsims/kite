@@ -14,7 +14,8 @@
 import arrayRemove from '../../../phet-core/js/arrayRemove.js';
 import cleanArray from '../../../phet-core/js/cleanArray.js';
 import Pool from '../../../phet-core/js/Pool.js';
-import { Edge, kite } from '../imports.js';
+import kite from '../kite.js';
+import Edge from './Edge.js';
 
 let globalId = 1;
 const scratchArray: Edge[] = [];

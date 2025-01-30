@@ -36,7 +36,7 @@ import Ray2 from '../../../dot/js/Ray2.js';
 import { SingularValueDecomposition } from '../../../dot/js/Matrix.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import Vector4 from '../../../dot/js/Vector4.js';
-import { kite } from '../imports.js';
+import kite from '../kite.js';
 
 // Determinant of a 2x2 matrix
 const getDet2 = ( a: Complex, b: Complex, c: Complex, d: Complex ) => {
