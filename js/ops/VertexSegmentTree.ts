@@ -12,11 +12,11 @@ import Vertex from './Vertex.js';
 
 export default class VertexSegmentTree extends SegmentTree<Vertex> {
   public getMinX( vertex: Vertex, epsilon: number ): number {
-    return vertex.point!.x - epsilon;
+    return vertex.point.x - epsilon;
   }
 
   public getMaxX( vertex: Vertex, epsilon: number ): number {
-    return vertex.point!.x + epsilon;
+    return vertex.point.x + epsilon;
   }
 }
 
