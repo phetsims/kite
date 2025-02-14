@@ -8,14 +8,11 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import merge from '../../../phet-core/js/merge.js';
 import Segment, { Line, Arc } from '../segments/Segment.js';
 import kite from '../kite.js';
-
-// constants
-const lineLineIntersection = Utils.lineLineIntersection;
+import { lineLineIntersection } from '../../../dot/js/util/lineLineIntersection.js';
 
 const DEFAULT_OPTIONS = {
   lineWidth: 1,

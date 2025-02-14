@@ -6,9 +6,9 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import kite from '../kite.js';
+import { clamp } from '../../../dot/js/util/clamp.js';
 
 export default class RayIntersection {
 
@@ -37,7 +37,7 @@ export default class RayIntersection {
     this.normal = normal;
     this.distance = distance;
     this.wind = wind;
-    this.t = Utils.clamp( t, 0, 1 ); // In case it is slightly out of range
+    this.t = clamp( t, 0, 1 ); // In case it is slightly out of range
   }
 }
 

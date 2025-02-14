@@ -6,7 +6,7 @@
  * @author Jonathan Olson <jonathan.olson@colorado.edu>
  */
 
-import Utils from '../../../dot/js/Utils.js';
+import { clamp } from '../../../dot/js/util/clamp.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import kite from '../kite.js';
 
@@ -28,8 +28,8 @@ export default class SegmentIntersection {
     this.point = point;
 
     // Clamped in case it's slightly out-of-range
-    this.aT = Utils.clamp( aT, 0, 1 );
-    this.bT = Utils.clamp( bT, 0, 1 );
+    this.aT = clamp( aT, 0, 1 );
+    this.bT = clamp( bT, 0, 1 );
   }
 
   /**

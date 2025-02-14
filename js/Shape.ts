@@ -33,7 +33,6 @@ import RayIntersection from './util/RayIntersection.js';
 import LineStyles from './util/LineStyles.js';
 import kite from './kite.js';
 import Transform3 from '../../dot/js/Transform3.js';
-import Utils from '../../dot/js/Utils.js';
 import arrayRemove from '../../phet-core/js/arrayRemove.js';
 import cleanArray from '../../phet-core/js/cleanArray.js';
 import Boundary, { SerializedBoundary } from './ops/Boundary.js';
@@ -46,6 +45,7 @@ import VertexSegmentTree from './ops/VertexSegmentTree.js';
 import type Overlap from './util/Overlap.js';
 import type HalfEdge from './ops/HalfEdge.js';
 import IntentionalAny from '../../phet-core/js/types/IntentionalAny.js';
+import { linear } from '../../dot/js/util/linear.js';
 
 
 // (We can't get joist's random reference here)
@@ -2793,7 +2793,7 @@ export class Graph {
       middle = middle.subdivided( t0 )[ 1 ];
     }
     if ( t1 < 1 ) {
-      middle = middle.subdivided( Utils.linear( t0, 1, 0, 1, t1 ) )[ 0 ];
+      middle = middle.subdivided( linear( t0, 1, 0, 1, t1 ) )[ 0 ];
     }
 
     let beforeVertex;

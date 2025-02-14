@@ -15,7 +15,6 @@ import TinyEmitter from '../../../axon/js/TinyEmitter.js';
 import Bounds2 from '../../../dot/js/Bounds2.js';
 import Matrix3 from '../../../dot/js/Matrix3.js';
 import Ray2 from '../../../dot/js/Ray2.js';
-import Utils from '../../../dot/js/Utils.js';
 import Vector2 from '../../../dot/js/Vector2.js';
 import optionize from '../../../phet-core/js/optionize.js';
 import IntentionalAny from '../../../phet-core/js/types/IntentionalAny.js';
@@ -29,15 +28,23 @@ import svgNumber from '../util/svgNumber.js';
 import Transform3 from '../../../dot/js/Transform3.js';
 import Enumeration from '../../../phet-core/js/Enumeration.js';
 import EnumerationValue from '../../../phet-core/js/EnumerationValue.js';
+import { arePointsCollinear } from '../../../dot/js/util/arePointsCollinear.js';
+import { linear } from '../../../dot/js/util/linear.js';
+import { distToSegmentSquared } from '../../../dot/js/util/distToSegmentSquared.js';
+import { clamp } from '../../../dot/js/util/clamp.js';
+import { lineSegmentIntersection } from '../../../dot/js/util/lineSegmentIntersection.js';
+import { solveLinearRootsReal } from '../../../dot/js/util/solveLinearRootsReal.js';
+import { solveQuadraticRootsReal } from '../../../dot/js/util/solveQuadraticRootsReal.js';
+import { moduloBetweenDown } from '../../../dot/js/util/moduloBetweenDown.js';
+import { moduloBetweenUp } from '../../../dot/js/util/moduloBetweenUp.js';
+import { circleCenterFromPoints } from '../../../dot/js/util/circleCenterFromPoints.js';
+import { toDegrees } from '../../../dot/js/util/toDegrees.js';
+import { solveCubicRootsReal } from '../../../dot/js/util/solveCubicRootsReal.js';
 
 // convenience variables use to reduce the number of vector allocations
 const scratchVector1 = new Vector2( 0, 0 );
 const scratchVector2 = new Vector2( 0, 0 );
 const scratchVector3 = new Vector2( 0, 0 );
-
-const solveQuadraticRootsReal = Utils.solveQuadraticRootsReal; // function that returns an array of number
-const solveCubicRootsReal = Utils.solveCubicRootsReal; // function that returns an array of number
-const arePointsCollinear = Utils.arePointsCollinear; // function that returns a boolean
 
 // Used in multiple filters
 function isBetween0And1( t: number ): boolean {
@@ -230,7 +237,7 @@ export default abstract class Segment {
       segment = segment.subdivided( t1 )[ 0 ];
     }
     if ( t0 > 0 ) {
-      segment = segment.subdivided( Utils.linear( 0, t1, 0, 1, t0 ) )[ 1 ];
+      segment = segment.subdivided( linear( 0, t1, 0, 1, t0 ) )[ 1 ];
     }
     return segment;
   }
@@ -254,7 +261,7 @@ export default abstract class Segment {
 
       // scale up the remaining t values
       for ( let j = i + 1; j < tList.length; j++ ) {
-        tList[ j ] = Utils.linear( t, 1, 0, 1, tList[ j ] );
+        tList[ j ] = linear( t, 1, 0, 1, tList[ j ] );
       }
     }
     result.push( right );
@@ -372,7 +379,7 @@ export default abstract class Segment {
         let lengthLeft = totalLength;
         while ( dashOffset + lengthLeft >= lineDash[ dashIndex ] ) {
           // Compute the t (for now, based on the total length for ease)
-          const t = Utils.linear( 0, totalLength, t0, t1, totalLength - lengthLeft + lineDash[ dashIndex ] - dashOffset );
+          const t = linear( 0, totalLength, t0, t1, totalLength - lengthLeft + lineDash[ dashIndex ] - dashOffset );
 
           // Record the dash change
           values.push( t );
@@ -813,11 +820,11 @@ export default abstract class Segment {
    */
   public static isSufficientlyFlat( distanceEpsilon: number, curveEpsilon: number, start: Vector2, middle: Vector2, end: Vector2 ): boolean {
     // flatness criterion: A=start, B=end, C=midpoint, d0=distance from AB, d1=||B-A||, subdivide if d0/d1 > sqrt(epsilon)
-    if ( Utils.distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) > curveEpsilon ) {
+    if ( distToSegmentSquared( middle, start, end ) / start.distanceSquared( end ) > curveEpsilon ) {
       return false;
     }
     // deviation criterion
-    if ( Utils.distToSegmentSquared( middle, start, end ) > distanceEpsilon ) {
+    if ( distToSegmentSquared( middle, start, end ) > distanceEpsilon ) {
       return false;
     }
     return true;
@@ -1292,16 +1299,16 @@ export class Arc extends Segment {
    * Maps a contained angle to between [startAngle,actualEndAngle), even if the end angle is lower.
    */
   public mapAngle( angle: number ): number {
-    if ( Math.abs( Utils.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
+    if ( Math.abs( moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
       return this._startAngle;
     }
-    if ( Math.abs( Utils.moduloBetweenDown( angle - this.getActualEndAngle(), -Math.PI, Math.PI ) ) < 1e-8 ) {
+    if ( Math.abs( moduloBetweenDown( angle - this.getActualEndAngle(), -Math.PI, Math.PI ) ) < 1e-8 ) {
       return this.getActualEndAngle();
     }
     // consider an assert that we contain that angle?
     return ( this._startAngle > this.getActualEndAngle() ) ?
-           Utils.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
-           Utils.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
+           moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
+           moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
   }
 
   /**
@@ -1350,7 +1357,7 @@ export class Arc extends Segment {
     const normalizedAngle = this._anticlockwise ? angle - this._endAngle : angle - this._startAngle;
 
     // get the angle between 0 and 2pi
-    const positiveMinAngle = Utils.moduloBetweenDown( normalizedAngle, 0, Math.PI * 2 );
+    const positiveMinAngle = moduloBetweenDown( normalizedAngle, 0, Math.PI * 2 );
 
     return positiveMinAngle <= this.angleDifference;
   }
@@ -1714,11 +1721,11 @@ export class Arc extends Segment {
     else {
       return [ Overlap.createLinear(
         // minimum
-        Utils.clamp( Utils.linear( 0, end1, 0, 1, overlapMin ), 0, 1 ), // arc1 min
-        Utils.clamp( Utils.linear( start2, end2, tStart2, tEnd2, overlapMin ), 0, 1 ), // arc2 min
+        clamp( linear( 0, end1, 0, 1, overlapMin ), 0, 1 ), // arc1 min
+        clamp( linear( start2, end2, tStart2, tEnd2, overlapMin ), 0, 1 ), // arc2 min
         // maximum
-        Utils.clamp( Utils.linear( 0, end1, 0, 1, overlapMax ), 0, 1 ), // arc1 max
-        Utils.clamp( Utils.linear( start2, end2, tStart2, tEnd2, overlapMax ), 0, 1 ) // arc2 max
+        clamp( linear( 0, end1, 0, 1, overlapMax ), 0, 1 ), // arc1 max
+        clamp( linear( start2, end2, tStart2, tEnd2, overlapMax ), 0, 1 ) // arc2 max
       ) ];
     }
   }
@@ -1745,7 +1752,7 @@ export class Arc extends Segment {
     end1 *= sign1;
 
     // Remap arc 2 so the start point maps to the [0,2pi) range (and end-point may lie outside that)
-    const start2 = Utils.moduloBetweenDown( sign1 * ( startAngle2 - startAngle1 ), 0, TWO_PI );
+    const start2 = moduloBetweenDown( sign1 * ( startAngle2 - startAngle1 ), 0, TWO_PI );
     const end2 = sign1 * ( endAngle2 - startAngle2 ) + start2;
 
     let wrapT;
@@ -1877,7 +1884,7 @@ export class Arc extends Segment {
    * the middlePoint somewhere between the two.
    */
   public static createFromPoints( startPoint: Vector2, middlePoint: Vector2, endPoint: Vector2 ): Segment {
-    const center = Utils.circleCenterFromPoints( startPoint, middlePoint, endPoint );
+    const center = circleCenterFromPoints( startPoint, middlePoint, endPoint );
 
     // Close enough
     if ( center === null ) {
@@ -1906,10 +1913,6 @@ export class Arc extends Segment {
 }
 
 kite.register( 'Arc', Arc );
-
-
-// constants
-const toDegrees = Utils.toDegrees;
 
 const unitCircleConicMatrix = Matrix3.rowMajor(
   1, 0, 0,
@@ -2508,16 +2511,16 @@ export class EllipticalArc extends Segment {
    * TODO: remove duplication with Arc https://github.com/phetsims/kite/issues/76
    */
   public mapAngle( angle: number ): number {
-    if ( Math.abs( Utils.moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
+    if ( Math.abs( moduloBetweenDown( angle - this._startAngle, -Math.PI, Math.PI ) ) < 1e-8 ) {
       return this._startAngle;
     }
-    if ( Math.abs( Utils.moduloBetweenDown( angle - this.getActualEndAngle(), -Math.PI, Math.PI ) ) < 1e-8 ) {
+    if ( Math.abs( moduloBetweenDown( angle - this.getActualEndAngle(), -Math.PI, Math.PI ) ) < 1e-8 ) {
       return this.getActualEndAngle();
     }
     // consider an assert that we contain that angle?
     return ( this._startAngle > this.getActualEndAngle() ) ?
-           Utils.moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
-           Utils.moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
+           moduloBetweenUp( angle, this._startAngle - 2 * Math.PI, this._startAngle ) :
+           moduloBetweenDown( angle, this._startAngle, this._startAngle + 2 * Math.PI );
   }
 
   /**
@@ -2839,13 +2842,13 @@ export class EllipticalArc extends Segment {
       if ( matchingRadii ) {
         // Difference between rotations should be an approximate multiple of pi. We add pi/2 before modulo, so the
         // result of that should be ~pi/2 (don't need to check both endpoints)
-        if ( Math.abs( Utils.moduloBetweenDown( a._rotation - b._rotation + Math.PI / 2, 0, Math.PI ) - Math.PI / 2 ) < epsilon ) {
+        if ( Math.abs( moduloBetweenDown( a._rotation - b._rotation + Math.PI / 2, 0, Math.PI ) - Math.PI / 2 ) < epsilon ) {
           return EllipticalArcOverlapType.MATCHING_OVERLAP;
         }
       }
       if ( oppositeRadii ) {
         // Difference between rotations should be an approximate multiple of pi (with pi/2 added).
-        if ( Math.abs( Utils.moduloBetweenDown( a._rotation - b._rotation, 0, Math.PI ) - Math.PI / 2 ) < epsilon ) {
+        if ( Math.abs( moduloBetweenDown( a._rotation - b._rotation, 0, Math.PI ) - Math.PI / 2 ) < epsilon ) {
           return EllipticalArcOverlapType.OPPOSITE_OVERLAP;
         }
       }
@@ -3307,7 +3310,7 @@ export class Line extends Segment {
   public explicitClosestToPoint( point: Vector2 ): ClosestToPointResult[] {
     const diff = this._end.minus( this._start );
     let t = point.minus( this._start ).dot( diff ) / diff.magnitudeSquared;
-    t = Utils.clamp( t, 0, 1 );
+    t = clamp( t, 0, 1 );
     const closestPoint = this.positionAt( t );
     return [
       {
@@ -3420,7 +3423,7 @@ export class Line extends Segment {
     // Normalized distance along the line from the start to the point
     const intersectionNormalized = point.minus( this._start ).dot( normalizedDirection );
 
-    const intersectionT = Utils.clamp( intersectionNormalized / delta.magnitude, 0, 1 );
+    const intersectionT = clamp( intersectionNormalized / delta.magnitude, 0, 1 );
 
     const intersectionPoint = this.positionAt( intersectionT );
 
@@ -3531,15 +3534,15 @@ export class Line extends Segment {
 
     // TODO: look into numerically more accurate solutions? https://github.com/phetsims/kite/issues/98
 
-    const lineSegmentIntersection = Utils.lineSegmentIntersection(
+    const intersection = lineSegmentIntersection(
       a.start.x, a.start.y, a.end.x, a.end.y,
       b.start.x, b.start.y, b.end.x, b.end.y
     );
 
-    if ( lineSegmentIntersection !== null ) {
-      const aT = a.explicitClosestToPoint( lineSegmentIntersection )[ 0 ].t;
-      const bT = b.explicitClosestToPoint( lineSegmentIntersection )[ 0 ].t;
-      return [ new SegmentIntersection( lineSegmentIntersection, aT, bT ) ];
+    if ( intersection !== null ) {
+      const aT = a.explicitClosestToPoint( intersection )[ 0 ].t;
+      const bT = b.explicitClosestToPoint( intersection )[ 0 ].t;
+      return [ new SegmentIntersection( intersection, aT, bT ) ];
     }
     else {
       return [];
@@ -4289,8 +4292,8 @@ export class Quadratic extends Segment {
 
     // Find the t values where extremes lie in the [0,1] range for each 1-dimensional quadratic. We do this by
     // differentiating the quadratic and finding the roots of the resulting line.
-    const xRoots = Utils.solveLinearRootsReal( 2 * d2x, d1x );
-    const yRoots = Utils.solveLinearRootsReal( 2 * d2y, d1y );
+    const xRoots = solveLinearRootsReal( 2 * d2x, d1x );
+    const yRoots = solveLinearRootsReal( 2 * d2y, d1y );
     const xExtremeTs = _.uniq( [ 0, 1 ].concat( xRoots ? xRoots.filter( isBetween0And1 ) : [] ) );
     const yExtremeTs = _.uniq( [ 0, 1 ].concat( yRoots ? yRoots.filter( isBetween0And1 ) : [] ) );
 
@@ -5332,8 +5335,8 @@ export class Cubic extends Segment {
 
     // Find the t values where extremes lie in the [0,1] range for each 1-dimensional cubic. We do this by
     // differentiating the cubic and finding the roots of the resulting quadratic.
-    const xRoots = Utils.solveQuadraticRootsReal( 3 * d3x, 2 * d2x, d1x );
-    const yRoots = Utils.solveQuadraticRootsReal( 3 * d3y, 2 * d2y, d1y );
+    const xRoots = solveQuadraticRootsReal( 3 * d3x, 2 * d2x, d1x );
+    const yRoots = solveQuadraticRootsReal( 3 * d3y, 2 * d2y, d1y );
     const xExtremeTs = _.uniq( [ 0, 1 ].concat( xRoots !== null ? xRoots.filter( isBetween0And1 ) : [] ) );
     const yExtremeTs = _.uniq( [ 0, 1 ].concat( yRoots !== null ? yRoots.filter( isBetween0And1 ) : [] ) );
 
