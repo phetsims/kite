@@ -877,15 +877,15 @@ export class Arc extends Segment {
   private _anticlockwise: boolean;
 
   // Lazily-computed derived information
-  private _start!: Vector2 | null;
-  private _end!: Vector2 | null;
-  private _startTangent!: Vector2 | null;
-  private _endTangent!: Vector2 | null;
-  private _actualEndAngle!: number | null; // End angle in relation to our start angle (can get remapped)
-  private _isFullPerimeter!: boolean | null; // Whether it's a full circle (and not just an arc)
-  private _angleDifference!: number | null;
-  private _bounds!: Bounds2 | null;
-  private _svgPathFragment!: string | null;
+  declare private _start: Vector2 | null;
+  declare private _end: Vector2 | null;
+  declare private _startTangent: Vector2 | null;
+  declare private _endTangent: Vector2 | null;
+  declare private _actualEndAngle: number | null; // End angle in relation to our start angle (can get remapped)
+  declare private _isFullPerimeter: boolean | null; // Whether it's a full circle (and not just an arc)
+  declare private _angleDifference: number | null;
+  declare private _bounds: Bounds2 | null;
+  declare private _svgPathFragment: string | null;
 
   /**
    * If the startAngle/endAngle difference is ~2pi, this will be a full circle
@@ -1953,17 +1953,17 @@ export class EllipticalArc extends Segment {
   private _anticlockwise: boolean;
 
   // Lazily-computed derived information
-  private _unitTransform!: Transform3 | null; // Mapping between our ellipse and a unit circle
-  private _start!: Vector2 | null;
-  private _end!: Vector2 | null;
-  private _startTangent!: Vector2 | null;
-  private _endTangent!: Vector2 | null;
-  private _actualEndAngle!: number | null; // End angle in relation to our start angle (can get remapped)
-  private _isFullPerimeter!: boolean | null; // Whether it's a full ellipse (and not just an arc)
-  private _angleDifference!: number | null;
-  private _unitArcSegment!: Arc | null; // Corresponding circular arc for our unit transform.
-  private _bounds!: Bounds2 | null;
-  private _svgPathFragment!: string | null;
+  declare private _unitTransform: Transform3 | null; // Mapping between our ellipse and a unit circle
+  declare private _start: Vector2 | null;
+  declare private _end: Vector2 | null;
+  declare private _startTangent: Vector2 | null;
+  declare private _endTangent: Vector2 | null;
+  declare private _actualEndAngle: number | null; // End angle in relation to our start angle (can get remapped)
+  declare private _isFullPerimeter: boolean | null; // Whether it's a full ellipse (and not just an arc)
+  declare private _angleDifference: number | null;
+  declare private _unitArcSegment: Arc | null; // Corresponding circular arc for our unit transform.
+  declare private _bounds: Bounds2 | null;
+  declare private _svgPathFragment: string | null;
 
   private possibleExtremaAngles?: number[];
 
@@ -2965,9 +2965,9 @@ export class Line extends Segment {
   private _start: Vector2;
   private _end: Vector2;
 
-  private _tangent!: Vector2 | null;
-  private _bounds!: Bounds2 | null;
-  private _svgPathFragment!: string | null;
+  declare private _tangent: Vector2 | null;
+  declare private _bounds: Bounds2 | null;
+  declare private _svgPathFragment: string | null;
 
   /**
    * @param start - Start point
@@ -3604,12 +3604,12 @@ export class Quadratic extends Segment {
   private _end: Vector2;
 
   // Lazily-computed derived information
-  private _startTangent!: Vector2 | null;
-  private _endTangent!: Vector2 | null;
-  private _tCriticalX!: number | null; // T where x-derivative is 0 (replaced with NaN if not in range)
-  private _tCriticalY!: number | null; // T where y-derivative is 0 (replaced with NaN if not in range)
-  private _bounds!: Bounds2 | null;
-  private _svgPathFragment!: string | null;
+  declare private _startTangent: Vector2 | null;
+  declare private _endTangent: Vector2 | null;
+  declare private _tCriticalX: number | null; // T where x-derivative is 0 (replaced with NaN if not in range)
+  declare private _tCriticalY: number | null; // T where y-derivative is 0 (replaced with NaN if not in range)
+  declare private _bounds: Bounds2 | null;
+  declare private _svgPathFragment: string | null;
 
   /**
    * @param start - Start point of the quadratic bezier
@@ -4324,7 +4324,7 @@ export class Quadratic extends Segment {
   }
 
   // Degree of the polynomial (quadratic)
-  public degree!: number;
+  declare public degree: number;
 }
 
 Quadratic.prototype.degree = 2;
@@ -4360,24 +4360,24 @@ export class Cubic extends Segment {
   private _end: Vector2;
 
   // Lazily-computed derived information
-  private _startTangent!: Vector2 | null;
-  private _endTangent!: Vector2 | null;
-  private _r!: Vector2 | null;
-  private _s!: Vector2 | null;
+  declare private _startTangent: Vector2 | null;
+  declare private _endTangent: Vector2 | null;
+  declare private _r: Vector2 | null;
+  declare private _s: Vector2 | null;
 
   // Cusp-specific information
-  private _tCusp!: number | null; // T value for a potential cusp
-  private _tDeterminant!: number | null;
-  private _tInflection1!: number | null; // NaN if not applicable
-  private _tInflection2!: number | null; // NaN if not applicable
-  private _quadratics!: Quadratic[] | null;
+  declare private _tCusp: number | null; // T value for a potential cusp
+  declare private _tDeterminant: number | null;
+  declare private _tInflection1: number | null; // NaN if not applicable
+  declare private _tInflection2: number | null; // NaN if not applicable
+  declare private _quadratics: Quadratic[] | null;
 
   // T-values where X and Y (respectively) reach an extrema (not necessarily including 0 and 1)
-  private _xExtremaT!: number[] | null;
-  private _yExtremaT!: number[] | null;
+  declare private _xExtremaT: number[] | null;
+  declare private _yExtremaT: number[] | null;
 
-  private _bounds!: Bounds2 | null;
-  private _svgPathFragment!: string | null;
+  declare private _bounds: Bounds2 | null;
+  declare private _svgPathFragment: string | null;
 
   /**
    * @param start - Start point of the cubic bezier
@@ -5367,7 +5367,7 @@ export class Cubic extends Segment {
   }
 
   // Degree of this polynomial (cubic)
-  public degree!: number;
+  declare public degree: number;
 }
 
 Cubic.prototype.degree = 3;

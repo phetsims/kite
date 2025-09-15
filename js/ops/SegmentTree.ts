@@ -115,29 +115,29 @@ export default abstract class SegmentTree<T> implements SegmentInfo<T> {
 class SegmentNode<T> {
 
   // The minimum x value of this subtree
-  public min!: number;
+  declare public min: number;
 
   // The maximum x value of this subtree
-  public max!: number;
+  declare public max: number;
 
   // Child nodes (not specified if we have no children or splitValue). Left value is defined as the smaller range.
-  public left!: SegmentNode<T> | null;
-  public right!: SegmentNode<T> | null;
+  declare public left: SegmentNode<T> | null;
+  declare public right: SegmentNode<T> | null;
 
   // Parent node (root will have null)
-  public parent!: SegmentNode<T> | null;
+  declare public parent: SegmentNode<T> | null;
 
   // The value where we split our interval into our children (so if we are 0-10, and a split value of 5, our left child
   // will have 0-5 and our right child will have 5-10.
-  public splitValue!: number | null;
+  declare public splitValue: number | null;
 
   // All items that cover this full range of our min-max. These will be stored as high up in the tree as possible.
   public items: T[];
 
   // Red-black tree color information, for self-balancing
-  public isBlack!: boolean;
+  declare public isBlack: boolean;
 
-  public tree!: SegmentTree<T>;
+  declare public tree: SegmentTree<T>;
 
   public constructor( tree: SegmentTree<T>, min: number, max: number ) {
     this.items = [];

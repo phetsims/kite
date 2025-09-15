@@ -22,19 +22,19 @@ type ActiveBoundsIntersection = {
 export default class BoundsIntersection {
 
   // Null if cleaned of references
-  public a!: Segment | null;
-  public b!: Segment | null;
+  declare public a: Segment | null;
+  declare public b: Segment | null;
 
-  public atMin!: number;
-  public atMax!: number;
-  public btMin!: number;
-  public btMax!: number;
+  declare public atMin: number;
+  declare public atMax: number;
+  declare public btMin: number;
+  declare public btMax: number;
 
   // Null if cleaned of references
-  public aMin!: Vector2 | null;
-  public aMax!: Vector2 | null;
-  public bMin!: Vector2 | null;
-  public bMax!: Vector2 | null;
+  declare public aMin: Vector2 | null;
+  declare public aMax: Vector2 | null;
+  declare public bMin: Vector2 | null;
+  declare public bMax: Vector2 | null;
 
   /**
    * @param a
