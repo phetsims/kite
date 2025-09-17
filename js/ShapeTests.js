@@ -24,7 +24,7 @@ function dataToCanvas( snapshot ) {
   canvas.height = snapshot.height;
   const context = canvas.getContext( '2d' );
   context.putImageData( snapshot, 0, 0 );
-  $( canvas ).css( 'border', '1px solid black' );
+  canvas.style.border = '1px solid black';
   return canvas;
 }
 
@@ -64,26 +64,29 @@ function dataEquals( assert, a, b, threshold, message, extraDom ) {
   }
   const averageDifference = totalDifference / ( 4 * a.width * a.height );
   if ( averageDifference > threshold ) {
-    const display = $( '#display' );
-    // header
-    const note = document.createElement( 'h2' );
-    $( note ).text( message );
-    display.append( note );
-    const differenceDiv = document.createElement( 'div' );
-    $( differenceDiv ).text( `(actual) (expected) (color diff) (alpha diff) Diffs max: ${largestDifference}, average: ${averageDifference}` );
-    display.append( differenceDiv );
+    const display = document.getElementById( 'display' );
+    if ( display ) {
+      // header
+      const note = document.createElement( 'h2' );
+      note.textContent = message;
+      display.appendChild( note );
 
-    display.append( dataToCanvas( a ) );
-    display.append( dataToCanvas( b ) );
-    display.append( dataToCanvas( colorDiffData ) );
-    display.append( dataToCanvas( alphaDiffData ) );
+      const differenceDiv = document.createElement( 'div' );
+      differenceDiv.textContent = `(actual) (expected) (color diff) (alpha diff) Diffs max: ${largestDifference}, average: ${averageDifference}`;
+      display.appendChild( differenceDiv );
 
-    if ( extraDom ) {
-      display.append( extraDom );
+      display.appendChild( dataToCanvas( a ) );
+      display.appendChild( dataToCanvas( b ) );
+      display.appendChild( dataToCanvas( colorDiffData ) );
+      display.appendChild( dataToCanvas( alphaDiffData ) );
+
+      if ( extraDom ) {
+        display.appendChild( extraDom );
+      }
+
+      // for a line-break
+      display.appendChild( document.createElement( 'div' ) );
     }
-
-    // for a line-break
-    display.append( document.createElement( 'div' ) );
 
     isEqual = false;
   }

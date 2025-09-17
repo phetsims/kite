@@ -18,8 +18,7 @@
   <!-- Before loading other things (that might error), create hooks to report errors/loads for continuous testing -->
   <script src="../../chipper/js/browser/sim-tests/pageload-connector.js"></script>
 
-  <!-- jQuery and LoDash are dependencies -->
-  <script src="../../sherpa/lib/jquery-2.1.0.min.js"></script>
+  <!-- LoDash is a dependency -->
   <script src="../../sherpa/lib/lodash-4.17.4.min.js"></script>
 
   <!-- For the styling -->
@@ -41,18 +40,26 @@
   <!-- eslint-disable --> <!--TODO: fix lint https://github.com/phetsims/chipper/issues/1405-->
 
   <script type="text/javascript">
+    // Inserts a canvas rendering and the corresponding code snippet after the canvas element
     window.docExample = ( id, draw ) => {
-      var canvas = document.getElementById( id );
-      var context = canvas.getContext( '2d' );
+      const canvas = document.getElementById( id );
+      const context = canvas.getContext( '2d' );
       draw( context );
       context.fillStyle = 'rgba(0,0,0,0.4)';
       context.fill();
       context.strokeStyle = '#000';
       context.lineWidth = 3;
       context.stroke();
-      var $code = $( '<pre class="brush: js"></pre>' );
-      $code.text( draw.toString().match( /\/\*START\*\/((.|\n)*)\/\*END\*\// )[ 1 ] );
-      $( canvas ).after( $code );
+
+      const pre = document.createElement( 'pre' );
+      pre.className = 'brush: js';
+      const match = draw.toString().match( /\/\*START\*\/([\s\S]*?)\/\*END\*\// );
+      pre.textContent = match ? match[ 1 ] : '';
+
+      // Insert the code <pre> immediately after the canvas element
+      if ( canvas.parentNode ) {
+        canvas.parentNode.insertBefore( pre, canvas.nextSibling );
+      }
     }
   </script>
 
