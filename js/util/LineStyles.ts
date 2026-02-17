@@ -5,7 +5,7 @@
  *
  * Mirrors much of what is done with SVG/Canvas, see https://svgwg.org/svg2-draft/painting.html for details.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import Vector2 from '../../../dot/js/Vector2.js';

@@ -4,7 +4,7 @@
  * A boundary is a loop of directed half-edges that always follow in the tightest counter-clockwise direction around
  * vertices.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import Bounds2, { Bounds2StateObject } from '../../../dot/js/Bounds2.js';

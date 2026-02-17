@@ -6,7 +6,7 @@
  * Each segment is treated parametrically, where t=0 is the start of the segment, and t=1 is the end. Values of t
  * between those represent points along the segment.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 /* global paper */
@@ -866,7 +866,7 @@ export type SerializedArc = {
 /**
  * A circular arc (a continuous sub-part of a circle).
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 export class Arc extends Segment {
 
@@ -1940,7 +1940,7 @@ export type SerializedEllipticalArc = {
  * - http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html#dom-context-2d-ellipse
  *   (note: context.ellipse was removed from the Canvas spec)
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 export class EllipticalArc extends Segment {
 
@@ -2958,7 +2958,7 @@ export type SerializedLine = {
 /**
  * A line segment (all points directly between the start and end point)
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 export class Line extends Segment {
 
@@ -3595,7 +3595,7 @@ export type SerializedQuadratic = {
  *
  * Good reference: http://cagd.cs.byu.edu/~557/text/ch2.pdf
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 export class Quadratic extends Segment {
 
@@ -4350,7 +4350,7 @@ export type SerializedCubic = {
  *
  * Good reference: http://cagd.cs.byu.edu/~557/text/ch2.pdf
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 export class Cubic extends Segment {
 

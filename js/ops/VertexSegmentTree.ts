@@ -3,7 +3,7 @@
 /**
  * A SegmentTree for Vertices. See SegmentTree for more details
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import kite from '../kite.js';

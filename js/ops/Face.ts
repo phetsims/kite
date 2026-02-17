@@ -8,7 +8,7 @@
  * There is normally one "unbounded" face without a normal boundary, whose "area" expands to infinity, and contains the
  * everything on the exterior of all of the edges.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import cleanArray from '../../../phet-core/js/cleanArray.js';

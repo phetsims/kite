@@ -3,7 +3,7 @@
 /**
  * An intersection between two different segments.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import { clamp } from '../../../dot/js/util/clamp.js';

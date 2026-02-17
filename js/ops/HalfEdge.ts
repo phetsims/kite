@@ -4,7 +4,7 @@
  * Represents a single direction/side of an Edge. There are two half-edges for each edge, representing each direction.
  * The half-edge also stores face information for the face that would be to the left of the direction of travel.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import Vector2, { Vector2StateObject } from '../../../dot/js/Vector2.js';

@@ -4,7 +4,7 @@
  * it will generate svgPath.js in the same directory, which will be able to parse SVG paths into a Shape. This is done
  * by using the embedded JS snippets here to mutate a Shape according to the commands that need to be run.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 {

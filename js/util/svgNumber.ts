@@ -6,7 +6,7 @@
  * being used for display purposes only, and is never shown to the user), we use the built-in JS toFixed instead of
  * Dot's version of toFixed. See https://github.com/phetsims/kite/issues/50
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import kite from '../kite.js';

@@ -1,7 +1,7 @@
 // Copyright 2016-2024, University of Colorado Boulder
 
 /**
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import '../../axon/js/main.js';

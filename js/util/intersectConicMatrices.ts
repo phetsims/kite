@@ -26,7 +26,7 @@
  * If something is noted as a "line", it is a homogeneous-coordinate form in complex numbers, e.g. an array
  * [ a, b, c ] represents the line ax + by + c = 0.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import Complex from '../../../dot/js/Complex.js';

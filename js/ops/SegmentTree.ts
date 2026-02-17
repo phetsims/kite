@@ -8,7 +8,7 @@
  *
  * For proper red-black constraints, we handle ranges from -infinity to infinity.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import arrayRemove from '../../../phet-core/js/arrayRemove.js';

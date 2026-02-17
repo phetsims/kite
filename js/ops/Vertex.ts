@@ -5,7 +5,7 @@
  * half-edges since Cubic segments can start and end at the same point/vertex), and can handle sorting edges so that
  * a half-edge's "next" half-edge (following counter-clockwise) can be determined.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import Vector2, { Vector2StateObject } from '../../../dot/js/Vector2.js';

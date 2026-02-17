@@ -2,7 +2,7 @@
 
 /**
  * Uses js/parser/svgPath.pegjs to generate js/parser/svgPath.js
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import fs from 'fs';

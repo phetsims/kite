@@ -11,7 +11,7 @@
  *
  * As operations simplify/remove/replace edges, it will handle replacement of the edges in the loops.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import cleanArray from '../../../phet-core/js/cleanArray.js';

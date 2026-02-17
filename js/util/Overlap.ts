@@ -3,7 +3,7 @@
 /**
  * Describes a section of continuous overlap (multiple overlapping points) between two segments.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import kite from '../kite.js';

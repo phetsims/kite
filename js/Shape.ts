@@ -15,7 +15,7 @@
  * TODO: add nonzero / evenodd support when browsers support it https://github.com/phetsims/kite/issues/76
  * TODO: docs
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import TinyEmitter from '../../axon/js/TinyEmitter.js';
@@ -2144,7 +2144,7 @@ export type GraphClipOptions = {
  * TODO: Consider separating out epsilon values (may be a general Kite thing rather than just ops)
  * TODO: Loop-Blinn output and constrained Delaunay triangulation
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 export class Graph {
 

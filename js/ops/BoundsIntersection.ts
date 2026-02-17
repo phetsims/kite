@@ -6,7 +6,7 @@
  * BoundsIntersection.intersect( a, b ) should be used for most general intersection routines as a fallback.
  * Other segment-specific routines may be much faster.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import Vector2 from '../../../dot/js/Vector2.js';

@@ -5,7 +5,7 @@ const registerTasks = require( '../perennial-alias/js/grunt/commonjs/registerTas
 
 /**
  * Kite grunt tasks
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 module.exports = function( grunt ) {
   Gruntfile( grunt ); // use chipper's gruntfile

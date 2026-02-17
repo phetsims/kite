@@ -6,7 +6,7 @@
  * See http://www.w3.org/TR/2dcontext/#concept-path
  * for the path / subpath Canvas concept.
  *
- * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ * @author Jonathan Olson (PhET Interactive Simulations)
  */
 
 import TinyEmitter from '../../../axon/js/TinyEmitter.js';
