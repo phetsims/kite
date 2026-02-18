@@ -1,4 +1,4 @@
-// Copyright 2024, University of Colorado Boulder
+// Copyright 2024-2026, University of Colorado Boulder
 
 /**
  * Uses js/parser/svgPath.pegjs to generate js/parser/svgPath.js
