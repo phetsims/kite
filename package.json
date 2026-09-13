@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@types/pegjs": "^0.10.6",
-    "grunt": "~1.5.3",
+    "grunt": "~1.6.3",
     "pegjs": "~0.7.0"
   },
   "phet": {
